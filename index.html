@@ -9,140 +9,152 @@
   <style>
     :root {
       color-scheme: light;
-      --bg-canvas: #F2F4F6;
-      --bg-card: #FFFFFF;
-      --bg-input: #F2F4F6;
-      --ink-900: #191F28;
-      --ink-700: #333D4B;
-      --ink-500: #6B7684;
-      --ink-400: #8B95A1;
-      --toss-blue: #3182F6;
-      --toss-blue-hover: #1B64DA;
-      --toss-blue-soft: #E8F3FF;
-      --toss-red: #F04452;
-      --toss-red-soft: #FFEBEE;
-      --toss-green: #02A86B;
+      --bg-page: #FAFAFA;
+      --bg-surface: #FFFFFF;
+      --bg-muted: #F4F4F5;
+      --border-hairline: #E4E4E7;
+      --ink-primary: #111317;
+      --ink-secondary: #3F3F46;
+      --ink-muted: #71717A;
+      --ink-subtle: #A1A1AA;
+      --pro-accent: #2563EB;
+      --pro-tint: #EFF6FF;
+      --con-accent: #DC2626;
+      --con-tint: #FEF2F2;
+      --ok-accent: #059669;
     }
 
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-      background-color: var(--bg-canvas);
-      color: var(--ink-900);
-      letter-spacing: -0.02em;
+      background-color: var(--bg-page);
+      color: var(--ink-primary);
+      letter-spacing: -0.015em;
       -webkit-font-smoothing: antialiased;
       min-height: 100vh;
     }
 
-    .tds-card {
-      background: var(--bg-card);
-      border-radius: 24px;
-      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.03);
-    }
-
-    .tds-subcard {
-      background: #F9FAFB;
+    .studio-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
       border-radius: 16px;
     }
 
-    .tds-input {
-      background: var(--bg-input);
-      border: 1.5px solid transparent;
-      border-radius: 14px;
-      color: var(--ink-900);
-      transition: background-color 0.16s ease, border-color 0.16s ease;
-    }
-    .tds-input:focus {
-      outline: none;
-      background: #FFFFFF;
-      border-color: var(--toss-blue);
-    }
-
-    .tds-btn-primary {
-      background: var(--toss-blue);
-      color: #FFFFFF;
-      border-radius: 14px;
-      font-weight: 600;
-      transition: background-color 0.15s ease, transform 0.1s ease;
-    }
-    .tds-btn-primary:hover { background: var(--toss-blue-hover); }
-    .tds-btn-primary:active { transform: scale(0.985); }
-
-    .tds-btn-soft {
-      background: var(--toss-blue-soft);
-      color: var(--toss-blue);
-      border-radius: 14px;
-      font-weight: 600;
-      transition: background-color 0.15s ease, transform 0.1s ease;
-    }
-    .tds-btn-soft:hover { background: #D8E9FF; }
-    .tds-btn-soft:active { transform: scale(0.985); }
-
-    .tds-btn-neutral {
-      background: #F2F4F6;
-      color: var(--ink-700);
+    .studio-subpanel {
+      background: #FAFAFA;
+      border: 1px solid #EBEBED;
       border-radius: 12px;
-      font-weight: 600;
-      transition: background-color 0.15s ease;
     }
-    .tds-btn-neutral:hover { background: #E5E8EB; }
+
+    .studio-input {
+      background: #FFFFFF;
+      border: 1px solid #D4D4D8;
+      border-radius: 10px;
+      color: var(--ink-primary);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .studio-input:focus {
+      outline: none;
+      border-color: var(--ink-primary);
+      box-shadow: 0 0 0 3px rgba(17, 19, 23, 0.08);
+    }
+
+    .btn-ink {
+      background: var(--ink-primary);
+      color: #FFFFFF;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+    }
+    .btn-ink:hover { background: #27272A; }
+    .btn-ink:active { transform: scale(0.99); }
+
+    .btn-outline {
+      background: #FFFFFF;
+      color: var(--ink-primary);
+      border: 1px solid #D4D4D8;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-outline:hover { background: #F4F4F5; border-color: #A1A1AA; }
+
+    .btn-ghost {
+      background: #F4F4F5;
+      color: var(--ink-secondary);
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    .btn-ghost:hover { background: #E4E4E7; color: var(--ink-primary); }
 
     .mono-num { font-variant-numeric: tabular-nums; }
 
     /* Navigation Tabs */
     .nav-tab {
       position: relative;
-      padding: 16px 6px;
-      font-size: 14.5px;
-      font-weight: 600;
-      color: var(--ink-500);
+      padding: 0 4px;
+      height: 100%;
+      display: inline-flex;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink-muted);
       transition: color 0.15s ease;
     }
-    .nav-tab:hover { color: var(--ink-900); }
-    .nav-tab.active { color: var(--ink-900); }
+    .nav-tab:hover { color: var(--ink-primary); }
+    .nav-tab.active {
+      color: var(--ink-primary);
+      font-weight: 600;
+    }
     .nav-tab.active::after {
       content: "";
       position: absolute;
       left: 0;
       right: 0;
-      bottom: 0;
-      height: 2.5px;
-      background: var(--ink-900);
-      border-radius: 99px;
+      bottom: -1px;
+      height: 2px;
+      background: var(--ink-primary);
     }
 
-    /* Topic Preset Chips */
-    .topic-chip {
-      padding: 7px 14px;
-      border-radius: 9999px;
-      font-size: 13px;
-      font-weight: 600;
-      background: #F2F4F6;
-      color: var(--ink-700);
+    /* Topic Preset Tabs */
+    .topic-pill {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      background: transparent;
+      border: 1px solid transparent;
       transition: all 0.15s ease;
     }
-    .topic-chip:hover { background: #E5E8EB; }
-    .topic-chip.active {
-      background: var(--toss-blue-soft);
-      color: var(--toss-blue);
+    .topic-pill:hover {
+      background: #F4F4F5;
+      color: var(--ink-primary);
+    }
+    .topic-pill.active {
+      background: #F4F4F5;
+      border-color: #D4D4D8;
+      color: var(--ink-primary);
+      font-weight: 600;
     }
 
-    /* Realistic Matte Phone Frame (9:16) */
+    /* 9:16 Broadcast Phone Frame */
     .phone-chassis {
-      width: 326px;
-      height: 580px;
+      width: 320px;
+      height: 570px;
       margin: 0 auto;
-      border-radius: 38px;
-      padding: 10px;
-      background: #1B1D22;
-      box-shadow: 0 24px 48px -12px rgba(25, 31, 40, 0.22);
+      border-radius: 30px;
+      padding: 8px;
+      background: #18181B;
+      box-shadow: 0 20px 44px -12px rgba(9, 9, 11, 0.25);
       position: relative;
     }
 
     .phone-screen {
       width: 100%;
       height: 100%;
-      border-radius: 29px;
-      background: #14151A;
+      border-radius: 23px;
+      background: #121316;
       position: relative;
       overflow: hidden;
       display: flex;
@@ -151,36 +163,34 @@
       padding: 14px 12px 10px;
     }
 
-    /* Clean White Editorial Speech Bubble */
+    /* Editorial Speech Bubble */
     .speech-bubble {
       position: relative;
       background: #FFFFFF;
-      color: #191F28;
-      border-radius: 18px;
-      padding: 12px 14px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
-      transition: transform 0.22s ease;
+      color: #111317;
+      border-radius: 14px;
+      padding: 11px 13px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
     }
     .speech-tail {
       position: absolute;
-      bottom: -8px;
-      width: 16px;
-      height: 16px;
+      bottom: -7px;
+      width: 14px;
+      height: 14px;
       background: #FFFFFF;
       transform: rotate(45deg);
-      border-radius: 2px;
-      left: 68px;
-      transition: left 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+      left: 66px;
+      transition: left 0.24s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .speech-bubble.con-mode .speech-tail {
-      left: calc(100% - 86px);
+      left: calc(100% - 82px);
     }
 
     /* Character Stage Animations */
     .char-actor {
-      transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), filter 0.22s ease, opacity 0.22s ease;
+      transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), filter 0.2s ease, opacity 0.2s ease;
       transform-origin: bottom center;
-      filter: brightness(0.52) saturate(0.75);
+      filter: brightness(0.50) saturate(0.75);
       opacity: 0.72;
       transform: scale(0.88);
     }
@@ -206,14 +216,14 @@
       width: 2.5px;
       height: 4px;
       border-radius: 99px;
-      background: #D1D6DB;
+      background: #D4D4D8;
     }
     .eq-pro .eq-bar {
-      background: var(--toss-blue);
+      background: var(--pro-accent);
       animation: eqAnim 0.45s infinite ease-in-out alternate;
     }
     .eq-con .eq-bar {
-      background: var(--toss-red);
+      background: var(--con-accent);
       animation: eqAnim 0.42s infinite ease-in-out alternate;
     }
     .eq-bar:nth-child(2) { animation-delay: 0.1s; }
@@ -226,72 +236,75 @@
 
     /* Script Row */
     .script-row {
-      background: #F9FAFB;
-      border-radius: 14px;
-      padding: 12px 14px;
+      background: #FAFAFA;
+      border: 1px solid #EBEBED;
+      border-radius: 10px;
+      padding: 11px 13px;
       cursor: pointer;
-      transition: background-color 0.15s ease;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
     }
-    .script-row:hover { background: #F2F4F6; }
-    .script-row.active-pro { background: #E8F3FF; }
-    .script-row.active-con { background: #FFF0F1; }
+    .script-row:hover { border-color: #D4D4D8; background: #F4F4F5; }
+    .script-row.active-pro { border-color: #93C5FD; background: #EFF6FF; }
+    .script-row.active-con { border-color: #FCA5A5; background: #FEF2F2; }
 
-    /* Toss Switch */
-    .tds-switch {
+    /* Minimal Toggle Switch */
+    .min-switch {
       position: relative;
       display: inline-block;
-      width: 38px;
-      height: 22px;
+      width: 34px;
+      height: 20px;
     }
-    .tds-switch input { opacity: 0; width: 0; height: 0; }
-    .tds-slider {
+    .min-switch input { opacity: 0; width: 0; height: 0; }
+    .min-slider {
       position: absolute;
       cursor: pointer;
       inset: 0;
-      background: #D1D6DB;
+      background: #D4D4D8;
       border-radius: 999px;
-      transition: 0.2s;
+      transition: 0.18s;
     }
-    .tds-slider::before {
+    .min-slider::before {
       content: "";
       position: absolute;
-      height: 16px;
-      width: 16px;
+      height: 14px;
+      width: 14px;
       left: 3px;
       bottom: 3px;
       background: #FFFFFF;
       border-radius: 50%;
-      transition: 0.2s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      transition: 0.18s;
     }
-    .tds-switch input:checked + .tds-slider { background: var(--toss-blue); }
-    .tds-switch input:checked + .tds-slider::before { transform: translateX(16px); }
+    .min-switch input:checked + .min-slider { background: var(--ink-primary); }
+    .min-switch input:checked + .min-slider::before { transform: translateX(14px); }
   </style>
 </head>
 <body>
-  <!-- Clean White Top Navigation -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E5E8EB]">
-    <div class="max-w-[1060px] mx-auto px-5 h-14 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-7 h-7 rounded-lg bg-[#3182F6] flex items-center justify-center">
-          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-          </svg>
+  <!-- Architectural Studio Top Bar -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E4E4E7]">
+    <div class="max-w-[1120px] mx-auto px-5 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-6 h-full">
+        <div class="flex items-center gap-2.5">
+          <!-- Split-Bar Debate Monogram -->
+          <div class="w-6 h-6 rounded-md bg-[#111317] flex items-center justify-center gap-0.5">
+            <span class="w-1 h-3 rounded-xs bg-[#60A5FA]"></span>
+            <span class="w-1 h-3 rounded-xs bg-[#F87171]"></span>
+          </div>
+          <span class="font-bold text-[15.5px] text-[#111317] tracking-tight">Agora</span>
+          <span class="hidden sm:inline text-[12px] text-[#A1A1AA] font-medium">/ 공론장 쇼츠 스튜디오</span>
         </div>
-        <span class="font-bold text-[17px] text-[#191F28] tracking-tight">Agora</span>
+
+        <nav class="flex items-center gap-5 h-full">
+          <button id="tabBtnStudio" onclick="switchView('studio')" class="nav-tab active">
+            쇼츠 제작
+          </button>
+          <button id="tabBtnAnalytics" onclick="switchView('analytics')" class="nav-tab">
+            댓글 분석 데이터
+          </button>
+        </nav>
       </div>
 
-      <nav class="flex items-center gap-6 h-full">
-        <button id="tabBtnStudio" onclick="switchView('studio')" class="nav-tab active h-full">
-          쇼츠 제작
-        </button>
-        <button id="tabBtnAnalytics" onclick="switchView('analytics')" class="nav-tab h-full">
-          분석 리포트
-        </button>
-      </nav>
-
       <div class="flex items-center gap-3">
-        <a href="https://github.com/lilpong42/agora-shorts" target="_blank" class="text-[13px] font-medium text-[#6B7684] hover:text-[#191F28] transition">
+        <a href="https://github.com/lilpong42/agora-shorts" target="_blank" class="text-[12.5px] font-medium text-[#71717A] hover:text-[#111317] transition">
           GitHub
         </a>
       </div>
@@ -299,79 +312,82 @@
   </header>
 
   <!-- MAIN CONTAINER -->
-  <main class="max-w-[1060px] mx-auto px-5 py-7 sm:py-9">
+  <main class="max-w-[1120px] mx-auto px-5 py-6 space-y-5">
 
     <!-- =================================================================== -->
-    <!-- VIEW 1: STUDIO (CLEAN EDITORIAL WORKFLOW)                           -->
+    <!-- VIEW 1: STUDIO WORKSPACE                                            -->
     <!-- =================================================================== -->
-    <section id="viewStudio" class="space-y-6">
-      <!-- Top Prompt Card -->
-      <div class="tds-card p-6 sm:p-7">
-        <h1 class="text-[20px] sm:text-[22px] font-bold text-[#191F28] leading-snug mb-4">
-          유튜브 댓글 링크를 넣으면<br class="sm:hidden" /> 40초 토론 쇼츠가 바로 만들어져요
-        </h1>
-
-        <div class="flex flex-col sm:flex-row gap-2.5">
-          <input
-            id="sourceUrlInput"
-            type="text"
-            placeholder="유튜브 영상 URL을 붙여넣어 주세요"
-            class="tds-input flex-1 h-12 px-4 text-[14.5px]"
-          />
-          <button
-            id="runPipelineBtn"
-            onclick="runLiveYouTubeOrCustomAnalysis()"
-            class="tds-btn-primary h-12 px-6 text-[15px] shrink-0"
-          >
-            쇼츠 만들기
-          </button>
-        </div>
-
-        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="text-[12.5px] font-medium text-[#8B95A1] mr-1">예시 주제</span>
-            <button id="presetBtn_preset_1" onclick="selectPreset('preset_1')" class="topic-chip active">
-              심야 오토바이 소음
+    <section id="viewStudio" class="space-y-5">
+      <!-- Compact Command Bar -->
+      <div class="studio-panel p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2.5">
+          <div class="relative flex-1">
+            <input
+              id="sourceUrlInput"
+              type="text"
+              placeholder="유튜브 영상 URL을 붙여넣어 찬반 40초 토론 쇼츠 생성"
+              class="studio-input w-full h-10 px-3.5 text-[13.5px]"
+            />
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button
+              id="runPipelineBtn"
+              onclick="runLiveYouTubeOrCustomAnalysis()"
+              class="btn-ink h-10 px-4 text-[13.5px]"
+            >
+              쇼츠 생성
             </button>
-            <button id="presetBtn_preset_2" onclick="selectPreset('preset_2')" class="topic-chip">
-              대학가 전동킥보드
-            </button>
-            <button id="presetBtn_preset_3" onclick="selectPreset('preset_3')" class="topic-chip">
-              고령 운전자 면허
+            <button
+              onclick="toggleCustomTextBox()"
+              class="btn-outline h-10 px-3 text-[13px]"
+            >
+              텍스트 입력
             </button>
           </div>
-          <button onclick="toggleCustomTextBox()" class="text-[13px] font-medium text-[#6B7684] hover:text-[#191F28] transition">
-            댓글 텍스트 직접 입력
-          </button>
         </div>
 
-        <div id="customTextWrapper" class="hidden mt-4 pt-4 border-t border-[#F2F4F6]">
+        <div class="mt-3 pt-3 border-t border-[#F4F4F5] flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-[12px] font-medium text-[#71717A] mr-1">실측 예시</span>
+            <button id="presetBtn_preset_1" onclick="selectPreset('preset_1')" class="topic-pill active">
+              심야 오토바이 소음 (200건)
+            </button>
+            <button id="presetBtn_preset_2" onclick="selectPreset('preset_2')" class="topic-pill">
+              대학가 전동킥보드 (180건)
+            </button>
+            <button id="presetBtn_preset_3" onclick="selectPreset('preset_3')" class="topic-pill">
+              고령 운전자 면허 (147건)
+            </button>
+          </div>
+          <span class="text-[12px] text-[#71717A]" id="miniSummaryStats">댓글 200건 중 과열 58건 정제</span>
+        </div>
+
+        <div id="customTextWrapper" class="hidden mt-3 pt-3 border-t border-[#F4F4F5]">
           <textarea
             id="rawCommentsInput"
             rows="2"
-            placeholder="영상 링크 대신 댓글 텍스트를 줄바꿈으로 구분해 입력해도 바로 분석할 수 있어요."
-            class="tds-input w-full p-3.5 text-[13.5px]"
+            placeholder="URL 대신 댓글 텍스트를 줄바꿈으로 구분해 입력한 뒤 [쇼츠 생성]을 누르세요."
+            class="studio-input w-full p-3 text-[13px]"
           ></textarea>
         </div>
       </div>
 
-      <!-- 2-Column Studio Workspace -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- 2-Column Studio Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-        <!-- LEFT (5 cols): 9:16 SHORTS PREVIEW & SAVE -->
+        <!-- LEFT (5 cols): 9:16 SHORTS PREVIEW & EXPORT -->
         <div class="lg:col-span-5">
-          <div class="tds-card p-6 flex flex-col items-center">
-            <!-- Minimal Segmented Mode Switch -->
+          <div class="studio-panel p-5 flex flex-col items-center">
             <div class="w-full flex items-center justify-between mb-4">
-              <div class="inline-flex bg-[#F2F4F6] p-1 rounded-xl text-[12.5px]">
-                <button id="modeInteractiveBtn" onclick="setPlayerMode('interactive')" class="px-3 py-1.5 rounded-lg bg-white text-[#191F28] font-semibold shadow-sm transition">
-                  실시간 미리보기
+              <div class="inline-flex bg-[#F4F4F5] p-0.5 rounded-lg text-[12px]">
+                <button id="modeInteractiveBtn" onclick="setPlayerMode('interactive')" class="px-2.5 py-1 rounded-md bg-white text-[#111317] font-semibold shadow-2xs transition">
+                  실시간 프리뷰
                 </button>
-                <button id="modeVideoBtn" onclick="setPlayerMode('video')" class="px-3 py-1.5 rounded-lg text-[#6B7684] hover:text-[#191F28] font-medium transition">
-                  완성 영상
+                <button id="modeVideoBtn" onclick="setPlayerMode('video')" class="px-2.5 py-1 rounded-md text-[#71717A] hover:text-[#111317] font-medium transition">
+                  MP4 렌더본
                 </button>
               </div>
-              <span id="ttsStatusLabel" class="text-[12.5px] font-medium text-[#8B95A1] mono-num">40.0초</span>
+              <span id="ttsStatusLabel" class="text-[12px] font-medium text-[#71717A] mono-num">40.0s</span>
             </div>
 
             <!-- Phone Frame -->
@@ -380,10 +396,10 @@
                 <!-- Progress & Issue Title -->
                 <div>
                   <div class="w-full h-1 rounded-full bg-white/10 overflow-hidden mb-2">
-                    <div id="shortsProgressBar" class="h-full bg-[#3182F6] transition-all duration-100" style="width: 0%"></div>
+                    <div id="shortsProgressBar" class="h-full bg-[#2563EB] transition-all duration-100" style="width: 0%"></div>
                   </div>
-                  <div class="flex items-center justify-between text-[10.5px] text-[#94A3B8] mono-num mb-2">
-                    <span class="font-semibold text-white/80" id="shortsTurnCounter">1 / 6</span>
+                  <div class="flex items-center justify-between text-[10.5px] text-[#A1A1AA] mono-num mb-2">
+                    <span class="font-semibold text-white/85" id="shortsTurnCounter">1 / 6</span>
                     <span id="shortsTimerDisplay">40.0s</span>
                   </div>
                   <h3 id="shortsIssueTitle" class="text-[12.5px] font-bold text-white text-center leading-snug px-1 line-clamp-2">
@@ -394,15 +410,15 @@
                 <!-- Clean White Speech Bubble -->
                 <div id="shortsSpeechBubble" class="speech-bubble my-1">
                   <div class="flex items-center justify-between mb-1">
-                    <span id="shortsSpeakerBadge" class="text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-[#E8F3FF] text-[#3182F6]">찬성 1</span>
+                    <span id="shortsSpeakerBadge" class="text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB]">찬성 1</span>
                     <div id="shortsBubbleEq" class="eq-bars">
                       <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
                     </div>
                   </div>
-                  <div id="shortsCorePoint" class="text-[11.5px] font-bold text-[#3182F6] mb-1 leading-snug">
+                  <div id="shortsCorePoint" class="text-[11.5px] font-bold text-[#2563EB] mb-1 leading-snug">
                     헌법상 주거 평온권 및 심야 수면권 침해 심각
                   </div>
-                  <p id="shortsSubtitleText" class="text-[11px] font-medium text-[#333D4B] leading-relaxed min-h-[68px]">
+                  <p id="shortsSubtitleText" class="text-[11px] font-medium text-[#27272A] leading-relaxed min-h-[68px]">
                     새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다.
                   </p>
                   <div class="speech-tail"></div>
@@ -410,14 +426,14 @@
 
                 <!-- Two Webtoon Characters + Clean Studio Bar -->
                 <div class="relative mt-auto pt-1">
-                  <div class="grid grid-cols-2 items-end gap-1 h-[182px] px-1 overflow-hidden">
+                  <div class="grid grid-cols-2 items-end gap-1 h-[178px] px-1 overflow-hidden">
                     <div class="flex justify-center items-end h-full">
                       <img
                         id="avatarCardPro"
                         src="static/assets/pro_avatar.png"
                         onerror="this.onerror=null;this.src='pro_avatar.png'"
                         alt="찬성 화자"
-                        class="char-actor speaking h-[178px] w-auto object-contain select-none pointer-events-none"
+                        class="char-actor speaking h-[174px] w-auto object-contain select-none pointer-events-none"
                       />
                     </div>
                     <div class="flex justify-center items-end h-full">
@@ -426,120 +442,119 @@
                         src="static/assets/con_avatar.png"
                         onerror="this.onerror=null;this.src='con_avatar.png'"
                         alt="반대 화자"
-                        class="char-actor h-[178px] w-auto object-contain select-none pointer-events-none"
+                        class="char-actor h-[174px] w-auto object-contain select-none pointer-events-none"
                       />
                     </div>
                   </div>
 
-                  <div class="relative z-10 rounded-xl bg-[#1C1E26] px-3 py-2 -mt-2">
+                  <div class="relative z-10 rounded-xl bg-[#1A1B20] px-3 py-2 -mt-2 border border-white/[0.06]">
                     <div class="flex items-center justify-between text-[10.5px] font-semibold mb-1.5">
                       <span class="text-[#60A5FA] mono-num" id="shortsProShare">찬성 88%</span>
-                      <span class="text-[#8B95A1]">50:50 중재</span>
-                      <span class="text-[#FB7185] mono-num" id="shortsConShare">반대 12%</span>
+                      <span class="text-[#A1A1AA]">50:50 중재</span>
+                      <span class="text-[#F87171] mono-num" id="shortsConShare">반대 12%</span>
                     </div>
                     <div class="flex items-center justify-between pt-1 border-t border-white/[0.06]">
                       <div class="flex items-center gap-1" id="shortsTurnDots"></div>
-                      <span class="text-[9.5px] text-[#6B7684]">Agora</span>
+                      <span class="text-[9.5px] text-[#71717A] font-medium">Agora</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               <!-- Real H.264 MP4 Video Player -->
-              <div id="mp4Viewport" class="hidden w-full h-full rounded-[29px] overflow-hidden bg-black">
+              <div id="mp4Viewport" class="hidden w-full h-full rounded-[23px] overflow-hidden bg-black">
                 <video id="realMp4Player" class="w-full h-full object-contain" controls playsinline preload="metadata">
                   <source id="realMp4Source" src="static/videos/preset_1.mp4" type="video/mp4" />
                 </video>
               </div>
             </div>
 
-            <!-- Clean Primary Controls -->
-            <div class="w-full max-w-[326px] mt-5 space-y-3">
-              <div class="grid grid-cols-2 gap-2.5">
-                <button id="playShortsBtn" onclick="toggleShortsPlayback()" class="tds-btn-soft h-11 text-[14px]">
-                  <span id="playBtnLabel">미리보기 재생</span>
+            <!-- Controls -->
+            <div class="w-full max-w-[320px] mt-4 space-y-2.5">
+              <div class="grid grid-cols-2 gap-2">
+                <button id="playShortsBtn" onclick="toggleShortsPlayback()" class="btn-outline h-10 text-[13.5px]">
+                  <span id="playBtnLabel">재생</span>
                 </button>
-                <button id="exportMp4Btn" onclick="exportReal916Video()" class="tds-btn-primary h-11 text-[14px]">
-                  영상 저장
+                <button id="exportMp4Btn" onclick="exportReal916Video()" class="btn-ink h-10 text-[13.5px]">
+                  MP4 다운로드
                 </button>
               </div>
 
-              <div class="flex items-center justify-between pt-1 text-[12.5px] text-[#6B7684]">
-                <button id="geminiTtsBtn" onclick="playWithGeminiNeuralTTS()" class="hover:text-[#3182F6] font-medium transition">
-                  AI 아나운서 음성으로 듣기
+              <div class="flex items-center justify-between pt-1 text-[12px] text-[#71717A]">
+                <button id="geminiTtsBtn" onclick="playWithGeminiNeuralTTS()" class="hover:text-[#111317] font-medium transition">
+                  Gemini 아나운서 보이스 테스트
                 </button>
                 <label class="flex items-center gap-2 cursor-pointer select-none">
                   <span>전환음</span>
-                  <span class="tds-switch">
+                  <span class="min-switch">
                     <input id="chimeToggle" type="checkbox" checked />
-                    <span class="tds-slider"></span>
+                    <span class="min-slider"></span>
                   </span>
                 </label>
               </div>
-              <div id="mp4ExportStatus" class="text-center text-[12.5px] font-medium text-[#02A86B] min-h-[16px]"></div>
+              <div id="mp4ExportStatus" class="text-center text-[12px] font-medium text-[#059669] min-h-[16px]"></div>
             </div>
           </div>
         </div>
 
-        <!-- RIGHT (7 cols): PUBLISHING METADATA & EDITABLE SCRIPT -->
-        <div class="lg:col-span-7 space-y-6">
+        <!-- RIGHT (7 cols): METADATA & EDITABLE 6-TURN SCRIPT -->
+        <div class="lg:col-span-7 space-y-5">
 
-          <!-- Publishing Card -->
-          <div class="tds-card p-6 space-y-4">
+          <!-- YouTube Upload Metadata -->
+          <div class="studio-panel p-5 space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <h2 class="text-[17px] font-bold text-[#191F28]">업로드 정보</h2>
-                <p class="text-[13px] text-[#6B7684] mt-0.5">유튜브 쇼츠에 그대로 붙여넣을 수 있도록 정리했어요.</p>
+                <h2 class="text-[15.5px] font-bold text-[#111317]">업로드 메타데이터</h2>
+                <p class="text-[12.5px] text-[#71717A] mt-0.5">유튜브 쇼츠 업로드 화면에 그대로 붙여넣는 제목과 설명란</p>
               </div>
-              <a href="https://studio.youtube.com" target="_blank" class="tds-btn-neutral px-3.5 py-2 text-[12.5px]">
+              <a href="https://studio.youtube.com" target="_blank" class="btn-ghost px-3 py-1.5 text-[12px]">
                 YouTube Studio
               </a>
             </div>
 
-            <div class="space-y-3.5">
+            <div class="space-y-3">
               <div>
-                <div class="flex items-center justify-between mb-1.5">
-                  <label class="text-[13px] font-semibold text-[#4E5968]">제목</label>
-                  <button onclick="copyField('publishTitleInput', this)" class="text-[12.5px] font-semibold text-[#3182F6] hover:underline">복사</button>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-[12.5px] font-semibold text-[#3F3F46]">쇼츠 제목</label>
+                  <button onclick="copyField('publishTitleInput', this)" class="text-[12px] font-semibold text-[#111317] hover:underline">복사</button>
                 </div>
-                <input id="publishTitleInput" type="text" class="tds-input w-full px-3.5 py-2.5 text-[14px] font-medium" />
+                <input id="publishTitleInput" type="text" class="studio-input w-full px-3 py-2 text-[13.5px] font-medium" />
               </div>
 
               <div>
-                <div class="flex items-center justify-between mb-1.5">
-                  <label class="text-[13px] font-semibold text-[#4E5968]">설명 및 해시태그</label>
-                  <button onclick="copyField('publishDescInput', this)" class="text-[12.5px] font-semibold text-[#3182F6] hover:underline">복사</button>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-[12.5px] font-semibold text-[#3F3F46]">설명 및 해시태그</label>
+                  <button onclick="copyField('publishDescInput', this)" class="text-[12px] font-semibold text-[#111317] hover:underline">복사</button>
                 </div>
-                <textarea id="publishDescInput" rows="3" class="tds-input w-full px-3.5 py-2.5 text-[13px] leading-relaxed"></textarea>
+                <textarea id="publishDescInput" rows="3" class="studio-input w-full px-3 py-2 text-[13px] leading-relaxed"></textarea>
               </div>
             </div>
 
-            <div class="pt-3 border-t border-[#F2F4F6] flex flex-wrap items-center justify-between gap-2 text-[12.5px]">
-              <div class="text-[#6B7684]">
-                <span id="miniSummaryStats">댓글 200건 중 과열 58건 정화 완료</span>
-                <button onclick="switchView('analytics')" class="ml-2 font-semibold text-[#3182F6] hover:underline">자세히 보기</button>
-              </div>
+            <div class="pt-3 border-t border-[#F4F4F5] flex flex-wrap items-center justify-between gap-2">
+              <button onclick="switchView('analytics')" class="text-[12.5px] font-medium text-[#71717A] hover:text-[#111317] transition">
+                분석 리포트 및 PNG 차트 보기 →
+              </button>
               <div class="flex items-center gap-2">
-                <button onclick="copyVideoAiPrompt(this)" class="tds-btn-neutral px-3 py-1.5 text-[12px]">
-                  영상 프롬프트 복사
+                <button onclick="copyVideoAiPrompt(this)" class="btn-ghost px-3 py-1.5 text-[12px]">
+                  영상 AI 프롬프트 복사
                 </button>
-                <button onclick="saveToSupabase()" id="saveSupabaseBtn" class="tds-btn-neutral px-3 py-1.5 text-[12px]">
+                <button onclick="saveToSupabase()" id="saveSupabaseBtn" class="btn-ghost px-3 py-1.5 text-[12px]">
                   아카이브 저장
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- Script Timeline Card -->
-          <div class="tds-card p-6">
-            <div class="flex items-center justify-between mb-4">
+          <!-- 6-Turn Script Editor -->
+          <div class="studio-panel p-5">
+            <div class="flex items-center justify-between mb-3.5">
               <div>
-                <h2 class="text-[17px] font-bold text-[#191F28]">토론 대본</h2>
-                <p class="text-[13px] text-[#6B7684] mt-0.5">문장을 클릭하면 바로 수정되고, 턴을 누르면 해당 장면부터 재생돼요.</p>
+                <h2 class="text-[15.5px] font-bold text-[#111317]">6턴 토론 대본</h2>
+                <p class="text-[12.5px] text-[#71717A] mt-0.5">문장을 직접 편집하거나 턴을 클릭해 해당 구간부터 바로 재생합니다.</p>
               </div>
-              <span class="text-[12.5px] font-medium text-[#8B95A1]">찬성 3 · 반대 3</span>
+              <span class="text-[12px] font-medium text-[#71717A] mono-num">PRO 3 · CON 3</span>
             </div>
-            <div id="debateScriptList" class="space-y-2.5"></div>
+            <div id="debateScriptList" class="space-y-2"></div>
           </div>
 
         </div>
@@ -549,86 +564,86 @@
     <!-- =================================================================== -->
     <!-- VIEW 2: ANALYTICS REPORT & ARCHIVE                                  -->
     <!-- =================================================================== -->
-    <section id="viewAnalytics" class="hidden space-y-6">
-      <div class="tds-card p-6 sm:p-7">
-        <div class="flex flex-wrap items-center justify-between gap-3 pb-5 mb-5 border-b border-[#F2F4F6]">
+    <section id="viewAnalytics" class="hidden space-y-5">
+      <div class="studio-panel p-5 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-[#F4F4F5]">
           <div>
-            <span class="text-[12.5px] font-semibold text-[#3182F6]">YouTube Data API v3 실측 데이터</span>
-            <h2 id="reportIssueTitle" class="text-[19px] font-bold text-[#191F28] mt-1">
+            <span class="text-[12px] font-semibold text-[#71717A]">YouTube Data API v3 실측 데이터</span>
+            <h2 id="reportIssueTitle" class="text-[18px] font-bold text-[#111317] mt-0.5">
               심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
             </h2>
-            <p id="activeSourceLabel" class="text-[12.5px] text-[#8B95A1] mt-1"></p>
+            <p id="activeSourceLabel" class="text-[12px] text-[#71717A] mt-1"></p>
           </div>
-          <span id="latencyBadge" class="px-3 py-1 rounded-full bg-[#F2F4F6] text-[12.5px] font-semibold text-[#4E5968] mono-num">
+          <span id="latencyBadge" class="px-2.5 py-1 rounded-md bg-[#F4F4F5] border border-[#E4E4E7] text-[12px] font-semibold text-[#3F3F46] mono-num">
             실측 200건
           </span>
         </div>
 
-        <!-- 4 Clean Stat Numbers -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div class="tds-subcard p-4">
-            <div class="text-[12.5px] font-medium text-[#6B7684]">공격성 댓글 정화</div>
-            <div class="mt-2 flex items-baseline gap-1.5">
-              <span id="statFilterRate" class="text-[24px] font-bold text-[#191F28] mono-num">29.0%</span>
-              <span id="statFilterCount" class="text-[12px] text-[#8B95A1] mono-num">(58/200)</span>
+        <!-- 4 Metrics -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+          <div class="studio-subpanel p-4">
+            <div class="text-[12px] font-medium text-[#71717A]">공격성 댓글 정화</div>
+            <div class="mt-1.5 flex items-baseline gap-1.5">
+              <span id="statFilterRate" class="text-[22px] font-bold text-[#111317] mono-num">29.0%</span>
+              <span id="statFilterCount" class="text-[12px] text-[#71717A] mono-num">(58/200)</span>
             </div>
           </div>
-          <div class="tds-subcard p-4">
-            <div class="text-[12.5px] font-medium text-[#6B7684]">정화 전 과열도</div>
-            <div class="mt-2 flex items-baseline gap-1">
-              <span id="statToxicityBefore" class="text-[24px] font-bold text-[#F04452] mono-num">64.2</span>
-              <span class="text-[13px] text-[#8B95A1]">점</span>
+          <div class="studio-subpanel p-4">
+            <div class="text-[12px] font-medium text-[#71717A]">정화 전 과열도</div>
+            <div class="mt-1.5 flex items-baseline gap-1">
+              <span id="statToxicityBefore" class="text-[22px] font-bold text-[#DC2626] mono-num">64.2</span>
+              <span class="text-[12px] text-[#71717A]">점</span>
             </div>
           </div>
-          <div class="tds-subcard p-4">
-            <div class="text-[12.5px] font-medium text-[#6B7684]">정화 후 논리성</div>
-            <div class="mt-2 flex items-baseline gap-1.5">
-              <span id="statLogicAfter" class="text-[24px] font-bold text-[#3182F6] mono-num">85.5</span>
-              <span id="statToxicityAfterSub" class="text-[12px] text-[#02A86B] mono-num">(과열 14.5)</span>
+          <div class="studio-subpanel p-4">
+            <div class="text-[12px] font-medium text-[#71717A]">정화 후 논리성</div>
+            <div class="mt-1.5 flex items-baseline gap-1.5">
+              <span id="statLogicAfter" class="text-[22px] font-bold text-[#2563EB] mono-num">85.5</span>
+              <span id="statToxicityAfterSub" class="text-[12px] text-[#059669] mono-num">(과열 14.5)</span>
             </div>
           </div>
-          <div class="tds-subcard p-4">
-            <div class="text-[12.5px] font-medium text-[#6B7684]">과열도 감소폭</div>
-            <div class="mt-2 flex items-baseline gap-1">
-              <span id="statToxicityDelta" class="text-[24px] font-bold text-[#02A86B] mono-num">-49.7pt</span>
+          <div class="studio-subpanel p-4">
+            <div class="text-[12px] font-medium text-[#71717A]">과열도 감소폭</div>
+            <div class="mt-1.5 flex items-baseline gap-1">
+              <span id="statToxicityDelta" class="text-[22px] font-bold text-[#059669] mono-num">-49.7pt</span>
             </div>
           </div>
         </div>
 
         <!-- Stance & Detox Bars -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <div class="tds-subcard p-4">
-            <div class="flex justify-between text-[12.5px] font-semibold mb-2">
-              <span class="text-[#3182F6]">찬성 <span id="proRatioText" class="mono-num">88%</span></span>
-              <span class="text-[#8B95A1]" id="stanceTotalLabel">원본 댓글 여론</span>
-              <span class="text-[#F04452]">반대 <span id="conRatioText" class="mono-num">12%</span></span>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mt-3.5">
+          <div class="studio-subpanel p-4">
+            <div class="flex justify-between text-[12px] font-semibold mb-2">
+              <span class="text-[#2563EB]">찬성 <span id="proRatioText" class="mono-num">88%</span></span>
+              <span class="text-[#71717A]" id="stanceTotalLabel">원본 댓글 여론</span>
+              <span class="text-[#DC2626]">반대 <span id="conRatioText" class="mono-num">12%</span></span>
             </div>
-            <div class="w-full h-2.5 rounded-full bg-[#E5E8EB] overflow-hidden flex">
-              <div id="proBarFill" class="h-full bg-[#3182F6] transition-all duration-500" style="width: 88%"></div>
-              <div id="conBarFill" class="h-full bg-[#F04452] transition-all duration-500" style="width: 12%"></div>
+            <div class="w-full h-2 rounded-full bg-[#E4E4E7] overflow-hidden flex">
+              <div id="proBarFill" class="h-full bg-[#2563EB] transition-all duration-500" style="width: 88%"></div>
+              <div id="conBarFill" class="h-full bg-[#DC2626] transition-all duration-500" style="width: 12%"></div>
             </div>
-            <p class="text-[12.5px] text-[#6B7684] mt-2.5">
-              한쪽으로 쏠린 댓글 여론에서도 소수 핵심 논거를 뽑아 50:50으로 균형을 맞췄어요.
+            <p class="text-[12px] text-[#71717A] mt-2.5">
+              편향된 원본 댓글 분포에서도 소수 의견의 핵심 논거를 추출해 50:50 대본으로 균형을 맞춥니다.
             </p>
           </div>
 
-          <div class="tds-subcard p-4 space-y-3">
+          <div class="studio-subpanel p-4 space-y-3">
             <div>
-              <div class="flex justify-between text-[12.5px] mb-1">
-                <span class="text-[#4E5968] font-medium">정화 전 과열 표본</span>
-                <span id="barToxBeforeLabel" class="font-bold text-[#F04452] mono-num">64.2 / 100</span>
+              <div class="flex justify-between text-[12px] mb-1">
+                <span class="text-[#3F3F46] font-medium">정화 전 과열 표본</span>
+                <span id="barToxBeforeLabel" class="font-bold text-[#DC2626] mono-num">64.2 / 100</span>
               </div>
-              <div class="w-full h-2 rounded-full bg-[#E5E8EB] overflow-hidden">
-                <div id="barToxBeforeFill" class="h-full bg-[#F04452] rounded-full" style="width: 64.2%"></div>
+              <div class="w-full h-2 rounded-full bg-[#E4E4E7] overflow-hidden">
+                <div id="barToxBeforeFill" class="h-full bg-[#DC2626] rounded-full" style="width: 64.2%"></div>
               </div>
             </div>
             <div>
-              <div class="flex justify-between text-[12.5px] mb-1">
-                <span class="text-[#4E5968] font-medium">정화 후 대본 논리성</span>
-                <span id="barLogicAfterLabel" class="font-bold text-[#3182F6] mono-num">85.5 / 100</span>
+              <div class="flex justify-between text-[12px] mb-1">
+                <span class="text-[#3F3F46] font-medium">정화 후 대본 논리성</span>
+                <span id="barLogicAfterLabel" class="font-bold text-[#2563EB] mono-num">85.5 / 100</span>
               </div>
-              <div class="w-full h-2 rounded-full bg-[#E5E8EB] overflow-hidden">
-                <div id="barLogicAfterFill" class="h-full bg-[#3182F6] rounded-full" style="width: 85.5%"></div>
+              <div class="w-full h-2 rounded-full bg-[#E4E4E7] overflow-hidden">
+                <div id="barLogicAfterFill" class="h-full bg-[#2563EB] rounded-full" style="width: 85.5%"></div>
               </div>
             </div>
           </div>
@@ -636,70 +651,70 @@
       </div>
 
       <!-- Empirical Statistical Charts -->
-      <div class="tds-card p-6 space-y-4">
+      <div class="studio-panel p-5 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 class="text-[17px] font-bold text-[#191F28]">실측 댓글 527건 통계 그래프</h3>
-            <p class="text-[13px] text-[#6B7684] mt-0.5">제안서 서식 4에 바로 넣을 수 있는 고해상도 PNG 파일로 저장할 수 있어요.</p>
+            <h3 class="text-[15.5px] font-bold text-[#111317]">실측 댓글 527건 통계 차트</h3>
+            <p class="text-[12.5px] text-[#71717A] mt-0.5">제안서 서식 4 삽입용 고해상도 PNG 내보내기 지원</p>
           </div>
           <div class="flex gap-2">
-            <button onclick="downloadCanvasAsPng('kdeCanvas', 'chart1_sentiment_shift.png')" class="tds-btn-neutral px-3.5 py-2 text-[12.5px]">
+            <button onclick="downloadCanvasAsPng('kdeCanvas', 'chart1_sentiment_shift.png')" class="btn-outline px-3 py-1.5 text-[12px]">
               KDE 분포 저장
             </button>
-            <button onclick="downloadCanvasAsPng('clusterCanvas', 'chart2_topic_clusters.png')" class="tds-btn-neutral px-3.5 py-2 text-[12.5px]">
+            <button onclick="downloadCanvasAsPng('clusterCanvas', 'chart2_topic_clusters.png')" class="btn-outline px-3 py-1.5 text-[12px]">
               키워드 군집 저장
             </button>
           </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div class="rounded-2xl overflow-hidden border border-[#E5E8EB] bg-white">
+          <div class="rounded-xl overflow-hidden border border-[#E4E4E7] bg-white">
             <canvas id="kdeCanvas" width="1200" height="740" class="w-full h-auto block"></canvas>
           </div>
-          <div class="rounded-2xl overflow-hidden border border-[#E5E8EB] bg-white">
+          <div class="rounded-xl overflow-hidden border border-[#E4E4E7] bg-white">
             <canvas id="clusterCanvas" width="1200" height="740" class="w-full h-auto block"></canvas>
           </div>
         </div>
       </div>
 
       <!-- Comment Detox Before/After & Archive -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-7 tds-card p-6">
-          <h3 class="text-[17px] font-bold text-[#191F28] mb-3.5">댓글 순화 전후 비교</h3>
-          <div id="detoxSamplesList" class="space-y-3"></div>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-7 studio-panel p-5">
+          <h3 class="text-[15.5px] font-bold text-[#111317] mb-3.5">댓글 순화 전후 대조</h3>
+          <div id="detoxSamplesList" class="space-y-2.5"></div>
         </div>
 
-        <div class="lg:col-span-5 tds-card p-6 space-y-4">
+        <div class="lg:col-span-5 studio-panel p-5 space-y-4">
           <div class="flex items-center justify-between">
-            <h3 class="text-[17px] font-bold text-[#191F28]">클라우드 아카이브</h3>
-            <button onclick="toggleSqlModal()" class="text-[12.5px] font-semibold text-[#3182F6] hover:underline">DB 설정</button>
+            <h3 class="text-[15.5px] font-bold text-[#111317]">클라우드 아카이브</h3>
+            <button onclick="toggleSqlModal()" class="text-[12px] font-semibold text-[#111317] hover:underline">DB 설정</button>
           </div>
-          <div id="supabaseArchiveList" class="space-y-2 text-[13px] text-[#6B7684]">
-            <p class="tds-subcard p-3.5">스튜디오에서 <strong>아카이브 저장</strong>을 누르면 여기에 기록이 쌓여요.</p>
+          <div id="supabaseArchiveList" class="space-y-2 text-[12.5px] text-[#71717A]">
+            <p class="studio-subpanel p-3">스튜디오에서 <strong>아카이브 저장</strong>을 누르면 Supabase에 기록됩니다.</p>
           </div>
-          <div class="pt-3 border-t border-[#F2F4F6]">
+          <div class="pt-3 border-t border-[#F4F4F5]">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-[13px] font-semibold text-[#4E5968]">구조화 JSON 데이터</span>
-              <button id="copyJsonBtn" onclick="copyJsonSchema()" class="text-[12.5px] font-semibold text-[#3182F6] hover:underline">복사</button>
+              <span class="text-[12.5px] font-semibold text-[#3F3F46]">구조화 JSON 출력</span>
+              <button id="copyJsonBtn" onclick="copyJsonSchema()" class="text-[12px] font-semibold text-[#111317] hover:underline">복사</button>
             </div>
-            <pre id="jsonSchemaPreview" class="text-[11px] leading-relaxed text-[#333D4B] bg-[#F2F4F6] rounded-xl p-3 overflow-auto max-h-56 mono-num"></pre>
+            <pre id="jsonSchemaPreview" class="text-[11px] leading-relaxed text-[#27272A] bg-[#F4F4F5] rounded-lg p-3 overflow-auto max-h-56 mono-num border border-[#E4E4E7]"></pre>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- Clean Modal for Supabase SQL -->
+  <!-- Modal for Supabase SQL -->
   <div id="sqlModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
-    <div class="tds-card max-w-xl w-full p-6 space-y-4">
+    <div class="studio-panel max-w-xl w-full p-6 space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-[17px] font-bold text-[#191F28]">Supabase 테이블 초기 설정</h3>
-        <button onclick="toggleSqlModal()" class="tds-btn-neutral px-3 py-1 text-[12.5px]">닫기</button>
+        <h3 class="text-[16px] font-bold text-[#111317]">Supabase 테이블 초기 설정</h3>
+        <button onclick="toggleSqlModal()" class="btn-ghost px-3 py-1 text-[12px]">닫기</button>
       </div>
-      <p class="text-[13px] text-[#6B7684]">
-        Supabase 대시보드 SQL Editor에서 아래 코드를 한 번만 실행하면 클라우드 저장이 활성화됩니다.
+      <p class="text-[12.5px] text-[#71717A]">
+        Supabase 대시보드 SQL Editor에서 아래 DDL을 한 번 실행하면 클라우드 저장이 활성화됩니다.
       </p>
-      <pre id="sqlCodeBlock" class="text-[11.5px] text-[#191F28] bg-[#F2F4F6] rounded-xl p-3.5 overflow-auto max-h-60 mono-num">create table if not exists public.agora_debates (
+      <pre id="sqlCodeBlock" class="text-[11.5px] text-[#111317] bg-[#F4F4F5] border border-[#E4E4E7] rounded-lg p-3.5 overflow-auto max-h-60 mono-num">create table if not exists public.agora_debates (
   id uuid default gen_random_uuid() primary key,
   preset_id text,
   source_url text not null,
@@ -719,8 +734,8 @@ alter table public.agora_debates enable row level security;
 create policy "Allow public read" on public.agora_debates for select to anon using (true);
 create policy "Allow public insert" on public.agora_debates for insert to anon with check (true);</pre>
       <div class="flex justify-end">
-        <button onclick="navigator.clipboard.writeText(document.getElementById('sqlCodeBlock').textContent)" class="tds-btn-primary px-4 py-2 text-[13px]">
-          SQL 복사하기
+        <button onclick="navigator.clipboard.writeText(document.getElementById('sqlCodeBlock').textContent)" class="btn-ink px-4 py-2 text-[12.5px]">
+          SQL 복사
         </button>
       </div>
     </div>
@@ -858,8 +873,8 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         stopShortsPlayback(false);
         interactiveEl.classList.add("hidden");
         mp4El.classList.remove("hidden");
-        btnV.className = "px-3 py-1.5 rounded-lg bg-white text-[#191F28] font-semibold shadow-sm transition";
-        btnI.className = "px-3 py-1.5 rounded-lg text-[#6B7684] hover:text-[#191F28] font-medium transition";
+        btnV.className = "px-2.5 py-1 rounded-md bg-white text-[#111317] font-semibold shadow-2xs transition";
+        btnI.className = "px-2.5 py-1 rounded-md text-[#71717A] hover:text-[#111317] font-medium transition";
         const videoEl = document.getElementById("realMp4Player");
         const srcEl = document.getElementById("realMp4Source");
         const mp4Path = currentData.video_mp4_url || "static/videos/preset_1.mp4";
@@ -872,8 +887,8 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         if (videoEl) videoEl.pause();
         mp4El.classList.add("hidden");
         interactiveEl.classList.remove("hidden");
-        btnI.className = "px-3 py-1.5 rounded-lg bg-white text-[#191F28] font-semibold shadow-sm transition";
-        btnV.className = "px-3 py-1.5 rounded-lg text-[#6B7684] hover:text-[#191F28] font-medium transition";
+        btnI.className = "px-2.5 py-1 rounded-md bg-white text-[#111317] font-semibold shadow-2xs transition";
+        btnV.className = "px-2.5 py-1 rounded-md text-[#71717A] hover:text-[#111317] font-medium transition";
       }
     }
 
@@ -899,7 +914,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       const rawText = document.getElementById("rawCommentsInput").value.trim();
       const btn = document.getElementById("runPipelineBtn");
       const origText = btn.textContent;
-      btn.textContent = "만드는 중...";
+      btn.textContent = "생성 중...";
       btn.disabled = true;
 
       try {
@@ -1051,7 +1066,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
           })
         });
         if (res.ok) {
-          btn.textContent = "저장 완료";
+          btn.textContent = "저장됨";
           loadSupabaseArchive();
         } else {
           btn.textContent = "DB 설정 필요";
@@ -1073,12 +1088,12 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
           const rows = await res.json();
           if (rows && rows.length) {
             listEl.innerHTML = rows.map((r) => `
-              <div class="tds-subcard p-3 flex items-center justify-between gap-2">
+              <div class="studio-subpanel p-3 flex items-center justify-between gap-2">
                 <div class="truncate">
-                  <div class="font-semibold text-[#191F28] truncate">${r.issue_title}</div>
-                  <div class="text-[11.5px] text-[#8B95A1]">댓글 ${r.total_comments}건 · 정화 ${r.filtered_curse_count}건</div>
+                  <div class="font-semibold text-[#111317] truncate">${r.issue_title}</div>
+                  <div class="text-[11.5px] text-[#71717A]">댓글 ${r.total_comments}건 · 정화 ${r.filtered_curse_count}건</div>
                 </div>
-                <span class="text-[11.5px] font-semibold text-[#02A86B] shrink-0">저장됨</span>
+                <span class="text-[11.5px] font-semibold text-[#059669] shrink-0">저장됨</span>
               </div>
             `).join("");
           }
@@ -1113,9 +1128,9 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
             if (currentHtmlAudio) currentHtmlAudio.pause();
             currentHtmlAudio = new Audio(wavUrl);
             updateShortsTurnVisual(currentTurnIndex, true);
-            document.getElementById("ttsStatusLabel").textContent = "음성 재생 중";
+            document.getElementById("ttsStatusLabel").textContent = "재생 중";
             currentHtmlAudio.onended = () => {
-              document.getElementById("ttsStatusLabel").textContent = "40.0초";
+              document.getElementById("ttsStatusLabel").textContent = "40.0s";
             };
             await currentHtmlAudio.play();
             btn.textContent = orig;
@@ -1164,13 +1179,13 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
             a.href = currentData.video_mp4_url;
             a.download = `${currentData.id || "agora_shorts"}_9x16.mp4`;
             a.click();
-            statusEl.textContent = "9:16 MP4 영상이 저장됐어요.";
+            statusEl.textContent = "9:16 MP4 다운로드 완료";
             return;
           }
         } catch (e) {}
       }
 
-      statusEl.textContent = "9:16 영상을 생성하고 있어요 (약 6초)...";
+      statusEl.textContent = "9:16 영상 인코딩 중 (약 6초)...";
       const canvas = document.getElementById("hiddenShortsRecorderCanvas");
       const ctx = canvas.getContext("2d");
       const stream = canvas.captureStream(30);
@@ -1185,7 +1200,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         a.href = url;
         a.download = `agora_${currentData.id || "debate"}_9x16.${ext}`;
         a.click();
-        statusEl.textContent = `영상(.${ext}) 저장이 완료됐어요.`;
+        statusEl.textContent = `9:16 영상(.${ext}) 저장 완료`;
       };
 
       recorder.start();
@@ -1197,20 +1212,20 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         const turn = turns[tIdx];
         const isPro = turn.speaker === "PRO";
         for (let f = 0; f < 30; f++) {
-          ctx.fillStyle = "#14151A";
+          ctx.fillStyle = "#121316";
           ctx.fillRect(0, 0, 720, 1280);
-          ctx.fillStyle = "#272A34";
+          ctx.fillStyle = "#27272A";
           ctx.fillRect(40, 34, 640, 8);
-          ctx.fillStyle = isPro ? "#3182F6" : "#F04452";
+          ctx.fillStyle = isPro ? "#2563EB" : "#DC2626";
           ctx.fillRect(40, 34, 640 * ((tIdx + f / 30) / turns.length), 8);
 
-          ctx.fillStyle = "#F2F4F6";
+          ctx.fillStyle = "#F4F4F5";
           ctx.font = "bold 23px sans-serif";
           ctx.fillText(`${tIdx + 1}/6 · ${currentData.issue_title.slice(0, 22)}`, 44, 118);
 
           ctx.fillStyle = "#FFFFFF";
           ctx.beginPath();
-          ctx.roundRect(40, 220, 640, 340, 28);
+          ctx.roundRect(40, 220, 640, 340, 24);
           ctx.fill();
 
           ctx.beginPath();
@@ -1221,11 +1236,11 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
           }
           ctx.fill();
 
-          ctx.fillStyle = isPro ? "#3182F6" : "#F04452";
+          ctx.fillStyle = isPro ? "#2563EB" : "#DC2626";
           ctx.font = "bold 23px sans-serif";
           ctx.fillText(`${isPro ? "찬성" : "반대"} · ${turn.core_point.slice(0, 22)}`, 72, 275);
 
-          ctx.fillStyle = "#191F28";
+          ctx.fillStyle = "#111317";
           ctx.font = "600 22px sans-serif";
           const words = turn.text.split(" ");
           let line = "", y = 335;
@@ -1256,9 +1271,9 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
             ctx.restore();
           }
 
-          ctx.fillStyle = "#1C1E26";
+          ctx.fillStyle = "#1A1B20";
           ctx.fillRect(30, 1110, 660, 130);
-          ctx.fillStyle = "#94A3B8";
+          ctx.fillStyle = "#A1A1AA";
           ctx.font = "bold 18px sans-serif";
           ctx.fillText(`찬성 ${currentData.raw_stats.pro_ratio}%   |   50:50 중재   |   반대 ${currentData.raw_stats.con_ratio}%`, 155, 1175);
 
@@ -1277,7 +1292,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       ].join("\n");
       navigator.clipboard.writeText(promptText).then(() => {
         const orig = btn.textContent;
-        btn.textContent = "프롬프트 복사됨";
+        btn.textContent = "복사됨";
         setTimeout(() => { btn.textContent = orig; }, 1500);
       });
     }
@@ -1331,9 +1346,9 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
       document.getElementById("publishTitleInput").value = `[40초 토론] ${data.issue_title.slice(0, 52)} #쇼츠`;
       document.getElementById("publishDescInput").value =
-        `유튜브 실제 댓글 ${stats.total_comments}건을 분석해 비속어를 걷어내고 찬반 핵심 논거만 50:50으로 정리한 40초 토론 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#공론장중재 #찬반토론 #40초쇼츠"}`;
+        `유튜브 실제 댓글 ${stats.total_comments}건을 분석해 비속어를 제거하고 찬반 핵심 논거만 50:50으로 정리한 40초 토론 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#공론장중재 #찬반토론 #40초쇼츠"}`;
       document.getElementById("miniSummaryStats").textContent =
-        `댓글 ${stats.total_comments}건 중 과열 ${stats.filtered_curse_count}건(${filterRate}%) 정화 완료`;
+        `댓글 ${stats.total_comments}건 중 과열 ${stats.filtered_curse_count}건(${filterRate}%) 정제`;
 
       document.getElementById("reportIssueTitle").textContent = data.issue_title;
       document.getElementById("activeSourceLabel").textContent = data.source_label || "";
@@ -1363,17 +1378,17 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       (data.detox_samples || []).forEach((item) => {
         const isPro = item.side === "PRO";
         const box = document.createElement("div");
-        box.className = "tds-subcard p-4";
+        box.className = "studio-subpanel p-3.5";
         const tokensHtml = (item.removed_tokens || [])
-          .map((t) => `<span class="px-1.5 py-0.5 rounded bg-[#FFEBEE] text-[#F04452] text-[11px] font-medium line-through">${t}</span>`)
+          .map((t) => `<span class="px-1.5 py-0.5 rounded bg-[#FEF2F2] text-[#DC2626] text-[11px] font-medium line-through">${t}</span>`)
           .join(" ");
         box.innerHTML = `
           <div class="flex items-center justify-between mb-1.5">
-            <span class="text-[11.5px] font-bold ${isPro ? "text-[#3182F6]" : "text-[#F04452]"}">${isPro ? "찬성 댓글" : "반대 댓글"}</span>
+            <span class="text-[11.5px] font-bold ${isPro ? "text-[#2563EB]" : "text-[#DC2626]"}">${isPro ? "찬성 댓글" : "반대 댓글"}</span>
             <div class="flex flex-wrap gap-1">${tokensHtml}</div>
           </div>
-          <p class="text-[12.5px] text-[#8B95A1] line-through mb-2">${item.raw}</p>
-          <div class="text-[13px] text-[#191F28] font-medium bg-white rounded-xl p-2.5">
+          <p class="text-[12px] text-[#71717A] line-through mb-2">${item.raw}</p>
+          <div class="text-[12.5px] text-[#111317] font-medium bg-white border border-[#E4E4E7] rounded-lg p-2.5">
             ${item.cleaned}
           </div>
         `;
@@ -1412,18 +1427,18 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         card.innerHTML = `
           <div class="flex items-center justify-between gap-2 mb-1">
             <div class="flex items-center gap-2 min-w-0">
-              <span class="px-2 py-0.5 text-[11px] font-bold rounded-md shrink-0 ${
-                isPro ? "bg-[#E8F3FF] text-[#3182F6]" : "bg-[#FFEBEE] text-[#F04452]"
+              <span class="px-1.5 py-0.5 text-[11px] font-bold rounded shrink-0 ${
+                isPro ? "bg-[#EFF6FF] text-[#2563EB]" : "bg-[#FEF2F2] text-[#DC2626]"
               }">${isPro ? "찬성" : "반대"} ${Math.floor(idx / 2) + 1}</span>
-              <span class="text-[13px] font-bold text-[#191F28] truncate">${turn.core_point}</span>
+              <span class="text-[13px] font-bold text-[#111317] truncate">${turn.core_point}</span>
             </div>
-            <span class="text-[11.5px] text-[#8B95A1] mono-num shrink-0">${(idx * 6.7).toFixed(0)}~${((idx + 1) * 6.7).toFixed(0)}초</span>
+            <span class="text-[11px] text-[#71717A] mono-num shrink-0">${(idx * 6.7).toFixed(0)}–${((idx + 1) * 6.7).toFixed(0)}s</span>
           </div>
           <p
             contenteditable="true"
             onclick="event.stopPropagation()"
             oninput="updateTurnText(${idx}, this.textContent)"
-            class="text-[13px] text-[#4E5968] leading-relaxed outline-none focus:text-[#191F28] focus:bg-white rounded-lg px-1.5 -mx-1.5 py-0.5"
+            class="text-[12.5px] text-[#3F3F46] leading-relaxed outline-none focus:text-[#111317] focus:bg-white rounded px-1.5 -mx-1.5 py-0.5"
           >${turn.text}</p>
         `;
         scriptContainer.appendChild(card);
@@ -1460,12 +1475,12 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       const badge = document.getElementById("shortsSpeakerBadge");
       const sideNum = Math.floor(turnIdx / 2) + 1;
       badge.className = isPro
-        ? "text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-[#E8F3FF] text-[#3182F6]"
-        : "text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-[#FFEBEE] text-[#F04452]";
+        ? "text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB]"
+        : "text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#FEF2F2] text-[#DC2626]";
       badge.textContent = isPro ? `찬성 ${sideNum}` : `반대 ${sideNum}`;
       document.getElementById("shortsCorePoint").className = isPro
-        ? "text-[11.5px] font-bold text-[#3182F6] mb-1 leading-snug"
-        : "text-[11.5px] font-bold text-[#F04452] mb-1 leading-snug";
+        ? "text-[11.5px] font-bold text-[#2563EB] mb-1 leading-snug"
+        : "text-[11.5px] font-bold text-[#DC2626] mb-1 leading-snug";
 
       document.getElementById("shortsCorePoint").textContent = turn.core_point;
       document.getElementById("shortsSubtitleText").textContent = turn.text;
@@ -1473,9 +1488,9 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       document.getElementById("shortsTurnDots").innerHTML = turns
         .map((t, i) => {
           if (i === turnIdx) {
-            return `<span class="w-4 h-1 rounded-full ${t.speaker === "PRO" ? "bg-[#3182F6]" : "bg-[#F04452]"}"></span>`;
+            return `<span class="w-4 h-1 rounded-full ${t.speaker === "PRO" ? "bg-[#2563EB]" : "bg-[#DC2626]"}"></span>`;
           }
-          return `<span class="w-1.5 h-1 rounded-full ${i < turnIdx ? "bg-slate-400" : "bg-slate-700"}"></span>`;
+          return `<span class="w-1.5 h-1 rounded-full ${i < turnIdx ? "bg-[#A1A1AA]" : "bg-[#3F3F46]"}"></span>`;
         })
         .join("");
 
@@ -1566,8 +1581,8 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         try { window.speechSynthesis.cancel(); } catch (e) {}
       }
       document.getElementById("shortsBubbleEq").classList.remove("eq-pro", "eq-con");
-      document.getElementById("playBtnLabel").textContent = completed ? "다시 재생" : "미리보기 재생";
-      document.getElementById("ttsStatusLabel").textContent = completed ? "완료" : "40.0초";
+      document.getElementById("playBtnLabel").textContent = completed ? "다시 재생" : "재생";
+      document.getElementById("ttsStatusLabel").textContent = completed ? "완료" : "40.0s";
 
       if (!completed) {
         elapsedSec = 0;
@@ -1597,12 +1612,11 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       const W = c.width, H = c.height;
       ctx.fillStyle = "#FFFFFF";
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = "#3182F6";
+      ctx.fillStyle = "#111317";
       ctx.fillRect(36, 30, 8, 44);
-      ctx.fillStyle = "#191F28";
       ctx.font = "bold 21px Pretendard, sans-serif";
       ctx.fillText("유튜브 뉴스 댓글(N=527) 과열 표본 정화 전·후 커널 밀도 분포", 56, 52);
-      ctx.fillStyle = "#6B7684";
+      ctx.fillStyle = "#71717A";
       ctx.font = "13.5px Pretendard, sans-serif";
       ctx.fillText("과열 표본(n=126) 평균 62.8점 → 정화 후 14.4점 (-48.4pt 감소)", 56, 74);
 
@@ -1610,15 +1624,15 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       const pw = right - left, ph = bottom - top;
       ctx.fillStyle = "#F5F9FF";
       ctx.fillRect(left, top, pw * 0.32, ph);
-      ctx.fillStyle = "#FFF5F6";
+      ctx.fillStyle = "#FFF7F7";
       ctx.fillRect(left + pw * 0.47, top, pw * 0.53, ph);
 
-      ctx.strokeStyle = "#E5E8EB";
+      ctx.strokeStyle = "#E4E4E7";
       ctx.lineWidth = 1;
       for (let i = 0; i <= 4; i++) {
         const y = bottom - (i / 4) * ph;
         ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(right, y); ctx.stroke();
-        ctx.fillStyle = "#8B95A1";
+        ctx.fillStyle = "#71717A";
         ctx.font = "12px sans-serif";
         ctx.fillText((i * 0.03).toFixed(2), left - 38, y + 4);
       }
@@ -1630,8 +1644,8 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         ctx.lineTo(left + (x / 100) * pw, bottom - Math.min(d / 0.135, 1) * ph);
       }
       ctx.lineTo(right, bottom); ctx.closePath();
-      ctx.fillStyle = "rgba(240, 68, 82, 0.22)"; ctx.fill();
-      ctx.strokeStyle = "#F04452"; ctx.lineWidth = 3.5; ctx.stroke();
+      ctx.fillStyle = "rgba(220, 38, 38, 0.20)"; ctx.fill();
+      ctx.strokeStyle = "#DC2626"; ctx.lineWidth = 3.5; ctx.stroke();
 
       ctx.beginPath(); ctx.moveTo(left, bottom);
       for (let x = 0; x <= 100; x += 0.5) {
@@ -1639,16 +1653,16 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         ctx.lineTo(left + (x / 100) * pw, bottom - Math.min(d / 0.135, 1) * ph);
       }
       ctx.lineTo(right, bottom); ctx.closePath();
-      ctx.fillStyle = "rgba(49, 130, 246, 0.25)"; ctx.fill();
-      ctx.strokeStyle = "#3182F6"; ctx.lineWidth = 3.5; ctx.stroke();
+      ctx.fillStyle = "rgba(37, 99, 235, 0.24)"; ctx.fill();
+      ctx.strokeStyle = "#2563EB"; ctx.lineWidth = 3.5; ctx.stroke();
 
-      ctx.strokeStyle = "#333D4B"; ctx.lineWidth = 2;
+      ctx.strokeStyle = "#3F3F46"; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, bottom); ctx.lineTo(right, bottom); ctx.stroke();
       for (let x = 0; x <= 100; x += 10) {
-        ctx.fillStyle = "#4E5968"; ctx.font = "bold 13px sans-serif";
+        ctx.fillStyle = "#52525B"; ctx.font = "bold 13px sans-serif";
         ctx.fillText(String(x), left + (x / 100) * pw - 6, bottom + 24);
       }
-      ctx.fillStyle = "#191F28"; ctx.font = "bold 15px Pretendard, sans-serif";
+      ctx.fillStyle = "#111317"; ctx.font = "bold 15px Pretendard, sans-serif";
       ctx.fillText("감정 과열도 지수 (0 = 중립적 ~ 100 = 과열·비속어)", 400, bottom + 62);
     }
 
@@ -1659,11 +1673,11 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       const W = c.width, H = c.height;
       ctx.fillStyle = "#FFFFFF";
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = "#191F28";
+      ctx.fillStyle = "#111317";
       ctx.fillRect(36, 30, 8, 44);
       ctx.font = "bold 21px Pretendard, sans-serif";
       ctx.fillText("찬성(877회) vs 반대(510회) 6대 핵심 키워드 군집 빈도", 56, 52);
-      ctx.fillStyle = "#6B7684";
+      ctx.fillStyle = "#71717A";
       ctx.font = "13.5px Pretendard, sans-serif";
       ctx.fillText("YouTube Data API v3 실측 527건 분석 기반", 56, 74);
 
@@ -1676,11 +1690,11 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         ["농어촌·고령층 이동권", 64], ["탁상행정·실효성 비판", 45], ["일부 일탈 일반화 경계", 22]
       ];
       const centerX = 600, maxBarW = 350, startY = 155, rowGap = 78;
-      ctx.fillStyle = "#E8F3FF"; ctx.fillRect(60, 95, 455, 38);
-      ctx.fillStyle = "#1B64DA"; ctx.font = "bold 14.5px sans-serif";
+      ctx.fillStyle = "#EFF6FF"; ctx.fillRect(60, 95, 455, 38);
+      ctx.fillStyle = "#1D4ED8"; ctx.font = "bold 14.5px sans-serif";
       ctx.fillText("찬성·규제 군집 — 총 877회 (63.2%)", 84, 119);
-      ctx.fillStyle = "#FFEBEE"; ctx.fillRect(685, 95, 455, 38);
-      ctx.fillStyle = "#D32F2F";
+      ctx.fillStyle = "#FEF2F2"; ctx.fillRect(685, 95, 455, 38);
+      ctx.fillStyle = "#B91C1C";
       ctx.fillText("반대·대안 군집 — 총 510회 (36.8%)", 710, 119);
 
       pro.forEach((pItem, idx) => {
@@ -1688,17 +1702,17 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         const y = startY + idx * rowGap;
         const pw = Math.max(20, (pItem[1] / 280) * maxBarW);
         const cw = Math.max(20, (cItem[1] / 280) * maxBarW);
-        ctx.fillStyle = "#F2F4F6"; ctx.fillRect(centerX - 54, y, 108, 36);
-        ctx.fillStyle = "#333D4B"; ctx.font = "bold 13px sans-serif";
+        ctx.fillStyle = "#F4F4F5"; ctx.fillRect(centerX - 54, y, 108, 36);
+        ctx.fillStyle = "#27272A"; ctx.font = "bold 13px sans-serif";
         ctx.fillText(`쟁점 ${idx + 1}`, centerX - 20, y + 23);
 
         const px = centerX - 64 - pw;
-        ctx.fillStyle = "#3182F6"; ctx.fillRect(px, y + 2, pw, 32);
-        ctx.fillStyle = "#191F28"; ctx.fillText(`${pItem[0]} (${pItem[1]})`, Math.max(24, px - 175), y + 23);
+        ctx.fillStyle = "#2563EB"; ctx.fillRect(px, y + 2, pw, 32);
+        ctx.fillStyle = "#111317"; ctx.fillText(`${pItem[0]} (${pItem[1]})`, Math.max(24, px - 175), y + 23);
 
         const cx = centerX + 64;
-        ctx.fillStyle = "#F04452"; ctx.fillRect(cx, y + 2, cw, 32);
-        ctx.fillStyle = "#191F28"; ctx.fillText(`${cItem[0]} (${cItem[1]})`, cx + cw + 12, y + 23);
+        ctx.fillStyle = "#DC2626"; ctx.fillRect(cx, y + 2, cw, 32);
+        ctx.fillStyle = "#111317"; ctx.fillText(`${cItem[0]} (${cItem[1]})`, cx + cw + 12, y + 23);
       });
     }
 
