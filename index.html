@@ -166,15 +166,27 @@
       padding: 14px 12px 10px;
     }
 
+    .stage-spotlight {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+      background: radial-gradient(circle at 28% 62%, rgba(37, 99, 235, 0.36), rgba(37, 99, 235, 0.08) 40%, transparent 68%);
+      transition: background 0.35s ease;
+    }
+    .stage-spotlight.con-mode {
+      background: radial-gradient(circle at 72% 62%, rgba(220, 38, 38, 0.36), rgba(220, 38, 38, 0.08) 40%, transparent 68%);
+    }
+
     /* Editorial Speech Bubble */
     .speech-bubble {
       position: relative;
-      background: #FFFFFF;
+      background: rgba(255, 255, 255, 0.98);
       color: #111317;
       border-radius: 14px;
       padding: 11px 13px;
       border-top: 3.5px solid var(--pro-accent);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.38);
       transition: border-color 0.2s ease;
     }
     .speech-bubble.con-mode {
@@ -196,20 +208,20 @@
 
     /* Kinetic Word Highlight */
     .kw-spoken { color: #111317; font-weight: 700; }
-    .kw-active-pro { color: #2563EB; background: #EFF6FF; font-weight: 800; border-radius: 3px; padding: 0 2px; }
-    .kw-active-con { color: #DC2626; background: #FEF2F2; font-weight: 800; border-radius: 3px; padding: 0 2px; }
+    .kw-active-pro { color: #2563EB; background: #EFF6FF; font-weight: 800; border-radius: 4px; padding: 0 3px; }
+    .kw-active-con { color: #DC2626; background: #FEF2F2; font-weight: 800; border-radius: 4px; padding: 0 3px; }
     .kw-upcoming { color: #94A3B8; font-weight: 500; }
 
     /* Character Stage Animations */
     .char-actor {
-      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), filter 0.22s ease, opacity 0.22s ease;
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), filter 0.24s ease, opacity 0.24s ease;
       transform-origin: bottom center;
-      filter: brightness(0.48) saturate(0.75);
-      opacity: 0.72;
-      transform: scale(0.86);
+      filter: brightness(0.55) saturate(0.76) blur(0.6px);
+      opacity: 0.84;
+      transform: scale(0.90);
     }
     .char-actor.speaking {
-      filter: brightness(1.03) saturate(1.05);
+      filter: brightness(1.04) saturate(1.06) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
       opacity: 1;
       transform: scale(1.06) translateY(-4px);
       animation: talkBob 0.55s infinite ease-in-out alternate;
@@ -409,71 +421,87 @@
             <!-- Phone Frame -->
             <div class="phone-chassis">
               <div id="interactiveViewport" class="phone-screen">
-                <!-- Progress & Issue Title -->
-                <div>
-                  <div class="w-full h-1 rounded-full bg-white/10 overflow-hidden mb-2">
-                    <div id="shortsProgressBar" class="h-full bg-[#2563EB] transition-all duration-100" style="width: 0%"></div>
+                <!-- 9:16 Broadcast Debate Studio Backdrop -->
+                <img
+                  id="studioSetImg"
+                  src="static/assets/studio_set.jpg"
+                  onerror="this.onerror=null;this.src='studio_set.jpg'"
+                  alt=""
+                  class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+                />
+                <!-- Volumetric Speaker Spotlight -->
+                <div id="stageSpotlight" class="stage-spotlight"></div>
+                <!-- Smoked-Glass Desk + Dual Mics Foreground Occlusion -->
+                <img
+                  id="studioDeskFgImg"
+                  src="static/assets/studio_desk_fg.png"
+                  onerror="this.onerror=null;this.src='studio_desk_fg.png'"
+                  alt=""
+                  class="absolute inset-0 w-full h-full object-cover pointer-events-none z-20"
+                />
+
+                <!-- Top Broadcast HUD + Headline + Dialogue Bubble -->
+                <div class="relative z-30 space-y-1.5">
+                  <div>
+                    <div class="w-full h-1 rounded-full bg-white/15 overflow-hidden mb-1.5">
+                      <div id="shortsProgressBar" class="h-full bg-[#2563EB] transition-all duration-100" style="width: 0%"></div>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-[#E4E4E7] mono-num mb-1.5">
+                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/80 font-semibold" id="shortsTurnCounter">1 / 6</span>
+                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/80 text-[#A1A1AA]" id="shortsTimerDisplay">40.0s</span>
+                    </div>
+                    <div class="rounded-lg bg-[#0E1015]/85 border border-white/10 px-2 py-1.5">
+                      <h3 id="shortsIssueTitle" class="text-[11.5px] font-bold text-white text-center leading-snug line-clamp-2">
+                        심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
+                      </h3>
+                    </div>
                   </div>
-                  <div class="flex items-center justify-between text-[10.5px] text-[#A1A1AA] mono-num mb-2">
-                    <span class="font-semibold text-white/85" id="shortsTurnCounter">1 / 6</span>
-                    <span id="shortsTimerDisplay">40.0s</span>
+
+                  <!-- Clean White Speech Bubble -->
+                  <div id="shortsSpeechBubble" class="speech-bubble">
+                    <div class="flex items-center justify-between mb-1">
+                      <span id="shortsSpeakerBadge" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB]">찬성 1</span>
+                      <div id="shortsBubbleEq" class="eq-bars">
+                        <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+                        <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+                      </div>
+                    </div>
+                    <div id="shortsCorePoint" class="text-[11px] font-bold text-[#2563EB] mb-1 leading-snug">
+                      헌법상 주거 평온권 및 심야 수면권 침해 심각
+                    </div>
+                    <p id="shortsSubtitleText" class="text-[10.5px] font-medium text-[#27272A] leading-relaxed min-h-[56px]">
+                      새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다.
+                    </p>
+                    <div class="speech-tail"></div>
                   </div>
-                  <h3 id="shortsIssueTitle" class="text-[12.5px] font-bold text-white text-center leading-snug px-1 line-clamp-2">
-                    심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
-                  </h3>
                 </div>
 
-                <!-- Clean White Speech Bubble -->
-                <div id="shortsSpeechBubble" class="speech-bubble my-1">
-                  <div class="flex items-center justify-between mb-1">
-                    <span id="shortsSpeakerBadge" class="text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB]">찬성 1</span>
-                    <div id="shortsBubbleEq" class="eq-bars">
-                      <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
-                      <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
-                    </div>
-                  </div>
-                  <div id="shortsCorePoint" class="text-[11.5px] font-bold text-[#2563EB] mb-1 leading-snug">
-                    헌법상 주거 평온권 및 심야 수면권 침해 심각
-                  </div>
-                  <p id="shortsSubtitleText" class="text-[11px] font-medium text-[#27272A] leading-relaxed min-h-[68px]">
-                    새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다.
-                  </p>
-                  <div class="speech-tail"></div>
-                </div>
+                <!-- Two Anchors Positioned Behind Studio Desk (z-10) -->
+                <img
+                  id="avatarCardPro"
+                  src="static/assets/pro_avatar.png"
+                  onerror="this.onerror=null;this.src='pro_avatar.png'"
+                  alt="찬성 화자"
+                  class="char-actor speaking absolute z-10 left-[14px] bottom-[154px] h-[168px] w-auto object-contain select-none pointer-events-none"
+                />
+                <img
+                  id="avatarCardCon"
+                  src="static/assets/con_avatar.png"
+                  onerror="this.onerror=null;this.src='con_avatar.png'"
+                  alt="반대 화자"
+                  class="char-actor absolute z-10 right-[14px] bottom-[158px] h-[154px] w-auto object-contain select-none pointer-events-none"
+                />
 
-                <!-- Two Webtoon Characters + Clean Studio Bar -->
-                <div class="relative mt-auto pt-1">
-                  <div class="grid grid-cols-2 items-end gap-1 h-[178px] px-1 overflow-hidden">
-                    <div class="flex justify-center items-end h-full">
-                      <img
-                        id="avatarCardPro"
-                        src="static/assets/pro_avatar.png"
-                        onerror="this.onerror=null;this.src='pro_avatar.png'"
-                        alt="찬성 화자"
-                        class="char-actor speaking h-[174px] w-auto object-contain select-none pointer-events-none"
-                      />
-                    </div>
-                    <div class="flex justify-center items-end h-full">
-                      <img
-                        id="avatarCardCon"
-                        src="static/assets/con_avatar.png"
-                        onerror="this.onerror=null;this.src='con_avatar.png'"
-                        alt="반대 화자"
-                        class="char-actor h-[174px] w-auto object-contain select-none pointer-events-none"
-                      />
-                    </div>
+                <!-- Lower Telemetry Card over Reflective Studio Floor -->
+                <div class="relative z-30 rounded-xl bg-[#0E1119]/92 px-3 py-2 border border-white/10 mt-auto">
+                  <div class="flex items-center justify-between text-[10px] font-semibold mb-1.5">
+                    <span class="text-[#60A5FA] mono-num" id="shortsProShare">찬성 88%</span>
+                    <span class="text-[#A1A1AA]">50:50 중재</span>
+                    <span class="text-[#F87171] mono-num" id="shortsConShare">반대 12%</span>
                   </div>
-
-                  <div class="relative z-10 rounded-xl bg-[#1A1B20] px-3 py-2 -mt-2 border border-white/[0.06]">
-                    <div class="flex items-center justify-between text-[10.5px] font-semibold mb-1.5">
-                      <span class="text-[#60A5FA] mono-num" id="shortsProShare">찬성 88%</span>
-                      <span class="text-[#A1A1AA]">50:50 중재</span>
-                      <span class="text-[#F87171] mono-num" id="shortsConShare">반대 12%</span>
-                    </div>
-                    <div class="flex items-center justify-between pt-1 border-t border-white/[0.06]">
-                      <div class="flex items-center gap-1" id="shortsTurnDots"></div>
-                      <span class="text-[9.5px] text-[#71717A] font-medium">한냥 Studio</span>
-                    </div>
+                  <div class="flex items-center justify-between pt-1 border-t border-white/[0.08]">
+                    <div class="flex items-center gap-1" id="shortsTurnDots"></div>
+                    <span class="text-[9.5px] text-[#A1A1AA] font-semibold">한냥 Studio</span>
                   </div>
                 </div>
               </div>
@@ -763,7 +791,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     </div>
   </div>
 
-  <canvas id="hiddenShortsRecorderCanvas" width="720" height="1280" class="hidden"></canvas>
+  <canvas id="hiddenShortsRecorderCanvas" width="1080" height="1920" class="hidden"></canvas>
 
   <script>
     const CONFIG = {
@@ -1388,45 +1416,104 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       } catch (e) {}
     }
 
-    async function playWithGeminiNeuralTTS() {
-      setPlayerMode("interactive");
-      const btn = document.getElementById("geminiTtsBtn");
-      const orig = btn.textContent;
-      btn.textContent = "음성 생성 중...";
+    let playSessionToken = 0;
+
+    async function fetchTurnTtsB64(turnIdx) {
+      const turns = currentData.debate_script || [];
+      const turn = turns[turnIdx];
+      if (!turn || !turn.text) return null;
+      if (!currentData._ttsB64Cache) currentData._ttsB64Cache = {};
+      const cacheKey = `${turn.speaker}:${turn.text}`;
+      const cached = currentData._ttsB64Cache[turnIdx];
+      if (cached && cached.key === cacheKey) return cached.b64;
+
+      const voiceName = turn.speaker === "PRO" ? "Charon" : "Aoede";
+      const toneGuide = turn.speaker === "PRO"
+        ? "뉴스 토론 남성 아나운서처럼 차분하고 명확하게 읽어주세요"
+        : "뉴스 토론 여성 아나운서처럼 또렷하고 설득력 있게 읽어주세요";
+
+      const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const to = ctrl ? setTimeout(() => ctrl.abort(), 9500) : null;
       try {
-        const turn = currentData.debate_script[currentTurnIndex] || currentData.debate_script[0];
-        const voiceName = turn.speaker === "PRO" ? "Kore" : "Puck";
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: ctrl ? ctrl.signal : undefined,
           body: JSON.stringify({
-            contents: [{ parts: [{ text: `아나운서 톤으로 또렷하게 읽어주세요: ${turn.text}` }] }],
+            contents: [{ parts: [{ text: `${toneGuide}: ${turn.text}` }] }],
             generationConfig: {
               responseModalities: ["AUDIO"],
               speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
             }
           })
         });
+        if (to) clearTimeout(to);
         if (res.ok) {
           const data = await res.json();
-          const b64 = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+          const b64 = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || null;
           if (b64) {
-            const wavUrl = pcmBase64ToWavUrl(b64, 24000);
-            if (currentHtmlAudio) currentHtmlAudio.pause();
-            currentHtmlAudio = new Audio(wavUrl);
-            updateShortsTurnVisual(currentTurnIndex, true);
-            document.getElementById("ttsStatusLabel").textContent = "재생 중";
-            currentHtmlAudio.onended = () => {
-              document.getElementById("ttsStatusLabel").textContent = "40.0s";
-            };
-            await currentHtmlAudio.play();
-            btn.textContent = orig;
-            return;
+            currentData._ttsB64Cache[turnIdx] = { key: cacheKey, b64 };
+            return b64;
           }
         }
-        startShortsPlayback(currentTurnIndex);
       } catch (e) {
-        startShortsPlayback(currentTurnIndex);
+        if (to) clearTimeout(to);
+      }
+      return null;
+    }
+
+    function pcmBase64ToAudioBuffer(ctx, b64, defaultRate = 24000) {
+      if (!ctx || !b64) return null;
+      const bin = atob(b64);
+      const len = bin.length;
+      const u8 = new Uint8Array(len);
+      for (let i = 0; i < len; i++) u8[i] = bin.charCodeAt(i);
+
+      let pcmOffset = 0;
+      let sampleRate = defaultRate;
+      if (len > 44 && bin.slice(0, 4) === "RIFF") {
+        const dv = new DataView(u8.buffer);
+        sampleRate = dv.getUint32(24, true) || defaultRate;
+        pcmOffset = 44;
+      }
+      const sampleCount = Math.floor((len - pcmOffset) / 2);
+      if (sampleCount <= 0) return null;
+
+      const audioBuf = ctx.createBuffer(1, sampleCount, sampleRate);
+      const ch = audioBuf.getChannelData(0);
+      const dv = new DataView(u8.buffer, pcmOffset);
+      for (let i = 0; i < sampleCount; i++) {
+        ch[i] = dv.getInt16(i * 2, true) / 32768.0;
+      }
+      return audioBuf;
+    }
+
+    async function playWithGeminiNeuralTTS() {
+      setPlayerMode("interactive");
+      const btn = document.getElementById("geminiTtsBtn");
+      const orig = btn.textContent;
+      btn.textContent = "AI 아나운서 음성 생성 중...";
+      try {
+        const idx = currentTurnIndex || 0;
+        const turn = currentData.debate_script[idx] || currentData.debate_script[0];
+        const b64 = await fetchTurnTtsB64(idx);
+        if (b64) {
+          const wavUrl = pcmBase64ToWavUrl(b64, 24000);
+          if (currentHtmlAudio) { try { currentHtmlAudio.pause(); } catch (e) {} }
+          currentHtmlAudio = new Audio(wavUrl);
+          updateShortsTurnVisual(idx, true);
+          const voiceLabel = turn.speaker === "PRO" ? "Charon" : "Aoede";
+          document.getElementById("ttsStatusLabel").textContent = `${voiceLabel} AI 보이스`;
+          currentHtmlAudio.onended = () => {
+            document.getElementById("shortsBubbleEq").classList.remove("eq-pro", "eq-con");
+            document.getElementById("ttsStatusLabel").textContent = "40.0s";
+          };
+          await currentHtmlAudio.play();
+          return;
+        }
+        startShortsPlayback(idx);
+      } catch (e) {
+        startShortsPlayback(currentTurnIndex || 0);
       } finally {
         btn.textContent = orig;
       }
@@ -1435,6 +1522,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     function pcmBase64ToWavUrl(b64, sampleRate = 24000) {
       const bin = atob(b64);
       const pcmLen = bin.length;
+      if (pcmLen > 44 && bin.slice(0, 4) === "RIFF") {
+        const raw = new Uint8Array(pcmLen);
+        for (let i = 0; i < pcmLen; i++) raw[i] = bin.charCodeAt(i);
+        return URL.createObjectURL(new Blob([raw], { type: "audio/wav" }));
+      }
       const wavBuf = new ArrayBuffer(44 + pcmLen);
       const view = new DataView(wavBuf);
       const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
@@ -1456,17 +1548,22 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return URL.createObjectURL(new Blob([wavBuf], { type: "audio/wav" }));
     }
 
-    function wrapKoreanLines(text, maxChars = 24) {
-      const words = (text || "").split(/\s+/).filter(Boolean);
+    function wrapWordsByWidth(ctx, text, maxPx, maxLines = 5) {
+      const words = (text || "").trim().split(/\s+/).filter(Boolean);
       const lines = [];
-      let cur = "";
+      let cur = [];
       for (const w of words) {
-        if (!cur) cur = w;
-        else if ((cur + " " + w).length <= maxChars) cur += " " + w;
-        else { lines.push(cur); cur = w; }
+        const cand = cur.length ? cur.concat(w).join(" ") : w;
+        if (cur.length && ctx.measureText(cand).width > maxPx) {
+          lines.push(cur);
+          cur = [w];
+          if (lines.length >= maxLines) break;
+        } else {
+          cur.push(w);
+        }
       }
-      if (cur) lines.push(cur);
-      return lines.slice(0, 6);
+      if (cur.length && lines.length < maxLines) lines.push(cur);
+      return lines.length ? lines : [[""]];
     }
 
     function drawRoundRect(c, x, y, w, h, r) {
@@ -1484,13 +1581,32 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
     }
 
+    async function waitImageReady(img) {
+      if (!img) return;
+      if (img.complete && img.naturalWidth > 0) return;
+      await new Promise((res) => {
+        let done = false;
+        const finish = () => { if (!done) { done = true; res(); } };
+        img.addEventListener("load", finish, { once: true });
+        img.addEventListener("error", finish, { once: true });
+        setTimeout(finish, 1800);
+      });
+    }
+
     async function generateDynamicVideoUrl(onProgress = () => {}) {
       if (currentData.rendered_video_blob_url) return currentData.rendered_video_blob_url;
 
-      // 1) Try FastAPI server-side 24fps H.264 MP4 render when hosted on FastAPI
+      const turns = (currentData.debate_script || []).slice(0, 6);
+      onProgress(4);
+
+      // Step 0: Prefetch Gemini 2.5 Neural TTS voices in parallel for broadcast narration
+      const ttsB64List = await Promise.all(turns.map((_, idx) => fetchTurnTtsB64(idx).catch(() => null)));
+      onProgress(16);
+
+      // 1) Try FastAPI server-side 1080x1920 @ 30fps H.264 MP4 render when hosted on FastAPI
       if (window.location.protocol.startsWith("http") && !window.location.hostname.includes("github.io")) {
         try {
-          onProgress(15);
+          onProgress(24);
           const res = await fetch("/api/render-mp4", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1498,7 +1614,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               issue_title: currentData.issue_title,
               category_badge: currentData.source_label || "한냥 Studio",
               raw_stats: currentData.raw_stats,
-              debate_script: currentData.debate_script
+              debate_script: turns,
+              turn_audio_b64_list: ttsB64List
             })
           });
           if (res.ok) {
@@ -1517,14 +1634,24 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         throw new Error("이 브라우저에서는 동적 MP4/WebM 녹화를 지원하지 않습니다.");
       }
 
-      // 2) Client-side Broadcast 9:16 Canvas + Web Audio Renderer (works on GitHub Pages & static preview)
+      // 2) Client-side Full-HD 1080x1920 Broadcast Studio Renderer (works on GitHub Pages)
       const canvas = document.getElementById("hiddenShortsRecorderCanvas");
+      const W = 1080, H = 1920;
+      if (canvas.width !== W) canvas.width = W;
+      if (canvas.height !== H) canvas.height = H;
       const ctx = canvas.getContext("2d");
-      const videoStream = canvas.captureStream(30);
 
+      const studioImg = document.getElementById("studioSetImg");
+      const deskImg = document.getElementById("studioDeskFgImg");
+      const proImg = document.getElementById("avatarCardPro");
+      const conImg = document.getElementById("avatarCardCon");
+      await Promise.all([studioImg, deskImg, proImg, conImg].map(waitImageReady));
+
+      const videoStream = canvas.captureStream(30);
       let audioCtxRec = null;
-      let keepAliveOsc = null;
+      let padStoppers = [];
       let combinedStream = videoStream;
+
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (AudioCtx) {
@@ -1532,17 +1659,32 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           if (audioCtxRec.state === "suspended") await audioCtxRec.resume();
           if (audioCtxRec.state === "running") {
             const dest = audioCtxRec.createMediaStreamDestination();
-            keepAliveOsc = audioCtxRec.createOscillator();
-            const silentGain = audioCtxRec.createGain();
-            silentGain.gain.setValueAtTime(0.0001, audioCtxRec.currentTime);
-            keepAliveOsc.connect(silentGain);
-            silentGain.connect(dest);
-            keepAliveOsc.start();
+            // Warm studio ambience pad (Am7 subtle bed)
+            const lp = audioCtxRec.createBiquadFilter();
+            lp.type = "lowpass";
+            lp.frequency.setValueAtTime(420, audioCtxRec.currentTime);
+            const padGain = audioCtxRec.createGain();
+            padGain.gain.setValueAtTime(0.014, audioCtxRec.currentTime);
+            lp.connect(padGain);
+            padGain.connect(dest);
+            [110.0, 164.81, 220.0].forEach((freq) => {
+              const osc = audioCtxRec.createOscillator();
+              osc.type = "sine";
+              osc.frequency.setValueAtTime(freq, audioCtxRec.currentTime);
+              osc.connect(lp);
+              osc.start();
+              padStoppers.push(() => { try { osc.stop(); } catch (e) {} });
+            });
             combinedStream = new MediaStream([...videoStream.getVideoTracks(), ...dest.stream.getAudioTracks()]);
             videoStream._audioDest = dest;
           }
         }
       } catch (e) {}
+
+      const ttsBuffers = audioCtxRec
+        ? ttsB64List.map((b64) => pcmBase64ToAudioBuffer(audioCtxRec, b64, 24000))
+        : [];
+      const hasRealVoices = ttsBuffers.some(Boolean);
 
       const mimeType = MediaRecorder.isTypeSupported("video/mp4;codecs=avc1")
         ? "video/mp4;codecs=avc1"
@@ -1551,8 +1693,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           : (MediaRecorder.isTypeSupported("video/webm") ? "video/webm" : ""));
 
       const recorder = mimeType
-        ? new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 4200000 })
-        : new MediaRecorder(combinedStream, { videoBitsPerSecond: 4200000 });
+        ? new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 6000000 })
+        : new MediaRecorder(combinedStream, { videoBitsPerSecond: 6000000 });
       const actualMime = recorder.mimeType || mimeType || "video/webm";
       const chunks = [];
       recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
@@ -1564,204 +1706,318 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           const url = URL.createObjectURL(blob);
           currentData.rendered_video_blob_url = url;
           currentData.rendered_video_ext = ext;
-          if (keepAliveOsc) { try { keepAliveOsc.stop(); } catch (e) {} }
+          padStoppers.forEach((fn) => fn());
           if (audioCtxRec) { try { audioCtxRec.close(); } catch (e) {} }
           resolve(url);
         };
       });
 
-      const playRecNote = (freq, dur = 0.25, gainVal = 0.08) => {
+      const playBroadcastStinger = (isPro) => {
         if (!audioCtxRec || audioCtxRec.state !== "running" || !videoStream._audioDest) return;
         try {
           const now = audioCtxRec.currentTime;
-          const osc = audioCtxRec.createOscillator();
-          const g = audioCtxRec.createGain();
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(freq, now);
-          g.gain.setValueAtTime(gainVal, now);
-          g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-          osc.connect(g);
-          g.connect(videoStream._audioDest);
-          osc.start(now);
-          osc.stop(now + dur + 0.02);
+          const freqs = isPro ? [440, 554.37] : [523.25, 659.25];
+          freqs.forEach((f, idx) => {
+            const osc = audioCtxRec.createOscillator();
+            const g = audioCtxRec.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(f, now + idx * 0.045);
+            g.gain.setValueAtTime(0.06, now + idx * 0.045);
+            g.gain.exponentialRampToValueAtTime(0.0008, now + idx * 0.045 + 0.24);
+            osc.connect(g);
+            g.connect(videoStream._audioDest);
+            osc.start(now + idx * 0.045);
+            osc.stop(now + idx * 0.045 + 0.26);
+          });
         } catch (e) {}
       };
 
       recorder.start();
-      const turns = currentData.debate_script || [];
-      const proImg = document.getElementById("avatarCardPro");
-      const conImg = document.getElementById("avatarCardCon");
-      const framesPerTurn = 48; // 1.6s per turn encode (~9.6s compact preview render)
-      const totalFrames = turns.length * framesPerTurn;
-      const notes = [440, 523.25, 659.25, 587.33];
+
+      // Compute turn durations (match neural voice length when present, else clean 1.8s/turn showcase)
+      const turnDurationsMs = turns.map((_, i) => {
+        const buf = ttsBuffers[i];
+        if (buf && buf.duration > 0.5) return Math.min(7200, Math.max(2600, Math.round((buf.duration + 0.32) * 1000)));
+        return hasRealVoices ? 3200 : 1800;
+      });
+      const totalRenderMs = turnDurationsMs.reduce((a, b) => a + b, 0);
+      let accumulatedMs = 0;
+
+      ctx.font = "bold 31px Pretendard, sans-serif";
+      const titleLines = wrapWordsByWidth(ctx, currentData.issue_title, W - 180, 2).map((ws) => ws.join(" "));
 
       for (let tIdx = 0; tIdx < turns.length; tIdx++) {
         const turn = turns[tIdx];
         const isPro = turn.speaker === "PRO";
         const accent = isPro ? "#2563EB" : "#DC2626";
         const tint = isPro ? "#EFF6FF" : "#FEF2F2";
-        const lines = wrapKoreanLines(turn.text, 24);
-        const titleLines = wrapKoreanLines(currentData.issue_title, 22).slice(0, 2);
+        const turnMs = turnDurationsMs[tIdx];
 
-        playRecNote(isPro ? 523.25 : 587.33, 0.3, 0.11);
+        ctx.font = "bold 28px Pretendard, sans-serif";
+        const captionLines = wrapWordsByWidth(ctx, turn.text, W - 208, 5);
+        const totalWords = Math.max(captionLines.reduce((acc, ln) => acc + ln.length, 0), 1);
 
-        for (let f = 0; f < framesPerTurn; f++) {
-          const globalF = tIdx * framesPerTurn + f;
-          const progress = globalF / Math.max(totalFrames - 1, 1);
-          const localSec = f / 30;
-          if (f % 12 === 0) playRecNote(notes[(tIdx + f / 12) % notes.length], 0.2, 0.035);
-          if (globalF % 6 === 0) onProgress(Math.min(99, Math.round(progress * 100)));
+        playBroadcastStinger(isPro);
 
-          // 1) Architectural Studio Backdrop
-          const grad = ctx.createLinearGradient(0, 0, 0, 1280);
-          grad.addColorStop(0, "#0E1015");
-          grad.addColorStop(0.55, "#141821");
-          grad.addColorStop(1, "#0B0D12");
-          ctx.fillStyle = grad;
-          ctx.fillRect(0, 0, 720, 1280);
+        // Play turn neural voice directly into recorder audio bus
+        const ttsBuf = ttsBuffers[tIdx];
+        if (ttsBuf && audioCtxRec && audioCtxRec.state === "running" && videoStream._audioDest) {
+          try {
+            const voiceSrc = audioCtxRec.createBufferSource();
+            const voiceGain = audioCtxRec.createGain();
+            voiceSrc.buffer = ttsBuf;
+            voiceGain.gain.setValueAtTime(1.12, audioCtxRec.currentTime);
+            voiceSrc.connect(voiceGain);
+            voiceGain.connect(videoStream._audioDest);
+            voiceSrc.start(audioCtxRec.currentTime + 0.08);
+          } catch (e) {}
+        }
 
-          ctx.fillStyle = "rgba(255,255,255,0.03)";
-          for (let px = 48; px < 720; px += 88) ctx.fillRect(px, 0, 2, 1080);
+        const turnStartPerf = performance.now();
+        while (true) {
+          const localElapsedMs = performance.now() - turnStartPerf;
+          const turnProg = Math.min(1, localElapsedMs / Math.max(turnMs, 1));
+          const globalProg = (accumulatedMs + Math.min(turnMs, localElapsedMs)) / Math.max(totalRenderMs, 1);
+          const localSec = localElapsedMs / 1000;
 
-          // Top Progress Bar & Status
-          ctx.fillStyle = "#272A34";
-          drawRoundRect(ctx, 38, 34, 644, 8, 4); ctx.fill();
-          ctx.fillStyle = accent;
-          drawRoundRect(ctx, 38, 34, Math.max(16, 644 * progress), 8, 4); ctx.fill();
+          onProgress(Math.min(99, Math.round(18 + globalProg * 81)));
 
-          ctx.fillStyle = "#E4E4E7";
-          ctx.font = "bold 20px Pretendard, sans-serif";
-          ctx.fillText(`${tIdx + 1} / ${turns.length}`, 40, 76);
-          ctx.textAlign = "right";
-          ctx.fillStyle = "#A1A1AA";
-          ctx.fillText(`${(40 * (1 - progress)).toFixed(1)}s`, 680, 76);
-          ctx.textAlign = "left";
-
-          // Issue Header Card
-          ctx.fillStyle = "rgba(24, 27, 36, 0.94)";
-          ctx.strokeStyle = "rgba(255,255,255,0.08)";
-          ctx.lineWidth = 1.5;
-          drawRoundRect(ctx, 38, 100, 644, 96, 14); ctx.fill(); ctx.stroke();
-          ctx.fillStyle = "#F4F4F5";
-          ctx.font = "bold 22px Pretendard, sans-serif";
-          ctx.textAlign = "center";
-          titleLines.forEach((tl, ti) => ctx.fillText(tl, 360, 142 + ti * 30));
-          ctx.textAlign = "left";
-
-          // Characters (draw listener first, active speaker front with ease-out, normalized height)
+          // 1) Camera Dolly Zoom Stage Layer (1.00 -> 1.052) + Speaker Tracking
           const enter = Math.min(1, localSec / 0.35);
           const ease = 1 - Math.pow(1 - enter, 3);
-          const bob = Math.sin(localSec * 10) * 3.5 + Math.sin(localSec * 4) * 2;
-          const breath = Math.sin(localSec * 2.1) * 1.5;
+          const zoom = 1.0 + 0.052 * turnProg;
+          const cw = W / zoom;
+          const ch = H / zoom;
+          const focusCx = isPro ? W * 0.44 : W * 0.56;
+          const cx = Math.max(cw * 0.5, Math.min(W - cw * 0.5, W * 0.5 + (focusCx - W * 0.5) * ease));
+          const cy = Math.max(ch * 0.5, Math.min(H - ch * 0.5, H * 0.515));
 
-          const drawSpeaker = (img, isActive, baseX, bobOff, slidePx) => {
-            if (!img || !img.complete || img.naturalWidth <= 0 || img.naturalHeight <= 0) return;
+          ctx.save();
+          ctx.translate(W * 0.5, H * 0.5);
+          ctx.scale(zoom, zoom);
+          ctx.translate(-cx, -cy);
+
+          // Studio Backdrop Image or Fallback
+          if (studioImg && studioImg.complete && studioImg.naturalWidth > 0) {
+            ctx.drawImage(studioImg, 0, 0, W, H);
+          } else {
+            const g = ctx.createLinearGradient(0, 0, 0, H);
+            g.addColorStop(0, "#0E1015");
+            g.addColorStop(1, "#0B0D12");
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, W, H);
+          }
+
+          // Volumetric PRO/CON Spotlight Radial Glow
+          const spotX = isPro ? W * 0.28 : W * 0.72;
+          const spotY = H * 0.58;
+          const rad = ctx.createRadialGradient(spotX, spotY, 24, spotX, spotY, 440);
+          rad.addColorStop(0, isPro ? "rgba(37,99,235,0.42)" : "rgba(220,38,38,0.42)");
+          rad.addColorStop(0.5, isPro ? "rgba(37,99,235,0.14)" : "rgba(220,38,38,0.14)");
+          rad.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = rad;
+          ctx.fillRect(0, 0, W, H);
+
+          // Hosts Behind Studio Desk
+          const talkBounce = Math.sin(localSec * 11) * 4.2 + Math.sin(localSec * 4.5) * 2;
+          const idleBreath = Math.sin(localSec * 2.2) * 1.8;
+          const drawHost = (img, active, centerX, baselineY, targetH, offY, slideX) => {
+            if (!img || !img.complete || img.naturalWidth <= 0) return;
             ctx.save();
-            ctx.globalAlpha = isActive ? 1.0 : 0.48;
-            const targetH = isActive ? 495 : 415;
-            const scale = targetH / img.naturalHeight;
-            const dw = img.naturalWidth * scale;
-            const dh = targetH;
-            ctx.drawImage(img, baseX - dw / 2 + slidePx, 1146 - dh + bobOff, dw, dh);
+            ctx.globalAlpha = active ? 1.0 : 0.86;
+            if ("filter" in ctx) {
+              ctx.filter = active ? "brightness(1.04) saturate(1.06)" : "brightness(0.55) saturate(0.75) blur(1.2px)";
+            }
+            const sc = targetH / img.naturalHeight;
+            const dw = img.naturalWidth * sc;
+            ctx.drawImage(img, centerX - dw / 2 + slideX, baselineY - targetH + offY, dw, targetH);
             ctx.restore();
           };
 
           if (isPro) {
-            drawSpeaker(conImg, false, 532, breath, 0);
-            drawSpeaker(proImg, true, 192, bob - ease * 6, (1 - ease) * -14);
+            drawHost(conImg, false, 772, 1312, 502, idleBreath, 0);
+            drawHost(proImg, true, 312, 1325, 578, talkBounce - ease * 6, (1 - ease) * -18);
           } else {
-            drawSpeaker(proImg, false, 188, breath, 0);
-            drawSpeaker(conImg, true, 528, bob - ease * 6, (1 - ease) * 14);
+            drawHost(proImg, false, 308, 1322, 542, idleBreath, 0);
+            drawHost(conImg, true, 768, 1310, 526, talkBounce - ease * 6, (1 - ease) * 18);
           }
 
-          // Editorial Speech Bubble + Top Stance Bar
-          ctx.fillStyle = "#FFFFFF";
-          drawRoundRect(ctx, 38, 220, 644, 356, 20); ctx.fill();
-          ctx.fillStyle = accent;
-          drawRoundRect(ctx, 38, 220, 644, 6, 3); ctx.fill();
+          // Smoked-Glass Anchor Desk & Dual Broadcast Mics Overlay
+          if (deskImg && deskImg.complete && deskImg.naturalWidth > 0) {
+            ctx.drawImage(deskImg, 0, 0, W, H);
+          }
+          ctx.restore();
+
+          // 2) Crisp 1080p Broadcast HUD + Segmented Progress + Word-by-Word Karaoke Bubble
+          const segGap = 10;
+          const segTotalW = W - 108;
+          const segW = (segTotalW - segGap * (turns.length - 1)) / turns.length;
+          for (let si = 0; si < turns.length; si++) {
+            const sx = 54 + si * (segW + segGap);
+            ctx.fillStyle = "rgba(45, 50, 65, 0.85)";
+            drawRoundRect(ctx, sx, 38, segW, 9, 4); ctx.fill();
+            if (si < tIdx) {
+              ctx.fillStyle = accent;
+              drawRoundRect(ctx, sx, 38, segW, 9, 4); ctx.fill();
+            } else if (si === tIdx) {
+              ctx.fillStyle = accent;
+              drawRoundRect(ctx, sx, 38, Math.max(12, segW * turnProg), 9, 4); ctx.fill();
+            }
+          }
+
+          // Turn Counter & Timer Pills
+          ctx.fillStyle = "rgba(12, 14, 20, 0.86)";
+          drawRoundRect(ctx, 54, 60, 108, 38, 10); ctx.fill();
+          drawRoundRect(ctx, W - 166, 60, 112, 38, 10); ctx.fill();
+
+          ctx.fillStyle = "#F4F4F5";
+          ctx.font = "bold 23px Pretendard, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(`${tIdx + 1} / ${turns.length}`, 108, 87);
+          ctx.fillStyle = "#D4D4D8";
+          ctx.fillText(`${(40 * (1 - globalProg)).toFixed(1)}s`, W - 110, 87);
+          ctx.textAlign = "left";
+
+          // Issue Header Card
+          ctx.fillStyle = "rgba(16, 18, 26, 0.88)";
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.14)";
+          ctx.lineWidth = 2;
+          drawRoundRect(ctx, 54, 112, W - 108, 118, 18); ctx.fill(); ctx.stroke();
 
           ctx.fillStyle = "#FFFFFF";
+          ctx.font = "bold 31px Pretendard, sans-serif";
+          ctx.textAlign = "center";
+          if (titleLines.length === 1) {
+            ctx.fillText(titleLines[0], W / 2, 180);
+          } else {
+            ctx.fillText(titleLines[0], W / 2, 158);
+            ctx.fillText(titleLines[1], W / 2, 198);
+          }
+          ctx.textAlign = "left";
+
+          // Editorial White Speech Bubble (y=262..672, completely clears anchor heads at y>=745)
+          const bx0 = 54, by0 = 262, bw = W - 108, bh = 410;
+          ctx.fillStyle = "rgba(255, 255, 255, 0.98)";
+          drawRoundRect(ctx, bx0, by0, bw, bh, 28); ctx.fill();
+          ctx.fillStyle = accent;
+          drawRoundRect(ctx, bx0, by0, bw, 10, 5); ctx.fill();
+
+          ctx.fillStyle = "rgba(255, 255, 255, 0.98)";
           ctx.beginPath();
-          if (isPro) { ctx.moveTo(168, 574); ctx.lineTo(182, 616); ctx.lineTo(218, 574); }
-          else { ctx.moveTo(502, 574); ctx.lineTo(538, 616); ctx.lineTo(552, 574); }
+          if (isPro) {
+            ctx.moveTo(270, by0 + bh - 2);
+            ctx.lineTo(296, by0 + bh + 44);
+            ctx.lineTo(342, by0 + bh - 2);
+          } else {
+            ctx.moveTo(W - 342, by0 + bh - 2);
+            ctx.lineTo(W - 296, by0 + bh + 44);
+            ctx.lineTo(W - 270, by0 + bh - 2);
+          }
           ctx.fill();
 
           ctx.fillStyle = tint;
-          drawRoundRect(ctx, 74, 248, 96, 32, 8); ctx.fill();
+          drawRoundRect(ctx, 98, by0 + 30, 128, 42, 11); ctx.fill();
           ctx.fillStyle = accent;
-          ctx.font = "bold 16px Pretendard, sans-serif";
+          ctx.font = "bold 23px Pretendard, sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText(`${isPro ? "찬성" : "반대"} ${Math.floor(tIdx / 2) + 1}`, 122, 270);
+          ctx.fillText(`${isPro ? "찬성" : "반대"} ${Math.floor(tIdx / 2) + 1}`, 162, by0 + 59);
+
           ctx.textAlign = "right";
           ctx.fillStyle = "#71717A";
-          ctx.font = "600 14.5px Pretendard, sans-serif";
-          ctx.fillText(`실측 ${currentData.raw_stats.total_comments}건 핵심 요약`, 646, 270);
+          ctx.font = "600 21px Pretendard, sans-serif";
+          ctx.fillText(`실측 ${currentData.raw_stats.total_comments}건 핵심 요약`, W - 98, by0 + 58);
           ctx.textAlign = "left";
 
           ctx.fillStyle = accent;
-          ctx.font = "bold 22px Pretendard, sans-serif";
-          ctx.fillText(trimKoreanWords(turn.core_point || "", 26), 76, 322);
-          ctx.fillStyle = "#F4F4F5";
-          ctx.fillRect(76, 338, 568, 2);
+          ctx.font = "bold 30px Pretendard, sans-serif";
+          ctx.fillText(trimKoreanWords(turn.core_point || "", 26), 98, by0 + 114);
+          ctx.fillStyle = "#E4E4E7";
+          ctx.fillRect(98, by0 + 132, W - 196, 2);
 
-          // Kinetic Line-by-Line Progressive Caption Highlighting
-          const activeLineFloat = ((f + 1) / framesPerTurn) * Math.max(lines.length, 1);
-          lines.forEach((ln, li) => {
-            const ly = 374 + li * 33;
-            if (li + 1 <= Math.floor(activeLineFloat)) {
-              ctx.fillStyle = "#111317";
-              ctx.font = "bold 20.5px Pretendard, sans-serif";
-            } else if (li < activeLineFloat) {
-              ctx.fillStyle = tint;
-              const estW = Math.min(560, Math.max(160, ln.length * 16.5));
-              drawRoundRect(ctx, 70, ly - 22, estW, 28, 6); ctx.fill();
-              ctx.fillStyle = accent;
-              ctx.font = "bold 20.5px Pretendard, sans-serif";
-            } else {
-              ctx.fillStyle = "#94A3B8";
-              ctx.font = "500 20.5px Pretendard, sans-serif";
-            }
-            ctx.fillText(ln, 76, ly);
+          // Word-by-word karaoke pill highlighting
+          const activeWordIdx = Math.min(totalWords - 1, Math.floor(turnProg * totalWords * 1.03));
+          let wCounter = 0;
+          captionLines.forEach((wordArr, li) => {
+            let curX = 98;
+            const curY = by0 + 178 + li * 44;
+            wordArr.forEach((word) => {
+              ctx.font = wCounter <= activeWordIdx ? "bold 28px Pretendard, sans-serif" : "500 28px Pretendard, sans-serif";
+              const ww = ctx.measureText(word).width;
+              const spW = ctx.measureText(" ").width;
+              if (wCounter === activeWordIdx) {
+                ctx.fillStyle = tint;
+                drawRoundRect(ctx, curX - 6, curY - 28, ww + 12, 36, 7); ctx.fill();
+                ctx.fillStyle = accent;
+              } else if (wCounter < activeWordIdx) {
+                ctx.fillStyle = "#111317";
+              } else {
+                ctx.fillStyle = "#94A3B8";
+              }
+              ctx.fillText(word, curX, curY);
+              curX += ww + spW + 2;
+              wCounter++;
+            });
           });
 
-          // Lower-Third Broadcast Desk + 12-Band Spectrum
-          ctx.fillStyle = "rgba(21, 24, 33, 0.96)";
-          ctx.strokeStyle = "rgba(255,255,255,0.09)";
-          drawRoundRect(ctx, 30, 1116, 660, 130, 18); ctx.fill(); ctx.stroke();
+          // 3) Reflective Lower-Third Telemetry Card + 24-Band Equalizer
+          const ly0 = 1665, lh = 190;
+          ctx.fillStyle = "rgba(15, 18, 27, 0.94)";
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.14)";
+          ctx.lineWidth = 2;
+          drawRoundRect(ctx, 54, ly0, W - 108, lh, 24); ctx.fill(); ctx.stroke();
 
           ctx.fillStyle = "#60A5FA";
-          ctx.font = "bold 16px Pretendard, sans-serif";
-          ctx.fillText(`찬성 ${currentData.raw_stats.pro_ratio}%`, 64, 1152);
+          ctx.font = "bold 24px Pretendard, sans-serif";
+          ctx.fillText(`찬성 ${currentData.raw_stats.pro_ratio}%`, 94, ly0 + 50);
+
           ctx.fillStyle = "#F87171";
           ctx.textAlign = "right";
-          ctx.fillText(`반대 ${currentData.raw_stats.con_ratio}%`, 656, 1152);
+          ctx.fillText(`반대 ${currentData.raw_stats.con_ratio}%`, W - 94, ly0 + 50);
           ctx.textAlign = "center";
           ctx.fillStyle = "#A1A1AA";
-          ctx.font = "600 13px Pretendard, sans-serif";
-          ctx.fillText("50:50 중재", 360, 1172);
+          ctx.font = "600 19px Pretendard, sans-serif";
+          ctx.fillText("50:50 공론장 중재", W / 2, ly0 + 76);
           ctx.textAlign = "left";
 
-          const proW = Math.max(14, Math.round(220 * (currentData.raw_stats.pro_ratio / 100)));
+          const barX0 = 330, barW = W - 660;
+          const proW = Math.max(18, Math.round(barW * (currentData.raw_stats.pro_ratio / 100)));
           ctx.fillStyle = "#2563EB";
-          drawRoundRect(ctx, 250, 1142, proW, 8, 4); ctx.fill();
+          drawRoundRect(ctx, barX0, ly0 + 36, proW, 12, 6); ctx.fill();
           ctx.fillStyle = "#DC2626";
-          drawRoundRect(ctx, 254 + proW, 1142, Math.max(6, 216 - proW), 8, 4); ctx.fill();
+          drawRoundRect(ctx, barX0 + proW + 6, ly0 + 36, Math.max(12, barW - proW - 6), 12, 6); ctx.fill();
 
-          for (let bi = 0; bi < 12; bi++) {
-            const bx = 294 + bi * 11;
-            const bh = Math.round(6 + 16 * (0.5 + 0.5 * Math.sin(localSec * 14 + bi * 0.75)));
+          const eqCount = 24, eqGap = 15;
+          const eqStartX = W / 2 - (eqCount * eqGap) / 2;
+          for (let bi = 0; bi < eqCount; bi++) {
+            const bx = eqStartX + bi * eqGap;
+            const wave = 0.5 + 0.5 * Math.sin(localSec * 14 + bi * 0.65);
+            const bh = Math.round(8 + 28 * wave);
             ctx.fillStyle = accent;
-            drawRoundRect(ctx, bx, 1205 - bh / 2, 5, bh, 2); ctx.fill();
+            drawRoundRect(ctx, bx, ly0 + 132 - bh / 2, 7, bh, 3); ctx.fill();
           }
 
-          ctx.fillStyle = "#71717A";
-          ctx.font = "bold 14px Pretendard, sans-serif";
+          for (let di = 0; di < turns.length; di++) {
+            const dx = 94 + di * 34;
+            if (di === tIdx) {
+              ctx.fillStyle = accent;
+              drawRoundRect(ctx, dx, ly0 + 148, 26, 10, 5); ctx.fill();
+            } else {
+              ctx.fillStyle = di < tIdx ? "#A1A1AA" : "#2D313E";
+              drawRoundRect(ctx, dx, ly0 + 148, 18, 10, 5); ctx.fill();
+            }
+          }
+
+          ctx.fillStyle = "#A1A1AA";
+          ctx.font = "bold 23px Pretendard, sans-serif";
           ctx.textAlign = "right";
-          ctx.fillText("한냥 Studio", 656, 1210);
+          ctx.fillText("한냥 Studio", W - 94, ly0 + 160);
           ctx.textAlign = "left";
 
+          if (localElapsedMs >= turnMs) break;
           await new Promise((r) => setTimeout(r, 33));
         }
+
+        accumulatedMs += turnMs;
       }
 
       recorder.stop();
@@ -1780,23 +2036,23 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               a.href = currentData.video_mp4_url;
               a.download = `${currentData.id || "hannyang_shorts"}_9x16.mp4`;
               a.click();
-              statusEl.textContent = "9:16 MP4 다운로드 완료";
+              statusEl.textContent = "Full-HD 1080×1920 MP4 다운로드 완료";
               return;
             }
           } catch (e) {}
         }
 
-        statusEl.textContent = "9:16 브로드캐스트 영상 생성 중 (약 9초)...";
+        statusEl.textContent = "1080×1920 스튜디오 영상 & AI 보이스 생성 준비 중...";
         const url = await generateDynamicVideoUrl((pct) => {
-          statusEl.textContent = `9:16 영상 렌더링 중 (${pct}%)...`;
+          statusEl.textContent = `Full-HD 1080p 영상 렌더링 중 (${pct}%)...`;
         });
         if (url) {
           const ext = currentData.rendered_video_ext || "webm";
           const a = document.createElement("a");
           a.href = url;
-          a.download = `hannyang_${currentData.id || "custom"}_9x16.${ext}`;
+          a.download = `hannyang_${currentData.id || "custom"}_1080x1920.${ext}`;
           a.click();
-          statusEl.textContent = `9:16 영상(.${ext}) 저장 완료`;
+          statusEl.textContent = `1080×1920 영상(.${ext}) 저장 완료`;
           if (playerMode === "video") {
             const videoEl = document.getElementById("realMp4Player");
             const srcEl = document.getElementById("realMp4Source");
@@ -2011,6 +2267,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         currentData.debate_script[idx].text = newText.trim();
         currentData.video_mp4_url = null;
         currentData.rendered_video_blob_url = null;
+        if (currentData._ttsB64Cache) delete currentData._ttsB64Cache[idx];
         const srcEl = document.getElementById("realMp4Source");
         const videoEl = document.getElementById("realMp4Player");
         if (srcEl) srcEl.removeAttribute("src");
@@ -2030,6 +2287,9 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
       const progBar = document.getElementById("shortsProgressBar");
       if (progBar) progBar.style.backgroundColor = isPro ? "#2563EB" : "#DC2626";
+
+      const spotlight = document.getElementById("stageSpotlight");
+      if (spotlight) spotlight.classList.toggle("con-mode", !isPro);
 
       document.getElementById("shortsTurnCounter").textContent = `${turnIdx + 1} / ${turns.length}`;
       document.getElementById("avatarCardPro").classList.toggle("speaking", isPro);
@@ -2093,7 +2353,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       elapsedSec = startIdx * turnDurationSec;
 
       document.getElementById("playBtnLabel").textContent = "일시정지";
-      document.getElementById("ttsStatusLabel").textContent = "재생 중";
+      document.getElementById("ttsStatusLabel").textContent = "AI 음성 준비";
 
       timerInterval = setInterval(() => {
         if (!isPlaying) return;
@@ -2114,13 +2374,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       speakTurn(currentTurnIndex);
     }
 
-    function speakTurn(turnIdx) {
+    async function speakTurn(turnIdx) {
       if (!isPlaying) return;
       const turns = currentData.debate_script || [];
       if (turnIdx >= turns.length) {
         stopShortsPlayback(true);
         return;
       }
+      const myToken = ++playSessionToken;
       currentTurnIndex = turnIdx;
       const turn = turns[turnIdx];
       const isPro = turn.speaker === "PRO";
@@ -2130,25 +2391,58 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       playTurnChime(turn.speaker);
       updateShortsTurnVisual(turnIdx, true);
 
+      if (currentHtmlAudio) { try { currentHtmlAudio.pause(); } catch (e) {} }
+      if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+
+      // Lookahead prefetch of next turn's neural voice
+      if (turnIdx + 1 < turns.length) {
+        fetchTurnTtsB64(turnIdx + 1).catch(() => null);
+      }
+
+      const b64 = await fetchTurnTtsB64(turnIdx).catch(() => null);
+      if (!isPlaying || myToken !== playSessionToken) return;
+
+      if (b64) {
+        try {
+          const wavUrl = pcmBase64ToWavUrl(b64, 24000);
+          currentHtmlAudio = new Audio(wavUrl);
+          document.getElementById("ttsStatusLabel").textContent = isPro ? "AI 보이스 · Charon" : "AI 보이스 · Aoede";
+          let advanced = false;
+          const goNext = () => {
+            if (advanced || !isPlaying || myToken !== playSessionToken) return;
+            advanced = true;
+            if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
+            if (turnIdx + 1 < turns.length) speakTurn(turnIdx + 1);
+            else stopShortsPlayback(true);
+          };
+          currentHtmlAudio.onended = goNext;
+          turnTimeout = setTimeout(goNext, Math.max(turnDurationMs, 7600));
+          await currentHtmlAudio.play();
+          return;
+        } catch (e) {}
+      }
+
+      // Offline/blocked graceful fallback to browser speechSynthesis
+      document.getElementById("ttsStatusLabel").textContent = "브라우저 음성";
       turnTimeout = setTimeout(() => {
-        if (!isPlaying) return;
+        if (!isPlaying || myToken !== playSessionToken) return;
         if (turnIdx + 1 < turns.length) speakTurn(turnIdx + 1);
         else stopShortsPlayback(true);
       }, turnDurationMs);
 
       if ("speechSynthesis" in window) {
         try {
-          window.speechSynthesis.cancel();
           const utter = new SpeechSynthesisUtterance(turn.text);
           utter.lang = "ko-KR";
-          utter.pitch = isPro ? 0.82 : 1.22;
-          utter.rate = 1.12;
+          utter.pitch = isPro ? 0.84 : 1.18;
+          utter.rate = 1.1;
           window.speechSynthesis.speak(utter);
         } catch (e) {}
       }
     }
 
     function stopShortsPlayback(completed = false) {
+      playSessionToken++;
       isPlaying = false;
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
       if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
