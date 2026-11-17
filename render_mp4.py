@@ -677,27 +677,48 @@ def generate_broadcast_soundtrack(
     return np.clip(rms / mx, 0.0, 1.0), has_voice
 
 
-def _create_blink_variant(avatar: Image.Image, eye_box: Tuple[int, int, int, int], skin_sample_xy: Tuple[int, int]) -> Image.Image:
-    blink = avatar.copy()
-    arr = np.array(blink)
-    x0, y0, x1, y1 = eye_box
-    skin_rgb = avatar.getpixel(skin_sample_xy)[:3]
-    sub = arr[y0:y1, x0:x1]
-    eye_mask = (sub[..., 3] > 200) & (
-        ((sub[..., 0] > 215) & (sub[..., 1] > 210) & (sub[..., 2] > 205))
-        | ((sub[..., 0] < 75) & (sub[..., 1] < 85) & (sub[..., 2] < 110))
-    )
-    if np.any(eye_mask):
-        sub_out = sub.copy()
-        sub_out[eye_mask, 0] = skin_rgb[0]
-        sub_out[eye_mask, 1] = skin_rgb[1]
-        sub_out[eye_mask, 2] = skin_rgb[2]
-        arr[y0:y1, x0:x1] = sub_out
-        blink = Image.fromarray(arr, mode="RGBA")
-    d = ImageDraw.Draw(blink, "RGBA")
-    mid_y = (y0 + y1) // 2 + 2
-    d.arc([x0 + 8, mid_y - 5, x1 - 8, mid_y + 7], start=10, end=170, fill=(38, 28, 28, 220), width=3)
-    return blink
+def _create_blink_variant(
+    avatar: Image.Image,
+    eye_specs: List[Dict[str, Any]],
+) -> Image.Image:
+    """해부학적 아몬드형 눈꺼풀 마스크 + 슈퍼샘플링 속눈썹으로 자연스러운 눈 깜빡임 생성."""
+    arr = np.array(avatar).astype(np.float32)
+    h, w = arr.shape[:2]
+    mask_full = Image.new("L", (w, h), 0)
+    md = ImageDraw.Draw(mask_full)
+    filled = arr.copy()
+
+    sx = w / 719.0
+    sy = h / 1116.0
+    for sp in eye_specs:
+        poly = [(int(round(px * sx)), int(round(py * sy))) for px, py in sp["poly"]]
+        md.polygon(poly, fill=255)
+        xs = [p[0] for p in poly]
+        ys = [p[1] for p in poly]
+        x0, x1 = max(2, min(xs) - 1), min(w - 3, max(xs) + 1)
+        y0, y1 = max(2, min(ys)), min(h - 3, max(ys))
+        # Sample clean eyelid skin beside outer/inner corners (avoiding dark brow/crease lines)
+        c_l = arr[int(round(sp["skin_l"][1] * sy)) - 1 : int(round(sp["skin_l"][1] * sy)) + 2, int(round(sp["skin_l"][0] * sx)), :3].mean(axis=0)
+        c_r = arr[int(round(sp["skin_r"][1] * sy)) - 1 : int(round(sp["skin_r"][1] * sy)) + 2, int(round(sp["skin_r"][0] * sx)), :3].mean(axis=0)
+        bot_l = arr[min(h - 2, y1 + 1) : min(h, y1 + 4), max(0, x0 + (x1 - x0) // 4) : min(w, x0 + (x1 - x0) * 3 // 4), :3].mean(axis=(0, 1))
+        for x in range(x0, x1 + 1):
+            tx = (x - x0) / max(1, x1 - x0)
+            top_rgb = c_l * (1.0 - tx) + c_r * tx
+            for y in range(y0, y1 + 1):
+                ty = (y - y0) / max(1, y1 - y0)
+                filled[y, x, :3] = top_rgb * (1.0 - ty * 0.55) + bot_l * (ty * 0.55)
+
+    soft_mask = mask_full.filter(ImageFilter.GaussianBlur(1.4))
+    out = Image.composite(Image.fromarray(np.clip(filled, 0, 255).astype(np.uint8), "RGBA"), avatar, soft_mask)
+
+    ss = 4
+    lash_hi = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
+    ld = ImageDraw.Draw(lash_hi, "RGBA")
+    for sp in eye_specs:
+        pts_hi = [(int(round(px * sx * ss)), int(round(py * sy * ss))) for px, py in sp["lash"]]
+        ld.line(pts_hi, fill=(48, 32, 28, 205), width=max(4, int(round(1.6 * ss))), joint="curve")
+    out.alpha_composite(lash_hi.resize((w, h), Image.Resampling.LANCZOS))
+    return out
 
 
 def _build_stage_assets() -> Dict[str, Any]:
@@ -707,35 +728,90 @@ def _build_stage_assets() -> Dict[str, Any]:
     pro_orig = Image.open(PRO_AVATAR_PATH).convert("RGBA")
     con_orig = Image.open(CON_AVATAR_PATH).convert("RGBA")
 
-    pro_graded = ImageEnhance.Contrast(ImageEnhance.Brightness(pro_orig).enhance(0.94)).enhance(1.06)
-    con_graded = ImageEnhance.Contrast(ImageEnhance.Brightness(con_orig).enhance(0.95)).enhance(1.06)
+    pro_active_grade = ImageEnhance.Contrast(ImageEnhance.Brightness(pro_orig).enhance(1.03)).enhance(1.04)
+    con_active_grade = ImageEnhance.Contrast(ImageEnhance.Brightness(con_orig).enhance(1.03)).enhance(1.04)
 
     def fit_h(im: Image.Image, target_h: int) -> Image.Image:
         sc = target_h / im.height
-        return im.resize((int(im.width * sc), target_h), Image.Resampling.LANCZOS)
+        return im.resize((int(round(im.width * sc)), target_h), Image.Resampling.LANCZOS)
 
-    pro_act = fit_h(pro_graded, 578)
-    pro_act_blink = fit_h(_create_blink_variant(pro_graded, (320, 152, 438, 192), (345, 200)), 578)
-    pro_idle = ImageEnhance.Brightness(fit_h(pro_graded, 518)).enhance(0.55).filter(ImageFilter.GaussianBlur(1.1))
+    pro_act = fit_h(pro_active_grade, 566)
+    pro_eye_specs = [
+        {
+            "poly": [(336, 211), (348, 204), (364, 204), (378, 207), (387, 219), (370, 221), (350, 219)],
+            "lash": [(338, 214), (355, 218), (373, 218), (386, 218)],
+            "skin_l": (335, 202),
+            "skin_r": (389, 206),
+        },
+        {
+            "poly": [(432, 215), (441, 206), (455, 205), (467, 208), (474, 218), (460, 220), (442, 219)],
+            "lash": [(433, 216), (449, 219), (464, 218), (473, 216)],
+            "skin_l": (431, 206),
+            "skin_r": (472, 205),
+        },
+    ]
+    pro_act_blink = fit_h(_create_blink_variant(pro_active_grade, pro_eye_specs), 566)
+    pro_idle = ImageEnhance.Color(
+        ImageEnhance.Brightness(fit_h(pro_orig, 558)).enhance(0.76)
+    ).enhance(0.88).filter(ImageFilter.GaussianBlur(0.45))
 
-    con_act = fit_h(con_graded, 526)
-    con_act_blink = fit_h(_create_blink_variant(con_graded, (295, 178, 435, 220), (350, 232)), 526)
-    con_idle = ImageEnhance.Brightness(fit_h(con_graded, 470)).enhance(0.55).filter(ImageFilter.GaussianBlur(1.1))
+    con_act = fit_h(con_active_grade, 558)
+    con_eye_specs = [
+        {
+            "poly": [(263, 201), (270, 196), (281, 197), (294, 212), (284, 216), (269, 215), (263, 211)],
+            "lash": [(264, 210), (272, 214), (284, 215), (293, 213)],
+            "skin_l": (271, 190),
+            "skin_r": (294, 199),
+        },
+        {
+            "poly": [(339, 212), (347, 196), (362, 193), (382, 199), (396, 211), (378, 216), (354, 216)],
+            "lash": [(340, 213), (357, 215), (376, 214), (392, 211)],
+            "skin_l": (337, 201),
+            "skin_r": (391, 198),
+        },
+    ]
+    con_act_blink = fit_h(_create_blink_variant(con_active_grade, con_eye_specs), 558)
+    con_idle = ImageEnhance.Color(
+        ImageEnhance.Brightness(fit_h(con_orig, 550)).enhance(0.76)
+    ).enhance(0.88).filter(ImageFilter.GaussianBlur(0.45))
+
+    # Bake soft ambient studio shadows onto chair backrests behind both anchors
+    def add_chair_shadow(base: Image.Image, sprite: Image.Image, cx: int, by: int, dx: int) -> None:
+        alpha_ch = sprite.split()[3]
+        sh = Image.new("RGBA", sprite.size, (0, 0, 0, 115))
+        sh.putalpha(alpha_ch.point(lambda v: int(v * 0.42)))
+        layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        layer.paste(sh, (cx - sprite.width // 2 + dx, by - sprite.height + 10))
+        base.alpha_composite(layer.filter(ImageFilter.GaussianBlur(14)))
+
+    add_chair_shadow(studio_bg, pro_act, 225, 1318, 10)
+    add_chair_shadow(studio_bg, con_act, 855, 1316, -10)
+
+    # Bake subtle tabletop ambient occlusion shadow strip right along the curved back desk edge
+    ao_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ao_draw = ImageDraw.Draw(ao_layer)
+    for dy in range(-16, 6):
+        op = max(0, 62 - abs(dy) * 3)
+        pts = [(x, int(round(1212.0 + 18.0 * ((x - 540.0) / 540.0) ** 2 + dy))) for x in range(0, W + 1, 12)]
+        ao_draw.line(pts, fill=(0, 0, 0, op), width=4)
+    desk_fg_comp = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    desk_fg_comp.alpha_composite(ao_layer)
+    desk_fg_comp.alpha_composite(desk_fg)
 
     def make_glow(cx: int, cy: int, color: Tuple[int, int, int]) -> Image.Image:
         g = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         gd = ImageDraw.Draw(g)
-        gd.ellipse([cx - 320, cy - 350, cx + 320, cy + 350], fill=(*color, 115))
-        return g.filter(ImageFilter.GaussianBlur(95))
+        gd.ellipse([cx - 320, cy - 340, cx + 320, cy + 340], fill=(*color, 92))
+        return g.filter(ImageFilter.GaussianBlur(105))
 
     glows: Dict[Tuple[str, str], Image.Image] = {}
     for ck, spec in PALETTE.items():
-        glows[("PRO", ck)] = make_glow(315, 960, spec["glow"])
-        glows[("CON", ck)] = make_glow(765, 960, spec["glow"])
+        glows[("PRO", ck)] = make_glow(235, 940, spec["glow"])
+        glows[("CON", ck)] = make_glow(845, 940, spec["glow"])
 
     return {
         "studio_bg": studio_bg,
-        "desk_fg": desk_fg,
+        "desk_fg": desk_fg_comp,
         "pro_act": pro_act,
         "pro_act_blink": pro_act_blink,
         "pro_idle": pro_idle,
@@ -1071,6 +1147,7 @@ def render_debate_mp4(
         assert proc.stdin is not None
 
         global_f = 0
+        prev_focus_cx = W * 0.50
         for idx, turn in enumerate(turns):
             is_pro = turn.get("speaker") == "PRO"
             ckey = _get_turn_color_key(turn)
@@ -1120,6 +1197,7 @@ def render_debate_mp4(
             side_key = "PRO" if is_pro else "CON"
             turn_bg.alpha_composite(assets["glows"][(side_key, ckey)])
 
+            focus_cx = (W * 0.468) if is_pro else (W * 0.532)
             n_f = turn_frame_counts[idx]
             for f in range(n_f):
                 local_t = f / FPS
@@ -1128,41 +1206,43 @@ def render_debate_mp4(
                 energy = float(rms_env[min(global_f, len(rms_env) - 1)])
                 global_f += 1
 
-                enter = min(1.0, local_t / 0.35)
-                ease = 1.0 - (1.0 - enter) ** 3
-                is_blinking = ((local_t + 1.1) % 3.4) < 0.14
-                talk_bounce = math.sin(local_t * 11.0) * (2.5 + 3.5 * energy)
-                idle_breath = math.sin(local_t * 2.2) * 1.8
+                pan_prog = min(1.0, local_t / 0.55)
+                ease_pan = 1.0 - (1.0 - pan_prog) ** 3
+                is_blinking = ((local_t + 1.1) % 3.6) < 0.13
+                talk_cadence = (
+                    math.sin(local_t * 1.8) * 0.9
+                    - (0.4 + 1.4 * energy) * (0.5 + 0.5 * math.sin(local_t * 5.4))
+                )
+                idle_breath = math.sin(local_t * 1.45 + 1.1) * 1.0
 
                 stage = turn_bg.copy()
 
                 if is_pro:
                     p_spr = assets["pro_act_blink"] if is_blinking else assets["pro_act"]
                     c_spr = assets["con_idle"]
-                    p_x = 312 - p_spr.width // 2 + int((1.0 - ease) * -18)
-                    p_y = 1325 - p_spr.height + int(talk_bounce - ease * 6)
-                    c_x = 772 - c_spr.width // 2
-                    c_y = 1312 - c_spr.height + int(idle_breath)
+                    p_x = 225 - p_spr.width // 2
+                    p_y = 1318 - p_spr.height + int(round(talk_cadence))
+                    c_x = 855 - c_spr.width // 2
+                    c_y = 1314 - c_spr.height + int(round(idle_breath))
                     stage.paste(c_spr, (c_x, c_y), c_spr)
                     stage.paste(p_spr, (p_x, p_y), p_spr)
                 else:
                     p_spr = assets["pro_idle"]
                     c_spr = assets["con_act_blink"] if is_blinking else assets["con_act"]
-                    p_x = 308 - p_spr.width // 2
-                    p_y = 1322 - p_spr.height + int(idle_breath)
-                    c_x = 768 - c_spr.width // 2 + int((1.0 - ease) * 18)
-                    c_y = 1310 - c_spr.height + int(talk_bounce - ease * 6)
+                    p_x = 225 - p_spr.width // 2
+                    p_y = 1316 - p_spr.height + int(round(idle_breath))
+                    c_x = 855 - c_spr.width // 2
+                    c_y = 1316 - c_spr.height + int(round(talk_cadence))
                     stage.paste(p_spr, (p_x, p_y), p_spr)
                     stage.paste(c_spr, (c_x, c_y), c_spr)
 
                 stage.paste(assets["desk_fg"], (0, 0), assets["desk_fg"])
 
-                zoom = 1.0 + 0.052 * turn_prog
+                zoom = 1.022 + 0.030 * turn_prog
                 cw = W / zoom
                 ch = H / zoom
-                focus_cx = (W * 0.44) if is_pro else (W * 0.56)
-                cx = W * 0.5 + (focus_cx - W * 0.5) * ease
-                cy = H * 0.515
+                cx = prev_focus_cx + (focus_cx - prev_focus_cx) * ease_pan
+                cy = H * 0.504
                 x0 = max(0.0, min(W - cw, cx - cw * 0.5))
                 y0 = max(0.0, min(H - ch, cy - ch * 0.5))
                 frame = stage.crop((int(x0), int(y0), int(x0 + cw), int(y0 + ch))).resize((W, H), Image.Resampling.BILINEAR)
@@ -1200,6 +1280,7 @@ def render_debate_mp4(
                     draw.rounded_rectangle([bx, 1804 - bh // 2, bx + 7, 1804 + bh // 2], radius=3, fill=accent_rgb)
 
                 proc.stdin.write(frame.tobytes())
+            prev_focus_cx = focus_cx
 
         proc.stdin.close()
         ret = proc.wait()

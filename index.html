@@ -215,10 +215,10 @@
       transform: translateY(-0.5px);
     }
 
-    /* 9:16 Anodized Obsidian Reference Monitor */
+    /* 9:16 Anodized Obsidian Reference Monitor (interior 306x544 = exact 9:16) */
     .phone-chassis {
       width: 320px;
-      height: 570px;
+      height: 558px;
       margin: 0 auto;
       border-radius: 30px;
       padding: 7px;
@@ -243,7 +243,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 14px 12px 10px;
+      padding: 9px 11px 9px;
     }
 
     .stage-spotlight {
@@ -251,11 +251,11 @@
       inset: 0;
       z-index: 5;
       pointer-events: none;
-      background: radial-gradient(circle at 28% 62%, rgba(37, 99, 235, 0.36), rgba(37, 99, 235, 0.08) 40%, transparent 68%);
+      background: radial-gradient(circle at 23% 56%, rgba(37, 99, 235, 0.32), rgba(37, 99, 235, 0.07) 40%, transparent 66%);
       transition: background 0.35s ease;
     }
     .stage-spotlight.con-mode {
-      background: radial-gradient(circle at 72% 62%, rgba(220, 38, 38, 0.36), rgba(220, 38, 38, 0.08) 40%, transparent 68%);
+      background: radial-gradient(circle at 77% 56%, rgba(220, 38, 38, 0.32), rgba(220, 38, 38, 0.07) 40%, transparent 66%);
     }
 
     /* High-Contrast Speech Bubble */
@@ -263,27 +263,27 @@
       position: relative;
       background: rgba(255, 255, 255, 0.99);
       color: #0F172A;
-      border-radius: 15px;
-      padding: 11px 13px 12px;
+      border-radius: 13px;
+      padding: 8px 11px 9px;
       border: 1.5px solid rgba(15, 23, 42, 0.12);
-      border-top: 4px solid var(--pro-accent);
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.48);
+      border-top: 3.5px solid var(--pro-accent);
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.44);
       transition: border-color 0.2s ease;
     }
     .speech-bubble.con-mode { border-top-color: var(--con-accent); }
     .speech-tail {
       position: absolute;
-      bottom: -7px;
-      width: 14px;
-      height: 14px;
+      bottom: -6px;
+      width: 12px;
+      height: 12px;
       background: #FFFFFF;
       border-right: 1px solid rgba(15, 23, 42, 0.12);
       border-bottom: 1px solid rgba(15, 23, 42, 0.12);
       transform: rotate(45deg);
-      left: 66px;
+      left: 58px;
       transition: left 0.24s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .speech-bubble.con-mode .speech-tail { left: calc(100% - 82px); }
+    .speech-bubble.con-mode .speech-tail { left: calc(100% - 70px); }
 
     /* High-Contrast Kinetic Word Highlight */
     .kw-spoken { color: #0F172A; font-weight: 700; }
@@ -294,23 +294,23 @@
     .kw-active-amber { color: #B45309; background: #FEF3C7; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
     .kw-upcoming { color: #334155; font-weight: 600; }
 
-    /* Character Stage Animations */
+    /* Calm Broadcast Seated Anchor Motion (centered via outer percentage anchor) */
     .char-actor {
-      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), filter 0.24s ease, opacity 0.24s ease;
+      transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), filter 0.34s ease, opacity 0.34s ease;
       transform-origin: bottom center;
-      filter: brightness(0.55) saturate(0.76) blur(0.6px);
-      opacity: 0.84;
-      transform: scale(0.90);
+      filter: brightness(0.76) saturate(0.88) blur(0.35px);
+      opacity: 0.96;
+      transform: scale(0.986);
     }
     .char-actor.speaking {
-      filter: brightness(1.04) saturate(1.06) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+      filter: brightness(1.03) saturate(1.04) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.36));
       opacity: 1;
-      transform: scale(1.06) translateY(-4px);
-      animation: talkBob 0.55s infinite ease-in-out alternate;
+      transform: scale(1.012);
+      animation: talkCadence 1.8s infinite ease-in-out alternate;
     }
-    @keyframes talkBob {
-      0% { transform: scale(1.05) translateY(-2px); }
-      100% { transform: scale(1.07) translateY(-7px); }
+    @keyframes talkCadence {
+      0% { transform: scale(1.012) translateY(0px); }
+      100% { transform: scale(1.012) translateY(-1.5px); }
     }
 
     /* 10-Band Equalizer Bars */
@@ -640,68 +640,72 @@
                   class="absolute inset-0 w-full h-full object-cover pointer-events-none z-20"
                 />
 
-                <!-- Top HUD + High-Contrast 2-Clause Bubble -->
-                <div class="relative z-30 space-y-1.5">
+                <!-- Top HUD + High-Contrast 2-Clause Bubble (clears anchor crowns cleanly) -->
+                <div class="relative z-30 space-y-1">
                   <div>
-                    <div class="w-full h-1 rounded-full bg-white/15 overflow-hidden mb-1.5">
+                    <div class="w-full h-1 rounded-full bg-white/15 overflow-hidden mb-1">
                       <div id="shortsProgressBar" class="h-full bg-[#2563EB] transition-all duration-100" style="width: 0%"></div>
                     </div>
-                    <div class="flex items-center justify-between text-[10px] text-[#E4E4E7] mono-num mb-1.5">
+                    <div class="flex items-center justify-between text-[9.5px] text-[#E4E4E7] mono-num mb-1">
                       <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/90 font-semibold" id="shortsTurnCounter">1 / 6</span>
                       <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/90 text-[#D4D4D8]" id="shortsTimerDisplay">0:00 / 0:56</span>
                     </div>
-                    <div class="rounded-lg bg-[#0E1015]/90 border border-white/15 px-2.5 py-1.5">
-                      <h3 id="shortsIssueTitle" class="text-[11.5px] font-bold text-white text-center leading-snug line-clamp-2">
+                    <div class="rounded-lg bg-[#0E1015]/90 border border-white/15 px-2 py-1">
+                      <h3 id="shortsIssueTitle" class="text-[11px] font-bold text-white text-center leading-snug line-clamp-2">
                         심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
                       </h3>
                     </div>
                   </div>
 
                   <div id="shortsSpeechBubble" class="speech-bubble">
-                    <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center justify-between mb-0.5">
                       <div class="flex items-center gap-1.5">
-                        <span id="shortsSpeakerBadge" class="text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#DBEAFE] text-[#1D4ED8]">규제 강화</span>
-                        <span id="shortsClauseBadge" class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#F1F5F9] text-[#475569] mono-num">논지 1/2</span>
+                        <span id="shortsSpeakerBadge" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#DBEAFE] text-[#1D4ED8]">규제 강화</span>
+                        <span id="shortsClauseBadge" class="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-[#F1F5F9] text-[#475569] mono-num">논지 1/2</span>
                       </div>
                       <div id="shortsBubbleEq" class="eq-bars">
                         <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
                         <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
                       </div>
                     </div>
-                    <div id="shortsCorePoint" class="text-[11.5px] font-bold text-[#1D4ED8] mb-1 leading-snug">
+                    <div id="shortsCorePoint" class="text-[11px] font-bold text-[#1D4ED8] mb-0.5 leading-snug">
                       헌법상 주거 평온권 및 심야 수면권 침해 심각
                     </div>
-                    <p id="shortsSubtitleText" class="text-[13px] font-semibold text-[#0F172A] leading-[1.52] min-h-[60px]">
+                    <p id="shortsSubtitleText" class="text-[12px] font-semibold text-[#0F172A] leading-[1.42] min-h-[38px]">
                       새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다.
                     </p>
                     <div class="speech-tail"></div>
                   </div>
                 </div>
 
-                <!-- Two Studio Anchors Behind Desk -->
-                <img
-                  id="avatarCardPro"
-                  src="static/assets/pro_avatar.png"
-                  onerror="this.onerror=null;this.src='pro_avatar.png'"
-                  alt="좌측 진행자"
-                  class="char-actor speaking absolute z-10 left-[14px] bottom-[140px] h-[152px] w-auto object-contain select-none pointer-events-none"
-                />
-                <img
-                  id="avatarCardCon"
-                  src="static/assets/con_avatar.png"
-                  onerror="this.onerror=null;this.src='con_avatar.png'"
-                  alt="우측 진행자"
-                  class="char-actor absolute z-10 right-[14px] bottom-[144px] h-[138px] w-auto object-contain select-none pointer-events-none"
-                />
+                <!-- Two Studio Anchors Seated Behind Curved Broadcast Stand -->
+                <div class="absolute -translate-x-1/2 pointer-events-none z-10" style="left: 20.83%; bottom: 31.35%; height: 29.48%;">
+                  <img
+                    id="avatarCardPro"
+                    src="static/assets/pro_avatar.png"
+                    onerror="this.onerror=null;this.src='pro_avatar.png'"
+                    alt="좌측 진행자"
+                    class="char-actor speaking h-full w-auto max-w-none select-none pointer-events-none"
+                  />
+                </div>
+                <div class="absolute -translate-x-1/2 pointer-events-none z-10" style="left: 79.17%; bottom: 31.46%; height: 29.06%;">
+                  <img
+                    id="avatarCardCon"
+                    src="static/assets/con_avatar.png"
+                    onerror="this.onerror=null;this.src='con_avatar.png'"
+                    alt="우측 진행자"
+                    class="char-actor h-full w-auto max-w-none select-none pointer-events-none"
+                  />
+                </div>
 
                 <!-- Dynamic Multi-Perspective Telemetry Footer -->
-                <div id="shortsTelemetryArea" class="relative z-30 rounded-xl bg-[#0E1119]/90 px-2.5 py-2 border border-white/10 mt-auto">
+                <div id="shortsTelemetryArea" class="relative z-30 rounded-xl bg-[#0E1119]/90 px-2.5 py-1.5 border border-white/10 mt-auto">
                   <div id="shortsLegendRow" class="flex items-center justify-between gap-1 text-[9.5px] font-semibold mb-1 truncate">
                     <span class="text-[#60A5FA] mono-num">규제 강화 88%</span>
                     <span class="text-[#A1A1AA]">찬반 공론장 중재</span>
                     <span class="text-[#F87171] mono-num">신중·보완 12%</span>
                   </div>
-                  <div id="shortsRatioBar" class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden flex gap-0.5 mb-1.5">
+                  <div id="shortsRatioBar" class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden flex gap-0.5 mb-1">
                     <div class="h-full bg-[#2563EB] rounded-full" style="width: 88%"></div>
                     <div class="h-full bg-[#DC2626] rounded-full" style="width: 12%"></div>
                   </div>
@@ -3467,6 +3471,24 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       await Promise.all([studioImg, deskImg, proImg, conImg].map(waitImageReady));
 
       // Pre-bake offscreen canvases per (side, colorKey) ONCE so every 30fps frame blits in <3ms!
+      const bakeHost = (img, targetH, active) => {
+        if (!img || !img.complete || img.naturalWidth <= 0) return null;
+        const sc = targetH / img.naturalHeight;
+        const dw = Math.round(img.naturalWidth * sc);
+        const c = createOffscreenCanvas(dw + 16, targetH + 16);
+        const cx = c.getContext("2d");
+        cx.globalAlpha = 1.0;
+        if ("filter" in cx) {
+          cx.filter = active ? "brightness(1.03) saturate(1.04)" : "brightness(0.76) saturate(0.88) blur(0.45px)";
+        }
+        cx.drawImage(img, 8, 8, dw, targetH);
+        return { canvas: c, dw, dh: targetH };
+      };
+      const proActH = bakeHost(proImg, 566, true);
+      const proIdleH = bakeHost(proImg, 558, false);
+      const conActH = bakeHost(conImg, 558, true);
+      const conIdleH = bakeHost(conImg, 550, false);
+
       const stageCache = {};
       const getStageCanvas = (isPro, colorKey) => {
         const key = `${isPro ? "L" : "R"}_${colorKey}`;
@@ -3481,9 +3503,28 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           g.addColorStop(0, "#0E1015"); g.addColorStop(1, "#0B0D12");
           cx.fillStyle = g; cx.fillRect(0, 0, W, H);
         }
-        const sx = isPro ? W * 0.28 : W * 0.72;
-        const sy = H * 0.58;
-        const rad = cx.createRadialGradient(sx, sy, 24, sx, sy, 440);
+        // Subtle chair ambient shadows behind both seated anchors
+        if (proImg && proImg.complete && proImg.naturalWidth > 0) {
+          const scP = 566 / proImg.naturalHeight;
+          const dwP = Math.round(proImg.naturalWidth * scP);
+          cx.save();
+          cx.globalAlpha = 0.36;
+          if ("filter" in cx) cx.filter = "brightness(0) blur(12px)";
+          cx.drawImage(proImg, 225 - dwP / 2 + 10, 1318 - 566 + 10, dwP, 566);
+          cx.restore();
+        }
+        if (conImg && conImg.complete && conImg.naturalWidth > 0) {
+          const scC = 558 / conImg.naturalHeight;
+          const dwC = Math.round(conImg.naturalWidth * scC);
+          cx.save();
+          cx.globalAlpha = 0.36;
+          if ("filter" in cx) cx.filter = "brightness(0) blur(12px)";
+          cx.drawImage(conImg, 855 - dwC / 2 - 10, 1316 - 558 + 10, dwC, 558);
+          cx.restore();
+        }
+        const sx = isPro ? 235 : 845;
+        const sy = 940;
+        const rad = cx.createRadialGradient(sx, sy, 28, sx, sy, 480);
         rad.addColorStop(0, pal.canvasSpot0);
         rad.addColorStop(0.5, pal.canvasSpot1);
         rad.addColorStop(1, "rgba(0,0,0,0)");
@@ -3493,27 +3534,22 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       };
       turns.forEach((t) => getStageCanvas(t.speaker === "PRO", getTurnColorKey(t)));
 
-      const bakeHost = (img, targetH, active) => {
-        if (!img || !img.complete || img.naturalWidth <= 0) return null;
-        const sc = targetH / img.naturalHeight;
-        const dw = Math.round(img.naturalWidth * sc);
-        const c = createOffscreenCanvas(dw + 16, targetH + 16);
-        const cx = c.getContext("2d");
-        cx.globalAlpha = active ? 1.0 : 0.86;
-        if ("filter" in cx) {
-          cx.filter = active ? "brightness(1.04) saturate(1.06)" : "brightness(0.55) saturate(0.75) blur(1.2px)";
-        }
-        cx.drawImage(img, 8, 8, dw, targetH);
-        return { canvas: c, dw, dh: targetH };
-      };
-      const proActH = bakeHost(proImg, 578, true);
-      const proIdleH = bakeHost(proImg, 542, false);
-      const conActH = bakeHost(conImg, 526, true);
-      const conIdleH = bakeHost(conImg, 502, false);
-
       const deskC = createOffscreenCanvas(W, H);
+      const dCtx = deskC.getContext("2d");
+      dCtx.save();
+      dCtx.beginPath();
+      for (let x = 0; x <= W; x += 24) {
+        const y = 1212 + 18 * Math.pow((x - 540) / 540, 2);
+        if (x === 0) dCtx.moveTo(x, y);
+        else dCtx.lineTo(x, y);
+      }
+      dCtx.strokeStyle = "rgba(0, 0, 0, 0.42)";
+      dCtx.lineWidth = 18;
+      if ("filter" in dCtx) dCtx.filter = "blur(8px)";
+      dCtx.stroke();
+      dCtx.restore();
       if (deskImg && deskImg.complete && deskImg.naturalWidth > 0) {
-        deskC.getContext("2d").drawImage(deskImg, 0, 0, W, H);
+        dCtx.drawImage(deskImg, 0, 0, W, H);
       }
 
       // Decode audio buffers & compute acoustic RMS clause boundaries
@@ -3683,14 +3719,18 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
         onProgress(Math.min(99, Math.round(22 + globalProg * 77)), `${ttsBuffers[tIdx] ? "AI 음성 + " : ""}1080p 방송 영상 녹화 중 (${formatMinSec(nowSec)} / ${formatMinSec(totalRenderSec)})`);
 
-        // 1) Camera Dolly Zoom Stage (fast blitting of pre-cached offscreen layers)
-        const enter = Math.min(1, localSec / 0.35);
-        const ease = 1 - Math.pow(1 - enter, 3);
-        const zoom = 1.0 + 0.052 * turnProg;
+        // 1) Calm Broadcast Camera Pan & Seated Anchor Framing (matches render_mp4.py)
+        const panProg = Math.min(1, localSec / 0.55);
+        const easePan = 1 - Math.pow(1 - panProg, 3);
+        const zoom = 1.022 + 0.030 * turnProg;
         const cw = W / zoom, ch = H / zoom;
-        const focusCx = isPro ? W * 0.44 : W * 0.56;
-        const cx = Math.max(cw * 0.5, Math.min(W - cw * 0.5, W * 0.5 + (focusCx - W * 0.5) * ease));
-        const cy = Math.max(ch * 0.5, Math.min(H - ch * 0.5, H * 0.515));
+        const focusCx = isPro ? W * 0.468 : W * 0.532;
+        const prevFocusCx = tIdx === 0
+          ? W * 0.50
+          : (turns[tIdx - 1].speaker === "PRO" ? W * 0.468 : W * 0.532);
+        const cxRaw = prevFocusCx + (focusCx - prevFocusCx) * easePan;
+        const cx = Math.max(cw * 0.5, Math.min(W - cw * 0.5, cxRaw));
+        const cy = Math.max(ch * 0.5, Math.min(H - ch * 0.5, H * 0.504));
 
         ctx.save();
         ctx.translate(W * 0.5, H * 0.5);
@@ -3699,19 +3739,19 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
         ctx.drawImage(getStageCanvas(isPro, cKey), 0, 0);
 
-        const talkBounce = Math.sin(localSec * 11) * 4.2 + Math.sin(localSec * 4.5) * 2;
-        const idleBreath = Math.sin(localSec * 2.2) * 1.8;
-        const blitHost = (hSpec, centerX, baselineY, offY, slideX) => {
+        const talkCadence = Math.sin(localSec * 1.8) * 0.9 - 1.1 * (0.5 + 0.5 * Math.sin(localSec * 5.4));
+        const idleBreath = Math.sin(localSec * 1.45 + 1.1) * 1.0;
+        const blitHost = (hSpec, centerX, baselineY, offY) => {
           if (!hSpec) return;
-          ctx.drawImage(hSpec.canvas, centerX - hSpec.dw / 2 - 8 + slideX, baselineY - hSpec.dh - 8 + offY);
+          ctx.drawImage(hSpec.canvas, centerX - hSpec.dw / 2 - 8, baselineY - hSpec.dh - 8 + offY);
         };
 
         if (isPro) {
-          blitHost(conIdleH, 772, 1312, idleBreath, 0);
-          blitHost(proActH, 312, 1325, talkBounce - ease * 6, (1 - ease) * -18);
+          blitHost(conIdleH, 855, 1314, idleBreath);
+          blitHost(proActH, 225, 1318, talkCadence);
         } else {
-          blitHost(proIdleH, 308, 1322, idleBreath, 0);
-          blitHost(conActH, 768, 1310, talkBounce - ease * 6, (1 - ease) * 18);
+          blitHost(proIdleH, 225, 1316, idleBreath);
+          blitHost(conActH, 855, 1316, talkCadence);
         }
         ctx.drawImage(deskC, 0, 0);
         ctx.restore();
@@ -4590,7 +4630,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const spotlight = document.getElementById("stageSpotlight");
       if (spotlight) {
         spotlight.classList.toggle("con-mode", !isPro);
-        spotlight.style.background = `radial-gradient(circle at ${isPro ? "28%" : "72%"} 62%, ${pal.spotlight0}, ${pal.spotlight1} 40%, transparent 68%)`;
+        spotlight.style.background = `radial-gradient(circle at ${isPro ? "23%" : "77%"} 56%, ${pal.spotlight0}, ${pal.spotlight1} 40%, transparent 66%)`;
       }
 
       document.getElementById("shortsTurnCounter").textContent = `${safeIdx + 1} / ${turns.length}`;
@@ -4608,13 +4648,13 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const badge = document.getElementById("shortsSpeakerBadge");
       const sideNum = Math.floor(safeIdx / 2) + 1;
       const lblText = (turn.perspective_label || "").trim() || (isPro ? `좌측 ${sideNum}` : `우측 ${sideNum}`);
-      badge.className = "text-[10.5px] font-bold px-1.5 py-0.5 rounded truncate max-w-[140px]";
+      badge.className = "text-[10px] font-bold px-1.5 py-0.5 rounded truncate max-w-[140px]";
       badge.style.backgroundColor = pal.pillBg;
       badge.style.color = pal.txt;
       badge.textContent = lblText;
 
       const coreEl = document.getElementById("shortsCorePoint");
-      coreEl.className = "text-[11.5px] font-bold mb-1 leading-snug";
+      coreEl.className = "text-[11px] font-bold mb-0.5 leading-snug";
       coreEl.style.color = pal.txt;
       coreEl.textContent = turn.core_point;
 
