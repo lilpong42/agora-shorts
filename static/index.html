@@ -102,48 +102,75 @@
       height: 100%;
       border-radius: 25px;
       background:
-        radial-gradient(circle at 22% 24%, rgba(59, 130, 246, 0.18), transparent 45%),
-        radial-gradient(circle at 78% 28%, rgba(244, 63, 94, 0.18), transparent 45%),
+        radial-gradient(circle at 22% 70%, rgba(59, 130, 246, 0.22), transparent 48%),
+        radial-gradient(circle at 78% 70%, rgba(244, 63, 94, 0.22), transparent 48%),
         #070A11;
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 14px;
+      padding: 12px 12px 10px;
     }
 
-    .avatar-box {
-      border-radius: 14px;
-      padding: 10px 8px;
-      background: rgba(17, 24, 39, 0.72);
-      border: 1.5px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: all 0.25s ease;
+    /* Comic / Broadcast Speech Bubble */
+    .speech-bubble {
+      position: relative;
+      background: #F8FAFC;
+      color: #0F172A;
+      border-radius: 18px;
+      padding: 11px 13px;
+      border: 2.5px solid #3B82F6;
+      box-shadow: 0 14px 28px -8px rgba(0, 0, 0, 0.6);
+      transition: border-color 0.25s ease, transform 0.25s ease;
     }
-
-    .avatar-pro.speaking {
-      border-color: #3B82F6;
-      background: rgba(30, 58, 138, 0.35);
-      box-shadow: 0 0 24px -4px rgba(59, 130, 246, 0.5);
-      transform: translateY(-2px);
-    }
-
-    .avatar-con.speaking {
+    .speech-bubble.con-mode {
       border-color: #F43F5E;
-      background: rgba(136, 19, 55, 0.35);
-      box-shadow: 0 0 24px -4px rgba(244, 63, 94, 0.5);
-      transform: translateY(-2px);
+    }
+    .speech-tail {
+      position: absolute;
+      bottom: -11px;
+      width: 18px;
+      height: 18px;
+      background: #F8FAFC;
+      border-right: 2.5px solid #3B82F6;
+      border-bottom: 2.5px solid #3B82F6;
+      transform: rotate(45deg);
+      left: 72px;
+      transition: left 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease;
+    }
+    .speech-bubble.con-mode .speech-tail {
+      left: calc(100% - 92px);
+      border-color: #F43F5E;
+    }
+
+    /* Face-to-face Webtoon Character Stage */
+    .char-actor {
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s ease, opacity 0.25s ease;
+      transform-origin: bottom center;
+      filter: brightness(0.55) saturate(0.75);
+      opacity: 0.72;
+      transform: scale(0.88);
+    }
+    .char-actor.speaking {
+      filter: brightness(1.04) saturate(1.08) drop-shadow(0 0 14px rgba(59, 130, 246, 0.45));
+      opacity: 1;
+      transform: scale(1.06) translateY(-4px);
+      animation: talkBob 0.55s infinite ease-in-out alternate;
+    }
+    .char-actor.char-con.speaking {
+      filter: brightness(1.04) saturate(1.08) drop-shadow(0 0 14px rgba(244, 63, 94, 0.45));
+    }
+    @keyframes talkBob {
+      0% { transform: scale(1.06) translateY(-2px); }
+      100% { transform: scale(1.08) translateY(-8px); }
     }
 
     .wave-bars {
       display: flex;
       align-items: center;
       gap: 3px;
-      height: 16px;
-      margin-top: 6px;
+      height: 14px;
     }
     .wave-bar {
       width: 3px;
@@ -151,13 +178,13 @@
       border-radius: 99px;
       background: #475569;
     }
-    .avatar-pro.speaking .wave-bar {
+    .speaking-eq-pro .wave-bar {
       background: #60A5FA;
-      animation: wave 0.48s infinite ease-in-out alternate;
+      animation: wave 0.45s infinite ease-in-out alternate;
     }
-    .avatar-con.speaking .wave-bar {
+    .speaking-eq-con .wave-bar {
       background: #FB7185;
-      animation: wave 0.44s infinite ease-in-out alternate;
+      animation: wave 0.42s infinite ease-in-out alternate;
     }
     .wave-bar:nth-child(2) { animation-delay: 0.1s; }
     .wave-bar:nth-child(3) { animation-delay: 0.22s; }
@@ -165,7 +192,7 @@
     .wave-bar:nth-child(5) { animation-delay: 0.18s; }
     @keyframes wave {
       0% { height: 4px; opacity: 0.5; }
-      100% { height: 15px; opacity: 1; }
+      100% { height: 14px; opacity: 1; }
     }
 
     .turn-row {
@@ -304,59 +331,71 @@
             <div class="shorts-frame">
               <!-- Mode A: Interactive Dual-Avatar Simulator -->
               <div id="interactiveViewport" class="shorts-viewport">
+                <!-- Top: Progress & Issue Headline -->
                 <div>
-                  <div class="w-full h-1 rounded-full bg-white/10 overflow-hidden mb-2">
+                  <div class="w-full h-1 rounded-full bg-white/10 overflow-hidden mb-1.5">
                     <div id="shortsProgressBar" class="h-full bg-gradient-to-r from-blue-500 to-rose-500 transition-all duration-100" style="width: 0%"></div>
                   </div>
-                  <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-2">
-                    <span class="px-1.5 py-0.5 rounded bg-white/10 text-white font-bold">SHORTS</span>
-                    <span id="shortsTimerDisplay" class="text-slate-200">40.0s</span>
+                  <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1.5">
+                    <span class="px-1.5 py-0.5 rounded bg-white/10 text-white font-bold">SHORTS · <span id="shortsTurnCounter">1/6</span></span>
+                    <span id="shortsTimerDisplay" class="text-slate-200 font-semibold">40.0s</span>
                   </div>
-                  <h3 id="shortsIssueTitle" class="text-sm font-extrabold text-white leading-snug line-clamp-2">
+                  <h3 id="shortsIssueTitle" class="text-xs font-extrabold text-white text-center bg-white/[0.05] border border-white/[0.08] rounded-xl px-2.5 py-2 leading-snug line-clamp-2">
                     심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
                   </h3>
                 </div>
 
-                <!-- Dual Avatars -->
-                <div class="grid grid-cols-2 gap-2.5 my-2">
-                  <div id="avatarCardPro" class="avatar-box avatar-pro">
-                    <div class="w-12 h-12 rounded-full bg-blue-600/25 border border-blue-400/50 flex items-center justify-center mb-1.5">
-                      <span class="text-xs font-extrabold text-blue-300">PRO</span>
-                    </div>
-                    <span class="text-xs font-bold text-white">찬성 아나운서</span>
-                    <span class="text-[11px] text-slate-400 mono-num" id="shortsProShare">88%</span>
-                    <div class="wave-bars">
+                <!-- Middle: Dynamic Speech Bubble pointing to Active Character -->
+                <div id="shortsSpeechBubble" class="speech-bubble my-1">
+                  <div class="flex items-center justify-between mb-1">
+                    <span id="shortsSpeakerBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-blue-600 text-white">찬성 #1</span>
+                    <div id="shortsBubbleEq" class="wave-bars">
                       <span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span>
                     </div>
                   </div>
-
-                  <div id="avatarCardCon" class="avatar-box avatar-con">
-                    <div class="w-12 h-12 rounded-full bg-rose-600/25 border border-rose-400/50 flex items-center justify-center mb-1.5">
-                      <span class="text-xs font-extrabold text-rose-300">CON</span>
-                    </div>
-                    <span class="text-xs font-bold text-white">반대 아나운서</span>
-                    <span class="text-[11px] text-slate-400 mono-num" id="shortsConShare">12%</span>
-                    <div class="wave-bars">
-                      <span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Subtitle Box -->
-                <div class="rounded-2xl bg-[#0D1322]/95 border border-white/10 p-3.5">
-                  <div class="flex items-center justify-between mb-1.5">
-                    <span id="shortsSpeakerBadge" class="text-[11px] font-bold px-2 py-0.5 rounded bg-blue-600 text-white">찬성 #1</span>
-                    <span id="shortsTurnCounter" class="text-[11px] text-slate-400 mono-num">1 / 6</span>
-                  </div>
-                  <div id="shortsCorePoint" class="text-xs font-bold text-sky-300 mb-1">
+                  <div id="shortsCorePoint" class="text-[11.5px] font-extrabold text-blue-700 mb-1 leading-snug">
                     헌법상 주거 평온권 및 심야 수면권 침해 심각
                   </div>
-                  <p id="shortsSubtitleText" class="text-xs text-slate-100 leading-relaxed min-h-[78px]">
+                  <p id="shortsSubtitleText" class="text-[11px] font-medium text-slate-900 leading-relaxed min-h-[72px]">
                     새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다.
                   </p>
-                  <div class="flex items-center justify-between pt-2 mt-2 border-t border-white/[0.07]">
-                    <div class="flex items-center gap-1" id="shortsTurnDots"></div>
-                    <span class="text-[10px] text-slate-500">50:50 공론장 중재</span>
+                  <div class="speech-tail"></div>
+                </div>
+
+                <!-- Lower: Two Face-to-Face Webtoon Debate Characters + Studio Podium -->
+                <div class="relative mt-auto pt-1">
+                  <div class="grid grid-cols-2 items-end gap-1 h-[196px] px-1 overflow-hidden">
+                    <div class="flex justify-center items-end h-full">
+                      <img
+                        id="avatarCardPro"
+                        src="static/assets/pro_avatar.png"
+                        onerror="this.onerror=null;this.src='pro_avatar.png'"
+                        alt="찬성 아나운서 캐릭터"
+                        class="char-actor char-pro speaking h-[192px] w-auto object-contain select-none pointer-events-none"
+                      />
+                    </div>
+                    <div class="flex justify-center items-end h-full">
+                      <img
+                        id="avatarCardCon"
+                        src="static/assets/con_avatar.png"
+                        onerror="this.onerror=null;this.src='con_avatar.png'"
+                        alt="반대 패널 캐릭터"
+                        class="char-actor char-con h-[192px] w-auto object-contain select-none pointer-events-none"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Sleek Studio Podium Bar -->
+                  <div class="relative z-10 rounded-xl bg-[#0D1322]/95 border border-white/10 px-2.5 py-2 -mt-2">
+                    <div class="flex items-center justify-between text-[10px] font-bold mb-1.5">
+                      <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 mono-num" id="shortsProShare">찬성 88%</span>
+                      <span class="text-slate-400">50:50 공론장 중재</span>
+                      <span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 mono-num" id="shortsConShare">반대 12%</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-1 border-t border-white/[0.06]">
+                      <div class="flex items-center gap-1" id="shortsTurnDots"></div>
+                      <span class="text-[9.5px] text-slate-500">Agora-Shorts</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1124,6 +1163,9 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
       recorder.start();
       const turns = currentData.debate_script;
+      const proImg = document.getElementById("avatarCardPro");
+      const conImg = document.getElementById("avatarCardCon");
+
       for (let tIdx = 0; tIdx < turns.length; tIdx++) {
         const turn = turns[tIdx];
         const isPro = turn.speaker === "PRO";
@@ -1131,43 +1173,96 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
           ctx.fillStyle = "#070A11";
           ctx.fillRect(0, 0, 720, 1280);
           ctx.fillStyle = "#1E293B";
-          ctx.fillRect(40, 44, 640, 12);
+          ctx.fillRect(40, 34, 640, 10);
           ctx.fillStyle = isPro ? "#3B82F6" : "#F43F5E";
-          ctx.fillRect(40, 44, 640 * ((tIdx + f / 30) / turns.length), 12);
+          ctx.fillRect(40, 34, 640 * ((tIdx + f / 30) / turns.length), 10);
 
           ctx.fillStyle = "#F8FAFC";
-          ctx.font = "bold 24px sans-serif";
-          ctx.fillText(`TURN ${tIdx + 1}/6 · ${currentData.issue_title.slice(0, 22)}`, 45, 112);
+          ctx.font = "bold 23px sans-serif";
+          ctx.fillText(`SHORTS ${tIdx + 1}/6 · ${currentData.issue_title.slice(0, 22)}`, 44, 118);
 
-          ctx.fillStyle = isPro ? "#1E3A8A" : "#881337";
-          ctx.fillRect(40, 260, 640, 320);
-          ctx.fillStyle = "#FFFFFF";
-          ctx.font = "bold 32px sans-serif";
-          ctx.fillText(isPro ? "PRO · AI 아나운서 찬성" : "CON · AI 아나운서 반대", 180, 410);
-          ctx.fillStyle = isPro ? "#93C5FD" : "#FDA4AF";
-          ctx.font = "bold 26px sans-serif";
-          ctx.fillText(turn.core_point, 70, 480);
+          // Speech Bubble with directional tail
+          ctx.fillStyle = "#F8FAFC";
+          ctx.strokeStyle = isPro ? "#3B82F6" : "#F43F5E";
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.roundRect(40, 220, 640, 340, 26);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.beginPath();
+          if (isPro) {
+            ctx.moveTo(165, 558); ctx.lineTo(185, 615); ctx.lineTo(225, 558);
+          } else {
+            ctx.moveTo(495, 558); ctx.lineTo(535, 615); ctx.lineTo(555, 558);
+          }
+          ctx.fillStyle = "#F8FAFC";
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = isPro ? "#1D4ED8" : "#BE123C";
+          ctx.font = "bold 23px sans-serif";
+          ctx.fillText(`${isPro ? "[찬성]" : "[반대]"} ${turn.core_point.slice(0, 24)}`, 72, 275);
 
           ctx.fillStyle = "#0F172A";
-          ctx.fillRect(40, 640, 640, 480);
-          ctx.fillStyle = "#F1F5F9";
-          ctx.font = "24px sans-serif";
+          ctx.font = "600 22px sans-serif";
           const words = turn.text.split(" ");
-          let line = "", y = 720;
+          let line = "", y = 335;
           for (const w of words) {
-            if ((line + w).length > 22) {
-              ctx.fillText(line, 70, y);
+            if ((line + w).length > 24) {
+              ctx.fillText(line, 72, y);
               line = w + " ";
-              y += 42;
+              y += 34;
             } else {
               line += w + " ";
             }
           }
-          if (line) ctx.fillText(line, 70, y);
+          if (line) ctx.fillText(line, 72, y);
+
+          // Draw two webtoon characters with active bounce & dim
+          const bob = Math.sin((f / 30) * Math.PI * 4) * 6;
+          if (proImg && proImg.complete && proImg.naturalWidth > 0) {
+            ctx.save();
+            ctx.globalAlpha = isPro ? 1.0 : 0.48;
+            const pw = isPro ? 330 : 285, ph = isPro ? 430 : 372;
+            ctx.drawImage(proImg, 195 - pw / 2, 1130 - ph + (isPro ? bob : 12), pw, ph);
+            ctx.restore();
+          }
+          if (conImg && conImg.complete && conImg.naturalWidth > 0) {
+            ctx.save();
+            ctx.globalAlpha = !isPro ? 1.0 : 0.48;
+            const cw = !isPro ? 345 : 295, ch = !isPro ? 430 : 372;
+            ctx.drawImage(conImg, 525 - cw / 2, 1130 - ch + (!isPro ? bob : 12), cw, ch);
+            ctx.restore();
+          }
+
+          // Podium footer
+          ctx.fillStyle = "#0B111E";
+          ctx.fillRect(30, 1110, 660, 130);
+          ctx.fillStyle = "#94A3B8";
+          ctx.font = "bold 18px sans-serif";
+          ctx.fillText(`찬성 ${currentData.raw_stats.pro_ratio}%   |   50:50 공론장 중재   |   반대 ${currentData.raw_stats.con_ratio}%`, 145, 1175);
+
           await new Promise((r) => setTimeout(r, 33));
         }
       }
       recorder.stop();
+    }
+
+    function copyVideoAiPrompt(btn) {
+      const promptText = [
+        `[9:16 Vertical YouTube Shorts AI Video Generation Prompt - Veo 2 / HeyGen / Kling]`,
+        `Topic: ${currentData.issue_title}`,
+        `Visual Style: Trendy Korean webtoon / broadcast studio motion-graphic debate, dark navy backdrop (#070A11), 2 charismatic hosts standing face-to-face behind a sleek glass podium.`,
+        `PRO Anchor (Left, Navy Suit, Cobalt Rim Light) & CON Panelist (Right, Burgundy Jacket, Coral Rim Light).`,
+        `6-Turn 40s Script:`,
+        ...currentData.debate_script.map((t, i) => `Turn ${i + 1} (${t.speaker} - ${t.core_point}): "${t.text}"`)
+      ].join("\n");
+      navigator.clipboard.writeText(promptText).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = "✓ AI 프롬프트 복사됨";
+        setTimeout(() => { btn.textContent = orig; }, 1600);
+      });
     }
 
     function playTurnChime(speaker) {
@@ -1246,10 +1341,8 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       document.getElementById("barLogicAfterLabel").textContent = `${logicIndex} / 100`;
       document.getElementById("barLogicAfterFill").style.width = `${logicIndex}%`;
 
-      // 6-Turn Script List (clean & editable)
       renderScriptList();
 
-      // Detox Samples (in Analytics Tab)
       const detoxContainer = document.getElementById("detoxSamplesList");
       detoxContainer.innerHTML = "";
       (data.detox_samples || []).forEach((item) => {
@@ -1278,10 +1371,9 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         debate_script: data.debate_script
       }, null, 2);
 
-      // Update 9:16 Stage
       document.getElementById("shortsIssueTitle").textContent = data.issue_title;
-      document.getElementById("shortsProShare").textContent = `댓글 ${stats.pro_ratio}%`;
-      document.getElementById("shortsConShare").textContent = `댓글 ${stats.con_ratio}%`;
+      document.getElementById("shortsProShare").textContent = `찬성 ${stats.pro_ratio}%`;
+      document.getElementById("shortsConShare").textContent = `반대 ${stats.con_ratio}%`;
       const srcEl = document.getElementById("realMp4Source");
       if (srcEl && data.video_mp4_url) {
         srcEl.setAttribute("src", data.video_mp4_url);
@@ -1340,19 +1432,26 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       const turn = turns[turnIdx] || turns[0];
       const isPro = turn.speaker === "PRO";
 
-      document.getElementById("shortsTurnCounter").textContent = `${turnIdx + 1} / ${turns.length}`;
-      document.getElementById("avatarCardPro").classList.toggle("speaking", speakingActive && isPro);
-      document.getElementById("avatarCardCon").classList.toggle("speaking", speakingActive && !isPro);
+      document.getElementById("shortsTurnCounter").textContent = `${turnIdx + 1}/${turns.length}`;
+      document.getElementById("avatarCardPro").classList.toggle("speaking", isPro);
+      document.getElementById("avatarCardCon").classList.toggle("speaking", !isPro);
+
+      const bubble = document.getElementById("shortsSpeechBubble");
+      bubble.classList.toggle("con-mode", !isPro);
+
+      const eq = document.getElementById("shortsBubbleEq");
+      eq.classList.remove("speaking-eq-pro", "speaking-eq-con");
+      if (speakingActive) eq.classList.add(isPro ? "speaking-eq-pro" : "speaking-eq-con");
 
       const badge = document.getElementById("shortsSpeakerBadge");
       const sideNum = Math.floor(turnIdx / 2) + 1;
       badge.className = isPro
-        ? "text-[11px] font-bold px-2 py-0.5 rounded bg-blue-600 text-white"
-        : "text-[11px] font-bold px-2 py-0.5 rounded bg-rose-600 text-white";
+        ? "text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-blue-600 text-white"
+        : "text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-rose-600 text-white";
       badge.textContent = isPro ? `찬성 #${sideNum}` : `반대 #${sideNum}`;
       document.getElementById("shortsCorePoint").className = isPro
-        ? "text-xs font-bold text-sky-300 mb-1"
-        : "text-xs font-bold text-rose-300 mb-1";
+        ? "text-[11.5px] font-extrabold text-blue-700 mb-1 leading-snug"
+        : "text-[11.5px] font-extrabold text-rose-700 mb-1 leading-snug";
 
       document.getElementById("shortsCorePoint").textContent = turn.core_point;
       document.getElementById("shortsSubtitleText").textContent = turn.text;

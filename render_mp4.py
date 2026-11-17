@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """
 render_mp4.py
-Agora-Shorts 실제 9:16 세로형 MP4 영상(720x1280, H.264 + AAC, 40초 6턴) 렌더링 엔진.
-- 각 턴(PRO 찬성 / CON 반대)별 고해상도 9:16 방송 그래픽 프레임(SVG -> PNG) 생성
-- Gemini 2.5 Flash Native Audio TTS (또는 고품질 방송 시그널/음성 트랙) 오디오 결합
-- ffmpeg libx264 (yuv420p, faststart)로 브라우저 <video> 태그 및 모바일/유튜브 쇼츠 즉시 호환 MP4 생성
+Agora-Shorts 실제 9:16 세로형 MP4 영상(720x1280, H.264 + AAC, 40초 6턴) 고퀄리티 렌더링 엔진.
+- 2인 웹툰·모션그래픽 캐릭터(pro_avatar.png / con_avatar.png) 마주보기 배치
+- 화자 줌인·발화 바운스·비화자 디밍 + 방향성 말풍선(Speech Bubble Tail) 팝업 애니메이션
+- ffmpeg libx264 (yuv420p, faststart)로 유튜브 쇼츠/릴스 즉시 업로드 가능한 MP4 생성
 """
 
 import base64
 import html
-import json
 import math
 import struct
 import subprocess
@@ -18,15 +17,20 @@ import wave
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from PIL import Image, ImageDraw, ImageEnhance
 from presets_data import PRESETS
 
 BASE_DIR = Path(__file__).resolve().parent
+ASSETS_DIR = BASE_DIR / "static" / "assets"
 VIDEOS_DIR = BASE_DIR / "static" / "videos"
 VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
 
+PRO_AVATAR_PATH = ASSETS_DIR / "pro_avatar.png"
+CON_AVATAR_PATH = ASSETS_DIR / "con_avatar.png"
 
-def _wrap_korean_text(text: str, max_chars: int = 24) -> List[str]:
-    """한글 문장을 쇼츠 자막 박스 폭에 맞춰 자연스럽게 줄바꿈."""
+
+def _wrap_korean_text(text: str, max_chars: int = 26, max_lines: int = 6) -> List[str]:
+    """한글 문장을 말풍선 폭에 맞춰 자연스럽게 줄바꿈."""
     words = text.split()
     lines: List[str] = []
     current = ""
@@ -40,7 +44,7 @@ def _wrap_korean_text(text: str, max_chars: int = 24) -> List[str]:
             current = w
     if current:
         lines.append(current)
-    return lines[:5]
+    return lines[:max_lines]
 
 
 def create_turn_frame_png(
@@ -54,161 +58,202 @@ def create_turn_frame_png(
     out_png: Path,
 ) -> None:
     """
-    9:16 (720x1280) 쇼츠 프레임을 SVG로 생성한 뒤 rsvg-convert로 PNG 렌더링.
-    phase (0, 1, 2)에 따라 오디오 파형(Waveform) 높이와 네온 링 크기가 동적으로 변화함.
+    9:16 (720x1280) 웹툰 말풍선 + 2인 캐릭터 대립 프레임을 렌더링.
+    phase (0, 1, 2)에 따라 화자 바운스, 오디오 이퀄라이저, 말풍선 팝업이 동적으로 변화.
     """
     W, H = 720, 1280
     is_pro = turn_data["speaker"] == "PRO"
     progress_pct = ((turn_idx + (phase + 1) / 3.0) / total_turns) * 100.0
     remaining_sec = max(0.0, 40.0 - (progress_pct / 100.0) * 40.0)
 
-    title_lines = _wrap_korean_text(issue_title, max_chars=23)
+    title_lines = _wrap_korean_text(issue_title, max_chars=22, max_lines=2)
     title_svg = "".join(
-        f'<text x="360" y="{178 + i * 32}" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="23" font-weight="700" fill="#F8FAFC">{html.escape(line)}</text>'
-        for i, line in enumerate(title_lines[:2])
+        f'<text x="360" y="{152 + i * 32}" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="24" font-weight="800" fill="#F8FAFC">{html.escape(line)}</text>'
+        for i, line in enumerate(title_lines)
     )
 
-    caption_lines = _wrap_korean_text(turn_data["text"], max_chars=23)
+    caption_lines = _wrap_korean_text(turn_data["text"], max_chars=26, max_lines=6)
     caption_svg = "".join(
-        f'<text x="72" y="{908 + i * 38}" font-family="Noto Sans CJK KR, sans-serif" font-size="24" font-weight="500" fill="#F1F5F9">{html.escape(line)}</text>'
-        for i, line in enumerate(caption_lines[:4])
+        f'<text x="76" y="{380 + i * 32}" font-family="Noto Sans CJK KR, sans-serif" font-size="21.5" font-weight="600" fill="#0F172A">{html.escape(line)}</text>'
+        for i, line in enumerate(caption_lines)
     )
 
-    # Dynamic waveform bar heights for PRO and CON
-    pro_waves = [26, 48, 34, 56, 28, 52, 38, 44, 24] if is_pro else [8, 8, 8, 8, 8, 8, 8, 8, 8]
-    con_waves = [28, 52, 36, 58, 30, 48, 40, 46, 26] if not is_pro else [8, 8, 8, 8, 8, 8, 8, 8, 8]
-    if phase == 1:
-        pro_waves = [h if h == 8 else int(h * 0.65) for h in pro_waves]
-        con_waves = [h if h == 8 else int(h * 0.65) for h in con_waves]
-    elif phase == 2:
-        pro_waves = [h if h == 8 else int(h * 0.85) for h in pro_waves[::-1]]
-        con_waves = [h if h == 8 else int(h * 0.85) for h in con_waves[::-1]]
+    bubble_border = "#3B82F6" if is_pro else "#F43F5E"
+    badge_bg = "#2563EB" if is_pro else "#E11D48"
+    core_color = "#1D4ED8" if is_pro else "#BE123C"
+    speaker_label = f"찬성 #{turn_idx // 2 + 1}" if is_pro else f"반대 #{turn_idx // 2 + 1}"
 
-    pro_wave_svg = "".join(
-        f'<rect x="{122 + i * 16}" y="{638 - h // 2}" width="8" height="{h}" rx="4" fill="{"#60A5FA" if is_pro else "#334155"}"/>'
-        for i, h in enumerate(pro_waves)
+    # Speech bubble tail pointing down-left toward PRO (x=190) or down-right toward CON (x=530)
+    if is_pro:
+        tail_svg = f"""
+        <polygon points="165,576 225,576 178,632" fill="#F8FAFC"/>
+        <polyline points="165,577 178,632 225,577" fill="none" stroke="{bubble_border}" stroke-width="5" stroke-linejoin="round"/>
+        <line x1="167" y1="576" x2="223" y2="576" stroke="#F8FAFC" stroke-width="8"/>
+        """
+    else:
+        tail_svg = f"""
+        <polygon points="495,576 555,576 542,632" fill="#F8FAFC"/>
+        <polyline points="495,577 542,632 555,577" fill="none" stroke="{bubble_border}" stroke-width="5" stroke-linejoin="round"/>
+        <line x1="497" y1="576" x2="553" y2="576" stroke="#F8FAFC" stroke-width="8"/>
+        """
+
+    # Animated equalizer bars near active speaker
+    eq_heights = [
+        [22, 42, 28, 48, 24],
+        [38, 24, 46, 26, 36],
+        [26, 46, 32, 40, 30],
+    ][phase % 3]
+    eq_x = 52 if is_pro else 606
+    eq_color = "#60A5FA" if is_pro else "#FB7185"
+    eq_svg = "".join(
+        f'<rect x="{eq_x + i * 13}" y="{675 - h // 2}" width="7" height="{h}" rx="3.5" fill="{eq_color}"/>'
+        for i, h in enumerate(eq_heights)
     )
-    con_wave_svg = "".join(
-        f'<rect x="{462 + i * 16}" y="{638 - h // 2}" width="8" height="{h}" rx="4" fill="{"#FB7185" if not is_pro else "#334155"}"/>'
-        for i, h in enumerate(con_waves)
-    )
 
-    pro_border = "#60A5FA" if is_pro else "#1E293B"
-    con_border = "#FB7185" if not is_pro else "#1E293B"
-    pro_bg = "#1E3A8A" if is_pro else "#0F172A"
-    con_bg = "#881337" if not is_pro else "#0F172A"
-    pro_ring_r = 74 + (phase * 4 if is_pro else 0)
-    con_ring_r = 74 + (phase * 4 if not is_pro else 0)
+    # Spotlight glow behind active speaker
+    spot_cx = 195 if is_pro else 525
+    spot_color = "#2563EB" if is_pro else "#E11D48"
 
-    caption_border = "#3B82F6" if is_pro else "#F43F5E"
-    speaker_badge_bg = "#2563EB" if is_pro else "#E11D48"
-    speaker_label = f"찬성 측 핵심 논거 #{turn_idx // 2 + 1} (PRO)" if is_pro else f"반대 측 핵심 논거 #{turn_idx // 2 + 1} (CON)"
-    core_color = "#7DD3FC" if is_pro else "#FDA4AF"
-
-    # Step dots
-    dots_svg = []
-    for i in range(total_turns):
-        dx = 76 + i * 32
-        if i == turn_idx:
-            dots_svg.append(f'<rect x="{dx}" y="1142" width="24" height="10" rx="5" fill="{speaker_badge_bg}"/>')
-        elif i < turn_idx:
-            dots_svg.append(f'<rect x="{dx}" y="1142" width="14" height="10" rx="5" fill="#94A3B8"/>')
-        else:
-            dots_svg.append(f'<rect x="{dx}" y="1142" width="14" height="10" rx="5" fill="#334155"/>')
-
-    svg = f"""<?xml version="1.0" encoding="UTF-8"?>
+    # Layer 1: Background + Top Title + Speech Bubble SVG -> PNG
+    bg_svg = f"""<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#070B14"/>
-      <stop offset="50%" stop-color="#0D162B"/>
-      <stop offset="100%" stop-color="#060911"/>
+      <stop offset="0%" stop-color="#070A12"/>
+      <stop offset="55%" stop-color="#0C1324"/>
+      <stop offset="100%" stop-color="#06080E"/>
     </linearGradient>
+    <radialGradient id="spot" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="{spot_color}" stop-opacity="0.48"/>
+      <stop offset="100%" stop-color="{spot_color}" stop-opacity="0"/>
+    </radialGradient>
     <linearGradient id="prog" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#3B82F6"/>
-      <stop offset="50%" stop-color="#38BDF8"/>
       <stop offset="100%" stop-color="#F43F5E"/>
     </linearGradient>
   </defs>
 
   <rect x="0" y="0" width="{W}" height="{H}" fill="url(#bg)"/>
+  <circle cx="{spot_cx}" cy="870" r="290" fill="url(#spot)"/>
 
-  <!-- Top Progress Bar -->
-  <rect x="42" y="38" width="636" height="14" rx="7" fill="#1E293B"/>
-  <rect x="42" y="38" width="{max(14.0, 6.36 * progress_pct):.1f}" height="14" rx="7" fill="url(#prog)"/>
+  <!-- Top Progress & Status -->
+  <rect x="40" y="34" width="640" height="10" rx="5" fill="#1E293B"/>
+  <rect x="40" y="34" width="{max(12.0, 6.40 * progress_pct):.1f}" height="10" rx="5" fill="url(#prog)"/>
 
-  <!-- Top Status Row -->
-  <rect x="42" y="68" width="96" height="34" rx="8" fill="#E11D48"/>
-  <text x="90" y="91" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">SHORTS</text>
-  <text x="154" y="91" font-family="Noto Sans CJK KR, sans-serif" font-size="20" font-weight="700" fill="#F8FAFC">TURN {turn_idx + 1} / {total_turns}</text>
-  <text x="678" y="91" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="20" font-weight="700" fill="#38BDF8">{remaining_sec:.1f}s 남음</text>
+  <rect x="40" y="60" width="92" height="32" rx="8" fill="#1E293B"/>
+  <text x="86" y="82" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="800" fill="#FFFFFF">SHORTS</text>
+  <text x="148" y="82" font-family="Noto Sans CJK KR, sans-serif" font-size="18" font-weight="700" fill="#94A3B8">TURN {turn_idx + 1}/{total_turns}</text>
+  <text x="680" y="82" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="18" font-weight="700" fill="#E2E8F0">{remaining_sec:.1f}s</text>
 
-  <!-- Issue Header Box -->
-  <rect x="42" y="116" width="636" height="122" rx="18" fill="#0F172A" stroke="#334155" stroke-width="2"/>
-  <text x="360" y="144" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="17" font-weight="700" fill="#38BDF8">{html.escape(category_badge)}</text>
+  <!-- Issue Headline -->
+  <rect x="40" y="108" width="640" height="104" rx="18" fill="#111827" fill-opacity="0.85" stroke="#1F2937" stroke-width="1.5"/>
   {title_svg}
 
-  <!-- Real YouTube Stats Pill -->
-  <rect x="42" y="252" width="636" height="48" rx="12" fill="#131C31" stroke="#1E293B" stroke-width="1.5"/>
-  <text x="360" y="282" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="17" font-weight="600" fill="#CBD5E1">
-    실측 댓글 {raw_stats['total_comments']}건 분석 · 악플 {raw_stats['filtered_curse_count']}건 정화 · 과열도 {raw_stats['toxicity_before']}→{raw_stats['toxicity_after']}점
+  <!-- Comic / Broadcast Speech Bubble -->
+  <rect x="40" y="232" width="640" height="346" rx="28" fill="#F8FAFC" stroke="{bubble_border}" stroke-width="5"/>
+  {tail_svg}
+
+  <!-- Speech Bubble Header -->
+  <rect x="74" y="256" width="124" height="34" rx="10" fill="{badge_bg}"/>
+  <text x="136" y="279" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="17" font-weight="800" fill="#FFFFFF">{html.escape(speaker_label)}</text>
+  <text x="646" y="279" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="700" fill="#64748B">실측 {raw_stats['total_comments']}개 댓글 핵심 요약</text>
+
+  <!-- Core Argument Headline inside Bubble -->
+  <text x="76" y="330" font-family="Noto Sans CJK KR, sans-serif" font-size="24" font-weight="800" fill="{core_color}">
+    {html.escape(turn_data['core_point'][:26])}
   </text>
-
-  <!-- PRO Avatar Card (Left) -->
-  <rect x="42" y="330" width="304" height="360" rx="24" fill="{pro_bg}" fill-opacity="0.45" stroke="{pro_border}" stroke-width="3.5"/>
-  <rect x="64" y="352" width="110" height="32" rx="8" fill="#1D4ED8"/>
-  <text x="119" y="374" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">PRO · 찬성</text>
-  <text x="322" y="374" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="18" font-weight="700" fill="#93C5FD">여론 {raw_stats['pro_ratio']}%</text>
-
-  <circle cx="194" cy="485" r="{pro_ring_r}" fill="#1E3A8A" fill-opacity="0.35" stroke="{pro_border}" stroke-width="3"/>
-  <circle cx="194" cy="485" r="58" fill="#1D4ED8"/>
-  <circle cx="194" cy="468" r="18" fill="#DBEAFE"/>
-  <path d="M162 520 C162 498 226 498 226 520" stroke="#DBEAFE" stroke-width="10" stroke-linecap="round" fill="none"/>
-
-  <text x="194" y="582" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="22" font-weight="700" fill="#FFFFFF">AI 아나운서 찬성</text>
-  <text x="194" y="608" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="500" fill="#93C5FD">중립 핵심논거 브리핑</text>
-  {pro_wave_svg}
-
-  <!-- CON Avatar Card (Right) -->
-  <rect x="374" y="330" width="304" height="360" rx="24" fill="{con_bg}" fill-opacity="0.45" stroke="{con_border}" stroke-width="3.5"/>
-  <rect x="396" y="352" width="110" height="32" rx="8" fill="#BE123C"/>
-  <text x="451" y="374" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">CON · 반대</text>
-  <text x="654" y="374" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="18" font-weight="700" fill="#FDA4AF">여론 {raw_stats['con_ratio']}%</text>
-
-  <circle cx="526" cy="485" r="{con_ring_r}" fill="#881337" fill-opacity="0.35" stroke="{con_border}" stroke-width="3"/>
-  <circle cx="526" cy="485" r="58" fill="#E11D48"/>
-  <circle cx="526" cy="468" r="18" fill="#FFE4E6"/>
-  <path d="M494 520 C494 498 558 498 558 520" stroke="#FFE4E6" stroke-width="10" stroke-linecap="round" fill="none"/>
-
-  <text x="526" y="582" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="22" font-weight="700" fill="#FFFFFF">AI 아나운서 반대</text>
-  <text x="526" y="608" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="500" fill="#FDA4AF">중립 핵심논거 브리핑</text>
-  {con_wave_svg}
-
-  <!-- Dynamic Subtitle Stage Box -->
-  <rect x="42" y="726" width="636" height="456" rx="24" fill="#090E1C" stroke="{caption_border}" stroke-width="3.5"/>
-  <rect x="72" y="756" width="260" height="40" rx="10" fill="{speaker_badge_bg}"/>
-  <text x="202" y="783" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF">{html.escape(speaker_label)}</text>
-  <text x="646" y="782" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="17" font-weight="700" fill="#34D399">✓ 비속어 100% 정화됨</text>
-
-  <text x="72" y="842" font-family="Noto Sans CJK KR, sans-serif" font-size="25" font-weight="700" fill="{core_color}">
-    {html.escape(turn_data['core_point'])}
-  </text>
-  <line x1="72" y1="862" x2="646" y2="862" stroke="#1E293B" stroke-width="2"/>
+  <line x1="76" y1="348" x2="644" y2="348" stroke="#E2E8F0" stroke-width="2"/>
 
   {caption_svg}
 
-  <line x1="72" y1="1120" x2="646" y2="1120" stroke="#1E293B" stroke-width="1.5"/>
-  {"".join(dots_svg)}
-  <text x="646" y="1154" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="600" fill="#64748B">Agora-Shorts · 호날두의 아이들</text>
+  <!-- Active Voice Equalizer -->
+  {eq_svg}
 </svg>
 """
     svg_path = out_png.with_suffix(".svg")
-    svg_path.write_text(svg, encoding="utf-8")
+    svg_path.write_text(bg_svg, encoding="utf-8")
     subprocess.run(
         ["rsvg-convert", "-w", str(W), "-h", str(H), "-o", str(out_png), str(svg_path)],
         check=True,
     )
     svg_path.unlink(missing_ok=True)
+
+    # Layer 2: Composite Webtoon Characters onto Frame with Speaking Zoom, Bob & Listening Dim
+    canvas = Image.open(out_png).convert("RGBA")
+    pro_img = Image.open(PRO_AVATAR_PATH).convert("RGBA")
+    con_img = Image.open(CON_AVATAR_PATH).convert("RGBA")
+
+    bob_offsets = [0, -10, -4]
+    pro_bob = bob_offsets[phase % 3] if is_pro else 6
+    con_bob = bob_offsets[phase % 3] if not is_pro else 6
+
+    pro_scale = 0.90 if is_pro else 0.78
+    con_scale = 0.90 if not is_pro else 0.78
+
+    if not is_pro:
+        pro_img = ImageEnhance.Brightness(pro_img).enhance(0.55)
+    else:
+        con_img = ImageEnhance.Brightness(con_img).enhance(0.55)
+
+    pro_w, pro_h = int(pro_img.width * pro_scale), int(pro_img.height * pro_scale)
+    con_w, con_h = int(con_img.width * con_scale), int(con_img.height * con_scale)
+    pro_resized = pro_img.resize((pro_w, pro_h), Image.Resampling.LANCZOS)
+    con_resized = con_img.resize((con_w, con_h), Image.Resampling.LANCZOS)
+
+    # Position side-by-side behind bottom studio podium (y=1120)
+    pro_x = 195 - pro_w // 2
+    pro_y = 1150 - pro_h + pro_bob
+    con_x = 525 - con_w // 2
+    con_y = 1150 - con_h + con_bob
+
+    # Draw listener first, active speaker on top
+    if is_pro:
+        canvas.paste(con_resized, (con_x, con_y), con_resized)
+        canvas.paste(pro_resized, (pro_x, pro_y), pro_resized)
+    else:
+        canvas.paste(pro_resized, (pro_x, pro_y), pro_resized)
+        canvas.paste(con_resized, (con_x, con_y), con_resized)
+
+    # Layer 3: Crisp Studio Podium / Footer Overlay (SVG -> PNG alpha composited cleanly)
+    dots_svg = []
+    for i in range(total_turns):
+        dx = 68 + i * 30
+        if i == turn_idx:
+            dots_svg.append(f'<rect x="{dx}" y="1192" width="22" height="8" rx="4" fill="{badge_bg}"/>')
+        elif i < turn_idx:
+            dots_svg.append(f'<rect x="{dx}" y="1192" width="14" height="8" rx="4" fill="#94A3B8"/>')
+        else:
+            dots_svg.append(f'<rect x="{dx}" y="1192" width="14" height="8" rx="4" fill="#334155"/>')
+
+    fg_svg = f"""<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">
+  <!-- Sleek Studio Podium Table -->
+  <rect x="28" y="1108" width="664" height="140" rx="22" fill="#0B111E" stroke="#1E293B" stroke-width="2"/>
+  <rect x="48" y="1126" width="130" height="30" rx="8" fill="#1E3A8A" fill-opacity="0.75"/>
+  <text x="113" y="1147" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="800" fill="#93C5FD">찬성 {raw_stats['pro_ratio']}%</text>
+
+  <text x="360" y="1147" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="700" fill="#E2E8F0">50 : 50 공론장 중재</text>
+
+  <rect x="542" y="1126" width="130" height="30" rx="8" fill="#881337" fill-opacity="0.75"/>
+  <text x="607" y="1147" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="800" fill="#FDA4AF">반대 {raw_stats['con_ratio']}%</text>
+
+  <line x1="56" y1="1172" x2="664" y2="1172" stroke="#1E293B" stroke-width="1.5"/>
+  {"".join(dots_svg)}
+  <text x="664" y="1202" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="600" fill="#64748B">Agora-Shorts Studio</text>
+</svg>
+"""
+    fg_svg_path = out_png.with_suffix(".fg.svg")
+    fg_png_path = out_png.with_suffix(".fg.png")
+    fg_svg_path.write_text(fg_svg, encoding="utf-8")
+    subprocess.run(
+        ["rsvg-convert", "-w", str(W), "-h", str(H), "-o", str(fg_png_path), str(fg_svg_path)],
+        check=True,
+    )
+    fg_img = Image.open(fg_png_path).convert("RGBA")
+    canvas.alpha_composite(fg_img)
+    canvas.convert("RGB").save(out_png)
+    fg_svg_path.unlink(missing_ok=True)
+    fg_png_path.unlink(missing_ok=True)
 
 
 def generate_synthesized_broadcast_wav(
@@ -218,19 +263,15 @@ def generate_synthesized_broadcast_wav(
     text: str,
     sample_rate: int = 24000,
 ) -> None:
-    """
-    외부 TTS 오디오가 전달되지 않은 오프라인/서버 단독 렌더링 시,
-    실제 아나운서 음절 리듬(Syllable Formant Cadence)과 턴 전환 차임을 합성한 WAV 트랙 생성.
-    """
+    """아나운서 음절 리듬과 턴 전환 차임을 합성한 WAV 오디오 트랙 생성."""
     n_samples = int(duration_sec * sample_rate)
-    f0 = 135.0 if is_pro else 210.0  # PRO: 남성 중저음 포먼트, CON: 여성 중고음 포먼트
+    f0 = 135.0 if is_pro else 210.0
     syllables = [c for c in text if "가" <= c <= "힣"]
     syl_rate = max(4.5, min(7.5, len(syllables) / max(duration_sec - 0.6, 1.0)))
 
     buf = bytearray()
     for i in range(n_samples):
         t = i / sample_rate
-        # Opening broadcast chime (0.0s ~ 0.28s)
         if t < 0.28:
             chime_f = (440.0 if is_pro else 587.33) * (1.0 + 0.25 * (t / 0.28))
             env = math.sin(math.pi * (t / 0.28)) * 0.22
@@ -238,7 +279,6 @@ def generate_synthesized_broadcast_wav(
         elif t > duration_sec - 0.35:
             val = 0.0
         else:
-            # Soft ambient studio bed + rhythmic speech cadence envelope
             speech_t = t - 0.32
             syl_env = max(0.0, math.sin(math.pi * ((speech_t * syl_rate) % 1.0))) ** 0.6
             pause_mod = 0.15 if int(speech_t * 1.4) % 5 == 4 else 1.0
@@ -268,26 +308,21 @@ def render_debate_mp4(
     output_mp4: Path,
     turn_audio_b64_list: Optional[List[str]] = None,
 ) -> Path:
-    """
-    6턴 대본과 (선택적) Gemini TTS 오디오 트랙 배열을 받아
-    40초 분량의 실제 9:16 H.264 MP4 파일을 생성한다.
-    """
+    """6턴 대본을 2인 캐릭터 + 말풍선 애니메이션 40초 9:16 H.264 MP4로 렌더링."""
     turns = debate_script[:6]
     total_turns = len(turns)
-    turn_duration = 40.0 / max(total_turns, 1)  # ~6.67s per turn
+    turn_duration = 40.0 / max(total_turns, 1)
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp = Path(tmpdir)
         segment_files: List[Path] = []
 
         for idx, turn in enumerate(turns):
-            # 1) Prepare audio WAV for this turn
             wav_path = tmp / f"turn_{idx}.wav"
             wrote_custom_audio = False
             if turn_audio_b64_list and idx < len(turn_audio_b64_list) and turn_audio_b64_list[idx]:
                 try:
                     raw_bytes = base64.b64decode(turn_audio_b64_list[idx])
-                    # Check if raw_bytes is already WAV or raw PCM 24kHz 16-bit mono from Gemini TTS
                     if raw_bytes[:4] == b"RIFF":
                         wav_path.write_bytes(raw_bytes)
                     else:
@@ -308,10 +343,9 @@ def render_debate_mp4(
                     text=turn["text"],
                 )
 
-            # 2) Render 3 animated phase PNGs for this turn and create a dynamic video segment
             concat_img_txt = tmp / f"imgs_{idx}.txt"
             lines = []
-            n_cycles = 6  # 6 cycles across ~6.67s -> ~1.1s per cycle
+            n_cycles = 8
             step_dur = turn_duration / (n_cycles * 3)
             phase_pngs = []
             for ph in range(3):
@@ -353,7 +387,6 @@ def render_debate_mp4(
             )
             segment_files.append(seg_mp4)
 
-        # Concatenate all 6 segments into final 9:16 MP4
         full_list_txt = tmp / "segments.txt"
         full_list_txt.write_text(
             "\n".join(f"file '{s}'" for s in segment_files),
