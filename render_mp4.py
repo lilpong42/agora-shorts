@@ -78,91 +78,61 @@ def create_turn_frame_png(
         for i, line in enumerate(caption_lines)
     )
 
-    bubble_border = "#3B82F6" if is_pro else "#F43F5E"
-    badge_bg = "#2563EB" if is_pro else "#E11D48"
-    core_color = "#1D4ED8" if is_pro else "#BE123C"
-    speaker_label = f"찬성 #{turn_idx // 2 + 1}" if is_pro else f"반대 #{turn_idx // 2 + 1}"
+    accent_color = "#3182F6" if is_pro else "#F04452"
+    badge_bg = "#E8F3FF" if is_pro else "#FFEBEE"
+    badge_fg = "#3182F6" if is_pro else "#F04452"
+    core_color = "#3182F6" if is_pro else "#F04452"
+    speaker_label = f"찬성 {turn_idx // 2 + 1}" if is_pro else f"반대 {turn_idx // 2 + 1}"
 
-    # Speech bubble tail pointing down-left toward PRO (x=190) or down-right toward CON (x=530)
+    # Clean borderless white speech bubble tail pointing toward PRO (x=190) or CON (x=530)
     if is_pro:
-        tail_svg = f"""
-        <polygon points="165,576 225,576 178,632" fill="#F8FAFC"/>
-        <polyline points="165,577 178,632 225,577" fill="none" stroke="{bubble_border}" stroke-width="5" stroke-linejoin="round"/>
-        <line x1="167" y1="576" x2="223" y2="576" stroke="#F8FAFC" stroke-width="8"/>
-        """
+        tail_svg = '<polygon points="168,574 220,574 184,618" fill="#FFFFFF"/>'
     else:
-        tail_svg = f"""
-        <polygon points="495,576 555,576 542,632" fill="#F8FAFC"/>
-        <polyline points="495,577 542,632 555,577" fill="none" stroke="{bubble_border}" stroke-width="5" stroke-linejoin="round"/>
-        <line x1="497" y1="576" x2="553" y2="576" stroke="#F8FAFC" stroke-width="8"/>
-        """
+        tail_svg = '<polygon points="500,574 552,574 536,618" fill="#FFFFFF"/>'
 
-    # Animated equalizer bars near active speaker
+    # Minimal equalizer bars near active speaker
     eq_heights = [
-        [22, 42, 28, 48, 24],
-        [38, 24, 46, 26, 36],
-        [26, 46, 32, 40, 30],
+        [18, 36, 24, 42, 20],
+        [32, 20, 40, 22, 30],
+        [22, 40, 28, 34, 24],
     ][phase % 3]
-    eq_x = 52 if is_pro else 606
-    eq_color = "#60A5FA" if is_pro else "#FB7185"
+    eq_x = 56 if is_pro else 606
+    eq_color = "#3182F6" if is_pro else "#F04452"
     eq_svg = "".join(
-        f'<rect x="{eq_x + i * 13}" y="{675 - h // 2}" width="7" height="{h}" rx="3.5" fill="{eq_color}"/>'
+        f'<rect x="{eq_x + i * 12}" y="{668 - h // 2}" width="6" height="{h}" rx="3" fill="{eq_color}"/>'
         for i, h in enumerate(eq_heights)
     )
 
-    # Spotlight glow behind active speaker
-    spot_cx = 195 if is_pro else 525
-    spot_color = "#2563EB" if is_pro else "#E11D48"
-
-    # Layer 1: Background + Top Title + Speech Bubble SVG -> PNG
+    # Layer 1: Matte Dark Studio Backdrop + Top Title + Clean White Speech Bubble
     bg_svg = f"""<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#070A12"/>
-      <stop offset="55%" stop-color="#0C1324"/>
-      <stop offset="100%" stop-color="#06080E"/>
-    </linearGradient>
-    <radialGradient id="spot" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="{spot_color}" stop-opacity="0.48"/>
-      <stop offset="100%" stop-color="{spot_color}" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="prog" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#3B82F6"/>
-      <stop offset="100%" stop-color="#F43F5E"/>
-    </linearGradient>
-  </defs>
-
-  <rect x="0" y="0" width="{W}" height="{H}" fill="url(#bg)"/>
-  <circle cx="{spot_cx}" cy="870" r="290" fill="url(#spot)"/>
+  <rect x="0" y="0" width="{W}" height="{H}" fill="#14151A"/>
 
   <!-- Top Progress & Status -->
-  <rect x="40" y="34" width="640" height="10" rx="5" fill="#1E293B"/>
-  <rect x="40" y="34" width="{max(12.0, 6.40 * progress_pct):.1f}" height="10" rx="5" fill="url(#prog)"/>
+  <rect x="40" y="34" width="640" height="8" rx="4" fill="#272A34"/>
+  <rect x="40" y="34" width="{max(12.0, 6.40 * progress_pct):.1f}" height="8" rx="4" fill="{accent_color}"/>
 
-  <rect x="40" y="60" width="92" height="32" rx="8" fill="#1E293B"/>
-  <text x="86" y="82" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="800" fill="#FFFFFF">SHORTS</text>
-  <text x="148" y="82" font-family="Noto Sans CJK KR, sans-serif" font-size="18" font-weight="700" fill="#94A3B8">TURN {turn_idx + 1}/{total_turns}</text>
-  <text x="680" y="82" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="18" font-weight="700" fill="#E2E8F0">{remaining_sec:.1f}s</text>
+  <text x="44" y="80" font-family="Noto Sans CJK KR, sans-serif" font-size="18" font-weight="700" fill="#E5E8EB">{turn_idx + 1} / {total_turns}</text>
+  <text x="676" y="80" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="18" font-weight="600" fill="#8B95A1">{remaining_sec:.1f}s</text>
 
   <!-- Issue Headline -->
-  <rect x="40" y="108" width="640" height="104" rx="18" fill="#111827" fill-opacity="0.85" stroke="#1F2937" stroke-width="1.5"/>
+  <rect x="40" y="106" width="640" height="102" rx="18" fill="#1C1E26"/>
   {title_svg}
 
-  <!-- Comic / Broadcast Speech Bubble -->
-  <rect x="40" y="232" width="640" height="346" rx="28" fill="#F8FAFC" stroke="{bubble_border}" stroke-width="5"/>
+  <!-- Clean Editorial Speech Bubble -->
+  <rect x="40" y="232" width="640" height="344" rx="26" fill="#FFFFFF"/>
   {tail_svg}
 
   <!-- Speech Bubble Header -->
-  <rect x="74" y="256" width="124" height="34" rx="10" fill="{badge_bg}"/>
-  <text x="136" y="279" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="17" font-weight="800" fill="#FFFFFF">{html.escape(speaker_label)}</text>
-  <text x="646" y="279" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="700" fill="#64748B">실측 {raw_stats['total_comments']}개 댓글 핵심 요약</text>
+  <rect x="74" y="256" width="102" height="34" rx="10" fill="{badge_bg}"/>
+  <text x="125" y="279" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="800" fill="{badge_fg}">{html.escape(speaker_label)}</text>
+  <text x="646" y="279" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="600" fill="#8B95A1">댓글 {raw_stats['total_comments']}건 핵심 요약</text>
 
   <!-- Core Argument Headline inside Bubble -->
   <text x="76" y="330" font-family="Noto Sans CJK KR, sans-serif" font-size="24" font-weight="800" fill="{core_color}">
     {html.escape(turn_data['core_point'][:26])}
   </text>
-  <line x1="76" y1="348" x2="644" y2="348" stroke="#E2E8F0" stroke-width="2"/>
+  <line x1="76" y1="348" x2="644" y2="348" stroke="#F2F4F6" stroke-width="2"/>
 
   {caption_svg}
 
@@ -191,16 +161,16 @@ def create_turn_frame_png(
     con_scale = 0.90 if not is_pro else 0.78
 
     if not is_pro:
-        pro_img = ImageEnhance.Brightness(pro_img).enhance(0.55)
+        pro_img = ImageEnhance.Brightness(pro_img).enhance(0.52)
     else:
-        con_img = ImageEnhance.Brightness(con_img).enhance(0.55)
+        con_img = ImageEnhance.Brightness(con_img).enhance(0.52)
 
     pro_w, pro_h = int(pro_img.width * pro_scale), int(pro_img.height * pro_scale)
     con_w, con_h = int(con_img.width * con_scale), int(con_img.height * con_scale)
     pro_resized = pro_img.resize((pro_w, pro_h), Image.Resampling.LANCZOS)
     con_resized = con_img.resize((con_w, con_h), Image.Resampling.LANCZOS)
 
-    # Position side-by-side behind bottom studio podium (y=1120)
+    # Position side-by-side behind bottom studio bar
     pro_x = 195 - pro_w // 2
     pro_y = 1150 - pro_h + pro_bob
     con_x = 525 - con_w // 2
@@ -214,32 +184,27 @@ def create_turn_frame_png(
         canvas.paste(pro_resized, (pro_x, pro_y), pro_resized)
         canvas.paste(con_resized, (con_x, con_y), con_resized)
 
-    # Layer 3: Crisp Studio Podium / Footer Overlay (SVG -> PNG alpha composited cleanly)
+    # Layer 3: Clean Toss-style Bottom Studio Bar
     dots_svg = []
     for i in range(total_turns):
-        dx = 68 + i * 30
+        dx = 68 + i * 28
         if i == turn_idx:
-            dots_svg.append(f'<rect x="{dx}" y="1192" width="22" height="8" rx="4" fill="{badge_bg}"/>')
+            dots_svg.append(f'<rect x="{dx}" y="1192" width="22" height="7" rx="3.5" fill="{accent_color}"/>')
         elif i < turn_idx:
-            dots_svg.append(f'<rect x="{dx}" y="1192" width="14" height="8" rx="4" fill="#94A3B8"/>')
+            dots_svg.append(f'<rect x="{dx}" y="1192" width="12" height="7" rx="3.5" fill="#8B95A1"/>')
         else:
-            dots_svg.append(f'<rect x="{dx}" y="1192" width="14" height="8" rx="4" fill="#334155"/>')
+            dots_svg.append(f'<rect x="{dx}" y="1192" width="12" height="7" rx="3.5" fill="#333D4B"/>')
 
     fg_svg = f"""<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">
-  <!-- Sleek Studio Podium Table -->
-  <rect x="28" y="1108" width="664" height="140" rx="22" fill="#0B111E" stroke="#1E293B" stroke-width="2"/>
-  <rect x="48" y="1126" width="130" height="30" rx="8" fill="#1E3A8A" fill-opacity="0.75"/>
-  <text x="113" y="1147" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="800" fill="#93C5FD">찬성 {raw_stats['pro_ratio']}%</text>
+  <rect x="28" y="1108" width="664" height="140" rx="22" fill="#1C1E26"/>
+  <text x="68" y="1147" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="700" fill="#60A5FA">찬성 {raw_stats['pro_ratio']}%</text>
+  <text x="360" y="1147" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="600" fill="#94A3B8">50:50 중재</text>
+  <text x="652" y="1147" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="700" fill="#FB7185">반대 {raw_stats['con_ratio']}%</text>
 
-  <text x="360" y="1147" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="700" fill="#E2E8F0">50 : 50 공론장 중재</text>
-
-  <rect x="542" y="1126" width="130" height="30" rx="8" fill="#881337" fill-opacity="0.75"/>
-  <text x="607" y="1147" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="800" fill="#FDA4AF">반대 {raw_stats['con_ratio']}%</text>
-
-  <line x1="56" y1="1172" x2="664" y2="1172" stroke="#1E293B" stroke-width="1.5"/>
+  <line x1="64" y1="1172" x2="656" y2="1172" stroke="#272A34" stroke-width="1.5"/>
   {"".join(dots_svg)}
-  <text x="664" y="1202" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="600" fill="#64748B">Agora-Shorts Studio</text>
+  <text x="652" y="1202" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="600" fill="#6B7684">Agora</text>
 </svg>
 """
     fg_svg_path = out_png.with_suffix(".fg.svg")
