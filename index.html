@@ -181,12 +181,13 @@
     /* Editorial Speech Bubble */
     .speech-bubble {
       position: relative;
-      background: rgba(255, 255, 255, 0.98);
-      color: #111317;
-      border-radius: 14px;
-      padding: 11px 13px;
-      border-top: 3.5px solid var(--pro-accent);
-      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.38);
+      background: rgba(255, 255, 255, 0.99);
+      color: #0F172A;
+      border-radius: 15px;
+      padding: 11px 13px 12px;
+      border: 1.5px solid rgba(15, 23, 42, 0.12);
+      border-top: 4px solid var(--pro-accent);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.48);
       transition: border-color 0.2s ease;
     }
     .speech-bubble.con-mode {
@@ -198,6 +199,8 @@
       width: 14px;
       height: 14px;
       background: #FFFFFF;
+      border-right: 1px solid rgba(15, 23, 42, 0.12);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.12);
       transform: rotate(45deg);
       left: 66px;
       transition: left 0.24s cubic-bezier(0.22, 1, 0.36, 1);
@@ -206,11 +209,11 @@
       left: calc(100% - 82px);
     }
 
-    /* Kinetic Word Highlight */
-    .kw-spoken { color: #111317; font-weight: 700; }
-    .kw-active-pro { color: #2563EB; background: #EFF6FF; font-weight: 800; border-radius: 4px; padding: 0 3px; }
-    .kw-active-con { color: #DC2626; background: #FEF2F2; font-weight: 800; border-radius: 4px; padding: 0 3px; }
-    .kw-upcoming { color: #94A3B8; font-weight: 500; }
+    /* High-Contrast Kinetic Word Highlight */
+    .kw-spoken { color: #0F172A; font-weight: 700; }
+    .kw-active-pro { color: #1D4ED8; background: #DBEAFE; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-active-con { color: #B91C1C; background: #FEE2E2; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-upcoming { color: #334155; font-weight: 600; }
 
     /* Character Stage Animations */
     .char-actor {
@@ -329,7 +332,10 @@
         </nav>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3.5">
+        <button onclick="toggleApiKeyModal()" class="text-[12.5px] font-medium text-[#71717A] hover:text-[#111317] transition">
+          API · 음성 설정
+        </button>
         <a href="https://github.com/lilpong42/agora-shorts" target="_blank" class="text-[12.5px] font-medium text-[#71717A] hover:text-[#111317] transition">
           GitHub
         </a>
@@ -351,7 +357,7 @@
             <input
               id="sourceUrlInput"
               type="text"
-              placeholder="유튜브 영상 URL을 붙여넣어 찬반 40초 토론 쇼츠 생성"
+              placeholder="유튜브 영상 URL을 붙여넣어 찬반 AI 아바타 토론 쇼츠 생성 (대사 길이 자동 맞춤)"
               class="studio-input w-full h-10 px-3.5 text-[13.5px]"
             />
           </div>
@@ -412,10 +418,10 @@
                   실시간 프리뷰
                 </button>
                 <button id="modeVideoBtn" onclick="setPlayerMode('video')" class="px-2.5 py-1 rounded-md text-[#71717A] hover:text-[#111317] font-medium transition">
-                  MP4 렌더본
+                  영상 파일 렌더
                 </button>
               </div>
-              <span id="ttsStatusLabel" class="text-[12px] font-medium text-[#71717A] mono-num">40.0s</span>
+              <span id="ttsStatusLabel" class="text-[12px] font-medium text-[#52525B] mono-num">약 56초</span>
             </div>
 
             <!-- Phone Frame -->
@@ -440,36 +446,39 @@
                   class="absolute inset-0 w-full h-full object-cover pointer-events-none z-20"
                 />
 
-                <!-- Top Broadcast HUD + Headline + Dialogue Bubble -->
+                <!-- Top Broadcast HUD + Headline + High-Readability 2-Clause Bubble -->
                 <div class="relative z-30 space-y-1.5">
                   <div>
                     <div class="w-full h-1 rounded-full bg-white/15 overflow-hidden mb-1.5">
                       <div id="shortsProgressBar" class="h-full bg-[#2563EB] transition-all duration-100" style="width: 0%"></div>
                     </div>
                     <div class="flex items-center justify-between text-[10px] text-[#E4E4E7] mono-num mb-1.5">
-                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/80 font-semibold" id="shortsTurnCounter">1 / 6</span>
-                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/80 text-[#A1A1AA]" id="shortsTimerDisplay">40.0s</span>
+                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/85 font-semibold" id="shortsTurnCounter">1 / 6</span>
+                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/85 text-[#D4D4D8]" id="shortsTimerDisplay">0:00 / 0:56</span>
                     </div>
-                    <div class="rounded-lg bg-[#0E1015]/85 border border-white/10 px-2 py-1.5">
+                    <div class="rounded-lg bg-[#0E1015]/88 border border-white/12 px-2.5 py-1.5">
                       <h3 id="shortsIssueTitle" class="text-[11.5px] font-bold text-white text-center leading-snug line-clamp-2">
                         심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
                       </h3>
                     </div>
                   </div>
 
-                  <!-- Clean White Speech Bubble -->
+                  <!-- Clean High-Contrast 2-Clause Editorial Bubble -->
                   <div id="shortsSpeechBubble" class="speech-bubble">
                     <div class="flex items-center justify-between mb-1">
-                      <span id="shortsSpeakerBadge" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB]">찬성 1</span>
+                      <div class="flex items-center gap-1.5">
+                        <span id="shortsSpeakerBadge" class="text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#DBEAFE] text-[#1D4ED8]">찬성 1</span>
+                        <span id="shortsClauseBadge" class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#F1F5F9] text-[#475569] mono-num">논지 1/2</span>
+                      </div>
                       <div id="shortsBubbleEq" class="eq-bars">
                         <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
                         <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
                       </div>
                     </div>
-                    <div id="shortsCorePoint" class="text-[11px] font-bold text-[#2563EB] mb-1 leading-snug">
+                    <div id="shortsCorePoint" class="text-[11.5px] font-bold text-[#1D4ED8] mb-1 leading-snug">
                       헌법상 주거 평온권 및 심야 수면권 침해 심각
                     </div>
-                    <p id="shortsSubtitleText" class="text-[10.5px] font-medium text-[#27272A] leading-relaxed min-h-[56px]">
+                    <p id="shortsSubtitleText" class="text-[13px] font-semibold text-[#0F172A] leading-[1.52] min-h-[60px]">
                       새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다.
                     </p>
                     <div class="speech-tail"></div>
@@ -482,14 +491,14 @@
                   src="static/assets/pro_avatar.png"
                   onerror="this.onerror=null;this.src='pro_avatar.png'"
                   alt="찬성 화자"
-                  class="char-actor speaking absolute z-10 left-[14px] bottom-[154px] h-[168px] w-auto object-contain select-none pointer-events-none"
+                  class="char-actor speaking absolute z-10 left-[14px] bottom-[140px] h-[152px] w-auto object-contain select-none pointer-events-none"
                 />
                 <img
                   id="avatarCardCon"
                   src="static/assets/con_avatar.png"
                   onerror="this.onerror=null;this.src='con_avatar.png'"
                   alt="반대 화자"
-                  class="char-actor absolute z-10 right-[14px] bottom-[158px] h-[154px] w-auto object-contain select-none pointer-events-none"
+                  class="char-actor absolute z-10 right-[14px] bottom-[144px] h-[138px] w-auto object-contain select-none pointer-events-none"
                 />
 
                 <!-- Lower Telemetry Card over Reflective Studio Floor -->
@@ -506,15 +515,13 @@
                 </div>
               </div>
 
-              <!-- Real H.264 MP4 / Rendered Broadcast Video Player -->
+              <!-- Real Broadcast Video Player -->
               <div id="mp4Viewport" class="hidden relative w-full h-full rounded-[23px] overflow-hidden bg-black">
-                <video id="realMp4Player" class="w-full h-full object-contain" controls playsinline preload="metadata">
-                  <source id="realMp4Source" src="static/videos/preset_1.mp4" type="video/mp4" />
-                </video>
+                <video id="realMp4Player" class="w-full h-full object-contain" controls playsinline preload="metadata"></video>
                 <div id="mp4RenderOverlay" class="hidden absolute inset-0 bg-[#121316]/95 flex flex-col items-center justify-center p-6 text-center z-20">
                   <div class="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin mb-3"></div>
-                  <div id="mp4RenderOverlayText" class="text-[13px] font-semibold text-white">9:16 쇼츠 영상 생성 중...</div>
-                  <div id="mp4RenderOverlaySub" class="text-[11px] text-[#A1A1AA] mt-1">입력된 댓글·대본 기반 브로드캐스트 렌더링</div>
+                  <div id="mp4RenderOverlayText" class="text-[13px] font-semibold text-white">AI 음성 + 9:16 방송 영상 생성 중...</div>
+                  <div id="mp4RenderOverlaySub" class="text-[11px] text-[#A1A1AA] mt-1">입력된 대본 길이에 맞춰 음성과 자막을 동기화하고 있습니다.</div>
                 </div>
               </div>
             </div>
@@ -526,15 +533,19 @@
                   <span id="playBtnLabel">재생</span>
                 </button>
                 <button id="exportMp4Btn" onclick="exportReal916Video()" class="btn-ink h-10 text-[13.5px]">
-                  MP4 다운로드
+                  영상 다운로드
                 </button>
               </div>
 
-              <div class="flex items-center justify-between pt-1 text-[12px] text-[#71717A]">
-                <button id="geminiTtsBtn" onclick="playWithGeminiNeuralTTS()" class="hover:text-[#111317] font-medium transition">
-                  Gemini 아나운서 보이스 테스트
+              <div class="flex items-center justify-between gap-2 pt-1 text-[11.5px] text-[#52525B]">
+                <select id="voiceEngineSelect" onchange="onVoiceModeChange()" class="bg-[#F4F4F5] border border-[#E4E4E7] rounded-md px-2 py-1 text-[11.5px] font-medium text-[#111317] outline-none">
+                  <option value="auto">음성: AI 아나운서 우선</option>
+                  <option value="browser">음성: 표준 한국어 (즉시)</option>
+                </select>
+                <button id="speedToggleBtn" onclick="togglePlaybackSpeed()" class="px-2 py-1 rounded-md bg-[#F4F4F5] border border-[#E4E4E7] font-semibold text-[#111317] mono-num hover:bg-[#E4E4E7] transition">
+                  1.0x
                 </button>
-                <label class="flex items-center gap-2 cursor-pointer select-none">
+                <label class="flex items-center gap-1.5 cursor-pointer select-none shrink-0">
                   <span>전환음</span>
                   <span class="min-switch">
                     <input id="chimeToggle" type="checkbox" checked />
@@ -542,7 +553,7 @@
                   </span>
                 </label>
               </div>
-              <div id="mp4ExportStatus" class="text-center text-[12px] font-medium text-[#059669] min-h-[16px]"></div>
+              <div id="mp4ExportStatus" class="text-center text-[11.5px] font-medium text-[#059669] min-h-[16px] leading-snug"></div>
             </div>
           </div>
         </div>
@@ -791,11 +802,36 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     </div>
   </div>
 
+  <!-- Modal for Google API Key & Voice Settings -->
+  <div id="apiKeyModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="studio-panel max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-[16px] font-bold text-[#111317]">API · 음성 합성 설정</h3>
+        <button onclick="toggleApiKeyModal()" class="btn-ghost px-3 py-1 text-[12px]">닫기</button>
+      </div>
+      <p class="text-[12.5px] text-[#52525B] leading-relaxed">
+        기본 키의 무료 할당량(RPM/RPD)이 소진되면 개인 Gemini / Google Cloud TTS API 키를 입력해 고품질 한국어 아나운서 음성을 즉시 이어갈 수 있습니다.
+      </p>
+      <div class="space-y-2">
+        <label class="text-[12px] font-semibold text-[#3F3F46] block">Google AI / Cloud API Key (브라우저 로컬 저장)</label>
+        <input id="customApiKeyInput" type="password" placeholder="새 Google AI / Cloud API 키 입력 (비워두면 기본 키 사용)" class="studio-input w-full h-10 px-3 text-[13px] mono-num" />
+      </div>
+      <div id="voiceDiagStatus" class="text-[12px] text-[#52525B] bg-[#F4F4F5] border border-[#E4E4E7] rounded-lg px-3 py-2">
+        음성 엔진 대기 중 — 실시간 재생 또는 영상 다운로드 시 자동 최적화됩니다.
+      </div>
+      <div class="flex items-center justify-between gap-2 pt-1">
+        <button onclick="clearCustomApiKey()" class="btn-outline px-3 py-2 text-[12.5px]">기본 키 복원</button>
+        <button onclick="saveCustomApiKey()" class="btn-ink px-4 py-2 text-[12.5px]">저장 및 캐시 초기화</button>
+      </div>
+    </div>
+  </div>
+
   <canvas id="hiddenShortsRecorderCanvas" width="1080" height="1920" class="hidden"></canvas>
 
   <script>
+    const DEFAULT_GKEY = ["AI", "zaSyAZzWv", "KA41M7GXj9dG", "N8tmluyCskcf2ymI"].join("");
     const CONFIG = {
-      GOOGLE_API_KEY: ["AI", "zaSyAZzWv", "KA41M7GXj9dG", "N8tmluyCskcf2ymI"].join(""),
+      GOOGLE_API_KEY: localStorage.getItem("hannyang_google_api_key") || DEFAULT_GKEY,
       SUPABASE_URL: "https://cqxrdcylppmvjsjnwlnh.supabase.co",
       SUPABASE_KEY: "sb_publishable_-v3SG7BvweiuJceeCl5fEg_pUt-qVFk"
     };
@@ -806,8 +842,9 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         source_label: "YouTube Data API v3 실측 · YTN(vNIXiWyXs90), MBC(lt7knjTuuOM), 연합뉴스TV(Cs_A2EcMsto) 200건",
         source_url: "https://www.youtube.com/watch?v=vNIXiWyXs90",
         video_mp4_url: "static/videos/preset_1.mp4",
+        has_voice_track: false,
         issue_title: "심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란",
-        hashtags: "#심야오토바이소음 #배달라이더 #공론장중재 #40초토론 #쇼츠",
+        hashtags: "#심야오토바이소음 #배달라이더 #공론장중재 #핵심토론 #쇼츠",
         raw_stats: { total_comments: 200, filtered_curse_count: 58, pro_ratio: 88, con_ratio: 12, toxicity_before: 64.2, toxicity_after: 14.5 },
         debate_script: [
           { speaker: "PRO", core_point: "헌법상 주거 평온권 및 심야 수면권 침해 심각", text: "새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다. 유명무실한 현행 소음 기준을 대폭 낮추고 상시 음향 단속 카메라와 즉각적인 처벌 법안을 도입해야 합니다." },
@@ -829,6 +866,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         source_label: "YouTube Data API v3 실측 · MBC(Xt8TRqMuZRc), SBS(aI0awk0NBfc), TBS(D2hNIe74HEQ) 180건",
         source_url: "https://www.youtube.com/watch?v=Xt8TRqMuZRc",
         video_mp4_url: "static/videos/preset_2.mp4",
+        has_voice_track: false,
         issue_title: "대학가·도심 공유 전동킥보드 즉시 견인 및 통행 금지 논란",
         hashtags: "#전동킥보드 #킥보드견인 #보행안전 #공론장중재 #쇼츠",
         raw_stats: { total_comments: 180, filtered_curse_count: 32, pro_ratio: 87, con_ratio: 13, toxicity_before: 61.5, toxicity_after: 14.2 },
@@ -852,6 +890,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         source_label: "YouTube Data API v3 실측 · MBC(NKIvNrtdiGA), KBS(x3J5hpBci98 외 2건), YTN(yfAshZpECCo) 147건",
         source_url: "https://www.youtube.com/watch?v=NKIvNrtdiGA",
         video_mp4_url: "static/videos/preset_3.mp4",
+        has_voice_track: false,
         issue_title: "고령 운전자 조건부 면허제 도입 및 면허 반납 의무화 논란",
         hashtags: "#고령운전자 #조건부면허 #면허반납 #공론장중재 #쇼츠",
         raw_stats: { total_comments: 147, filtered_curse_count: 36, pro_ratio: 78, con_ratio: 22, toxicity_before: 62.4, toxicity_after: 14.5 },
@@ -876,12 +915,111 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     let isPlaying = false;
     let playerMode = "interactive";
     let currentTurnIndex = 0;
-    let totalDurationSec = 40.0;
+    let playbackRate = 1.0;
     let elapsedSec = 0.0;
     let timerInterval = null;
     let turnTimeout = null;
     let audioCtx = null;
     let currentHtmlAudio = null;
+    let cloudTtsDisabled = false;
+    let geminiTtsCooldownUntil = 0;
+    let cachedBrowserKoVoices = [];
+    let playSessionToken = 0;
+
+    function initBrowserVoices() {
+      if (!("speechSynthesis" in window)) return;
+      const load = () => {
+        const all = window.speechSynthesis.getVoices() || [];
+        cachedBrowserKoVoices = all.filter((v) => (v.lang || "").toLowerCase().startsWith("ko"));
+      };
+      load();
+      window.speechSynthesis.onvoiceschanged = load;
+    }
+
+    function pickBestKoreanVoices() {
+      const list = cachedBrowserKoVoices.length
+        ? cachedBrowserKoVoices
+        : (("speechSynthesis" in window ? window.speechSynthesis.getVoices() : []).filter((v) => (v.lang || "").toLowerCase().startsWith("ko")));
+      if (!list.length) return { pro: null, con: null, distinct: false };
+      const male = list.find((v) => /injoon|hyunsu|bongjin|gookmin|male|남/i.test(v.name));
+      const female = list.find((v) => /sunhi|heami|yuna|seoyeon|jiyun|female|여/i.test(v.name) && v !== male);
+      if (male && female) return { pro: male, con: female, distinct: true };
+      if (list.length >= 2) return { pro: list[0], con: list[1], distinct: list[0].name !== list[1].name };
+      return { pro: list[0], con: list[0], distinct: false };
+    }
+
+    function formatMinSec(sec) {
+      const s = Math.max(0, Math.round(sec));
+      const m = Math.floor(s / 60);
+      const rem = s % 60;
+      return `${m}:${String(rem).padStart(2, "0")}`;
+    }
+
+    function splitTurnIntoClauses(text) {
+      const s = (text || "").replace(/\s+/g, " ").trim();
+      if (!s) return [""];
+      const matches = s.match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g);
+      const sents = matches ? matches.map((x) => x.trim()).filter(Boolean) : [s];
+      if (sents.length === 2) return sents;
+      if (sents.length > 2) {
+        let bestI = 1, bestDiff = Infinity, acc = 0;
+        const tot = sents.reduce((a, b) => a + b.length, 0);
+        for (let i = 1; i < sents.length; i++) {
+          acc += sents[i - 1].length;
+          const d = Math.abs(acc - tot * 0.5);
+          if (d < bestDiff) { bestDiff = d; bestI = i; }
+        }
+        return [sents.slice(0, bestI).join(" "), sents.slice(bestI).join(" ")];
+      }
+      const words = s.split(" ");
+      if (words.length < 6 || s.length < 36) return [s];
+      const mid = Math.floor(words.length / 2);
+      return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+    }
+
+    function estimateTurnDurationSec(text, speedMult = playbackRate) {
+      const charsNoSpace = (text || "").replace(/\s+/g, "").length;
+      const raw = Math.max(4.8, Math.min(12.2, (charsNoSpace / 12.6) + 0.85));
+      return +(raw / Math.max(0.85, Math.min(1.3, speedMult))).toFixed(2);
+    }
+
+    function getTurnDurationSec(idx) {
+      const turns = currentData.debate_script || [];
+      const t = turns[idx];
+      if (!t) return 6.0;
+      const cachedDur = currentData._turnAudioDur && currentData._turnAudioDur[idx];
+      if (cachedDur && cachedDur > 0.5) {
+        return +((cachedDur / playbackRate) + 0.42).toFixed(2);
+      }
+      return estimateTurnDurationSec(t.text, playbackRate);
+    }
+
+    function getTurnTimeline() {
+      const turns = currentData.debate_script || [];
+      const durs = turns.map((_, i) => getTurnDurationSec(i));
+      const starts = [];
+      let acc = 0;
+      for (const d of durs) {
+        starts.push(acc);
+        acc += d;
+      }
+      return { durs, starts, total: +acc.toFixed(2) };
+    }
+
+    function getTotalDurationSec() {
+      return getTurnTimeline().total;
+    }
+
+    function getOrResumeAudioContext(existing = null) {
+      try {
+        const ctx = existing || audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        audioCtx = ctx;
+        if (ctx.state === "suspended") ctx.resume().catch(() => {});
+        return ctx;
+      } catch (e) {
+        return null;
+      }
+    }
 
     function switchView(viewName) {
       const studio = document.getElementById("viewStudio");
@@ -912,6 +1050,64 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       m.classList.toggle("flex");
     }
 
+    function toggleApiKeyModal() {
+      const m = document.getElementById("apiKeyModal");
+      const inp = document.getElementById("customApiKeyInput");
+      if (inp) inp.value = localStorage.getItem("hannyang_google_api_key") || "";
+      m.classList.toggle("hidden");
+      m.classList.toggle("flex");
+    }
+
+    function saveCustomApiKey() {
+      const val = (document.getElementById("customApiKeyInput").value || "").trim();
+      if (val) {
+        localStorage.setItem("hannyang_google_api_key", val);
+        CONFIG.GOOGLE_API_KEY = val;
+      } else {
+        localStorage.removeItem("hannyang_google_api_key");
+        CONFIG.GOOGLE_API_KEY = DEFAULT_GKEY;
+      }
+      cloudTtsDisabled = false;
+      geminiTtsCooldownUntil = 0;
+      currentData._ttsAudioCache = {};
+      currentData._turnAudioDur = {};
+      currentData.rendered_video_blob_url = null;
+      document.getElementById("voiceDiagStatus").textContent = "API 키 적용 완료! 캐시가 초기화되어 다음 재생 시 새 키를 사용합니다.";
+      setTimeout(() => toggleApiKeyModal(), 700);
+    }
+
+    function clearCustomApiKey() {
+      localStorage.removeItem("hannyang_google_api_key");
+      CONFIG.GOOGLE_API_KEY = DEFAULT_GKEY;
+      document.getElementById("customApiKeyInput").value = "";
+      cloudTtsDisabled = false;
+      geminiTtsCooldownUntil = 0;
+      currentData._ttsAudioCache = {};
+      document.getElementById("voiceDiagStatus").textContent = "기본 내장 키로 복원되었습니다.";
+    }
+
+    function onVoiceModeChange() {
+      if (isPlaying) stopShortsPlayback(false);
+      updateIdleTimerDisplay();
+    }
+
+    function togglePlaybackSpeed() {
+      playbackRate = playbackRate === 1.0 ? 1.15 : 1.0;
+      document.getElementById("speedToggleBtn").textContent = playbackRate === 1.0 ? "1.0x" : "1.15x";
+      renderScriptList();
+      updateIdleTimerDisplay();
+      if (currentData.rendered_video_blob_url) currentData.rendered_video_blob_url = null;
+      if (isPlaying) startShortsPlayback(currentTurnIndex);
+    }
+
+    function updateIdleTimerDisplay() {
+      const tot = getTotalDurationSec();
+      if (!isPlaying) {
+        document.getElementById("ttsStatusLabel").textContent = `총 ${tot.toFixed(1)}s`;
+        document.getElementById("shortsTimerDisplay").textContent = `0:00 / ${formatMinSec(tot)}`;
+      }
+    }
+
     async function setPlayerMode(mode) {
       playerMode = mode;
       const interactiveEl = document.getElementById("interactiveViewport");
@@ -920,6 +1116,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const btnV = document.getElementById("modeVideoBtn");
 
       if (mode === "video") {
+        getOrResumeAudioContext();
         stopShortsPlayback(false);
         interactiveEl.classList.add("hidden");
         mp4El.classList.remove("hidden");
@@ -938,13 +1135,12 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
     async function ensureVideoPlayerSynced() {
       const videoEl = document.getElementById("realMp4Player");
-      const srcEl = document.getElementById("realMp4Source");
       const overlayEl = document.getElementById("mp4RenderOverlay");
       const overlayTxt = document.getElementById("mp4RenderOverlayText");
+      const overlaySub = document.getElementById("mp4RenderOverlaySub");
 
       const applyVideoSrc = (url) => {
         if (!videoEl) return;
-        if (srcEl) srcEl.setAttribute("src", url);
         videoEl.setAttribute("src", url);
         videoEl.load();
       };
@@ -956,13 +1152,12 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         return;
       }
 
-      if (currentData.video_mp4_url && window.location.protocol.startsWith("http")) {
+      // Only reuse a server MP4 directly if it actually contains synthesized speech!
+      if (currentData.video_mp4_url && currentData.has_voice_track && window.location.protocol.startsWith("http")) {
         try {
           const headRes = await fetch(currentData.video_mp4_url, { method: "HEAD" });
           if (headRes.ok) {
-            if (videoEl.getAttribute("src") !== currentData.video_mp4_url) {
-              applyVideoSrc(currentData.video_mp4_url);
-            }
+            applyVideoSrc(currentData.video_mp4_url);
             return;
           }
         } catch (e) {}
@@ -970,15 +1165,18 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
       if (overlayEl) {
         overlayEl.classList.remove("hidden");
-        overlayTxt.textContent = "9:16 영상 생성 중...";
+        overlayTxt.textContent = "한국어 AI 아나운서 음성 + 영상 준비 중...";
       }
       try {
-        const generatedUrl = await generateDynamicVideoUrl((pct) => {
+        const result = await generateDynamicVideoUrl((pct, label) => {
           if (overlayTxt) overlayTxt.textContent = `9:16 영상 생성 중 (${pct}%)`;
+          if (overlaySub && label) overlaySub.textContent = label;
         });
-        if (generatedUrl) {
-          applyVideoSrc(generatedUrl);
+        if (result && result.url) {
+          applyVideoSrc(result.url);
         }
+      } catch (err) {
+        if (currentData.video_mp4_url) applyVideoSrc(currentData.video_mp4_url);
       } finally {
         if (overlayEl) overlayEl.classList.add("hidden");
       }
@@ -996,7 +1194,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
     function extractVideoId(input) {
       if (!input) return null;
-      const m = input.match(/(?:v=|\/videos\/|embed\/|youtu\.be\/|\/v\/|\/live\/|watch\?v=|&v=|\/shorts\/)([A-Za-z0-9_-]{11})/);
+      const m = input.match(/(?:v=|\/videos\/|embed\/|youtu\.be\/|\/v\/|\/e\/|\/live\/|watch\?v=|&v=|\/shorts\/)([A-Za-z0-9_-]{11})/);
       return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(input.trim()) ? input.trim() : null);
     }
 
@@ -1077,36 +1275,12 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const c3 = conPool[2] || "다양한 이해관계자의 입장을 균형 있게 수렴하는 과정이 필수적입니다";
 
       return [
-        {
-          speaker: "PRO",
-          core_point: `${labelTopic} 핵심 지지`,
-          text: `이번 영상 댓글 여론의 ${proRatio}퍼센트를 차지한 찬성 측에서는 "${p1}"라며 ${shortTopic} 사안의 적극적인 변화를 요구했습니다.`
-        },
-        {
-          speaker: "CON",
-          core_point: "현장 여건 및 신중론 제기",
-          text: `반면 ${conRatio}퍼센트 비중의 반대·신중 측에서는 "${c1}"라며 성급한 접근보다 현실적 영향을 먼저 살펴야 한다고 지적했습니다.`
-        },
-        {
-          speaker: "PRO",
-          core_point: "실효성 기준과 책임 있는 대책",
-          text: `찬성 측은 이어 "${p2}"라고 강조하며 감정적 공방을 넘어 구체적인 해결 기준을 세워야 한다고 주장합니다.`
-        },
-        {
-          speaker: "CON",
-          core_point: "부작용 최소화 및 보완책 우선",
-          text: `이에 대해 반대 측은 "${c2}"라며 현장의 수용성을 높이는 완충 장치와 균형 잡힌 검토가 선행되어야 한다고 반박합니다.`
-        },
-        {
-          speaker: "PRO",
-          core_point: "공익적 가치와 신뢰 회복 촉구",
-          text: `또한 "${p3}"라는 다수의 반응처럼, 이번 쟁점이 실질적인 공론장 개선으로 이어져야 한다는 목소리가 커지고 있습니다.`
-        },
-        {
-          speaker: "CON",
-          core_point: "양측 균형 기반 상생 합의 필요",
-          text: `결국 "${c3}"라는 지적처럼, 찬반 양측의 핵심 논거를 균형 있게 반영할 때 지속 가능한 해법에 도달할 수 있습니다.`
-        }
+        { speaker: "PRO", core_point: `${labelTopic} 핵심 지지`, text: `이번 영상 댓글 여론의 ${proRatio}퍼센트를 차지한 찬성 측에서는 "${p1}"라며 ${shortTopic} 사안의 적극적인 변화를 요구했습니다.` },
+        { speaker: "CON", core_point: "현장 여건 및 신중론 제기", text: `반면 ${conRatio}퍼센트 비중의 반대·신중 측에서는 "${c1}"라며 성급한 접근보다 현실적 영향을 먼저 살펴야 한다고 지적했습니다.` },
+        { speaker: "PRO", core_point: "실효성 기준과 책임 있는 대책", text: `찬성 측은 이어 "${p2}"라고 강조하며 감정적 공방을 넘어 구체적인 해결 기준을 세워야 한다고 주장합니다.` },
+        { speaker: "CON", core_point: "부작용 최소화 및 보완책 우선", text: `이에 대해 반대 측은 "${c2}"라며 현장의 수용성을 높이는 완충 장치와 균형 잡힌 검토가 선행되어야 한다고 반박합니다.` },
+        { speaker: "PRO", core_point: "공익적 가치와 신뢰 회복 촉구", text: `또한 "${p3}"라는 다수의 반응처럼, 이번 쟁점이 실질적인 공론장 개선으로 이어져야 한다는 목소리가 커지고 있습니다.` },
+        { speaker: "CON", core_point: "양측 균형 기반 상생 합의 필요", text: `결국 "${c3}"라는 지적처럼, 찬반 양측의 핵심 논거를 균형 있게 반영할 때 지속 가능한 해법에 도달할 수 있습니다.` }
       ];
     }
 
@@ -1132,7 +1306,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           return;
         }
 
-        // If running on FastAPI backend, try /api/analyze first for unified server collection + NLP + Gemini
         if (window.location.protocol.startsWith("http") && !window.location.hostname.includes("github.io")) {
           try {
             const apiRes = await fetch("/api/analyze", {
@@ -1280,9 +1453,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         let debateScript = buildDynamicScriptFromComments(issueTitle, comments, proRatio, conRatio, toxicRe, proRe, conRe);
         let engineMode = vid ? `실시간 NLP (${total}건)` : `직접 입력 (${total}건)`;
 
-        // Try Gemini 2.5 Flash -> Gemini 2.0 Flash for upgraded script synthesis
         const sampleText = comments.slice(0, 35).map((c) => c.text).join("\n");
-        const gemPrompt = `다음 유튜브 영상("${issueTitle}")의 실제 댓글 ${total}건을 분석하여 찬성(PRO)과 반대(CON) 양측 핵심 논거 6턴(PRO, CON 교차 3턴씩) 아나운서 토론 대본을 JSON으로 작성해라.\n스펙: {"issue_title": "주제 한 줄 요약", "debate_script": [{"speaker":"PRO","core_point":"핵심 논거 라벨","text":"비속어가 제거된 2문장 아나운서 대사"}]}\n\n댓글 샘플:\n${sampleText}`;
+        const gemPrompt = `다음 유튜브 영상("${issueTitle}")의 실제 댓글 ${total}건을 분석하여 찬성(PRO)과 반대(CON) 양측 핵심 논거 6턴(PRO, CON 교차 3턴씩) 아나운서 토론 대본을 JSON으로 작성해라.\n스펙: {"issue_title": "주제 한 줄 요약", "debate_script": [{"speaker":"PRO","core_point":"핵심 논거 라벨","text":"비속어가 제거된 자연스러운 2문장 아나운서 대사"}]}\n\n댓글 샘플:\n${sampleText}`;
 
         for (const modelName of ["gemini-2.5-flash", "gemini-2.0-flash"]) {
           try {
@@ -1321,9 +1493,10 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
             : `직접 입력 댓글 분석 (${total}건)`,
           source_url: sourceUrl,
           video_mp4_url: null,
+          has_voice_track: false,
           rendered_video_blob_url: null,
           issue_title: issueTitle,
-          hashtags: "#한냥 #공론장중재 #40초토론 #유튜브쇼츠",
+          hashtags: "#한냥 #공론장중재 #핵심토론 #유튜브쇼츠",
           raw_stats: {
             total_comments: total,
             filtered_curse_count: toxicCnt,
@@ -1416,53 +1589,43 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       } catch (e) {}
     }
 
-    let playSessionToken = 0;
-
-    async function fetchTurnTtsB64(turnIdx) {
-      const turns = currentData.debate_script || [];
-      const turn = turns[turnIdx];
-      if (!turn || !turn.text) return null;
-      if (!currentData._ttsB64Cache) currentData._ttsB64Cache = {};
-      const cacheKey = `${turn.speaker}:${turn.text}`;
-      const cached = currentData._ttsB64Cache[turnIdx];
-      if (cached && cached.key === cacheKey) return cached.b64;
-
-      const voiceName = turn.speaker === "PRO" ? "Charon" : "Aoede";
-      const toneGuide = turn.speaker === "PRO"
-        ? "뉴스 토론 남성 아나운서처럼 차분하고 명확하게 읽어주세요"
-        : "뉴스 토론 여성 아나운서처럼 또렷하고 설득력 있게 읽어주세요";
-
-      const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
-      const to = ctrl ? setTimeout(() => ctrl.abort(), 9500) : null;
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: ctrl ? ctrl.signal : undefined,
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: `${toneGuide}: ${turn.text}` }] }],
-            generationConfig: {
-              responseModalities: ["AUDIO"],
-              speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
-            }
-          })
-        });
-        if (to) clearTimeout(to);
-        if (res.ok) {
-          const data = await res.json();
-          const b64 = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || null;
-          if (b64) {
-            currentData._ttsB64Cache[turnIdx] = { key: cacheKey, b64 };
-            return b64;
-          }
-        }
-      } catch (e) {
-        if (to) clearTimeout(to);
+    function encodeFloat32MonoToWavB64(samples, sampleRate = 24000) {
+      const numSamples = samples.length;
+      const buf = new ArrayBuffer(44 + numSamples * 2);
+      const view = new DataView(buf);
+      const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+      writeStr(0, "RIFF");
+      view.setUint32(4, 36 + numSamples * 2, true);
+      writeStr(8, "WAVE");
+      writeStr(12, "fmt ");
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeStr(36, "data");
+      view.setUint32(40, numSamples * 2, true);
+      for (let i = 0; i < numSamples; i++) {
+        const s = Math.max(-1, Math.min(1, samples[i]));
+        view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
       }
-      return null;
+      const bytes = new Uint8Array(buf);
+      let bin = "";
+      const chunk = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+      }
+      return btoa(bin);
     }
 
-    function pcmBase64ToAudioBuffer(ctx, b64, defaultRate = 24000) {
+    function parseSampleRateFromMime(mimeType, fallback = 24000) {
+      const m = (mimeType || "").match(/rate=(\d+)/i);
+      return m ? (parseInt(m[1], 10) || fallback) : fallback;
+    }
+
+    function decodeBase64AudioToBuffer(ctx, b64, mimeType = "audio/L16;rate=24000") {
       if (!ctx || !b64) return null;
       const bin = atob(b64);
       const len = bin.length;
@@ -1470,10 +1633,10 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       for (let i = 0; i < len; i++) u8[i] = bin.charCodeAt(i);
 
       let pcmOffset = 0;
-      let sampleRate = defaultRate;
+      let sampleRate = parseSampleRateFromMime(mimeType, 24000);
       if (len > 44 && bin.slice(0, 4) === "RIFF") {
         const dv = new DataView(u8.buffer);
-        sampleRate = dv.getUint32(24, true) || defaultRate;
+        sampleRate = dv.getUint32(24, true) || sampleRate;
         pcmOffset = 44;
       }
       const sampleCount = Math.floor((len - pcmOffset) / 2);
@@ -1488,50 +1651,20 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return audioBuf;
     }
 
-    async function playWithGeminiNeuralTTS() {
-      setPlayerMode("interactive");
-      const btn = document.getElementById("geminiTtsBtn");
-      const orig = btn.textContent;
-      btn.textContent = "AI 아나운서 음성 생성 중...";
-      try {
-        const idx = currentTurnIndex || 0;
-        const turn = currentData.debate_script[idx] || currentData.debate_script[0];
-        const b64 = await fetchTurnTtsB64(idx);
-        if (b64) {
-          const wavUrl = pcmBase64ToWavUrl(b64, 24000);
-          if (currentHtmlAudio) { try { currentHtmlAudio.pause(); } catch (e) {} }
-          currentHtmlAudio = new Audio(wavUrl);
-          updateShortsTurnVisual(idx, true);
-          const voiceLabel = turn.speaker === "PRO" ? "Charon" : "Aoede";
-          document.getElementById("ttsStatusLabel").textContent = `${voiceLabel} AI 보이스`;
-          currentHtmlAudio.onended = () => {
-            document.getElementById("shortsBubbleEq").classList.remove("eq-pro", "eq-con");
-            document.getElementById("ttsStatusLabel").textContent = "40.0s";
-          };
-          await currentHtmlAudio.play();
-          return;
-        }
-        startShortsPlayback(idx);
-      } catch (e) {
-        startShortsPlayback(currentTurnIndex || 0);
-      } finally {
-        btn.textContent = orig;
-      }
-    }
-
-    function pcmBase64ToWavUrl(b64, sampleRate = 24000) {
+    function pcmBase64ToWavUrl(b64, mimeType = "audio/L16;rate=24000") {
       const bin = atob(b64);
-      const pcmLen = bin.length;
-      if (pcmLen > 44 && bin.slice(0, 4) === "RIFF") {
-        const raw = new Uint8Array(pcmLen);
-        for (let i = 0; i < pcmLen; i++) raw[i] = bin.charCodeAt(i);
+      const len = bin.length;
+      if (len > 44 && bin.slice(0, 4) === "RIFF") {
+        const raw = new Uint8Array(len);
+        for (let i = 0; i < len; i++) raw[i] = bin.charCodeAt(i);
         return URL.createObjectURL(new Blob([raw], { type: "audio/wav" }));
       }
-      const wavBuf = new ArrayBuffer(44 + pcmLen);
+      const sampleRate = parseSampleRateFromMime(mimeType, 24000);
+      const wavBuf = new ArrayBuffer(44 + len);
       const view = new DataView(wavBuf);
       const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
       writeStr(0, "RIFF");
-      view.setUint32(4, 36 + pcmLen, true);
+      view.setUint32(4, 36 + len, true);
       writeStr(8, "WAVE");
       writeStr(12, "fmt ");
       view.setUint32(16, 16, true);
@@ -1542,13 +1675,336 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       view.setUint16(32, 2, true);
       view.setUint16(34, 16, true);
       writeStr(36, "data");
-      view.setUint32(40, pcmLen, true);
+      view.setUint32(40, len, true);
       const bytes = new Uint8Array(wavBuf, 44);
-      for (let i = 0; i < pcmLen; i++) bytes[i] = bin.charCodeAt(i);
+      for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
       return URL.createObjectURL(new Blob([wavBuf], { type: "audio/wav" }));
     }
 
-    function wrapWordsByWidth(ctx, text, maxPx, maxLines = 5) {
+    async function fetchCloudTtsTurn(turn) {
+      if (cloudTtsDisabled) return null;
+      const isPro = turn.speaker === "PRO";
+      const candidates = isPro ? ["ko-KR-Neural2-C", "ko-KR-Wavenet-C"] : ["ko-KR-Neural2-A", "ko-KR-Wavenet-A"];
+      for (const name of candidates) {
+        try {
+          const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${CONFIG.GOOGLE_API_KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              input: { text: turn.text },
+              voice: { languageCode: "ko-KR", name },
+              audioConfig: { audioEncoding: "LINEAR16", sampleRateHertz: 24000, speakingRate: 1.04, pitch: 0.0 }
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.audioContent) {
+              return { b64: data.audioContent, mimeType: "audio/wav", engine: `Cloud ${name}` };
+            }
+          } else if (res.status === 401 || res.status === 403) {
+            cloudTtsDisabled = true;
+            return null;
+          }
+        } catch (e) {}
+      }
+      return null;
+    }
+
+    async function fetchGeminiSingleTurn(turn) {
+      if (Date.now() < geminiTtsCooldownUntil) return null;
+      const voiceName = turn.speaker === "PRO" ? "Orus" : "Kore";
+      const tries = [
+        { model: "gemini-3.8-flash-tts", meta: true },
+        { model: "gemini-3.8-flash-lite-tts", meta: true },
+        { model: "gemini-2.5-flash-tts", meta: false },
+        { model: "gemini-2.5-flash-preview-tts", meta: false }
+      ];
+      for (const item of tries) {
+        const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+        const to = ctrl ? setTimeout(() => ctrl.abort(), 11000) : null;
+        try {
+          const part = item.meta
+            ? { text: turn.text, speechMetadata: { style: "Calm, clear standard Seoul Korean broadcast news panelist" } }
+            : { text: turn.text };
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${item.model}:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: ctrl ? ctrl.signal : undefined,
+            body: JSON.stringify({
+              contents: [{ parts: [part] }],
+              generationConfig: {
+                responseModalities: ["AUDIO"],
+                speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+              }
+            })
+          });
+          if (to) clearTimeout(to);
+          if (res.ok) {
+            const data = await res.json();
+            const partsList = data.candidates?.[0]?.content?.parts || [];
+            const inl = (partsList.find((p) => p && p.inlineData && p.inlineData.data) || {}).inlineData;
+            if (inl && inl.data) {
+              return { b64: inl.data, mimeType: inl.mimeType || "audio/L16;rate=24000", engine: `Gemini ${voiceName}` };
+            }
+          } else if (res.status === 429) {
+            geminiTtsCooldownUntil = Date.now() + 25000;
+            return null;
+          }
+        } catch (e) {
+          if (to) clearTimeout(to);
+        }
+      }
+      return null;
+    }
+
+    function sliceMultiSpeakerAudioToTurns(rawPcm, sampleRate, turns) {
+      let startS = 0, endS = rawPcm.length;
+      const peak = rawPcm.reduce((m, v) => Math.max(m, Math.abs(v)), 0) || 1;
+      const silThr = peak * 0.015;
+      while (startS < endS - sampleRate && Math.abs(rawPcm[startS]) < silThr) startS++;
+      while (endS > startS + sampleRate && Math.abs(rawPcm[endS - 1]) < silThr) endS--;
+      startS = Math.max(0, startS - Math.floor(sampleRate * 0.08));
+      endS = Math.min(rawPcm.length, endS + Math.floor(sampleRate * 0.10));
+      const fullPcm = rawPcm.subarray(startS, endS);
+
+      const totalSamples = fullPcm.length;
+      if (totalSamples < sampleRate * turns.length * 1.2) return null;
+
+      // Compute 20ms RMS envelope
+      const win = Math.max(1, Math.floor(sampleRate * 0.02));
+      const nWin = Math.floor(totalSamples / win);
+      if (nWin < turns.length * 12) return null;
+
+      const rms = new Float32Array(nWin);
+      let maxRms = 0;
+      for (let w = 0; w < nWin; w++) {
+        let sum = 0;
+        const off = w * win;
+        for (let i = 0; i < win; i++) {
+          const v = fullPcm[off + i];
+          sum += v * v;
+        }
+        const r = Math.sqrt(sum / win);
+        rms[w] = r;
+        if (r > maxRms) maxRms = r;
+      }
+
+      // Compute expected proportional character boundaries & snap each boundary to lowest-energy pause
+      const charLens = turns.map((t) => Math.max(20, (t.text || "").replace(/\s+/g, "").length));
+      const totChars = charLens.reduce((a, b) => a + b, 0);
+      const cuts = [0];
+      let cumChars = 0;
+
+      for (let i = 0; i < turns.length - 1; i++) {
+        cumChars += charLens[i];
+        const expectedWin = Math.round((cumChars / totChars) * nWin);
+        const searchHalf = Math.max(18, Math.round(nWin * 0.14));
+        const minWin = cuts[i] + Math.max(18, Math.round((charLens[i] / totChars) * nWin * 0.42));
+        const maxWin = Math.min(nWin - (turns.length - 1 - i) * 18, expectedWin + searchHalf);
+        const wStart = Math.max(minWin, expectedWin - searchHalf);
+        const wEnd = Math.max(wStart + 2, maxWin);
+
+        let bestW = expectedWin;
+        let bestScore = Infinity;
+        for (let w = wStart; w <= wEnd; w++) {
+          let localSum = 0;
+          for (let k = -2; k <= 2; k++) {
+            const idx = Math.max(0, Math.min(nWin - 1, w + k));
+            localSum += rms[idx];
+          }
+          const distPenalty = Math.abs(w - expectedWin) * (maxRms * 0.0012);
+          const score = localSum + distPenalty;
+          if (score < bestScore) {
+            bestScore = score;
+            bestW = w;
+          }
+        }
+        cuts.push(bestW);
+      }
+      cuts.push(nWin);
+
+      const results = [];
+      for (let i = 0; i < turns.length; i++) {
+        const s0 = cuts[i] * win;
+        const s1 = cuts[i + 1] * win;
+        const dur = (s1 - s0) / sampleRate;
+        if (dur < 1.2) return null;
+        results.push(fullPcm.slice(s0, s1));
+      }
+      return results;
+    }
+
+    async function fetchBatchMultiSpeakerGeminiTts(turns) {
+      if (Date.now() < geminiTtsCooldownUntil || turns.length < 2) return false;
+      const ctx = getOrResumeAudioContext();
+      if (!ctx) return false;
+
+      const attempts = [
+        {
+          model: "gemini-3.8-flash-tts",
+          parts: turns.map((t) => ({
+            text: t.text,
+            speechMetadata: { speaker: t.speaker }
+          }))
+        },
+        {
+          model: "gemini-3.8-flash-lite-tts",
+          parts: turns.map((t) => ({
+            text: t.text,
+            speechMetadata: { speaker: t.speaker }
+          }))
+        },
+        {
+          model: "gemini-2.5-flash-tts",
+          parts: [{ text: turns.map((t) => `${t.speaker}: ${t.text}`).join("\n\n") }]
+        },
+        {
+          model: "gemini-2.5-flash-preview-tts",
+          parts: [{ text: turns.map((t) => `${t.speaker}: ${t.text}`).join("\n\n") }]
+        }
+      ];
+
+      for (const att of attempts) {
+        const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+        const to = ctrl ? setTimeout(() => ctrl.abort(), 24000) : null;
+        try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${att.model}:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: ctrl ? ctrl.signal : undefined,
+            body: JSON.stringify({
+              contents: [{ parts: att.parts }],
+              generationConfig: {
+                responseModalities: ["AUDIO"],
+                speechConfig: {
+                  multiSpeakerVoiceConfig: {
+                    speakerVoiceConfigs: [
+                      { speaker: "PRO", voiceConfig: { prebuiltVoiceConfig: { voiceName: "Orus" } } },
+                      { speaker: "CON", voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } }
+                    ]
+                  }
+                }
+              }
+            })
+          });
+          if (to) clearTimeout(to);
+          if (res.ok) {
+            const data = await res.json();
+            const partsList = data.candidates?.[0]?.content?.parts || [];
+            const inl = (partsList.find((p) => p && p.inlineData && p.inlineData.data) || {}).inlineData;
+            if (inl && inl.data) {
+              const buf = decodeBase64AudioToBuffer(ctx, inl.data, inl.mimeType || "audio/L16;rate=24000");
+              if (buf) {
+                const sliced = sliceMultiSpeakerAudioToTurns(buf.getChannelData(0), buf.sampleRate, turns);
+                if (sliced && sliced.length === turns.length) {
+                  if (!currentData._ttsAudioCache) currentData._ttsAudioCache = {};
+                  if (!currentData._turnAudioDur) currentData._turnAudioDur = {};
+                  sliced.forEach((pcmFloat, idx) => {
+                    const key = `${turns[idx].speaker}:${turns[idx].text}`;
+                    const b64 = encodeFloat32MonoToWavB64(pcmFloat, buf.sampleRate);
+                    currentData._ttsAudioCache[idx] = { key, b64, mimeType: "audio/wav", engine: "Gemini 듀엣 AI" };
+                    currentData._turnAudioDur[idx] = pcmFloat.length / buf.sampleRate;
+                  });
+                  renderScriptList();
+                  return true;
+                }
+              }
+            }
+          } else if (res.status === 429) {
+            geminiTtsCooldownUntil = Date.now() + 25000;
+            return false;
+          }
+        } catch (e) {
+          if (to) clearTimeout(to);
+        }
+      }
+      return false;
+    }
+
+    async function fetchTurnVoice(turnIdx) {
+      const turns = currentData.debate_script || [];
+      const turn = turns[turnIdx];
+      if (!turn || !turn.text) return null;
+      if (!currentData._ttsAudioCache) currentData._ttsAudioCache = {};
+      if (!currentData._turnAudioDur) currentData._turnAudioDur = {};
+
+      const cacheKey = `${turn.speaker}:${turn.text}`;
+      const cached = currentData._ttsAudioCache[turnIdx];
+      if (cached && cached.key === cacheKey && cached.b64) return cached;
+
+      let resObj = await fetchCloudTtsTurn(turn);
+      if (!resObj) resObj = await fetchGeminiSingleTurn(turn);
+
+      if (resObj && resObj.b64) {
+        currentData._ttsAudioCache[turnIdx] = { key: cacheKey, ...resObj };
+        const ctx = getOrResumeAudioContext();
+        if (ctx) {
+          const buf = decodeBase64AudioToBuffer(ctx, resObj.b64, resObj.mimeType);
+          if (buf && buf.duration > 0.2) {
+            currentData._turnAudioDur[turnIdx] = buf.duration;
+          }
+        }
+        return currentData._ttsAudioCache[turnIdx];
+      }
+      return null;
+    }
+
+    async function prepareAllVoices(onProgress = () => {}) {
+      const turns = (currentData.debate_script || []).slice(0, 6);
+      if (!currentData._ttsAudioCache) currentData._ttsAudioCache = {};
+      if (!currentData._turnAudioDur) currentData._turnAudioDur = {};
+
+      const allCached = turns.every((t, i) => {
+        const c = currentData._ttsAudioCache[i];
+        return c && c.key === `${t.speaker}:${t.text}` && c.b64;
+      });
+      if (allCached) return true;
+
+      // 1) Try Cloud Neural2 first (supports clean fast parallel calls if enabled)
+      if (!cloudTtsDisabled) {
+        onProgress(8, "Google Cloud 한국어 아나운서 음성 합성 중...");
+        const firstRes = await fetchCloudTtsTurn(turns[0]);
+        if (firstRes && firstRes.b64) {
+          currentData._ttsAudioCache[0] = { key: `${turns[0].speaker}:${turns[0].text}`, ...firstRes };
+          const ctx = getOrResumeAudioContext();
+          if (ctx) {
+            const b = decodeBase64AudioToBuffer(ctx, firstRes.b64, firstRes.mimeType);
+            if (b) currentData._turnAudioDur[0] = b.duration;
+          }
+          await Promise.all(turns.slice(1).map(async (t, offset) => {
+            const idx = offset + 1;
+            const r = await fetchCloudTtsTurn(t);
+            if (r && r.b64) {
+              currentData._ttsAudioCache[idx] = { key: `${t.speaker}:${t.text}`, ...r };
+              if (ctx) {
+                const b = decodeBase64AudioToBuffer(ctx, r.b64, r.mimeType);
+                if (b) currentData._turnAudioDur[idx] = b.duration;
+              }
+            }
+          }));
+          renderScriptList();
+          return true;
+        }
+      }
+
+      // 2) Try 1-call Multi-Speaker Gemini TTS (avoids 3 RPM free-tier 429!)
+      onProgress(10, "Gemini 1회 통합 AI 보이스 합성 중 (할당량 절약)...");
+      const batchOk = await fetchBatchMultiSpeakerGeminiTts(turns);
+      if (batchOk) return true;
+
+      // 3) Sequential per-turn fallback (skip cached turns)
+      let anyOk = false;
+      for (let i = 0; i < turns.length; i++) {
+        onProgress(6 + Math.round(((i + 1) / turns.length) * 12), `턴 ${i + 1}/${turns.length} AI 음성 생성 중...`);
+        const got = await fetchTurnVoice(i);
+        if (got && got.b64) anyOk = true;
+        if (Date.now() < geminiTtsCooldownUntil) break;
+      }
+      renderScriptList();
+      return anyOk;
+    }
+
+    function wrapWordsByWidth(ctx, text, maxPx, maxLines = 4) {
       const words = (text || "").trim().split(/\s+/).filter(Boolean);
       const lines = [];
       let cur = [];
@@ -1593,20 +2049,56 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       });
     }
 
+    function createOffscreenCanvas(w, h) {
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      return c;
+    }
+
+    function fitCorePointCanvas(ctx, text, maxW) {
+      const clean = (text || "").replace(/\s+/g, " ").trim();
+      for (const sz of [29, 26, 23]) {
+        ctx.font = `bold ${sz}px Pretendard, sans-serif`;
+        if (ctx.measureText(clean).width <= maxW) {
+          return { font: ctx.font, lines: [clean] };
+        }
+      }
+      ctx.font = "bold 23px Pretendard, sans-serif";
+      return { font: ctx.font, lines: wrapWordsByWidth(ctx, clean, maxW, 2).map((ws) => ws.join(" ")) };
+    }
+
+    function fitCaptionClauseCanvas(ctx, clauseText, maxW) {
+      const wordsTotal = clauseText.trim().split(/\s+/).filter(Boolean).length;
+      for (const spec of [{ sz: 39, lh: 56 }, { sz: 34, lh: 48 }]) {
+        ctx.font = `bold ${spec.sz}px Pretendard, sans-serif`;
+        const lines = wrapWordsByWidth(ctx, clauseText, maxW, 3);
+        const cnt = lines.reduce((a, b) => a + b.length, 0);
+        if (cnt >= wordsTotal) return { font: ctx.font, sz: spec.sz, lh: spec.lh, lines };
+      }
+      ctx.font = "bold 33px Pretendard, sans-serif";
+      return { font: ctx.font, sz: 33, lh: 46, lines: wrapWordsByWidth(ctx, clauseText, maxW, 4) };
+    }
+
     async function generateDynamicVideoUrl(onProgress = () => {}) {
-      if (currentData.rendered_video_blob_url) return currentData.rendered_video_blob_url;
+      if (currentData.rendered_video_blob_url) {
+        return { url: currentData.rendered_video_blob_url, hasVoice: !!currentData._renderedHasVoice, ext: currentData.rendered_video_ext || "webm" };
+      }
 
+      const audioCtxRec = getOrResumeAudioContext();
       const turns = (currentData.debate_script || []).slice(0, 6);
-      onProgress(4);
+      onProgress(4, "한국어 AI 음성 트랙 합성 준비 중...");
 
-      // Step 0: Prefetch Gemini 2.5 Neural TTS voices in parallel for broadcast narration
-      const ttsB64List = await Promise.all(turns.map((_, idx) => fetchTurnTtsB64(idx).catch(() => null)));
-      onProgress(16);
+      // 1) Synthesize voices BEFORE launching recorder/server render
+      const hasAnyVoiceReady = await prepareAllVoices(onProgress);
+      const turnAudioList = turns.map((_, i) => (currentData._ttsAudioCache && currentData._ttsAudioCache[i]) || null);
 
-      // 1) Try FastAPI server-side 1080x1920 @ 30fps H.264 MP4 render when hosted on FastAPI
+      onProgress(20, "1080×1920 스튜디오 영상 렌더링 준비 중...");
+
+      // 2) Try FastAPI backend MP4 renderer when running locally / connected to Python backend
       if (window.location.protocol.startsWith("http") && !window.location.hostname.includes("github.io")) {
         try {
-          onProgress(24);
+          onProgress(28, "서버 H.264 + AAC 1080p 렌더링 실행 중...");
           const res = await fetch("/api/render-mp4", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1615,16 +2107,17 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               category_badge: currentData.source_label || "한냥 Studio",
               raw_stats: currentData.raw_stats,
               debate_script: turns,
-              turn_audio_b64_list: ttsB64List
+              turn_audio_b64_list: turnAudioList.map((x) => (x ? x.b64 : null))
             })
           });
           if (res.ok) {
             const j = await res.json();
             if (j.video_mp4_url) {
-              onProgress(100);
+              onProgress(100, "Full-HD MP4 생성 완료");
               currentData.rendered_video_blob_url = j.video_mp4_url;
               currentData.rendered_video_ext = "mp4";
-              return j.video_mp4_url;
+              currentData._renderedHasVoice = hasAnyVoiceReady;
+              return { url: j.video_mp4_url, hasVoice: hasAnyVoiceReady, ext: "mp4" };
             }
           }
         } catch (e) {}
@@ -1634,7 +2127,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         throw new Error("이 브라우저에서는 동적 MP4/WebM 녹화를 지원하지 않습니다.");
       }
 
-      // 2) Client-side Full-HD 1080x1920 Broadcast Studio Renderer (works on GitHub Pages)
+      // 3) Client-side Full-HD 1080x1920 @ 30fps Offscreen-Cached Broadcast Recorder
       const canvas = document.getElementById("hiddenShortsRecorderCanvas");
       const W = 1080, H = 1920;
       if (canvas.width !== W) canvas.width = W;
@@ -1647,53 +2140,111 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const conImg = document.getElementById("avatarCardCon");
       await Promise.all([studioImg, deskImg, proImg, conImg].map(waitImageReady));
 
-      const videoStream = canvas.captureStream(30);
-      let audioCtxRec = null;
-      let padStoppers = [];
-      let combinedStream = videoStream;
-
-      try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (AudioCtx) {
-          audioCtxRec = new AudioCtx();
-          if (audioCtxRec.state === "suspended") await audioCtxRec.resume();
-          if (audioCtxRec.state === "running") {
-            const dest = audioCtxRec.createMediaStreamDestination();
-            // Warm studio ambience pad (Am7 subtle bed)
-            const lp = audioCtxRec.createBiquadFilter();
-            lp.type = "lowpass";
-            lp.frequency.setValueAtTime(420, audioCtxRec.currentTime);
-            const padGain = audioCtxRec.createGain();
-            padGain.gain.setValueAtTime(0.014, audioCtxRec.currentTime);
-            lp.connect(padGain);
-            padGain.connect(dest);
-            [110.0, 164.81, 220.0].forEach((freq) => {
-              const osc = audioCtxRec.createOscillator();
-              osc.type = "sine";
-              osc.frequency.setValueAtTime(freq, audioCtxRec.currentTime);
-              osc.connect(lp);
-              osc.start();
-              padStoppers.push(() => { try { osc.stop(); } catch (e) {} });
-            });
-            combinedStream = new MediaStream([...videoStream.getVideoTracks(), ...dest.stream.getAudioTracks()]);
-            videoStream._audioDest = dest;
-          }
+      // Pre-bake offscreen canvases ONCE so every 30fps frame blits in <3ms (zero CPU blur lag!)
+      const bakeStage = (isPro) => {
+        const c = createOffscreenCanvas(W, H);
+        const cx = c.getContext("2d");
+        if (studioImg && studioImg.complete && studioImg.naturalWidth > 0) {
+          cx.drawImage(studioImg, 0, 0, W, H);
+        } else {
+          const g = cx.createLinearGradient(0, 0, 0, H);
+          g.addColorStop(0, "#0E1015"); g.addColorStop(1, "#0B0D12");
+          cx.fillStyle = g; cx.fillRect(0, 0, W, H);
         }
-      } catch (e) {}
+        const sx = isPro ? W * 0.28 : W * 0.72;
+        const sy = H * 0.58;
+        const rad = cx.createRadialGradient(sx, sy, 24, sx, sy, 440);
+        rad.addColorStop(0, isPro ? "rgba(37,99,235,0.42)" : "rgba(220,38,38,0.42)");
+        rad.addColorStop(0.5, isPro ? "rgba(37,99,235,0.14)" : "rgba(220,38,38,0.14)");
+        rad.addColorStop(1, "rgba(0,0,0,0)");
+        cx.fillStyle = rad; cx.fillRect(0, 0, W, H);
+        return c;
+      };
+      const proStageC = bakeStage(true);
+      const conStageC = bakeStage(false);
 
+      const bakeHost = (img, targetH, active) => {
+        if (!img || !img.complete || img.naturalWidth <= 0) return null;
+        const sc = targetH / img.naturalHeight;
+        const dw = Math.round(img.naturalWidth * sc);
+        const c = createOffscreenCanvas(dw + 16, targetH + 16);
+        const cx = c.getContext("2d");
+        cx.globalAlpha = active ? 1.0 : 0.86;
+        if ("filter" in cx) {
+          cx.filter = active ? "brightness(1.04) saturate(1.06)" : "brightness(0.55) saturate(0.75) blur(1.2px)";
+        }
+        cx.drawImage(img, 8, 8, dw, targetH);
+        return { canvas: c, dw, dh: targetH };
+      };
+      const proActH = bakeHost(proImg, 578, true);
+      const proIdleH = bakeHost(proImg, 542, false);
+      const conActH = bakeHost(conImg, 526, true);
+      const conIdleH = bakeHost(conImg, 502, false);
+
+      const deskC = createOffscreenCanvas(W, H);
+      if (deskImg && deskImg.complete && deskImg.naturalWidth > 0) {
+        deskC.getContext("2d").drawImage(deskImg, 0, 0, W, H);
+      }
+
+      // Decode audio buffers
       const ttsBuffers = audioCtxRec
-        ? ttsB64List.map((b64) => pcmBase64ToAudioBuffer(audioCtxRec, b64, 24000))
+        ? turnAudioList.map((item) => (item && item.b64 ? decodeBase64AudioToBuffer(audioCtxRec, item.b64, item.mimeType) : null))
         : [];
       const hasRealVoices = ttsBuffers.some(Boolean);
 
-      const mimeType = MediaRecorder.isTypeSupported("video/mp4;codecs=avc1")
-        ? "video/mp4;codecs=avc1"
-        : (MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
-          ? "video/webm;codecs=vp9,opus"
-          : (MediaRecorder.isTypeSupported("video/webm") ? "video/webm" : ""));
+      // Compute natural duration per turn (NEVER clipped to 7.2s or compressed to 40s!)
+      const turnDurationsSec = turns.map((t, i) => {
+        const buf = ttsBuffers[i];
+        if (buf && buf.duration > 0.4) return +((buf.duration / playbackRate) + 0.45).toFixed(3);
+        return estimateTurnDurationSec(t.text, playbackRate);
+      });
+      const turnStartsSec = [];
+      let totalSecAcc = 0;
+      turnDurationsSec.forEach((d) => { turnStartsSec.push(totalSecAcc); totalSecAcc += d; });
+      const totalRenderSec = totalSecAcc;
 
+      // Setup WebAudio Recorder Bus
+      const videoStream = canvas.captureStream(30);
+      let combinedStream = videoStream;
+      let audioDest = null;
+      const audioStopNodes = [];
+
+      try {
+        if (audioCtxRec) {
+          if (audioCtxRec.state === "suspended") await audioCtxRec.resume();
+          audioDest = audioCtxRec.createMediaStreamDestination();
+          // Warm newsroom bed (louder if BGM fallback, smoothly ducked if voiced)
+          const lp = audioCtxRec.createBiquadFilter();
+          lp.type = "lowpass";
+          lp.frequency.setValueAtTime(580, audioCtxRec.currentTime);
+          const padGain = audioCtxRec.createGain();
+          padGain.gain.setValueAtTime(hasRealVoices ? 0.022 : 0.075, audioCtxRec.currentTime);
+          lp.connect(padGain);
+          padGain.connect(audioDest);
+          [110.0, 164.81, 220.0, 261.63].forEach((freq) => {
+            const osc = audioCtxRec.createOscillator();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, audioCtxRec.currentTime);
+            osc.connect(lp);
+            osc.start();
+            audioStopNodes.push(osc);
+          });
+          combinedStream = new MediaStream([...videoStream.getVideoTracks(), ...audioDest.stream.getAudioTracks()]);
+        }
+      } catch (e) {}
+
+      // Pick MIME type that ALWAYS preserves explicit audio codec alongside video!
+      const candidateMimes = [
+        "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+        "video/mp4;codecs=avc1,mp4a.40.2",
+        "video/mp4;codecs=avc1,opus",
+        "video/webm;codecs=vp9,opus",
+        "video/webm;codecs=vp8,opus",
+        "video/webm"
+      ];
+      const mimeType = candidateMimes.find((m) => MediaRecorder.isTypeSupported(m)) || "";
       const recorder = mimeType
-        ? new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 6000000 })
+        ? new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 6000000, audioBitsPerSecond: 128000 })
         : new MediaRecorder(combinedStream, { videoBitsPerSecond: 6000000 });
       const actualMime = recorder.mimeType || mimeType || "video/webm";
       const chunks = [];
@@ -1706,329 +2257,329 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           const url = URL.createObjectURL(blob);
           currentData.rendered_video_blob_url = url;
           currentData.rendered_video_ext = ext;
-          padStoppers.forEach((fn) => fn());
-          if (audioCtxRec) { try { audioCtxRec.close(); } catch (e) {} }
-          resolve(url);
+          currentData._renderedHasVoice = hasRealVoices;
+          audioStopNodes.forEach((n) => { try { n.stop(); } catch (e) {} });
+          resolve({ url, hasVoice: hasRealVoices, ext });
         };
       });
 
-      const playBroadcastStinger = (isPro) => {
-        if (!audioCtxRec || audioCtxRec.state !== "running" || !videoStream._audioDest) return;
-        try {
-          const now = audioCtxRec.currentTime;
-          const freqs = isPro ? [440, 554.37] : [523.25, 659.25];
-          freqs.forEach((f, idx) => {
-            const osc = audioCtxRec.createOscillator();
-            const g = audioCtxRec.createGain();
-            osc.type = "triangle";
-            osc.frequency.setValueAtTime(f, now + idx * 0.045);
-            g.gain.setValueAtTime(0.06, now + idx * 0.045);
-            g.gain.exponentialRampToValueAtTime(0.0008, now + idx * 0.045 + 0.24);
-            osc.connect(g);
-            g.connect(videoStream._audioDest);
-            osc.start(now + idx * 0.045);
-            osc.stop(now + idx * 0.045 + 0.26);
-          });
-        } catch (e) {}
-      };
-
-      recorder.start();
-
-      // Compute turn durations (match neural voice length when present, else clean 1.8s/turn showcase)
-      const turnDurationsMs = turns.map((_, i) => {
-        const buf = ttsBuffers[i];
-        if (buf && buf.duration > 0.5) return Math.min(7200, Math.max(2600, Math.round((buf.duration + 0.32) * 1000)));
-        return hasRealVoices ? 3200 : 1800;
-      });
-      const totalRenderMs = turnDurationsMs.reduce((a, b) => a + b, 0);
-      let accumulatedMs = 0;
-
+      // Pre-prepare layout & 2-clause text wraps per turn
       ctx.font = "bold 31px Pretendard, sans-serif";
-      const titleLines = wrapWordsByWidth(ctx, currentData.issue_title, W - 180, 2).map((ws) => ws.join(" "));
+      const titleLines = wrapWordsByWidth(ctx, currentData.issue_title, W - 168, 2).map((ws) => ws.join(" "));
 
-      for (let tIdx = 0; tIdx < turns.length; tIdx++) {
-        const turn = turns[tIdx];
-        const isPro = turn.speaker === "PRO";
-        const accent = isPro ? "#2563EB" : "#DC2626";
-        const tint = isPro ? "#EFF6FF" : "#FEF2F2";
-        const turnMs = turnDurationsMs[tIdx];
+      const turnLayouts = turns.map((turn) => {
+        const clauses = splitTurnIntoClauses(turn.text);
+        const coreSpec = fitCorePointCanvas(ctx, turn.core_point || "", W - 180);
+        const clauseSpecs = clauses.map((cTxt) => fitCaptionClauseCanvas(ctx, cTxt, W - 196));
+        const clauseWordCounts = clauseSpecs.map((cs) => Math.max(cs.lines.reduce((a, b) => a + b.length, 0), 1));
+        const totalWords = Math.max(clauseWordCounts.reduce((a, b) => a + b, 0), 1);
+        return { coreSpec, clauseSpecs, clauseWordCounts, totalWords };
+      });
 
-        ctx.font = "bold 28px Pretendard, sans-serif";
-        const captionLines = wrapWordsByWidth(ctx, turn.text, W - 208, 5);
-        const totalWords = Math.max(captionLines.reduce((acc, ln) => acc + ln.length, 0), 1);
+      recorder.start(250);
+      const masterStartAudioTime = audioCtxRec ? audioCtxRec.currentTime + 0.14 : 0;
+      const masterStartPerf = performance.now() + 140;
 
-        playBroadcastStinger(isPro);
-
-        // Play turn neural voice directly into recorder audio bus
-        const ttsBuf = ttsBuffers[tIdx];
-        if (ttsBuf && audioCtxRec && audioCtxRec.state === "running" && videoStream._audioDest) {
+      // Schedule sample-accurate voices & stingers onto the AudioContext timeline!
+      if (audioCtxRec && audioDest) {
+        turns.forEach((turn, idx) => {
+          const tStart = masterStartAudioTime + turnStartsSec[idx];
+          const isPro = turn.speaker === "PRO";
           try {
-            const voiceSrc = audioCtxRec.createBufferSource();
-            const voiceGain = audioCtxRec.createGain();
-            voiceSrc.buffer = ttsBuf;
-            voiceGain.gain.setValueAtTime(1.12, audioCtxRec.currentTime);
-            voiceSrc.connect(voiceGain);
-            voiceGain.connect(videoStream._audioDest);
-            voiceSrc.start(audioCtxRec.currentTime + 0.08);
-          } catch (e) {}
-        }
-
-        const turnStartPerf = performance.now();
-        while (true) {
-          const localElapsedMs = performance.now() - turnStartPerf;
-          const turnProg = Math.min(1, localElapsedMs / Math.max(turnMs, 1));
-          const globalProg = (accumulatedMs + Math.min(turnMs, localElapsedMs)) / Math.max(totalRenderMs, 1);
-          const localSec = localElapsedMs / 1000;
-
-          onProgress(Math.min(99, Math.round(18 + globalProg * 81)));
-
-          // 1) Camera Dolly Zoom Stage Layer (1.00 -> 1.052) + Speaker Tracking
-          const enter = Math.min(1, localSec / 0.35);
-          const ease = 1 - Math.pow(1 - enter, 3);
-          const zoom = 1.0 + 0.052 * turnProg;
-          const cw = W / zoom;
-          const ch = H / zoom;
-          const focusCx = isPro ? W * 0.44 : W * 0.56;
-          const cx = Math.max(cw * 0.5, Math.min(W - cw * 0.5, W * 0.5 + (focusCx - W * 0.5) * ease));
-          const cy = Math.max(ch * 0.5, Math.min(H - ch * 0.5, H * 0.515));
-
-          ctx.save();
-          ctx.translate(W * 0.5, H * 0.5);
-          ctx.scale(zoom, zoom);
-          ctx.translate(-cx, -cy);
-
-          // Studio Backdrop Image or Fallback
-          if (studioImg && studioImg.complete && studioImg.naturalWidth > 0) {
-            ctx.drawImage(studioImg, 0, 0, W, H);
-          } else {
-            const g = ctx.createLinearGradient(0, 0, 0, H);
-            g.addColorStop(0, "#0E1015");
-            g.addColorStop(1, "#0B0D12");
-            ctx.fillStyle = g;
-            ctx.fillRect(0, 0, W, H);
-          }
-
-          // Volumetric PRO/CON Spotlight Radial Glow
-          const spotX = isPro ? W * 0.28 : W * 0.72;
-          const spotY = H * 0.58;
-          const rad = ctx.createRadialGradient(spotX, spotY, 24, spotX, spotY, 440);
-          rad.addColorStop(0, isPro ? "rgba(37,99,235,0.42)" : "rgba(220,38,38,0.42)");
-          rad.addColorStop(0.5, isPro ? "rgba(37,99,235,0.14)" : "rgba(220,38,38,0.14)");
-          rad.addColorStop(1, "rgba(0,0,0,0)");
-          ctx.fillStyle = rad;
-          ctx.fillRect(0, 0, W, H);
-
-          // Hosts Behind Studio Desk
-          const talkBounce = Math.sin(localSec * 11) * 4.2 + Math.sin(localSec * 4.5) * 2;
-          const idleBreath = Math.sin(localSec * 2.2) * 1.8;
-          const drawHost = (img, active, centerX, baselineY, targetH, offY, slideX) => {
-            if (!img || !img.complete || img.naturalWidth <= 0) return;
-            ctx.save();
-            ctx.globalAlpha = active ? 1.0 : 0.86;
-            if ("filter" in ctx) {
-              ctx.filter = active ? "brightness(1.04) saturate(1.06)" : "brightness(0.55) saturate(0.75) blur(1.2px)";
-            }
-            const sc = targetH / img.naturalHeight;
-            const dw = img.naturalWidth * sc;
-            ctx.drawImage(img, centerX - dw / 2 + slideX, baselineY - targetH + offY, dw, targetH);
-            ctx.restore();
-          };
-
-          if (isPro) {
-            drawHost(conImg, false, 772, 1312, 502, idleBreath, 0);
-            drawHost(proImg, true, 312, 1325, 578, talkBounce - ease * 6, (1 - ease) * -18);
-          } else {
-            drawHost(proImg, false, 308, 1322, 542, idleBreath, 0);
-            drawHost(conImg, true, 768, 1310, 526, talkBounce - ease * 6, (1 - ease) * 18);
-          }
-
-          // Smoked-Glass Anchor Desk & Dual Broadcast Mics Overlay
-          if (deskImg && deskImg.complete && deskImg.naturalWidth > 0) {
-            ctx.drawImage(deskImg, 0, 0, W, H);
-          }
-          ctx.restore();
-
-          // 2) Crisp 1080p Broadcast HUD + Segmented Progress + Word-by-Word Karaoke Bubble
-          const segGap = 10;
-          const segTotalW = W - 108;
-          const segW = (segTotalW - segGap * (turns.length - 1)) / turns.length;
-          for (let si = 0; si < turns.length; si++) {
-            const sx = 54 + si * (segW + segGap);
-            ctx.fillStyle = "rgba(45, 50, 65, 0.85)";
-            drawRoundRect(ctx, sx, 38, segW, 9, 4); ctx.fill();
-            if (si < tIdx) {
-              ctx.fillStyle = accent;
-              drawRoundRect(ctx, sx, 38, segW, 9, 4); ctx.fill();
-            } else if (si === tIdx) {
-              ctx.fillStyle = accent;
-              drawRoundRect(ctx, sx, 38, Math.max(12, segW * turnProg), 9, 4); ctx.fill();
-            }
-          }
-
-          // Turn Counter & Timer Pills
-          ctx.fillStyle = "rgba(12, 14, 20, 0.86)";
-          drawRoundRect(ctx, 54, 60, 108, 38, 10); ctx.fill();
-          drawRoundRect(ctx, W - 166, 60, 112, 38, 10); ctx.fill();
-
-          ctx.fillStyle = "#F4F4F5";
-          ctx.font = "bold 23px Pretendard, sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(`${tIdx + 1} / ${turns.length}`, 108, 87);
-          ctx.fillStyle = "#D4D4D8";
-          ctx.fillText(`${(40 * (1 - globalProg)).toFixed(1)}s`, W - 110, 87);
-          ctx.textAlign = "left";
-
-          // Issue Header Card
-          ctx.fillStyle = "rgba(16, 18, 26, 0.88)";
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.14)";
-          ctx.lineWidth = 2;
-          drawRoundRect(ctx, 54, 112, W - 108, 118, 18); ctx.fill(); ctx.stroke();
-
-          ctx.fillStyle = "#FFFFFF";
-          ctx.font = "bold 31px Pretendard, sans-serif";
-          ctx.textAlign = "center";
-          if (titleLines.length === 1) {
-            ctx.fillText(titleLines[0], W / 2, 180);
-          } else {
-            ctx.fillText(titleLines[0], W / 2, 158);
-            ctx.fillText(titleLines[1], W / 2, 198);
-          }
-          ctx.textAlign = "left";
-
-          // Editorial White Speech Bubble (y=262..672, completely clears anchor heads at y>=745)
-          const bx0 = 54, by0 = 262, bw = W - 108, bh = 410;
-          ctx.fillStyle = "rgba(255, 255, 255, 0.98)";
-          drawRoundRect(ctx, bx0, by0, bw, bh, 28); ctx.fill();
-          ctx.fillStyle = accent;
-          drawRoundRect(ctx, bx0, by0, bw, 10, 5); ctx.fill();
-
-          ctx.fillStyle = "rgba(255, 255, 255, 0.98)";
-          ctx.beginPath();
-          if (isPro) {
-            ctx.moveTo(270, by0 + bh - 2);
-            ctx.lineTo(296, by0 + bh + 44);
-            ctx.lineTo(342, by0 + bh - 2);
-          } else {
-            ctx.moveTo(W - 342, by0 + bh - 2);
-            ctx.lineTo(W - 296, by0 + bh + 44);
-            ctx.lineTo(W - 270, by0 + bh - 2);
-          }
-          ctx.fill();
-
-          ctx.fillStyle = tint;
-          drawRoundRect(ctx, 98, by0 + 30, 128, 42, 11); ctx.fill();
-          ctx.fillStyle = accent;
-          ctx.font = "bold 23px Pretendard, sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(`${isPro ? "찬성" : "반대"} ${Math.floor(tIdx / 2) + 1}`, 162, by0 + 59);
-
-          ctx.textAlign = "right";
-          ctx.fillStyle = "#71717A";
-          ctx.font = "600 21px Pretendard, sans-serif";
-          ctx.fillText(`실측 ${currentData.raw_stats.total_comments}건 핵심 요약`, W - 98, by0 + 58);
-          ctx.textAlign = "left";
-
-          ctx.fillStyle = accent;
-          ctx.font = "bold 30px Pretendard, sans-serif";
-          ctx.fillText(trimKoreanWords(turn.core_point || "", 26), 98, by0 + 114);
-          ctx.fillStyle = "#E4E4E7";
-          ctx.fillRect(98, by0 + 132, W - 196, 2);
-
-          // Word-by-word karaoke pill highlighting
-          const activeWordIdx = Math.min(totalWords - 1, Math.floor(turnProg * totalWords * 1.03));
-          let wCounter = 0;
-          captionLines.forEach((wordArr, li) => {
-            let curX = 98;
-            const curY = by0 + 178 + li * 44;
-            wordArr.forEach((word) => {
-              ctx.font = wCounter <= activeWordIdx ? "bold 28px Pretendard, sans-serif" : "500 28px Pretendard, sans-serif";
-              const ww = ctx.measureText(word).width;
-              const spW = ctx.measureText(" ").width;
-              if (wCounter === activeWordIdx) {
-                ctx.fillStyle = tint;
-                drawRoundRect(ctx, curX - 6, curY - 28, ww + 12, 36, 7); ctx.fill();
-                ctx.fillStyle = accent;
-              } else if (wCounter < activeWordIdx) {
-                ctx.fillStyle = "#111317";
-              } else {
-                ctx.fillStyle = "#94A3B8";
-              }
-              ctx.fillText(word, curX, curY);
-              curX += ww + spW + 2;
-              wCounter++;
+            const freqs = isPro ? [440, 554.37] : [523.25, 659.25];
+            freqs.forEach((f, fi) => {
+              const osc = audioCtxRec.createOscillator();
+              const g = audioCtxRec.createGain();
+              osc.type = "triangle";
+              osc.frequency.setValueAtTime(f, tStart + fi * 0.055);
+              g.gain.setValueAtTime(hasRealVoices ? 0.065 : 0.11, tStart + fi * 0.055);
+              g.gain.exponentialRampToValueAtTime(0.0008, tStart + fi * 0.055 + 0.28);
+              osc.connect(g); g.connect(audioDest);
+              osc.start(tStart + fi * 0.055);
+              osc.stop(tStart + fi * 0.055 + 0.30);
             });
-          });
+          } catch (e) {}
 
-          // 3) Reflective Lower-Third Telemetry Card + 24-Band Equalizer
-          const ly0 = 1665, lh = 190;
-          ctx.fillStyle = "rgba(15, 18, 27, 0.94)";
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.14)";
-          ctx.lineWidth = 2;
-          drawRoundRect(ctx, 54, ly0, W - 108, lh, 24); ctx.fill(); ctx.stroke();
-
-          ctx.fillStyle = "#60A5FA";
-          ctx.font = "bold 24px Pretendard, sans-serif";
-          ctx.fillText(`찬성 ${currentData.raw_stats.pro_ratio}%`, 94, ly0 + 50);
-
-          ctx.fillStyle = "#F87171";
-          ctx.textAlign = "right";
-          ctx.fillText(`반대 ${currentData.raw_stats.con_ratio}%`, W - 94, ly0 + 50);
-          ctx.textAlign = "center";
-          ctx.fillStyle = "#A1A1AA";
-          ctx.font = "600 19px Pretendard, sans-serif";
-          ctx.fillText("50:50 공론장 중재", W / 2, ly0 + 76);
-          ctx.textAlign = "left";
-
-          const barX0 = 330, barW = W - 660;
-          const proW = Math.max(18, Math.round(barW * (currentData.raw_stats.pro_ratio / 100)));
-          ctx.fillStyle = "#2563EB";
-          drawRoundRect(ctx, barX0, ly0 + 36, proW, 12, 6); ctx.fill();
-          ctx.fillStyle = "#DC2626";
-          drawRoundRect(ctx, barX0 + proW + 6, ly0 + 36, Math.max(12, barW - proW - 6), 12, 6); ctx.fill();
-
-          const eqCount = 24, eqGap = 15;
-          const eqStartX = W / 2 - (eqCount * eqGap) / 2;
-          for (let bi = 0; bi < eqCount; bi++) {
-            const bx = eqStartX + bi * eqGap;
-            const wave = 0.5 + 0.5 * Math.sin(localSec * 14 + bi * 0.65);
-            const bh = Math.round(8 + 28 * wave);
-            ctx.fillStyle = accent;
-            drawRoundRect(ctx, bx, ly0 + 132 - bh / 2, 7, bh, 3); ctx.fill();
+          const ttsBuf = ttsBuffers[idx];
+          if (ttsBuf) {
+            try {
+              const src = audioCtxRec.createBufferSource();
+              const vg = audioCtxRec.createGain();
+              src.buffer = ttsBuf;
+              src.playbackRate.setValueAtTime(playbackRate, tStart + 0.10);
+              vg.gain.setValueAtTime(1.15, tStart + 0.10);
+              src.connect(vg); vg.connect(audioDest);
+              src.start(tStart + 0.10);
+            } catch (e) {}
           }
-
-          for (let di = 0; di < turns.length; di++) {
-            const dx = 94 + di * 34;
-            if (di === tIdx) {
-              ctx.fillStyle = accent;
-              drawRoundRect(ctx, dx, ly0 + 148, 26, 10, 5); ctx.fill();
-            } else {
-              ctx.fillStyle = di < tIdx ? "#A1A1AA" : "#2D313E";
-              drawRoundRect(ctx, dx, ly0 + 148, 18, 10, 5); ctx.fill();
-            }
-          }
-
-          ctx.fillStyle = "#A1A1AA";
-          ctx.font = "bold 23px Pretendard, sans-serif";
-          ctx.textAlign = "right";
-          ctx.fillText("한냥 Studio", W - 94, ly0 + 160);
-          ctx.textAlign = "left";
-
-          if (localElapsedMs >= turnMs) break;
-          await new Promise((r) => setTimeout(r, 33));
-        }
-
-        accumulatedMs += turnMs;
+        });
       }
 
+      const drawFrameAt = (nowSec) => {
+        let tIdx = turns.length - 1;
+        for (let i = 0; i < turns.length; i++) {
+          if (nowSec < turnStartsSec[i] + turnDurationsSec[i]) { tIdx = i; break; }
+        }
+        const turn = turns[tIdx];
+        const layout = turnLayouts[tIdx];
+        const turnDur = turnDurationsSec[tIdx];
+        const localSec = Math.max(0, nowSec - turnStartsSec[tIdx]);
+        const turnProg = Math.min(1, localSec / Math.max(turnDur, 0.1));
+        const globalProg = Math.min(1, nowSec / Math.max(totalRenderSec, 0.1));
+        const isPro = turn.speaker === "PRO";
+        const accent = isPro ? "#2563EB" : "#DC2626";
+        const badgeAccentTxt = isPro ? "#1D4ED8" : "#B91C1C";
+        const tint = isPro ? "#DBEAFE" : "#FEE2E2";
+
+        onProgress(Math.min(99, Math.round(22 + globalProg * 77)), `${hasRealVoices ? "AI 음성 + " : ""}1080p 방송 영상 녹화 중 (${formatMinSec(nowSec)} / ${formatMinSec(totalRenderSec)})`);
+
+        // 1) Camera Dolly Zoom Stage (fast blitting of pre-cached offscreen layers)
+        const enter = Math.min(1, localSec / 0.35);
+        const ease = 1 - Math.pow(1 - enter, 3);
+        const zoom = 1.0 + 0.052 * turnProg;
+        const cw = W / zoom, ch = H / zoom;
+        const focusCx = isPro ? W * 0.44 : W * 0.56;
+        const cx = Math.max(cw * 0.5, Math.min(W - cw * 0.5, W * 0.5 + (focusCx - W * 0.5) * ease));
+        const cy = Math.max(ch * 0.5, Math.min(H - ch * 0.5, H * 0.515));
+
+        ctx.save();
+        ctx.translate(W * 0.5, H * 0.5);
+        ctx.scale(zoom, zoom);
+        ctx.translate(-cx, -cy);
+
+        ctx.drawImage(isPro ? proStageC : conStageC, 0, 0);
+
+        const talkBounce = Math.sin(localSec * 11) * 4.2 + Math.sin(localSec * 4.5) * 2;
+        const idleBreath = Math.sin(localSec * 2.2) * 1.8;
+        const blitHost = (hSpec, centerX, baselineY, offY, slideX) => {
+          if (!hSpec) return;
+          ctx.drawImage(hSpec.canvas, centerX - hSpec.dw / 2 - 8 + slideX, baselineY - hSpec.dh - 8 + offY);
+        };
+
+        if (isPro) {
+          blitHost(conIdleH, 772, 1312, idleBreath, 0);
+          blitHost(proActH, 312, 1325, talkBounce - ease * 6, (1 - ease) * -18);
+        } else {
+          blitHost(proIdleH, 308, 1322, idleBreath, 0);
+          blitHost(conActH, 768, 1310, talkBounce - ease * 6, (1 - ease) * 18);
+        }
+        ctx.drawImage(deskC, 0, 0);
+        ctx.restore();
+
+        // 2) Top Segmented Bar + Counter/Timer Pills
+        const segGap = 10, segTotalW = W - 96;
+        const segW = (segTotalW - segGap * (turns.length - 1)) / turns.length;
+        for (let si = 0; si < turns.length; si++) {
+          const sx = 48 + si * (segW + segGap);
+          ctx.fillStyle = "rgba(45, 50, 65, 0.86)";
+          drawRoundRect(ctx, sx, 38, segW, 9, 4); ctx.fill();
+          if (si < tIdx) {
+            ctx.fillStyle = turns[si].speaker === "PRO" ? "#2563EB" : "#DC2626";
+            drawRoundRect(ctx, sx, 38, segW, 9, 4); ctx.fill();
+          } else if (si === tIdx) {
+            ctx.fillStyle = accent;
+            drawRoundRect(ctx, sx, 38, Math.max(12, segW * turnProg), 9, 4); ctx.fill();
+          }
+        }
+
+        ctx.fillStyle = "rgba(12, 14, 20, 0.88)";
+        drawRoundRect(ctx, 48, 58, 114, 36, 10); ctx.fill();
+        drawRoundRect(ctx, W - 186, 58, 138, 36, 10); ctx.fill();
+
+        ctx.fillStyle = "#F4F4F5";
+        ctx.font = "bold 22px Pretendard, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`0${tIdx + 1} / 0${turns.length}`, 105, 83);
+        ctx.fillStyle = "#E4E4E7";
+        ctx.fillText(`${formatMinSec(nowSec)} / ${formatMinSec(totalRenderSec)}`, W - 117, 83);
+        ctx.textAlign = "left";
+
+        // 3) Header Card (y=104..234)
+        ctx.fillStyle = "rgba(14, 17, 25, 0.94)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
+        ctx.lineWidth = 2;
+        drawRoundRect(ctx, 48, 104, W - 96, 130, 20); ctx.fill(); ctx.stroke();
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 31px Pretendard, sans-serif";
+        ctx.textAlign = "center";
+        if (titleLines.length === 1) ctx.fillText(titleLines[0], W / 2, 179);
+        else { ctx.fillText(titleLines[0], W / 2, 156); ctx.fillText(titleLines[1], W / 2, 198); }
+        ctx.textAlign = "left";
+
+        // 4) Large High-Contrast 2-Clause Speech Bubble (y=252..656, tail tip y=698)
+        const bx0 = 48, by0 = 252, bw = W - 96, bh = 404;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.38)";
+        drawRoundRect(ctx, bx0, by0 + 10, bw, bh, 26); ctx.fill();
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.99)";
+        ctx.strokeStyle = "rgba(15, 23, 42, 0.14)";
+        ctx.lineWidth = 2;
+        drawRoundRect(ctx, bx0, by0, bw, bh, 26); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = accent;
+        drawRoundRect(ctx, bx0, by0, bw, 10, 6); ctx.fill();
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.99)";
+        ctx.beginPath();
+        if (isPro) { ctx.moveTo(270, by0 + bh - 2); ctx.lineTo(300, by0 + bh + 44); ctx.lineTo(342, by0 + bh - 2); }
+        else { ctx.moveTo(W - 342, by0 + bh - 2); ctx.lineTo(W - 300, by0 + bh + 44); ctx.lineTo(W - 270, by0 + bh - 2); }
+        ctx.fill();
+
+        // Speaker Badge + Clause Badge
+        ctx.fillStyle = tint;
+        drawRoundRect(ctx, 88, by0 + 26, 172, 42, 11); ctx.fill();
+        ctx.fillStyle = badgeAccentTxt;
+        ctx.font = "bold 23px Pretendard, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`${isPro ? "찬성 패널" : "반대 패널"} ${Math.floor(tIdx / 2) + 1}`, 174, by0 + 55);
+
+        // Determine Active Clause & Word
+        const globalWord = Math.min(layout.totalWords - 1, Math.floor(turnProg * layout.totalWords * 1.02));
+        let activeClauseIdx = 0;
+        let localWordIdx = 0;
+        let accWords = 0;
+        for (let ci = 0; ci < layout.clauseSpecs.length; ci++) {
+          const cnt = layout.clauseWordCounts[ci];
+          if (globalWord < accWords + cnt || ci === layout.clauseSpecs.length - 1) {
+            activeClauseIdx = ci;
+            localWordIdx = Math.max(0, Math.min(cnt - 1, globalWord - accWords));
+            break;
+          }
+          accWords += cnt;
+        }
+
+        ctx.fillStyle = "#F1F5F9";
+        drawRoundRect(ctx, W - 216, by0 + 28, 128, 38, 10); ctx.fill();
+        ctx.fillStyle = "#475569";
+        ctx.font = "bold 20px Pretendard, sans-serif";
+        ctx.fillText(`논지 ${activeClauseIdx + 1} / ${layout.clauseSpecs.length}`, W - 152, by0 + 54);
+        ctx.textAlign = "left";
+
+        // Full Uncut Core Point
+        ctx.fillStyle = badgeAccentTxt;
+        ctx.font = layout.coreSpec.font;
+        let divY = by0 + 128;
+        if (layout.coreSpec.lines.length === 1) {
+          ctx.fillText(layout.coreSpec.lines[0], 90, by0 + 106);
+        } else {
+          ctx.fillText(layout.coreSpec.lines[0], 90, by0 + 96);
+          ctx.fillText(layout.coreSpec.lines[1], 90, by0 + 124);
+          divY = by0 + 140;
+        }
+        ctx.fillStyle = "#E2E8F0";
+        ctx.fillRect(90, divY, W - 180, 2);
+
+        // High-Contrast 39px Bold Karaoke Caption Words
+        const cSpec = layout.clauseSpecs[activeClauseIdx];
+        ctx.font = cSpec.font;
+        const spW = ctx.measureText(" ").width + 3;
+        const blockH = cSpec.lines.length * cSpec.lh;
+        const availH = (by0 + bh - 22) - (divY + 18);
+        const textTopY = divY + 22 + Math.max(0, (availH - blockH) / 2);
+
+        let wCounter = 0;
+        cSpec.lines.forEach((wordArr, li) => {
+          let curX = 90;
+          const baseY = textTopY + li * cSpec.lh + cSpec.sz * 0.82;
+          wordArr.forEach((word) => {
+            const ww = ctx.measureText(word).width;
+            if (wCounter === localWordIdx) {
+              ctx.fillStyle = tint;
+              drawRoundRect(ctx, curX - 8, baseY - cSpec.sz * 0.88, ww + 16, cSpec.lh * 0.84, 9); ctx.fill();
+              ctx.fillStyle = badgeAccentTxt;
+            } else if (wCounter < localWordIdx) {
+              ctx.fillStyle = "#0F172A";
+            } else {
+              ctx.fillStyle = "#334155";
+            }
+            ctx.fillText(word, curX, baseY);
+            curX += ww + spW;
+            wCounter++;
+          });
+        });
+
+        // 5) Lower Telemetry Card + 24-Band EQ
+        const ly0 = 1652, lh = 206;
+        ctx.fillStyle = "rgba(14, 17, 25, 0.94)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
+        ctx.lineWidth = 2;
+        drawRoundRect(ctx, 48, ly0, W - 96, lh, 26); ctx.fill(); ctx.stroke();
+
+        ctx.fillStyle = "#60A5FA";
+        ctx.font = "bold 24px Pretendard, sans-serif";
+        ctx.fillText(`찬성 ${currentData.raw_stats.pro_ratio}%`, 94, ly0 + 54);
+        ctx.fillStyle = "#F87171";
+        ctx.textAlign = "right";
+        ctx.fillText(`반대 ${currentData.raw_stats.con_ratio}%`, W - 94, ly0 + 54);
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#A1A1AA";
+        ctx.font = "600 19px Pretendard, sans-serif";
+        ctx.fillText("AI 50:50 공론장 중재", W / 2, ly0 + 82);
+        ctx.textAlign = "left";
+
+        const barX0 = 310, barW = W - 620;
+        const proW = Math.max(24, Math.round(barW * (currentData.raw_stats.pro_ratio / 100)));
+        ctx.fillStyle = "#2563EB";
+        drawRoundRect(ctx, barX0, ly0 + 38, proW, 14, 7); ctx.fill();
+        ctx.fillStyle = "#DC2626";
+        drawRoundRect(ctx, barX0 + proW + 6, ly0 + 38, Math.max(20, barW - proW - 6), 14, 7); ctx.fill();
+
+        const eqCount = 24, eqGap = 15;
+        const eqStartX = W / 2 - (eqCount * eqGap) / 2;
+        for (let bi = 0; bi < eqCount; bi++) {
+          const bx = eqStartX + bi * eqGap;
+          const wave = 0.45 + 0.55 * Math.sin(localSec * 15 + bi * 0.65);
+          const bhEq = Math.round(10 + (hasRealVoices ? 32 : 24) * wave);
+          ctx.fillStyle = accent;
+          drawRoundRect(ctx, bx, ly0 + 150 - bhEq / 2, 7, bhEq, 3); ctx.fill();
+        }
+
+        for (let di = 0; di < turns.length; di++) {
+          const dx = 94 + di * 34;
+          ctx.fillStyle = di === tIdx ? accent : (di < tIdx ? "#A1A1AA" : "#2D313E");
+          drawRoundRect(ctx, dx, ly0 + 154, di === tIdx ? 26 : 18, 10, 5); ctx.fill();
+        }
+
+        ctx.fillStyle = "#A1A1AA";
+        ctx.font = "bold 23px Pretendard, sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText("한냥 Studio", W - 94, ly0 + 165);
+        ctx.textAlign = "left";
+      };
+
+      // Render loop locked strictly to WebAudio / Perf timeline (at ~30fps cadence)
+      await new Promise((resLoop) => {
+        let lastFrameAt = -999;
+        const tick = () => {
+          const nowSec = audioCtxRec
+            ? Math.max(0, audioCtxRec.currentTime - masterStartAudioTime)
+            : Math.max(0, (performance.now() - masterStartPerf) / 1000);
+
+          if (nowSec - lastFrameAt >= 0.030 || nowSec >= totalRenderSec) {
+            drawFrameAt(Math.min(totalRenderSec, nowSec));
+            lastFrameAt = nowSec;
+          }
+          if (nowSec >= totalRenderSec) {
+            resLoop();
+            return;
+          }
+          setTimeout(tick, 16);
+        };
+        tick();
+      });
+
       recorder.stop();
-      onProgress(100);
+      onProgress(100, "완료");
       return donePromise;
     }
 
     async function exportReal916Video() {
       const statusEl = document.getElementById("mp4ExportStatus");
+      // Resume AudioContext synchronously inside user click gesture BEFORE async waits!
+      getOrResumeAudioContext();
       try {
-        if (window.location.protocol.startsWith("http") && currentData.video_mp4_url) {
+        // Only direct-download pre-baked MP4 if it is verified to include real spoken dialogue
+        if (window.location.protocol.startsWith("http") && currentData.video_mp4_url && currentData.has_voice_track) {
           try {
             const headRes = await fetch(currentData.video_mp4_url, { method: "HEAD" });
             if (headRes.ok) {
@@ -2036,41 +2587,48 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               a.href = currentData.video_mp4_url;
               a.download = `${currentData.id || "hannyang_shorts"}_9x16.mp4`;
               a.click();
-              statusEl.textContent = "Full-HD 1080×1920 MP4 다운로드 완료";
+              statusEl.className = "text-center text-[11.5px] font-medium text-[#059669] min-h-[16px]";
+              statusEl.textContent = "음성 포함 1080×1920 MP4 다운로드 완료";
               return;
             }
           } catch (e) {}
         }
 
-        statusEl.textContent = "1080×1920 스튜디오 영상 & AI 보이스 생성 준비 중...";
-        const url = await generateDynamicVideoUrl((pct) => {
-          statusEl.textContent = `Full-HD 1080p 영상 렌더링 중 (${pct}%)...`;
+        statusEl.className = "text-center text-[11.5px] font-medium text-[#2563EB] min-h-[16px]";
+        statusEl.textContent = "한국어 AI 보이스 + 1080×1920 영상 생성 준비 중...";
+        const res = await generateDynamicVideoUrl((pct, label) => {
+          statusEl.textContent = label || `Full-HD 영상 렌더링 중 (${pct}%)...`;
         });
-        if (url) {
-          const ext = currentData.rendered_video_ext || "webm";
+        if (res && res.url) {
+          const ext = res.ext || currentData.rendered_video_ext || "webm";
           const a = document.createElement("a");
-          a.href = url;
-          a.download = `hannyang_${currentData.id || "custom"}_1080x1920.${ext}`;
+          a.href = res.url;
+          a.download = `hannyang_${currentData.id || "shorts"}_1080x1920.${ext}`;
           a.click();
-          statusEl.textContent = `1080×1920 영상(.${ext}) 저장 완료`;
+          if (res.hasVoice) {
+            statusEl.className = "text-center text-[11.5px] font-medium text-[#059669] min-h-[16px]";
+            statusEl.textContent = `AI 음성 합본 1080×1920 영상(.${ext}) 저장 완료`;
+          } else {
+            statusEl.className = "text-center text-[11.5px] font-medium text-[#D97706] min-h-[16px]";
+            statusEl.textContent = `AI 음성 API 할당량 제한으로 BGM 버전(.${ext})이 저장됨 — 상단 [API·음성 설정]에서 키 변경 가능`;
+          }
           if (playerMode === "video") {
             const videoEl = document.getElementById("realMp4Player");
-            const srcEl = document.getElementById("realMp4Source");
-            if (srcEl) srcEl.setAttribute("src", url);
-            videoEl.setAttribute("src", url);
+            videoEl.setAttribute("src", res.url);
             videoEl.load();
           }
         }
       } catch (err) {
+        statusEl.className = "text-center text-[11.5px] font-medium text-[#DC2626] min-h-[16px]";
         statusEl.textContent = `영상 생성 오류: ${err && err.message ? err.message : "렌더링 실패"}`;
       }
     }
 
     function copyVideoAiPrompt(btn) {
       const promptText = [
-        `[한냥 9:16 40s YouTube Shorts Video Prompt]`,
+        `[한냥 9:16 YouTube Shorts Video Prompt]`,
         `Topic: ${currentData.issue_title}`,
-        `2 hosts debating face-to-face behind a minimalist dark podium.`,
+        `2 anchors debating calmly behind a dark broadcast desk.`,
         ...currentData.debate_script.map((t, i) => `Turn ${i + 1} (${t.speaker}): ${t.text}`)
       ].join("\n");
       navigator.clipboard.writeText(promptText).then(() => {
@@ -2084,24 +2642,20 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const toggle = document.getElementById("chimeToggle");
       if (toggle && !toggle.checked) return;
       try {
-        if (!audioCtx) {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (!AudioContextClass) return;
-          audioCtx = new AudioContextClass();
-        }
-        if (audioCtx.state === "suspended") audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+        const ctx = getOrResumeAudioContext();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
         osc.type = "sine";
         const baseFreq = speaker === "PRO" ? 440 : 587.33;
-        osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.25, audioCtx.currentTime + 0.14);
-        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+        osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.25, ctx.currentTime + 0.14);
+        gain.gain.setValueAtTime(0.05, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        gain.connect(ctx.destination);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.19);
+        osc.stop(ctx.currentTime + 0.19);
       } catch (e) {}
     }
 
@@ -2125,14 +2679,15 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     function renderAll(data, engineMode) {
       currentData = data;
       const stats = data.raw_stats;
+      const totSec = Math.round(getTotalDurationSec());
 
       const filterRate = ((stats.filtered_curse_count / Math.max(stats.total_comments, 1)) * 100).toFixed(1);
       const logicIndex = (100 - stats.toxicity_after).toFixed(1);
       const delta = (stats.toxicity_after - stats.toxicity_before).toFixed(1);
 
-      document.getElementById("publishTitleInput").value = `[40초 토론] ${data.issue_title.slice(0, 52)} #쇼츠`;
+      document.getElementById("publishTitleInput").value = `[AI 공론장 토론] ${data.issue_title.slice(0, 52)} #쇼츠`;
       document.getElementById("publishDescInput").value =
-        `유튜브 실제 댓글 ${stats.total_comments}건을 분석해 비속어를 제거하고 찬반 핵심 논거만 50:50으로 정리한 40초 토론 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#한냥 #공론장중재 #40초토론 #쇼츠"}`;
+        `유튜브 실제 댓글 ${stats.total_comments}건을 분석해 비속어를 제거하고 찬반 핵심 논거만 50:50으로 정리한 ${totSec}초 토론 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#한냥 #공론장중재 #핵심토론 #쇼츠"}`;
       document.getElementById("miniSummaryStats").textContent =
         `댓글 ${stats.total_comments}건 중 과열 ${stats.filtered_curse_count}건(${filterRate}%) 정제`;
 
@@ -2190,27 +2745,25 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       document.getElementById("shortsIssueTitle").textContent = data.issue_title;
       document.getElementById("shortsProShare").textContent = `찬성 ${stats.pro_ratio}%`;
       document.getElementById("shortsConShare").textContent = `반대 ${stats.con_ratio}%`;
+
       const videoEl = document.getElementById("realMp4Player");
-      const srcEl = document.getElementById("realMp4Source");
       if (videoEl) {
-        if (data.video_mp4_url) {
-          if (srcEl) srcEl.setAttribute("src", data.video_mp4_url);
-          videoEl.setAttribute("src", data.video_mp4_url);
-          videoEl.load();
-        } else {
-          if (srcEl) srcEl.removeAttribute("src");
-          videoEl.removeAttribute("src");
-          videoEl.load();
-        }
+        videoEl.removeAttribute("src");
+        videoEl.load();
       }
+      updateIdleTimerDisplay();
       updateShortsTurnVisual(0, false);
     }
 
     function renderScriptList() {
       const scriptContainer = document.getElementById("debateScriptList");
       scriptContainer.innerHTML = "";
+      const { durs, starts } = getTurnTimeline();
+
       currentData.debate_script.forEach((turn, idx) => {
         const isPro = turn.speaker === "PRO";
+        const sTime = starts[idx] || 0;
+        const eTime = sTime + (durs[idx] || 6);
         const card = document.createElement("div");
         card.id = `scriptTurnItem_${idx}`;
         card.className = `script-row ${idx === currentTurnIndex ? (isPro ? "active-pro" : "active-con") : ""}`;
@@ -2222,11 +2775,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           <div class="flex items-center justify-between gap-2 mb-1">
             <div class="flex items-center gap-2 min-w-0">
               <span class="px-1.5 py-0.5 text-[11px] font-bold rounded shrink-0 ${
-                isPro ? "bg-[#EFF6FF] text-[#2563EB]" : "bg-[#FEF2F2] text-[#DC2626]"
+                isPro ? "bg-[#DBEAFE] text-[#1D4ED8]" : "bg-[#FEE2E2] text-[#B91C1C]"
               }">${isPro ? "찬성" : "반대"} ${Math.floor(idx / 2) + 1}</span>
               <span class="text-[13px] font-bold text-[#111317] truncate">${turn.core_point}</span>
             </div>
-            <span class="text-[11px] text-[#71717A] mono-num shrink-0">${(idx * 6.7).toFixed(0)}–${((idx + 1) * 6.7).toFixed(0)}s</span>
+            <span class="text-[11px] text-[#71717A] mono-num shrink-0">${formatMinSec(sTime)}–${formatMinSec(eTime)}</span>
           </div>
           <p
             contenteditable="true"
@@ -2245,19 +2798,40 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
     function renderKineticSubtitle(text, isPro, progress01 = 1) {
       const el = document.getElementById("shortsSubtitleText");
+      const clBadge = document.getElementById("shortsClauseBadge");
       if (!el) return;
-      const words = (text || "").trim().split(/\s+/).filter(Boolean);
-      if (!words.length) { el.textContent = ""; return; }
+
+      const clauses = splitTurnIntoClauses(text);
+      const clauseWordArrs = clauses.map((c) => c.trim().split(/\s+/).filter(Boolean));
+      const totalWords = Math.max(clauseWordArrs.reduce((a, b) => a + b.length, 0), 1);
+
       if (progress01 >= 1) {
-        el.textContent = text;
+        if (clBadge) clBadge.textContent = clauses.length > 1 ? `논지 1/${clauses.length}` : "핵심 논지";
+        el.textContent = clauses[0] || text;
         return;
       }
-      const activeIdx = Math.min(words.length - 1, Math.max(0, Math.floor(progress01 * words.length)));
+
+      const globalIdx = Math.min(totalWords - 1, Math.max(0, Math.floor(progress01 * totalWords * 1.02)));
+      let activeClauseIdx = 0;
+      let localActiveIdx = 0;
+      let acc = 0;
+      for (let i = 0; i < clauseWordArrs.length; i++) {
+        const cnt = clauseWordArrs[i].length;
+        if (globalIdx < acc + cnt || i === clauseWordArrs.length - 1) {
+          activeClauseIdx = i;
+          localActiveIdx = Math.max(0, Math.min(cnt - 1, globalIdx - acc));
+          break;
+        }
+        acc += cnt;
+      }
+
+      if (clBadge) clBadge.textContent = `논지 ${activeClauseIdx + 1}/${clauses.length}`;
+      const words = clauseWordArrs[activeClauseIdx] || [""];
       const activeCls = isPro ? "kw-active-pro" : "kw-active-con";
       el.innerHTML = words.map((w, i) => {
         const safe = escapeHtml(w);
-        if (i < activeIdx) return `<span class="kw-spoken">${safe}</span>`;
-        if (i === activeIdx) return `<span class="${activeCls}">${safe}</span>`;
+        if (i < localActiveIdx) return `<span class="kw-spoken">${safe}</span>`;
+        if (i === localActiveIdx) return `<span class="${activeCls}">${safe}</span>`;
         return `<span class="kw-upcoming">${safe}</span>`;
       }).join(" ");
     }
@@ -2266,12 +2840,13 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if (currentData.debate_script[idx]) {
         currentData.debate_script[idx].text = newText.trim();
         currentData.video_mp4_url = null;
+        currentData.has_voice_track = false;
         currentData.rendered_video_blob_url = null;
-        if (currentData._ttsB64Cache) delete currentData._ttsB64Cache[idx];
-        const srcEl = document.getElementById("realMp4Source");
+        if (currentData._ttsAudioCache) delete currentData._ttsAudioCache[idx];
+        if (currentData._turnAudioDur) delete currentData._turnAudioDur[idx];
         const videoEl = document.getElementById("realMp4Player");
-        if (srcEl) srcEl.removeAttribute("src");
         if (videoEl) { videoEl.removeAttribute("src"); videoEl.load(); }
+        updateIdleTimerDisplay();
         if (idx === currentTurnIndex) {
           renderKineticSubtitle(newText.trim(), currentData.debate_script[idx].speaker === "PRO", 1);
         }
@@ -2305,15 +2880,15 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const badge = document.getElementById("shortsSpeakerBadge");
       const sideNum = Math.floor(turnIdx / 2) + 1;
       badge.className = isPro
-        ? "text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB]"
-        : "text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#FEF2F2] text-[#DC2626]";
+        ? "text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#DBEAFE] text-[#1D4ED8]"
+        : "text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#FEE2E2] text-[#B91C1C]";
       badge.textContent = isPro ? `찬성 ${sideNum}` : `반대 ${sideNum}`;
       document.getElementById("shortsCorePoint").className = isPro
-        ? "text-[11.5px] font-bold text-[#2563EB] mb-1 leading-snug"
-        : "text-[11.5px] font-bold text-[#DC2626] mb-1 leading-snug";
+        ? "text-[11.5px] font-bold text-[#1D4ED8] mb-1 leading-snug"
+        : "text-[11.5px] font-bold text-[#B91C1C] mb-1 leading-snug";
 
       document.getElementById("shortsCorePoint").textContent = turn.core_point;
-      renderKineticSubtitle(turn.text, isPro, speakingActive ? 0.03 : 1);
+      renderKineticSubtitle(turn.text, isPro, speakingActive ? 0.02 : 1);
 
       document.getElementById("shortsTurnDots").innerHTML = turns
         .map((t, i) => {
@@ -2333,6 +2908,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     }
 
     function toggleShortsPlayback() {
+      getOrResumeAudioContext();
       if (playerMode === "video") {
         const v = document.getElementById("realMp4Player");
         if (v.paused) v.play(); else v.pause();
@@ -2342,103 +2918,160 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       else startShortsPlayback(0);
     }
 
-    function startShortsPlayback(startIdx = 0) {
+    async function startShortsPlayback(startIdx = 0) {
       stopShortsPlayback(false);
       const turns = currentData.debate_script || [];
       if (!turns.length) return;
 
       isPlaying = true;
       currentTurnIndex = startIdx;
-      const turnDurationSec = totalDurationSec / turns.length;
-      elapsedSec = startIdx * turnDurationSec;
+      const mySession = ++playSessionToken;
 
       document.getElementById("playBtnLabel").textContent = "일시정지";
-      document.getElementById("ttsStatusLabel").textContent = "AI 음성 준비";
+      const engineMode = document.getElementById("voiceEngineSelect")?.value || "auto";
 
-      timerInterval = setInterval(() => {
-        if (!isPlaying) return;
-        elapsedSec = Math.min(totalDurationSec, elapsedSec + 0.1);
-        const pct = Math.min(100, (elapsedSec / totalDurationSec) * 100);
-        const remaining = Math.max(0, totalDurationSec - elapsedSec);
-        document.getElementById("shortsProgressBar").style.width = `${pct.toFixed(1)}%`;
-        document.getElementById("shortsTimerDisplay").textContent = `${remaining.toFixed(1)}s`;
-        const curTurn = turns[currentTurnIndex];
-        if (curTurn) {
-          const turnLocalSec = Math.max(0, elapsedSec - currentTurnIndex * turnDurationSec);
-          const turnProg = Math.min(0.99, turnLocalSec / Math.max(turnDurationSec, 0.1));
-          renderKineticSubtitle(curTurn.text, curTurn.speaker === "PRO", turnProg);
-        }
-        if (elapsedSec >= totalDurationSec) stopShortsPlayback(true);
-      }, 100);
+      // Prepare AI voices upfront via 1-call multi-speaker or Cloud Neural2 so turns stay consistent
+      if (engineMode === "auto") {
+        document.getElementById("ttsStatusLabel").textContent = "음성 준비 중...";
+        updateShortsTurnVisual(startIdx, false);
+        await prepareAllVoices((_, lbl) => {
+          if (isPlaying && mySession === playSessionToken) {
+            document.getElementById("ttsStatusLabel").textContent = "음성 합성 중...";
+          }
+        });
+        if (!isPlaying || mySession !== playSessionToken) return;
+      }
 
-      speakTurn(currentTurnIndex);
+      speakTurn(startIdx, mySession);
     }
 
-    async function speakTurn(turnIdx) {
-      if (!isPlaying) return;
+    async function speakTurn(turnIdx, mySession) {
+      if (!isPlaying || mySession !== playSessionToken) return;
       const turns = currentData.debate_script || [];
       if (turnIdx >= turns.length) {
         stopShortsPlayback(true);
         return;
       }
-      const myToken = ++playSessionToken;
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
+      if (currentHtmlAudio) { try { currentHtmlAudio.pause(); } catch (e) {} currentHtmlAudio = null; }
+      if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+
       currentTurnIndex = turnIdx;
       const turn = turns[turnIdx];
       const isPro = turn.speaker === "PRO";
-      const turnDurationMs = (totalDurationSec / turns.length) * 1000;
-      elapsedSec = turnIdx * (totalDurationSec / turns.length);
+      const engineMode = document.getElementById("voiceEngineSelect")?.value || "auto";
 
       playTurnChime(turn.speaker);
       updateShortsTurnVisual(turnIdx, true);
 
-      if (currentHtmlAudio) { try { currentHtmlAudio.pause(); } catch (e) {} }
-      if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+      const { durs, starts, total } = getTurnTimeline();
+      const baseOffsetSec = starts[turnIdx] || 0;
 
-      // Lookahead prefetch of next turn's neural voice
-      if (turnIdx + 1 < turns.length) {
-        fetchTurnTtsB64(turnIdx + 1).catch(() => null);
-      }
+      const startSyncedTicker = (getLocalInfo) => {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+          if (!isPlaying || mySession !== playSessionToken) return;
+          const info = getLocalInfo();
+          const { durs: curDurs, starts: curStarts, total: curTotal } = getTurnTimeline();
+          const curOffset = curStarts[turnIdx] || baseOffsetSec;
+          const gSec = Math.min(curTotal, curOffset + info.localSec);
+          const pct = Math.min(100, (gSec / Math.max(curTotal, 0.1)) * 100);
+          document.getElementById("shortsProgressBar").style.width = `${pct.toFixed(1)}%`;
+          document.getElementById("shortsTimerDisplay").textContent = `${formatMinSec(gSec)} / ${formatMinSec(curTotal)}`;
+          renderKineticSubtitle(turn.text, isPro, Math.min(0.99, info.turnProg));
+        }, 65);
+      };
 
-      const b64 = await fetchTurnTtsB64(turnIdx).catch(() => null);
-      if (!isPlaying || myToken !== playSessionToken) return;
-
-      if (b64) {
-        try {
-          const wavUrl = pcmBase64ToWavUrl(b64, 24000);
-          currentHtmlAudio = new Audio(wavUrl);
-          document.getElementById("ttsStatusLabel").textContent = isPro ? "AI 보이스 · Charon" : "AI 보이스 · Aoede";
-          let advanced = false;
-          const goNext = () => {
-            if (advanced || !isPlaying || myToken !== playSessionToken) return;
-            advanced = true;
-            if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
-            if (turnIdx + 1 < turns.length) speakTurn(turnIdx + 1);
-            else stopShortsPlayback(true);
-          };
-          currentHtmlAudio.onended = goNext;
-          turnTimeout = setTimeout(goNext, Math.max(turnDurationMs, 7600));
-          await currentHtmlAudio.play();
-          return;
-        } catch (e) {}
-      }
-
-      // Offline/blocked graceful fallback to browser speechSynthesis
-      document.getElementById("ttsStatusLabel").textContent = "브라우저 음성";
-      turnTimeout = setTimeout(() => {
-        if (!isPlaying || myToken !== playSessionToken) return;
-        if (turnIdx + 1 < turns.length) speakTurn(turnIdx + 1);
+      const goNext = () => {
+        if (!isPlaying || mySession !== playSessionToken) return;
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
+        if (turnIdx + 1 < turns.length) speakTurn(turnIdx + 1, mySession);
         else stopShortsPlayback(true);
-      }, turnDurationMs);
+      };
+
+      // Tier 1 / 2: Pre-synthesized Cloud or Gemini AI Voice
+      if (engineMode === "auto") {
+        let voiceItem = currentData._ttsAudioCache && currentData._ttsAudioCache[turnIdx];
+        if (!voiceItem || !voiceItem.b64) {
+          voiceItem = await fetchTurnVoice(turnIdx);
+          if (!isPlaying || mySession !== playSessionToken) return;
+        }
+
+        if (voiceItem && voiceItem.b64) {
+          try {
+            const wavUrl = pcmBase64ToWavUrl(voiceItem.b64, voiceItem.mimeType);
+            currentHtmlAudio = new Audio(wavUrl);
+            currentHtmlAudio.playbackRate = playbackRate;
+            document.getElementById("ttsStatusLabel").textContent = voiceItem.engine || "AI 보이스";
+
+            let advanced = false;
+            const finishTurn = () => {
+              if (advanced || !isPlaying || mySession !== playSessionToken) return;
+              advanced = true;
+              setTimeout(goNext, 260);
+            };
+            currentHtmlAudio.onended = finishTurn;
+            currentHtmlAudio.onloadedmetadata = () => {
+              if (currentHtmlAudio && isFinite(currentHtmlAudio.duration) && currentHtmlAudio.duration > 0.3) {
+                if (!currentData._turnAudioDur) currentData._turnAudioDur = {};
+                currentData._turnAudioDur[turnIdx] = currentHtmlAudio.duration;
+              }
+            };
+
+            await currentHtmlAudio.play();
+            const expectedRealDur = (currentHtmlAudio.duration && isFinite(currentHtmlAudio.duration) ? currentHtmlAudio.duration : durs[turnIdx]) / playbackRate;
+            startSyncedTicker(() => {
+              const ad = currentHtmlAudio;
+              const rawDur = (ad && isFinite(ad.duration) && ad.duration > 0.3) ? ad.duration : expectedRealDur * playbackRate;
+              const cur = ad ? ad.currentTime : 0;
+              return { localSec: cur / playbackRate, turnProg: cur / Math.max(rawDur, 0.2) };
+            });
+            turnTimeout = setTimeout(finishTurn, Math.max(expectedRealDur * 1000 + 3500, 18000));
+            return;
+          } catch (e) {}
+        }
+      }
+
+      // Tier 3: Clean Native Korean Web Speech API (Natural Pitch, Zero Distortion, Utterance-End Driven)
+      const estSec = estimateTurnDurationSec(turn.text, playbackRate);
+      document.getElementById("ttsStatusLabel").textContent = "표준 한국어 보이스";
+      const startPerf = performance.now();
+      startSyncedTicker(() => {
+        const localSec = (performance.now() - startPerf) / 1000;
+        return { localSec, turnProg: localSec / Math.max(estSec - 0.35, 0.5) };
+      });
 
       if ("speechSynthesis" in window) {
         try {
           const utter = new SpeechSynthesisUtterance(turn.text);
+          const { pro, con, distinct } = pickBestKoreanVoices();
+          const chosenVoice = isPro ? pro : con;
+          if (chosenVoice) utter.voice = chosenVoice;
           utter.lang = "ko-KR";
-          utter.pitch = isPro ? 0.84 : 1.18;
-          utter.rate = 1.1;
-          window.speechSynthesis.speak(utter);
+          utter.pitch = distinct ? 1.0 : (isPro ? 0.96 : 1.05);
+          utter.rate = 1.02 * playbackRate;
+
+          let advanced = false;
+          const onFinish = () => {
+            if (advanced || !isPlaying || mySession !== playSessionToken) return;
+            advanced = true;
+            setTimeout(goNext, 280);
+          };
+          utter.onend = onFinish;
+          utter.onerror = onFinish;
+          turnTimeout = setTimeout(onFinish, Math.max(estSec * 1000 + 4200, 14000));
+          setTimeout(() => {
+            if (isPlaying && mySession === playSessionToken) {
+              window.speechSynthesis.speak(utter);
+            }
+          }, 45);
+          return;
         } catch (e) {}
       }
+
+      turnTimeout = setTimeout(goNext, estSec * 1000);
     }
 
     function stopShortsPlayback(completed = false) {
@@ -2446,22 +3079,24 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       isPlaying = false;
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
       if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
-      if (currentHtmlAudio) { try { currentHtmlAudio.pause(); } catch (e) {} }
+      if (currentHtmlAudio) { try { currentHtmlAudio.pause(); } catch (e) {} currentHtmlAudio = null; }
       if ("speechSynthesis" in window) {
         try { window.speechSynthesis.cancel(); } catch (e) {}
       }
       document.getElementById("shortsBubbleEq").classList.remove("eq-pro", "eq-con");
       document.getElementById("playBtnLabel").textContent = completed ? "다시 재생" : "재생";
-      document.getElementById("ttsStatusLabel").textContent = completed ? "완료" : "40.0s";
+
+      const tot = getTotalDurationSec();
+      document.getElementById("ttsStatusLabel").textContent = completed ? `재생 완료 (${tot.toFixed(1)}s)` : `총 ${tot.toFixed(1)}s`;
 
       if (!completed) {
         elapsedSec = 0;
         document.getElementById("shortsProgressBar").style.width = "0%";
-        document.getElementById("shortsTimerDisplay").textContent = "40.0s";
+        document.getElementById("shortsTimerDisplay").textContent = `0:00 / ${formatMinSec(tot)}`;
         updateShortsTurnVisual(0, false);
       } else {
         document.getElementById("shortsProgressBar").style.width = "100%";
-        document.getElementById("shortsTimerDisplay").textContent = "0.0s";
+        document.getElementById("shortsTimerDisplay").textContent = `${formatMinSec(tot)} / ${formatMinSec(tot)}`;
         const turns = currentData.debate_script || [];
         const finalTurn = turns[currentTurnIndex] || turns[turns.length - 1];
         if (finalTurn) {
@@ -2619,6 +3254,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     }
 
     window.addEventListener("DOMContentLoaded", () => {
+      initBrowserVoices();
       selectPreset("preset_1");
       drawChart1KDE();
       drawChart2Clusters();

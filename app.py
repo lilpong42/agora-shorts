@@ -48,8 +48,8 @@ DEFAULT_SUPABASE_KEY = os.environ.get(
 
 app = FastAPI(
     title="한냥 (Hannyang) Full-Stack API",
-    description="유튜브 악플·설전 댓글 빅데이터를 40초 양측 핵심 논거 대립 AI 아바타 토론 쇼츠(MP4)로 자동 전환하는 파이프라인",
-    version="2.1.0",
+    description="유튜브 악플·설전 댓글 빅데이터를 양측 핵심 논거 대립 AI 아바타 토론 쇼츠(MP4)로 자동 전환하는 파이프라인",
+    version="2.2.0",
 )
 
 app.add_middleware(
@@ -94,10 +94,10 @@ class AnalyzeRequest(BaseModel):
 
 class RenderMp4Request(BaseModel):
     issue_title: str
-    category_badge: Optional[str] = "한냥 공론장 중재 40초 쇼츠"
+    category_badge: Optional[str] = "한냥 공론장 중재 쇼츠"
     raw_stats: Dict[str, Any]
     debate_script: List[Dict[str, Any]]
-    turn_audio_b64_list: Optional[List[str]] = None
+    turn_audio_b64_list: Optional[List[Optional[str]]] = None
 
 
 def extract_youtube_video_id(url_or_id: str) -> Optional[str]:
@@ -508,8 +508,9 @@ async def analyze_input(req: AnalyzeRequest):
         "category_badge": f"{channel_title} 실시간 수집 댓글 {pre['total_comments']}건 분석" if channel_title else "실시간 사용자 입력 댓글 분석",
         "source_label": f"YouTube Data API v3 실시간 수집 · {video_title} (댓글 {pre['total_comments']}건)" if video_title else f"직접 입력 댓글 {pre['total_comments']}건 분석",
         "source_url": source_url,
-        "hashtags": "#한냥 #공론장중재 #40초토론 #유튜브쇼츠",
+        "hashtags": "#한냥 #공론장중재 #핵심토론 #유튜브쇼츠",
         "video_mp4_url": None,
+        "has_voice_track": False,
         "notice": notice_msg,
         "raw_stats": {
             "total_comments": pre["total_comments"],
@@ -530,7 +531,7 @@ async def analyze_input(req: AnalyzeRequest):
 @app.post("/api/render-mp4")
 async def api_render_mp4(req: RenderMp4Request):
     """
-    프론트엔드(Gemini 2.5 Native Audio TTS 또는 커스텀 대본)에서 전달한
+    프론트엔드(Cloud/Gemini AI TTS 또는 커스텀 대본)에서 전달한
     6턴 대본과 오디오 데이터를 받아 실제 9:16 H.264 MP4 파일을 생성하고 다운로드 URL을 반환한다.
     """
     t0 = time.perf_counter()
@@ -538,7 +539,7 @@ async def api_render_mp4(req: RenderMp4Request):
     out_path = VIDEOS_DIR / filename
     render_debate_mp4(
         issue_title=req.issue_title,
-        category_badge=req.category_badge or "한냥 공론장 중재 40초 쇼츠",
+        category_badge=req.category_badge or "한냥 공론장 중재 쇼츠",
         raw_stats=req.raw_stats,
         debate_script=req.debate_script,
         output_mp4=out_path,

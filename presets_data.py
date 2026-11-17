@@ -32,6 +32,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         "source_label": "YouTube Data API v3 실측 수집 · YTN(vNIXiWyXs90), MBC(lt7knjTuuOM), 연합뉴스TV(Cs_A2EcMsto) 댓글 200건",
         "source_url": "https://www.youtube.com/watch?v=vNIXiWyXs90",
         "video_mp4_url": "/static/videos/preset_1.mp4",
+        "has_voice_track": False,
         "issue_title": "심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란",
         "raw_stats": {
             "total_comments": 200,
@@ -113,6 +114,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         "source_label": "YouTube Data API v3 실측 수집 · MBC(Xt8TRqMuZRc), SBS(aI0awk0NBfc), TBS(D2hNIe74HEQ) 댓글 180건",
         "source_url": "https://www.youtube.com/watch?v=Xt8TRqMuZRc",
         "video_mp4_url": "/static/videos/preset_2.mp4",
+        "has_voice_track": False,
         "issue_title": "대학가·도심 공유 전동킥보드 즉시 견인 및 통행 금지 논란",
         "raw_stats": {
             "total_comments": 180,
@@ -193,6 +195,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         "source_label": "YouTube Data API v3 실측 수집 · MBC(NKIvNrtdiGA), KBS(x3J5hpBci98 외 2건), YTN(yfAshZpECCo) 댓글 147건",
         "source_url": "https://www.youtube.com/watch?v=NKIvNrtdiGA",
         "video_mp4_url": "/static/videos/preset_3.mp4",
+        "has_voice_track": False,
         "issue_title": "고령 운전자 조건부 면허제 도입 및 면허 반납 의무화 논란",
         "raw_stats": {
             "total_comments": 147,
