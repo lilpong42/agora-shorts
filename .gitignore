@@ -1,0 +1,16 @@
+.gemini/
+.cache/
+.local/
+.config/
+.npm/
+.bash_history
+.bashrc
+.profile
+.gitconfig
+__pycache__/
+*.pyc
+.env
+upload/
+docs/*.pdf
+docs/*.txt
+.bash_logout

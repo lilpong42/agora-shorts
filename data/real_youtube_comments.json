@@ -1,0 +1,3805 @@
+{
+  "preset_1": {
+    "preset_id": "preset_1",
+    "query": "배달 오토바이 소음 단속 뉴스",
+    "issue_title": "심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란",
+    "videos": [
+      {
+        "video_id": "Cs_A2EcMsto",
+        "title": "\"굉음에 밤마다 고통\"…오토바이 소음 불시 단속 / 연합뉴스TV (YonhapnewsTV)",
+        "channel": "연합뉴스TV",
+        "url": "https://www.youtube.com/watch?v=Cs_A2EcMsto",
+        "fetched_count": 12
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "title": "\"시끄러워서 잠을 못 자요\"...귀 때리는 오토바이 소음에 단속 강화 [자막뉴스] / YTN",
+        "channel": " YTN",
+        "url": "https://www.youtube.com/watch?v=vNIXiWyXs90",
+        "fetched_count": 100
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "title": "주택가 소음에…배달 대행 오토바이 불질러 (2021.02.17/뉴스투데이/MBC)",
+        "channel": "MBCNEWS",
+        "url": "https://www.youtube.com/watch?v=lt7knjTuuOM",
+        "fetched_count": 100
+      }
+    ],
+    "total_fetched": 212,
+    "comments": [
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@스타-p4k",
+        "text": "밤에 아파트에 12시넘어서 드나든다\n입주민이 야식먹는거 뭐라할수 없지만\n소음에 고통스럽다 잠좀자자\n글고 오토바이시동켜고 배달호수 가지말고 시동좀끄고 엘리베이터 타라\n라이더들아",
+        "like_count": 4,
+        "published_at": "2026-05-23T00:33:26Z"
+      },
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@window-xp3",
+        "text": "제발 밤에 단속좀 많이 해주세요. ㅠ ㅠㅠ",
+        "like_count": 1,
+        "published_at": "2026-07-02T13:28:26Z"
+      },
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@barini_ニューニュー",
+        "text": "불법으로 튜닝한 머플러를 모두 잡아야하는데 경찰 인력이 대거 투입되지 않는한 계속 나올듯",
+        "like_count": 0,
+        "published_at": "2026-06-17T07:57:28Z"
+      },
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@진도깡",
+        "text": "오토바이 소음 단속 백날해봐라 없어지는가....처벌법이 개법인데  그때뿐이지.",
+        "like_count": 1,
+        "published_at": "2026-05-25T08:20:44Z"
+      },
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@김상현-q2i",
+        "text": "그냥 머플러튜닝을 금지해라",
+        "like_count": 1,
+        "published_at": "2026-05-25T08:17:56Z"
+      },
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@ilhj012",
+        "text": "모든 오토바이에 소음기 의무 장착을 시행하라! 시행하라!",
+        "like_count": 0,
+        "published_at": "2026-05-25T01:26:59Z"
+      },
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@ilhj012",
+        "text": "경기도도 단속하라! 단속하라 !",
+        "like_count": 0,
+        "published_at": "2026-05-25T01:25:47Z"
+      },
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@동네잘생긴형",
+        "text": "단속 의지도 없으면서 ㄱ ㅐ소리!!! 파출소 배달가는 딸배도 붕붕 거리더라",
+        "like_count": 1,
+        "published_at": "2026-05-24T12:59:41Z"
+      },
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@matthew6568-e1h",
+        "text": "선거차량도좀",
+        "like_count": 1,
+        "published_at": "2026-05-23T03:20:37Z"
+      },
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@heungsinso-v2e",
+        "text": "아니 그리고 기본 머플러의 +5데시벨 이상 초과하면 안된다는건 그냥 머플러를 튜닝하지 말라는건데 장난하나 자동차는 머플러 튜닝해도되고? 오토바이는 안되고? 이건 국민 기본권 침해다",
+        "like_count": 0,
+        "published_at": "2026-05-23T07:07:55Z"
+      },
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@heungsinso-v2e",
+        "text": "자동차 소리다고! 오토바이 그만 괴롭히시게요!",
+        "like_count": 0,
+        "published_at": "2026-05-23T07:05:40Z"
+      },
+      {
+        "video_id": "Cs_A2EcMsto",
+        "author": "@iroquoisss",
+        "text": "시끄러우면 창문을 쳐 닫고 살고, 기둥뿌리 썩어가는 니네들 집구석 앞에서 오토바이가 하루 종일 붕붕 대는 것도 아니고 잠깐 한번 지나가는건데 이걸 시끄럽다고 하면 뭘 도대체 어떻게 하자는 건가? 산속에 가서 혼자 살아라. 이렇게 예민하게 인생 살면 뇌가 썩고 마음이 썩는다. 니네들 집구석 창문을 벽돌로 막으면 오토바이들이 조용히 다닐것이다. 내돈 들여서 내가 오토바이 개조해서 내가 돈 벌어서 내가 산 내 오토바이다.",
+        "like_count": 1,
+        "published_at": "2026-05-23T01:56:58Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@STARBUCKSINTHEWORLD",
+        "text": "강력처벌 해야 합니다..오토바이 자동차 배기음 폭발하는 소리 진짜 살인을 부릅니다.",
+        "like_count": 53,
+        "published_at": "2026-07-20T09:35:03Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@KKS-b6z9m",
+        "text": "전국에 소리나는 오토바이 운행금지법 만드시오",
+        "like_count": 30,
+        "published_at": "2026-07-21T07:38:47Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@gravitygrace-t4p",
+        "text": "새벽 굉음 질주하는 오토바이는 용서가 안될 정도다\n강력한 처벌만이 방법이다",
+        "like_count": 27,
+        "published_at": "2026-07-20T14:45:25Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@자만하면일본같은망국",
+        "text": "소음초과시 벌금과 번호판영치 후 배기통 원복후 찾아가게 해야 한다...",
+        "like_count": 49,
+        "published_at": "2026-07-21T08:25:12Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@정부장-e2n",
+        "text": "법 문제다\n순정 머플러 떼는거부터 못하게하면\n답 나오는것을..",
+        "like_count": 36,
+        "published_at": "2026-07-20T15:24:49Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@오승환-i1b",
+        "text": "바이크나 차량이나 배기튜닝은 못하게 해야 합니다.",
+        "like_count": 19,
+        "published_at": "2026-07-20T07:30:47Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@NOZOMI-k7h",
+        "text": "속초에요  불법머플러튜닝 배달오도방구좀 제발 금융치료부탁합니다.. 아파트단지가 울립니다...",
+        "like_count": 12,
+        "published_at": "2026-07-20T11:11:44Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@구름과자-t6e",
+        "text": "배달 오토바이 순정배기 외엔 전부다 불법으로 간주해라 밤낮으로 시끄러워 못살겠다",
+        "like_count": 40,
+        "published_at": "2026-07-20T11:26:01Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@단백스",
+        "text": "불법튜닝 그놈들때문에 배달들 다 욕먹음...",
+        "like_count": 14,
+        "published_at": "2026-07-20T14:58:14Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@KIKI-bm8eg",
+        "text": "국개의원들 , 견찰들 , 공무원들 일 좀 똑바로 제대로 해라",
+        "like_count": 20,
+        "published_at": "2026-07-20T11:08:37Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@김시철-i8e",
+        "text": "오토바이 소음 때문에 일상생활이 힘들어요\n 소음기개조는  소유주와 개조업체 둘다 강력하게 단속하라",
+        "like_count": 6,
+        "published_at": "2026-07-22T11:29:06Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@나다-z6d",
+        "text": "머플러 구조변경 하면 합법\n머플러 구존변경 안하면 불법\n허가 해줘놓고 단속하는거는 법이ㅋㅋ",
+        "like_count": 8,
+        "published_at": "2026-07-20T15:08:55Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@JicheolBarg",
+        "text": "파파라치 제도 시행해야함",
+        "like_count": 11,
+        "published_at": "2026-07-20T13:32:02Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@수내-s4y7z",
+        "text": "금융치료 없이는 근절대지 않습니다",
+        "like_count": 104,
+        "published_at": "2026-07-20T02:18:29Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@달려라달려아주",
+        "text": "배달하는 인간들것만 제발좀 마후라튜닝 안돼게좀해주라",
+        "like_count": 12,
+        "published_at": "2026-07-20T11:07:06Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@오종현-p8c",
+        "text": "저런 오토바이를 파는 놈들을 조져야지... 개조해주는 정비소도 조지고.. 단속할게 있냐?.. 원천 차단해야지....",
+        "like_count": 10,
+        "published_at": "2026-07-20T03:09:11Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@rollingstuffs",
+        "text": "일명 '슈퍼카' 지나갈 때는 오토바이 소리도 묻혀서 안 들림. 오토바이가 문제가 아니라 불법 튜닝이 문제.",
+        "like_count": 51,
+        "published_at": "2026-07-20T05:37:43Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@moomiojagi",
+        "text": "대한민국 온갖불법비리 악질 암덩어리 소음공해 매연 굉음소리 불법개조 불법주정차 방치차량 알박기 무법천지 무법주차 아파트내 화장실 간접흡연 전자담배냄새 피우던 담배 끄지않고 그대로 버리기 방화범 술주폭 진상난동범들 초강력으로 가차없이 강력하게 제압하고 엄벌에 처해야 나라의법치가 바로섭니다",
+        "like_count": 2,
+        "published_at": "2026-07-20T21:24:18Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@GPIQ-lover",
+        "text": "요즘은 자동차배기소음이 더한거같다 주택가에서 배기튜닝한차때문에 밤에 잠을설친다",
+        "like_count": 142,
+        "published_at": "2026-07-20T01:36:32Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@dobongsanview",
+        "text": "주차 단속 그거보다도 소음부터 단계별로 단속 강화해야함 나도 라이더지만 밤에 소음땜에 잠에서 깨면 진짜 총으로 쏘고 싶을 충동 생김. 바이크도 모르는 일반 사람은 진짜 더 짜증날듯",
+        "like_count": 3,
+        "published_at": "2026-07-20T10:32:17Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@onepoint5549",
+        "text": "동네마다  배기 개조후 돌아다니는 오도바이 \n배기 개조한 자동차 \n꼭 있다. 잘려고 할때마다 돌아다니는 똘아이들..",
+        "like_count": 86,
+        "published_at": "2026-07-20T02:03:06Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@chunong_ee",
+        "text": "이륜차 타겟인척 하는 자동차 단속장치임ㅋㅋㅋㅋ",
+        "like_count": 30,
+        "published_at": "2026-07-20T05:54:17Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@colitosal",
+        "text": "배달오토바이중 음악 겁나 크게 틀고서 아파트배달하는데 법적으로 처벌 안됨?????",
+        "like_count": 5,
+        "published_at": "2026-07-20T10:35:04Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@산쟁이-l6u",
+        "text": "배달 바이크는  모두 전기 바이크 의무화,  21시 이후 도심 소음 규제 70db로 낮추는 법안 좀 만들어라",
+        "like_count": 5,
+        "published_at": "2026-07-20T07:57:36Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@정승원-d3z",
+        "text": "인근주민들 위해 제발 천천히 🎉",
+        "like_count": 1,
+        "published_at": "2026-07-21T11:07:48Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@redjakal_2",
+        "text": "일단 상업용 오토바이의 경우 번호판색갈 다르게하고 아에 배기튜닝 금지 시킨다음  레저용은 구변에서 거르는데 추후에 기습단속에서 걸리면 과태료 씨게 물려서 못쓰게 해야될듯",
+        "like_count": 4,
+        "published_at": "2026-07-20T08:16:34Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@paradox1069",
+        "text": "공정하게 해야지 차나 이륜차나",
+        "like_count": 9,
+        "published_at": "2026-07-20T10:12:35Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@jwoohyun582",
+        "text": "고아배기 자동차는 전용도로나 고속도로로 가버리니 근린 주민과 마찰이 적어 모를뿐...",
+        "like_count": 3,
+        "published_at": "2026-07-20T09:45:55Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@Pro-jr5fg",
+        "text": "잘했다 튜닝카나 람보르기 걸리겠네.ㅋㅋㅋㅋㅋ",
+        "like_count": 120,
+        "published_at": "2026-07-20T08:06:23Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@스멜-y9h",
+        "text": "이런거 좋다",
+        "like_count": 3,
+        "published_at": "2026-07-21T16:59:14Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@화니-k6e",
+        "text": "람보르기니 포르쉐 페라리같은 스포츠카도 소음기 달아야죠 무슨 폭탄 터지는 소리가 남",
+        "like_count": 80,
+        "published_at": "2026-07-20T07:34:08Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@Amigo22-00",
+        "text": "면허영구정지 해봐라.\n당장 줄어들지.\n\n불법튜닝업체는 벌금1억 및 영업정지 1년 하면 완전 없어질 걸.",
+        "like_count": 3,
+        "published_at": "2026-07-20T16:07:20Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@맹나물-s6c",
+        "text": "역시 솜방망이..\n국회의원들 일좀해라..\n법 좀 빨리 고치고 할일하자.",
+        "like_count": 1,
+        "published_at": "2026-07-20T02:48:31Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@ams77777-u",
+        "text": "이런지가 언젠데 한심한것들  신속히 단속해라",
+        "like_count": 1,
+        "published_at": "2026-07-21T04:56:06Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@옥상별빛-m9c",
+        "text": "배달오토바이 굉음.난폭운전 지구대에 몇번 신고해도 단속안해줌..본인이 사진찍어서 신문고에 올리라함 .. ㄷㄷ 싸움날수도 있는데 어렵게 개조마후라 사진찍어서 신문고 올리면 담당공무원 신고해도 단속 규제 없다고 귀찮은듯이 꼽줌 ㄷㄷ  이게 나라냐",
+        "like_count": 2,
+        "published_at": "2026-07-21T02:32:35Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@okhallsan",
+        "text": "진짜 이거 좀 손 봐야한다.\n살의를 느끼게 하는 저 쓰레기들 조치 좀 해라",
+        "like_count": 0,
+        "published_at": "2026-07-23T15:59:23Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@김상기-p5q",
+        "text": "천안시도 부탁합니다.",
+        "like_count": 4,
+        "published_at": "2026-07-20T09:57:36Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@siljangchoi4942",
+        "text": "전국의 오토바이는 전기 오토바이로 교체해줘라... 시끄러워 못 살겠다...",
+        "like_count": 8,
+        "published_at": "2026-07-20T08:43:55Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@건우박-n6z",
+        "text": "저도 배달라이더 지만 몇칠전 소음이 심한오토바이가 3일동안 돌아다녔는데 참다가 신호대기때 옆에서 쌍욕을 퍼붓었습니다 귀가 너무아파서",
+        "like_count": 0,
+        "published_at": "2026-07-20T15:44:46Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@shpsh1728",
+        "text": "아파트 단지내에 배달 오토바이들 배기튜닝 단속해야한다!!잡것들이 왜이렇게 시끄럽게 다니는거야!!불법튜닝한놈들 다처벌하길!!",
+        "like_count": 1,
+        "published_at": "2026-07-20T14:38:12Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@Sunday-r4o",
+        "text": "성남시민인데요.. 일단 단속을 안해요 ㅋㅋ 한두곳 자리 잡아서 단속하면 수두룩 하게 걸릴 건데 단속하는 거 거~~의 못 봤고요.. 저런 거 설치 해봤자 소문나면 다 피해가거나 서행하면 끝입니다. 단속부터 해야죠~",
+        "like_count": 2,
+        "published_at": "2026-07-20T07:47:35Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@haewoongj8204",
+        "text": "후면카메라 늘려라.딸배들 신호위반도 좀 잡아내자.",
+        "like_count": 3,
+        "published_at": "2026-07-20T15:26:05Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@자연-r1r",
+        "text": "배달 오토바이 정말 소음 심각하다  \n신호도 개무시 철저한 단속이 필요하다 \n공무원들 뭐하나",
+        "like_count": 3,
+        "published_at": "2026-07-20T20:59:12Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@맨발의질주",
+        "text": "쓸데없는데 세금낭비 하고있군 당장 인력투입 시켜라",
+        "like_count": 1,
+        "published_at": "2026-07-20T14:19:57Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@Vantalkman",
+        "text": "차량 튜닝 및 오토바이 튜닝에 전부다 신고해서 과태료 먹어라..",
+        "like_count": 4,
+        "published_at": "2026-07-20T01:32:43Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@marineqoo",
+        "text": "못잡는다고 안잡으러 가니까 더 설친다 \n못잡더라도 추적하고 채증하고 기록남기고 이력 쌓아서\n잡히는 날 가중처벌할수 있게 해야지\n최선을 다하지도 않고 바쁘다고 핑계대고 \n사람 더 뽑으라니 여경이나 뽑아놓고 \n내연기관 순찰차나 타고 에어컨이나 켜면서 뭐하는거냐\n순찰차부터 전기차로 수소차로 바꿔라\n경찰 오토바이도 많이 양성해라",
+        "like_count": 4,
+        "published_at": "2026-07-20T10:16:18Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@하늘늑대-o5c",
+        "text": "차도 타고 오토바이도 타지만 28살에 오토바이 입문해서 30대중반정도 까지는 배기튜닝한 배기음에 심장이 반응하고 좋다고 생각을 했는데 30대후반 들어서 부터는 그냥 순정상태의 조용하거나 적당하게 울리는 배기음이 좋아.\n배기튠도 어울리게 해야지 그냥 귀 째지게 하고 타고 다니는 거 보면 시끄럽고 인상만 쓰여짐.",
+        "like_count": 0,
+        "published_at": "2026-07-20T10:39:58Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@이민호-o7n",
+        "text": "머플러 단속 강하게 해야됩니다.",
+        "like_count": 3,
+        "published_at": "2026-07-20T10:22:24Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@갓댐-t2y",
+        "text": "저격수 배치해야 한다~",
+        "like_count": 2,
+        "published_at": "2026-07-20T11:41:16Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@le_petit_prince1004",
+        "text": "이거 김포 구래동에서 마산역사거리방향도 설치해주세요. 창문을 닫아도 굉음에 새벽에 시끄러워서 잠을 못잡니다.",
+        "like_count": 1,
+        "published_at": "2026-07-20T09:20:43Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@홍길동-y2c5w",
+        "text": "저걸해주는 업체를 먼저 잡아서 세게 처벌해야됩니다",
+        "like_count": 0,
+        "published_at": "2026-07-25T04:24:13Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@뿌꾸빠앙",
+        "text": "자다가 오토바이 소음듣고 깨면 진짜 너무 짜증이남...",
+        "like_count": 4,
+        "published_at": "2026-07-20T10:36:19Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@디스퍼",
+        "text": "벌금 200씩  때려보세요",
+        "like_count": 5,
+        "published_at": "2026-07-20T07:44:02Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@인디안-s",
+        "text": "오늘밤 지금 당장 시끄러워서 잠을 못잔다는데\n무슨 연말까지 자료를 수집하니 어쩌니 한심한 헛소리냐?\nX소리 하지 말고 오늘 지금 당장 해결하라.",
+        "like_count": 1,
+        "published_at": "2026-07-24T14:34:00Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@구라청-f3y",
+        "text": "오토바이도 문제지만 팝콘튀기는자동차도 문제 싹다 단속해주기시길....",
+        "like_count": 2,
+        "published_at": "2026-07-20T22:59:32Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@vee1415",
+        "text": "1:31 RSI 과매도 구간입니다.",
+        "like_count": 1,
+        "published_at": "2026-07-20T08:04:29Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@장은지-y1o",
+        "text": "밤에 노래 크게 틀고 배달 가는 오토바이들 너무 시끄러워요",
+        "like_count": 2,
+        "published_at": "2026-07-21T09:24:31Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@남남성현",
+        "text": "성남뿐만아니다 안양 경수대로 아침저녁 소음이 장난아니다 단속적발시 오토바이 과태료 1백만원정도 부과시켜라",
+        "like_count": 1,
+        "published_at": "2026-07-21T06:23:17Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@elnido-g8c",
+        "text": "그래 오토바이 불법주차보단\n소음단속은 잘하는거다",
+        "like_count": 1,
+        "published_at": "2026-07-21T06:39:07Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@weiilkr9276",
+        "text": "ㅋㅋㅋㅋㅋㅋㅋ\n이야 세금 살살 녹는다",
+        "like_count": 0,
+        "published_at": "2026-07-20T12:28:56Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@ruibini89",
+        "text": "아 ㅋㅋ 분당 토박이인데 근래 여근처로 왔는데 레알 진짜 시끄러움 심하면 4시까지 지라림\n어쩌다가 보면 경찰이랑 같이가길래 방송하길래 제재하나봤더니 \"안전하게 운전하세요~\" 이러는거보고 \n정뚝떨 \n그리고 쟤들 다니는 길가에 쟤들 모이먹이는 새벽까지하는 카페있어서 \n\n다음달 걍 타지역으로 이사갑니다 ^^",
+        "like_count": 0,
+        "published_at": "2026-10-25T13:35:59Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@몰라-VZ",
+        "text": "지나가는데 저런 소음큰게 옆에지나갔는데\n억울하게 내가찍히면 어쩌지 ㅠㅠ",
+        "like_count": 0,
+        "published_at": "2026-07-20T09:55:13Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@Joon-s4j",
+        "text": "아반떼N 요즘 미쳤음... 팝콘 튀기면서 다녀... 새벽에",
+        "like_count": 0,
+        "published_at": "2026-07-20T15:10:11Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@0nihilnihilist",
+        "text": "0:15 댓글들도 그렇고 이륜차 관련 네이버카페를 보다 보면 일부 레저 라이더들이 이륜차에 대한 부정적인 인식이나 문제의 원인을 배달 라이더라는 특정 직업군의 문제로만 돌리는 경우가 있는 것 같다. ‘딸배’라는 표현으로 특정 집단을 일반화하기보다는, 이륜차 이용자 전체의 문제와 개별적인 행위의 문제를 구분해서 볼 필요가 있지 않을까.반박은 니말맞",
+        "like_count": 0,
+        "published_at": "2026-07-26T04:41:33Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@sumatra-z",
+        "text": "나도 오도방 타지만 진짜 도로에서 개조한 양아치들 너무 싫다........ 차던 오도방이던 진짜 너무 민폐임",
+        "like_count": 1,
+        "published_at": "2026-07-21T02:24:53Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@user-lz3gv1my1n",
+        "text": "국회의원 몇몇 집 근처에서 튜닝 바이크로 삼일만 들이대면 바로 개같이 입법할겁니다",
+        "like_count": 0,
+        "published_at": "2026-07-20T12:48:53Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@injection3139",
+        "text": "주변에 소음피해 무시하고 달리는 양ㅇ치들 다 잡아내야 함",
+        "like_count": 0,
+        "published_at": "2026-07-23T10:58:52Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@0qpqp0",
+        "text": "나도 오도바이 타지만 마후라 소리 ㅈㄴ 크게해놓고 다니는 인간들 이해 할 수가 없음 개 민폐 그자체; 데시벨 기준 더 낮춰야됌 영상에서 말했다시피 105데시벨은 ㅈㄴ큼 ㅋㅋㅋㅋ",
+        "like_count": 2,
+        "published_at": "2026-07-20T09:56:15Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@Bigsister-timo",
+        "text": "배달용은 전기로 다 규제 해버리면 좋겠다",
+        "like_count": 1,
+        "published_at": "2026-07-21T13:03:06Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@wonkiyen",
+        "text": "걸려도 솜방망이 처벌 \n강력히 단속해봐 압류해라",
+        "like_count": 0,
+        "published_at": "2026-07-20T11:57:04Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@몽스몽-v1",
+        "text": "소음 기준좀 강화해라 여름 밤 창문열고 자는데 미친놈처럼 소음 내고 다니는데 환장 하겠다 오토바이 차 단속좀 제발",
+        "like_count": 1,
+        "published_at": "2026-07-20T14:40:03Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@user-xr3xj3tv5v",
+        "text": "저 인터뷰하는동안에도 부아아앙 소리 쳐내고 지나가는거봐라 ㅋㅋㅋㅋㅋㅋ순정은 절대 저런소리 안난다",
+        "like_count": 0,
+        "published_at": "2026-09-01T14:22:02Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@성호NA-x4x",
+        "text": "ㅋㅋㅋㅋ 자동차 소음도 칼좀 들어라",
+        "like_count": 50,
+        "published_at": "2026-07-20T01:27:32Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@하이뽀오",
+        "text": "오토바이 카페에서도 저런 짓 하지말라고 탈 곳 없어진다고 난리쳐도 타는 놈들 많음",
+        "like_count": 0,
+        "published_at": "2026-07-20T08:00:43Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@RealHomme",
+        "text": "나도 바이크를 타지만 풀배기구변한 오토바이들 보면 눈쌀이 바로 찌푸려짐",
+        "like_count": 7,
+        "published_at": "2026-07-21T13:08:45Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@공현식-ksrm",
+        "text": "부산 강서구도 그렇다....  김해쪽으로 나갔다가 들어오는 오토바이 때문에.... 넘 시끄럽다...",
+        "like_count": 0,
+        "published_at": "2026-07-20T09:31:54Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@마린보이-t3r",
+        "text": "지역마다 다르구나.. 부산 광안리 근처에는 오토바이보다 차들이 어마한 굉음내고 팝콘은 왕사남 흥행할때보다 더 잘 튀겨요 오죽하면 여름시즌 8월말까지 저녁에 차없는거리 시전하면서 통행차단한다는디..",
+        "like_count": 0,
+        "published_at": "2026-07-20T13:19:12Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@sb2583",
+        "text": "아반떼 n 팝콘튀기는거나 잡아가라 좀",
+        "like_count": 38,
+        "published_at": "2026-07-20T09:46:34Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@아_톰보이",
+        "text": "오토바이 뿐만아니라 차도 개시끄러움 ㅡㅡ; 진짜 무슨 갈곳없는지 같은곳 게속 반복적으로 돌면서 개시끄럽게 굴지를않나",
+        "like_count": 2,
+        "published_at": "2026-07-20T10:21:03Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@hip9hop9",
+        "text": "또 세금이 녹는구나...",
+        "like_count": 0,
+        "published_at": "2026-07-20T06:27:20Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@박가든-x3z",
+        "text": "나도 바이크 타는사람 , , ,  말로만 , 입으로만 , 입장으로만 , ,  하지 말고  , , 강력하게 단속하라고 ~ ~",
+        "like_count": 0,
+        "published_at": "2026-07-20T09:09:08Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@74kaze72",
+        "text": "0:23 성자 아주매이 호들갑 떨지마소 😂😂😂😂😂😂",
+        "like_count": 0,
+        "published_at": "2026-07-20T07:56:03Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@케이션88",
+        "text": "좋은 동네 사시는군요.",
+        "like_count": 0,
+        "published_at": "2026-07-21T10:17:04Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@danillee1",
+        "text": "만만하니까~~~ 차량은 안 건들지? 소리 장난 아니게 하고 돌아댕기던데...",
+        "like_count": 2,
+        "published_at": "2026-07-20T09:14:48Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@한번놀자-f1q",
+        "text": "차도 잡아야지? 소리나면 다 오토바이인줄 아는 사람들 꽤 많더라",
+        "like_count": 3,
+        "published_at": "2026-07-20T11:05:14Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@두목sv3",
+        "text": "주간에 무작위로 검문 소음측정해서 면허취소해버려",
+        "like_count": 0,
+        "published_at": "2026-07-22T10:02:51Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@가자구-q1y",
+        "text": "그냥 튜닝된거 특정되서 소음관련 신고들어 오면 1건당 사업소 무조건 가서 구조 변경 확인 시키면되잖아. 1일 검사 한번 제한해서\n\n튜닝 안되도 차랑 바이크 소음 일으킨 것도 신고들어와서 계속 검사하러 가다보면 조용히 다니겠지.",
+        "like_count": 0,
+        "published_at": "2026-07-20T11:09:07Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@창문-h5n",
+        "text": "앞 번호판 의무화 하면 모든 문제 사라짐.",
+        "like_count": 0,
+        "published_at": "2026-07-20T06:44:56Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@김종민-x9i",
+        "text": "먼 개뻘짓이냐 뻥뚫린 외곽도로는 오토바이 통제 걸고 도심만 가로질러 다닐수있게 해놓고 이딴 ㅋㅋㅋ",
+        "like_count": 4,
+        "published_at": "2026-07-20T09:16:18Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@solarisors",
+        "text": "성남뿐 아니라 우리나라 도심 지역 거주민들이 고통을 겪는 사항입니다. \n오토바이 배기음 발생 현행기준을 지금보다 현격하게 디젤차량에 준할만큼 낮춰 적용해야 합니다.",
+        "like_count": 0,
+        "published_at": "2026-07-20T09:50:53Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@천장지구-z6e",
+        "text": "배기튜닝한 오토바이 탄 자도 배기튜닝작업해준 자도 과태료 부과하고 과적단속, 음주운전단속, 어린이보호구역 교통질서 보조업무같은 사회봉사명령도 추가해야",
+        "like_count": 0,
+        "published_at": "2026-07-20T13:42:22Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@natainkorea1762",
+        "text": "진짜 너무 심각함. 대구 큰 도로 근처 아파트에 사는데, 밤마다 몇 분 간격으로 시끄러운 오토바이가 지나가서 창문을 열고 잘 수가 없어\r\n동네 자체는 조용한데 유독 오토바이 배기음만 너무 크게 들림... \r\n낮에도 짜증 나지만 밤에는 더 심각함. 이렇게 시끄러운 오토바이나 차량은 강하게 규제해야 해 어린아이 있는 집은 어떻게 버티는지 모르겠음...",
+        "like_count": 0,
+        "published_at": "2026-09-17T13:40:06Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@콜라자판기3",
+        "text": "아줌마 차도있어요 ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ미쳐버릴꺼같음 ㅋㅋㅋ",
+        "like_count": 0,
+        "published_at": "2026-07-27T06:00:14Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@the.best.defense",
+        "text": "그놈의 기차소리 이륜차 소음측정기준이랑 똑같이 50cm 거리에서 들으면 105db 훨씬 넘을텐데",
+        "like_count": 1,
+        "published_at": "2026-07-20T12:09:55Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@penred8308",
+        "text": "이뉴스에 105데시벨 넘는부분은 1도 없음.. \n그리고 105 데시벨이 철도주변보다 높은 기준이라는데 데시벨은 거리당 측정값 차이가 무지막지함..저런 멘트는 그냥 속임수용 비교값임..\n그리고 2중창인데도 소리를 질러야한다는 그 집은 2중창 품질이 넘 구린듯.. 아니면 창문열고 그러고 있거나~\n105 데시벨이 큰 소리인건 맞음.. 근데 2중창 정도 닫고 있으면 크게 들리지는 않음",
+        "like_count": 1,
+        "published_at": "2026-07-20T09:13:23Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@꼬마차붕붕-w8l",
+        "text": "울산에도 제발 소음 단속해 주세요",
+        "like_count": 1,
+        "published_at": "2026-07-20T09:59:44Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@ss-y6h",
+        "text": "기장군 장안읍도 장난이 아닙니다\n나사리 라이더 카페가 있어 밤22시부터 새벽02시까지 장난이 아닙니다 장안읍 월내리로 들어와서 서생으로 해서 지나다니는데 울주.기장아무리 민원넣어도 단속도 안하고 밤되면 미칠거 같습니다.",
+        "like_count": 0,
+        "published_at": "2026-07-20T09:37:38Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@박진영-m9c",
+        "text": "경찰들 민생치안 잘해주길~",
+        "like_count": 0,
+        "published_at": "2026-07-21T16:15:54Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@jjuna1245",
+        "text": "바혐은 아닌데 개조된 바이크는 진짜 뺨따구마려울 정도로 시끄러워 잠깐 정차하는거면 시동이라도 꺼두던가 왕오앙ㅇ항 거리면서 수다떨고있는건 뭔 심보냐 바이크나 차량이나 단속하는건 ㅈㄴ 찬성이다",
+        "like_count": 15,
+        "published_at": "2026-07-20T02:14:40Z"
+      },
+      {
+        "video_id": "vNIXiWyXs90",
+        "author": "@째원-b2h",
+        "text": "카메라 설치가 아니라\n일년에 한번씩 배기음  검사를 하자~~!!",
+        "like_count": 0,
+        "published_at": "2026-07-22T08:44:35Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@hanhan-vq5gx",
+        "text": "집앞에 저렇게 많은 오토바이가...\n불 지른 그심정 충분히 이해간다",
+        "like_count": 185,
+        "published_at": "2021-02-17T00:05:59Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@vduwbyx",
+        "text": "이런분은 상을줘야합니다   아주잘했어요 ㅡㅡ박수짝짝짝",
+        "like_count": 4,
+        "published_at": "2023-12-24T12:49:05Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@hanu.travel",
+        "text": "진짜 불 지른 사람 심정 공감\n배달업체를 없애버려주세요",
+        "like_count": 28,
+        "published_at": "2022-04-23T11:16:24Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@edgar_N",
+        "text": "상가도 아니고 주택가에서 사무실 열고 오토바이 와따가따 거린거임? ㅋㅋㅋ",
+        "like_count": 116,
+        "published_at": "2021-02-16T23:15:12Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@파랑소나기",
+        "text": "새벽에 잠을 못잔지 몇개월째다... 나도 불지르고 다 때려부수고 싶다 주택가에 저딴거 들어온게 문제다 제제가 필요함",
+        "like_count": 4,
+        "published_at": "2021-09-18T16:18:17Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@ykh7668",
+        "text": "나도 속이 후련!!\n돈 모아 저분 도와 줍시다.",
+        "like_count": 6,
+        "published_at": "2024-06-24T15:50:20Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@파랑소나기",
+        "text": "오토바이 소리뿐인가... 모여서 담배피고 길거리 담배꽁초에 오토바이 주자시비에 새벽에 배달없을때는 모여서 웃고 떠드는 소리가\n조용한 주택가라 엄청 크게 들린다. 영웅배송스파이더 하나때문에 주변 주민들 스트레스로 죽을지경이다",
+        "like_count": 2,
+        "published_at": "2021-09-18T16:21:12Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@tmdqkr",
+        "text": "오토바이소음 스트레스 언겪어본 사람은 모른다. 하루종일 따다다다다ㅏ다다 부아아아아아아ㅏㅇ~~\n난 저 불지른사람 이해한다.",
+        "like_count": 100,
+        "published_at": "2021-02-17T00:50:45Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@한우빈-i9y",
+        "text": "나도 배달대행하지만\n머플러좀 그냥 냅둬라 \n오토바이 나온그대로 타라\n나도 일하다가 옆에서 시끄러운 오토바이보면 따라가서 발로 까고 싶더라",
+        "like_count": 99,
+        "published_at": "2021-02-17T01:04:39Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@taehoyang9881",
+        "text": "오토바이소음으로\n얼마나 스트레스였을지\n알것같다\n요즘 배달오토바이소음은\n진짜 소음으로 욱할정도이다\n오토바이소음도 단속하지않고\n배달하는사람들이 기본마후라였다면  아무문제가 없었을텐데\n가끔보이는 마후라 튜닝한사람들이\n진짜 빌런이다\n창문닫고있는데\n새벽에  깰정도의 소음\n때문에  그랬을것이다\n이성을 놓을정도의 소음\n때문일것이다.",
+        "like_count": 1,
+        "published_at": "2026-07-20T05:57:29Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@GamGyul-o7d",
+        "text": "배달 대행 많은 오토바이들이 배기튜닝으로 엄청난 소음을 유발시키죠! 엄청난 스트레스입니다. 그리고, 일방통행 도로 역주행, 인도 주행, 신호 위반등등... 엄청난 법규 위반들을하고 다니죠... 그렇다고 오토바이에 방화를 져지른 건 정당화될 수는 없지만 조금은 저분 마음도 이해가 가네요...",
+        "like_count": 84,
+        "published_at": "2021-02-16T22:27:17Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@중경-x5i",
+        "text": "딸배들이 시끄럽게 안했으면 저럴일이 없지",
+        "like_count": 2,
+        "published_at": "2023-05-31T02:51:28Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@soojungkim9479",
+        "text": "오죽했으면 불을 질렀을까 물론 방화행위는 잘못된거지만 그 심정은 충분히 이해가 간다 그니깐 제발 오토바이 소음 규제 쫌 하자 !!!!!!",
+        "like_count": 86,
+        "published_at": "2021-02-17T00:17:25Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@딸배들은악이다",
+        "text": "이시대 영웅이네",
+        "like_count": 3,
+        "published_at": "2021-12-24T15:32:37Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@illllill-hy7cj",
+        "text": "생각만 하던걸 진짜 해버리네 ㅋㅋ 후련하노",
+        "like_count": 2,
+        "published_at": "2024-07-28T17:25:50Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@곰탱이-i6s",
+        "text": "오토바이 단속좀하자 얼마나 짜증나면 저랬을가;; 불지르지 마시고 불법행위들 신고해서 세금 징수하게 해서 애국자됩시다.",
+        "like_count": 2,
+        "published_at": "2021-02-21T04:09:56Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@만두쟁이-r6t",
+        "text": "진짜 자기밖에 모르는 배달기사들 있습니다.\n머플러 진짜 듣기만해도 머리가 쭈뼛쭈뼛하고 신경을 자극하게 만듭니다.\n말을 해도 절대 안바뀌구요. 진짜 살인 안나는게 다행이네요.",
+        "like_count": 105,
+        "published_at": "2021-02-16T23:23:11Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@김현준-q6i",
+        "text": "방법은 잘못됐지만 저 마음은 이해합니다..\n요즘 배달하시는분들 고생하시는건알지만 일부배달하시는 몇몇분들때문에 모두 피해보는거 같아 안타까울뿐입니다. 안전도 그렇고 소음은 진짜 규제가 좀 필요할듯합니다",
+        "like_count": 70,
+        "published_at": "2021-02-16T22:50:51Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@붕어빵-u7w",
+        "text": "오토바이 배기음 우렁차게 하고 다니는 인간들 때문에 밤에 창문열고 잠을 잘수가 없다",
+        "like_count": 1,
+        "published_at": "2023-09-10T13:32:36Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@주그미",
+        "text": "배달 오는 소리도 ㅈㄴ 시끄러운데 집앞이 오토바이집합소 ㅋㅋ정신병 안걸린게 다행이구만 충분히 이해됨",
+        "like_count": 2,
+        "published_at": "2021-02-21T13:25:09Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@미스박별다방",
+        "text": "이사람 입장에서 정말 정말 이해간다",
+        "like_count": 2,
+        "published_at": "2021-03-31T03:59:54Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@karas3045",
+        "text": "이해된다...\n우리골목은 아닌데 근처 골목에 오토바이 엄청돌아다니던데 사람이 미치지 않을수가 없을듯",
+        "like_count": 22,
+        "published_at": "2021-02-17T01:00:21Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@우각-i7n",
+        "text": "잘했다 가벼운 처벌 받길 바람",
+        "like_count": 5,
+        "published_at": "2021-02-18T10:07:25Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@오뎅-d3c",
+        "text": "자물쇠로 번호가린놈 번호판꺽은놈 스티커 붙인놈 인형걸어서 가린놈 개양아치들이 많다. 소음문제만이 아님. 단속좀 해라",
+        "like_count": 1,
+        "published_at": "2021-02-17T00:35:55Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@살구살구-x3q",
+        "text": "배달소음 민원으로 구청과 경찰서에 민원 넣어봤는데요. 서로 책임미루고 방관하더라구요. 국가가 제대로 불법오토바이들 규제만 했다면 이런 극단적 사태까진 벌어지지 않았을겁니다",
+        "like_count": 96,
+        "published_at": "2021-02-16T22:26:46Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@한진우-s4d",
+        "text": "저 배달대행을 생업으로 하는 사람인데.. 머플러 소음 인정합니다 머플러에 소음기 떼어내서  타는사람들 많아요.. 그건 나 좀 봐주세요. 하는 관종애새끼들이 많이 합니다. 저같은 나이대가 30대 40대들은 튜닝을 잘 안합니다.  그리고 튜닝\n을 안해도 시끄러운 오토바이들이 있어요.. 티맥스\n처럼 500cc이상 급은 소리가 큽니다... 우리사무실에도 한대 있고.. 그리고 이해가 안되는게 배달에 530~560씨씨  급은 타고  배달하면 더 많이 할수 있나... 그것도 아니구요 ㅋ",
+        "like_count": 2,
+        "published_at": "2021-02-17T09:10:53Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@davidcho1625",
+        "text": "불법개조 때려잡으면 됨 ㅋㅋ 절대 단속안하지",
+        "like_count": 2,
+        "published_at": "2021-02-21T11:16:29Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@원빈-g3c",
+        "text": "규제좀하자제발..소음뿐아니라 쌍라이트랑불법HID땜에 눈뽕오진다",
+        "like_count": 69,
+        "published_at": "2021-02-16T22:53:57Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@knowledge_store58",
+        "text": "오토바이 개조 소음 번호판이랑 영상찍어서 신고하세요\n국민신문고 끊임없이해야합니다",
+        "like_count": 1,
+        "published_at": "2024-07-06T06:25:48Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@차돌쌀국수",
+        "text": "배기통 튜닝 단속점 해주세요",
+        "like_count": 3,
+        "published_at": "2022-03-29T17:34:53Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@lrulove8000",
+        "text": "불지른 사람 심정 이해가된다",
+        "like_count": 1,
+        "published_at": "2024-05-05T17:24:58Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@Yh-365",
+        "text": "정부에서 배달오토바\n전기오토바이로 규정을 바꾸어서 지원해야 합니다\n주태가 오토바이 소음으로 미치겠습니다 😂😂",
+        "like_count": 1,
+        "published_at": "2026-05-16T10:50:08Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@jwori3354",
+        "text": "오토바이 소음기를 제거 안하면 될일 아닌가?",
+        "like_count": 2,
+        "published_at": "2022-01-28T08:23:09Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@반쯤넘어왔다잉",
+        "text": "잘했습니다최고  우리가 하지못하는것을  사랑합니다 존경합니다  사이다 1L원샷느낌❤",
+        "like_count": 2,
+        "published_at": "2023-11-16T16:16:07Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@김용민-c5z",
+        "text": "잘햇네  시끄러워서 못 살겟다 교통소음 경찰은  단속좀 해라",
+        "like_count": 2,
+        "published_at": "2021-05-26T12:08:21Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@jincheulpark6300",
+        "text": "방법이 안조아서 그렇지 저 불지르신분 마음 십분 이해합니다..",
+        "like_count": 3,
+        "published_at": "2021-02-21T03:09:14Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@안성아엔",
+        "text": "속이 후련하다",
+        "like_count": 2,
+        "published_at": "2021-02-17T01:41:19Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@saffrygf134",
+        "text": "저 빌라에 살면 진짜 살인 충동 느낄듯 ~ 마후라 개조안하면 배달이 안되냐??",
+        "like_count": 2,
+        "published_at": "2021-02-20T01:22:23Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@cryingmenjp",
+        "text": "불을 지른 그 심정 이해가 됩니다.",
+        "like_count": 157,
+        "published_at": "2021-02-17T00:07:44Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@여선우-x9n",
+        "text": "가끔 빌라촌 가다 보며 정말 오토바이 소음 문제 심각합니다\n불 지르는 얼마나 스트레스를 받았으면 불을 다 질렀을까 그 마음 이해 하네요",
+        "like_count": 35,
+        "published_at": "2021-02-16T23:31:46Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@현기박-x3g",
+        "text": "공감...입니다",
+        "like_count": 2,
+        "published_at": "2022-01-30T09:11:14Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@hecaiont",
+        "text": "나는 오토바이 시끄러운거 불지른 마음 이해된다. 개 같은거 진짜 소음가지고 단속좀 해라",
+        "like_count": 2,
+        "published_at": "2021-02-21T06:38:43Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@김하영사랑함",
+        "text": "머플러 튜닝하는 이유: 존나 시끄러워야 주위 사람들이 알아서 비킴. 얘네는 골목길, 인도로 많이 다녀서 사람이 걸리적 거린다는 이유로 소음 발생시키는거임",
+        "like_count": 1,
+        "published_at": "2021-02-18T09:10:26Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@mon2da",
+        "text": "머플러 소음이 심하죠.욕이 절로 나옴",
+        "like_count": 1,
+        "published_at": "2021-02-20T02:59:23Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@이대호-x4d",
+        "text": "그 심정 충분히 이해감",
+        "like_count": 18,
+        "published_at": "2021-02-16T22:50:54Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@최용호-n6g",
+        "text": "속이다 시원합니다",
+        "like_count": 1,
+        "published_at": "2023-10-24T12:47:13Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@썸타자-o3h",
+        "text": "오토바이 대행 다 좋다 이거지만 배달을 떠나서 노래 크게 틀고다니는 오토바이 어찌좀 안되나?",
+        "like_count": 89,
+        "published_at": "2021-02-16T22:29:13Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@노수민-i7d",
+        "text": "오토바이시끄러운건 너무시끄럽다\n왱왱너무시끄러워서짜증날때많다",
+        "like_count": 28,
+        "published_at": "2021-02-16T23:26:27Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@안용현-b5q",
+        "text": "굿~~~\n완전 확끈한 분이십니다.\n이ㅡ시대에 선구자 영웅이십니다.",
+        "like_count": 8,
+        "published_at": "2022-07-19T01:25:24Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@arahan1918",
+        "text": "150% 공감..",
+        "like_count": 2,
+        "published_at": "2021-06-20T12:41:27Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@name9947",
+        "text": "정말 잘했다~ 아주통쾌하구나~  진심으로 응원한다",
+        "like_count": 30,
+        "published_at": "2021-02-17T01:42:23Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@tss1472",
+        "text": "겁나 시끄러워   순간순간  열받음.",
+        "like_count": 1,
+        "published_at": "2021-02-17T01:25:06Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@똥냄새향수",
+        "text": "정상적으로 탔는데 민원을 넣겠냐\n나이 먹고도 철이 안들어서 10대때 하던걸 그대로 하니 민원이 끊이질 않겠지\n어제도 좁은 길목에 가운데 떡하니 세우고 배달가길래 빵 거렸더니 나오면서 존나 쳐다보더라 어이가 없다 지들은 무조건 피해자고 약자라고 생각하는건지 아니면 뭐라도 되는건지 존나 처맞아야되는데",
+        "like_count": 1,
+        "published_at": "2021-02-17T02:44:12Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@산딸기-c5f",
+        "text": "오토바이소음은 듣는사람들의 짜증과 화만 부추기죠... 칼치기 신호무시의 사고원인 외에 가장 많이 욕먹는 이유입니다.",
+        "like_count": 1,
+        "published_at": "2021-05-08T17:48:19Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@레인rain-ko",
+        "text": "주택가에 저런 사무실은  아니지.. 주거권이 보장되야.. 생계형이라고 하는데, 뻥이야.. 저기에 사무실 차린 사장이 돈 벌려고 저 지랄한거고. 직원들은 다른데서 일하면 되지. 공무원은 아무 생가없이 허가낸거고. 거부할 법이 없나? 그건 잘 모르지만 아마 있을건데.. 코에걸면 코걸이 귀에 귀걸이 법이 많으니...",
+        "like_count": 8,
+        "published_at": "2021-02-16T23:44:42Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@yongsukkwak7110",
+        "text": "주택가 근처에 소음을 일으키는 특히 밤에... 이런 업체들은 좀 허가좀 내주지 마세요..",
+        "like_count": 18,
+        "published_at": "2021-02-17T00:48:22Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@jakovisce",
+        "text": "잘못된 방법인건 알겠는데\n\n\n이해된다..\n사람이 잠을 못자면\n제정신이 아님.\n저 오토바이 하루이틀 저런게 아닐거임.",
+        "like_count": 1,
+        "published_at": "2021-02-17T03:35:14Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@먹어땅파",
+        "text": "딸배 지나갈때 쇠파이프로 대가리 후려치고 싶어서 검색했더니 5년전 영상이네",
+        "like_count": 1,
+        "published_at": "2026-05-27T11:00:52Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@바닐라스토리",
+        "text": "진심 절로 욕나올때가 한두번이 아니다 소음규제를 하던가 ㅅㅂ 지금 이순간에도 소음이 들린다 하......",
+        "like_count": 1,
+        "published_at": "2021-07-06T01:55:40Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@kju-fv6gq",
+        "text": "솔직히 배달 대행 오토바이들 엔진을 개조라도 한건지 진짜 심하게 시끄럽다 그런데 그렇게 시끄러운 오토바이들 경찰들은 검사도 안하드라 폭주족마냥 시끄러운데도 검사조차 안하는 공무원이야 말로 제일 큰 문제 아닐까? 나는 그렇게 생각한다",
+        "like_count": 25,
+        "published_at": "2021-02-17T01:00:01Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@각시탈-n2m",
+        "text": "아 속시원하다\n시끄러운건 둘째 치고\n운전 개 족같이 하면서\n사고유발하는 오토바이 다 불태워없어졋으면",
+        "like_count": 92,
+        "published_at": "2021-02-16T22:51:17Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@조-w6k",
+        "text": "박수를 보낸다",
+        "like_count": 2,
+        "published_at": "2024-09-05T06:12:03Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@부우웅-o6t",
+        "text": "저사람 벌줄게 아니라 공무원 부터ㆍ분명 민원이나 신고 했을거다",
+        "like_count": 4,
+        "published_at": "2021-02-17T01:19:08Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@ddakppul",
+        "text": "아니 한편으론 이해가 가는게 머플러 진짜 너무 시끄러워서 귀 터지겠어 왠만한 버스, 트럭 보다도 머플러 소리톤이 높으니까....... \n몇몇 배달기사분이 저따구니까 배달 인식이 별로지.. 스스로 인식을 그렇게 만드는데 뭔 투덜투덜 하노",
+        "like_count": 1,
+        "published_at": "2021-02-20T17:09:18Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@빅폭력주의자",
+        "text": "배달의 기수들 고생한다 싶다가도 튜닝마후라 소리만 들리면 쌍욕부터 나오고 오도방구 걷어차고 싶더라",
+        "like_count": 1,
+        "published_at": "2021-02-20T17:25:24Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@용산개고기-e6r",
+        "text": "배달을 아에 안시켜먹어야 저것들이 없어지지",
+        "like_count": 1,
+        "published_at": "2023-12-25T10:36:58Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@고무줄한줄",
+        "text": "주택가에 몇년째 잘 살다가 내집 앞에 주택가인데   술집이든 음식점이든 하나 생기면 개 빡침  저런 곳에 오토바이 업체면 빡칠만 하다 밤마다 우웅 거릴꺼 아니야",
+        "like_count": 1,
+        "published_at": "2021-02-17T02:16:42Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@JJ-gg9yu",
+        "text": "머플러 뚫고다니는 것들 단속이 필요하다. 심각하다. 근데 방화는 아니다 누구 목숨을 앗아가려고.",
+        "like_count": 13,
+        "published_at": "2021-02-16T22:22:34Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@민주-v1w",
+        "text": "오토바이 저건 진짜 규제해야돼,, 새벽만 되면 학생들이건 성인이건 소리 엄청 크게 해서 오토바이 타고 다닌다고 보육원도 주변에 있고 한데 아가들 깨면 어떡할려고 담배도 피고 난리던데 민원 넣어도 소용없더라 좀 법으로 규제해줬으면 좋겠음 소음이 너무 심함",
+        "like_count": 0,
+        "published_at": "2021-02-17T04:00:30Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@크악크림사이다",
+        "text": "나도 오토바이 지나갈때마다 아기가 깰가봐 조마조마  방화한 마음 이해해",
+        "like_count": 6,
+        "published_at": "2021-02-17T01:21:31Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@moonp3890",
+        "text": "불질러 주셔서 감사합니다.",
+        "like_count": 3,
+        "published_at": "2021-06-25T15:25:33Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@샤샤-u9b",
+        "text": "우리 아파트에도 저런 오토바이 🏍 소리날때면 정말 화가 머리 끝까지 났는데(마음속으로는 나도 불 열번을 질렀음)",
+        "like_count": 6,
+        "published_at": "2021-02-17T02:41:09Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@이중구-z2v",
+        "text": "어후 근데 주택가 사는곳은 진짜 시끄럽다. 새벽에 소음도 심하고 배달음식먹는건 이해하나 튜닝하지말고 순정으로 다녀라 경찰에 신고해도 소용없더라 ㅡㅡ 방지턱을 하던지 어휴 몇키로씩 다니는데 사거리 많은데 쌩쌩 다녀",
+        "like_count": 1,
+        "published_at": "2021-02-17T01:25:17Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@llll6954",
+        "text": "잘 했다 속이 시원하네ㅋㅋ",
+        "like_count": 1,
+        "published_at": "2024-07-16T14:01:29Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@하하하-i5p3n",
+        "text": "오토바이 머플러 단속 쫌 허자",
+        "like_count": 18,
+        "published_at": "2021-02-16T23:02:17Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@달구름-y9e",
+        "text": "진짜. 소음 통제좀해라.   무슨심뽀인지. 쾅~~뿌웅. 새벽억도 시끄러워 죽것다",
+        "like_count": 1,
+        "published_at": "2021-02-17T01:05:02Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@박민정-e6i",
+        "text": "아 나라가 저거 소음 관리 좀 어떻게 못하나 진짜",
+        "like_count": 1,
+        "published_at": "2021-09-04T09:27:53Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@名詞의種類",
+        "text": "저건 훈장줘야된다",
+        "like_count": 6,
+        "published_at": "2021-06-04T08:24:04Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@GuitarJUNO",
+        "text": "충~~ 분히 이해됩니다! 정말 이해됩니다!",
+        "like_count": 1,
+        "published_at": "2024-02-13T12:03:14Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@JW-by7ix",
+        "text": "이참에 오토바이 교통안전 소음문제 여론화 합시다.",
+        "like_count": 2,
+        "published_at": "2021-02-17T00:43:54Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@user-su1pae2go3",
+        "text": "스트레스 한계치를 넘으셨나보다.\n나도 위집 층간소음으로 \n스트레스 누적중인데...0.0;;",
+        "like_count": 2,
+        "published_at": "2021-02-20T02:05:34Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@박정수-p8m",
+        "text": "제발 부탁인데 새벽만이라도 배달 규제할 수는 없나요? 새벽3시마다 앞집에서 뭐 시켜먹는데 진짜 나가서 오토바이에 불 지르고 싶은적이 한두번이 아니에요..\n\n자는 사람입장도 고려를 좀.. 하..",
+        "like_count": 1,
+        "published_at": "2021-09-05T00:12:01Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@goldencitivil",
+        "text": "진짜 시끄럽긴함  \n특히나 새벽에는 더 많이다님\n전기오토바이 안나오나",
+        "like_count": 1,
+        "published_at": "2021-02-17T00:46:14Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@IM_Jokerz",
+        "text": "공감함...여름에 3~9월까지 야식집이 있었는데 밤에 냄새와 오토바이소리땜에 잠을 못잠.\n그리고 사람들이 오토바이 신고하니깐 번호판을 스프레이로 뿌리거나 체인으로 식별못하게 하던데....",
+        "like_count": 2,
+        "published_at": "2021-02-17T01:18:57Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@강바다-e2d",
+        "text": "속이 시원하네  진짜 폭탄을 던지고싶다!",
+        "like_count": 1,
+        "published_at": "2026-07-05T13:45:06Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@베어-v8r",
+        "text": "딸배들 오토바이 소리 규제좀하자 원동기에서 무슨 슈퍼카 소리가나",
+        "like_count": 1,
+        "published_at": "2021-10-22T09:19:54Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@jaewanjeong721",
+        "text": "에겅~ 이거 정말 어떻게 \n단속 안되는건가여 !!\n저분 오죽하면 불 질럿을까~\n우리집 앞에 골목에도 고등생 정도\n되는 아이들이 배달 오토바이로\n몸살 남니다 ~ \n신고를 해도 그때 뿐,\n문제는 오토바이 머플러 개조를하여\n시끄러운 소리에 새벽 시간에도 \n잠을 설친적이 한두번 아님니다\n가까운 곳에 PC방이 있어서인지\n아예 집합장소가 되었네여~\n그나마 현제는 겨울이라 다행이지만\n날씨 풀리면 그소음에 하소연 할 곳도\n없네여 ~ㅠㅠ",
+        "like_count": 1,
+        "published_at": "2021-02-17T01:11:36Z"
+      },
+      {
+        "video_id": "lt7knjTuuOM",
+        "author": "@Kim-kk2lm",
+        "text": "방화는 잘못된건데 제발 딸배츙색기들 마후라 배기음 튜닝으로 ㅈㄴ시끄러운거랑 하이바쓰든안쓰든 뒤지는건 지들이니 내알바  아닌데 인도주행 그리고 난폭운전 신호위반좀 하지말고  대대적으로좀 단속했음 좋겄다",
+        "like_count": 3,
+        "published_at": "2021-02-17T01:01:45Z"
+      }
+    ]
+  },
+  "preset_2": {
+    "preset_id": "preset_2",
+    "query": "전동킥보드 불법주차 견인 금지 뉴스",
+    "issue_title": "대학가·도심 공유 전동킥보드 즉시 견인 및 통행 금지 논란",
+    "videos": [
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "title": "\"불법 주차 전동킥보드 무조건 견인\"‥강제 견인 지자체 확산 (2024.10.13/뉴스데스크/MBC)",
+        "channel": "MBCNEWS",
+        "url": "https://www.youtube.com/watch?v=Xt8TRqMuZRc",
+        "fetched_count": 77
+      },
+      {
+        "video_id": "D2hNIe74HEQ",
+        "title": "곳곳에 널브러진 전동킥보드, 7월부턴 견인…제때 안치우면 과태료",
+        "channel": "TBS뉴스",
+        "url": "https://www.youtube.com/watch?v=D2hNIe74HEQ",
+        "fetched_count": 3
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "title": "킥보드 반납 며칠 뒤 \"4만 원\"…\"너무 황당해\" 터진 분통 / SBS 8뉴스",
+        "channel": "SBS 뉴스",
+        "url": "https://www.youtube.com/watch?v=aI0awk0NBfc",
+        "fetched_count": 100
+      }
+    ],
+    "total_fetched": 180,
+    "comments": [
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@마더-j9g",
+        "text": "무식한 사람들 진짜 많어요.기본적인 매너는 좀 지키고삽시다.",
+        "like_count": 36,
+        "published_at": "2024-10-13T11:42:14Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@방병원",
+        "text": "정말 맘에드네요\n길 복판에 무질서하게 놓았는데 정말 속이 시원하네요",
+        "like_count": 18,
+        "published_at": "2024-10-13T12:52:59Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@이명옥-v8z",
+        "text": "대구에도빨리시행 하지만 아무데나세워두는사람부터벌금을부과하도록해야한다",
+        "like_count": 12,
+        "published_at": "2024-10-13T11:31:49Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@eduhockim9334",
+        "text": "지자체가 해야 할 일을 하는 모범사례라 생각됩니다. \n광주 남구청의 견인정책에 지지를 보냅니다.",
+        "like_count": 22,
+        "published_at": "2024-10-13T11:25:58Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@zsdaxc4567",
+        "text": "킥보드 전국에서 사업 못하게 하세요 정부와 국회는..",
+        "like_count": 77,
+        "published_at": "2024-10-13T11:22:09Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@하데스11",
+        "text": "잘한다!...👍👍👏👏👏👏👏",
+        "like_count": 10,
+        "published_at": "2024-10-13T11:46:35Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@어디가진짜",
+        "text": "저거 전국에서 사업 철수 해라 그리고 아무대나 막 주차 한 킥보드는 대여한 사람 추척 해서 벌금 물리던가 하자\n아울러 이거 철수 안할경우는 지구대나 구청 동사무소에서 대여반납 할수 있게 해라",
+        "like_count": 9,
+        "published_at": "2024-10-13T12:38:02Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@nostalgic-g8g",
+        "text": "나라가 난장판입니다 \n제발 다 압수해라",
+        "like_count": 9,
+        "published_at": "2024-10-13T12:03:22Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@jmLim_",
+        "text": "업체 스스로 자초한거다\n다음에는 킥보드 공유사업 자체가 금지될거다\n그러니 그러기전에 관리 제대로 하라고...",
+        "like_count": 6,
+        "published_at": "2024-10-13T13:44:23Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@elsa1349",
+        "text": "공용 전동킥보드 없앴으면 좋겠어요.\n청소년 킥보드 사고 너무 많아요.ㅠ",
+        "like_count": 6,
+        "published_at": "2024-10-13T16:24:21Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@JIMI0619",
+        "text": "도대체 킥보드는 안전문제에 불법주차등 문제투성인데 왜 채택하는거죠?자전거는 충분한 이유가 있지만 킥보드는 지자체에서 할 하등의 이유가 없는데 너무 의문이네요!!그리고 불법주차하는 사용자에게 책임을 물으세요!!!",
+        "like_count": 29,
+        "published_at": "2024-10-13T11:41:42Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@심플한인생-p7j",
+        "text": "킥보드 타봤고 무면허이지만 전 인도 위 경계석쪽에 주차 했습니다\n현재는 전기자전거 타서 인도 다닐때마다 인도 사이 또는 횡단보도 그리고 코너구간에 시에서 설치한 신호증 쉼터 또는 그늘막이 설치한곳 사이에 주차 해놓은거 보면 짜증나더라고요\n지들도 킥보드 타다가 지혼자 자빠지거나(인도블럭 지반상태가 안좋은경우) 밤에 달리다가 못보고 들이박아서 넘어지기도 했을거 같은데 진짜 무면허 탑승 불가 어길시 시에어 과태료 매기고\n면허소지자만 탑승토록 하자",
+        "like_count": 1,
+        "published_at": "2024-10-13T11:29:55Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@Egunmyface",
+        "text": "오호.. 수거 하는구나 좋다..\n신고자에게 1건당 500원만 줘도 다 사라질 듯?\n인건비 보관 비용 이딴거 생각 안해도 되고..",
+        "like_count": 3,
+        "published_at": "2024-10-13T14:40:42Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@무전유죄유전무죄-v1j",
+        "text": "퀵보드 임대 사업을 못하게해야함! 밤에는 수거하라 전화해도 다 퇴근했다고 전화 연결도 않됨!",
+        "like_count": 5,
+        "published_at": "2024-10-13T15:06:31Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@ok.kr-sun",
+        "text": "제발 법 좀 고쳐서 사유지도 관리자가 요청하면 무단주차, 방치 차량 견인 할 수 있게 해라.\n견인시 적법한 기본 조치를 하면 스크레치등에 대한 것은 면책 주고.",
+        "like_count": 1,
+        "published_at": "2024-10-13T16:51:19Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@jadoosatang12",
+        "text": "너무 스트레스 받아요 세워낮느 위험하게 타도... 그냥 퇴출이 답인거 같은데요ㅜ",
+        "like_count": 3,
+        "published_at": "2024-10-13T12:54:00Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@lee-xq3dc",
+        "text": "킥보드도 주차 공간이 부족한데.. 주차 공간을 더 많이 확보 해야 합니다.\n대여부터 사용후 주차까지 좀더 책임감을 가지도록 해야 합니다.( 대여시 신분확인 강화)\n사용후 주차장에 주차 할수 있도록 홍보와 벌금등 조치가 필요합니다.",
+        "like_count": 1,
+        "published_at": "2024-10-13T15:34:28Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@jojo-m3l4q",
+        "text": "킥보드 업체가  주차장소를 만들고  영업을 해야지. . .  아무 길이나  혼자 방치되어 있는 킥보드는  교통방해죄로 형사처벌해야 한다",
+        "like_count": 19,
+        "published_at": "2024-10-13T12:16:22Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@Korea_STD",
+        "text": "서울부터❤",
+        "like_count": 3,
+        "published_at": "2024-10-13T11:40:53Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@dorje2002",
+        "text": "대전도 견인 바람.\n업체들이 관리 안하면 때려부술수 있는 권리 주세요.",
+        "like_count": 1,
+        "published_at": "2024-10-13T13:05:44Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@꽁냐-q5b",
+        "text": "최종사용자에게 범칙금 같은거 부과하면 더 좋겠네",
+        "like_count": 1,
+        "published_at": "2024-10-13T15:04:37Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@홍정환-h2s",
+        "text": "마지막 탑승자한테 견인비 청구해라",
+        "like_count": 1,
+        "published_at": "2024-10-13T13:54:24Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@ligsktft",
+        "text": "전국구로 단속이 시핸되어야함",
+        "like_count": 2,
+        "published_at": "2024-10-13T20:17:25Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@풍화무변",
+        "text": "아침에 출근길 골목에 아무렇게 놔둔 킥보드 보면 진짜 아침부터 짜증짜증 ㅡㅡ'''",
+        "like_count": 0,
+        "published_at": "2024-10-13T13:10:37Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@changjisoo9782",
+        "text": "킥보드 때문에 교통사고 및 보생사고가 빈번 합니다.\n이용자들의 사고방식이 저질이고 양심이 불량하네요.",
+        "like_count": 1,
+        "published_at": "2024-10-13T13:19:20Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@junyshin5843",
+        "text": "제발 그냥 전동킥보드든 전기자전거든 다 없애라....\n사용자들이 저렇게 개판치고 서로 불편해지는데 왜 있어야 되냐???",
+        "like_count": 0,
+        "published_at": "2024-10-28T19:22:36Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@망부석-g4w",
+        "text": "보행자 차량의불편함사고는사용자책임을물어야한다",
+        "like_count": 0,
+        "published_at": "2024-10-13T17:32:32Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@돗대내놔",
+        "text": "업체가 첨에 아무대나 새워놓으라고 해놓고 이제와서 이용자 인식을 탓하네 정신나갔나",
+        "like_count": 1,
+        "published_at": "2024-10-14T00:34:58Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@HansWolfgang1910",
+        "text": "저렇게 수거하고 바로 폐기처리하면, 킥보드 업체는 생산이나 구매를 해야 하니까 손실 나겠지? 킥보드 사용자가 갑자기 잘 주차할 리는 없으니 결국 손실만 커지겠고. 그럼 자연스럽게 사업 접겠지?",
+        "like_count": 1,
+        "published_at": "2024-10-13T15:13:12Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@minwooidd",
+        "text": "고장나서 삐삐거리는 터질거같은 킥보드도 내가 해당 킥보드회사 카톡채널이나 홈페이지에 접속해서 사진찍고 위치알려주고 해야 몇시간뒤에 수거해감;;; 이게 말이되는건가 싶음 커버가 다 깨져있었고 사무실앞이라 터지면 큰일이니까 비오는날이라 감전될까 건드릴수도 없었음",
+        "like_count": 0,
+        "published_at": "2024-10-13T17:23:29Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@cszmoon",
+        "text": "1톤 화물차라도 하나 끌고 오지않고 승용차 끌고 다니면서 일하는척 하는건가?",
+        "like_count": 3,
+        "published_at": "2024-10-13T11:21:01Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@동권장-l4e",
+        "text": "부산은 시행해도....구청에서 신고 받아 나가서 업체에 연락 후 1시간이 지나도 수거 해가지 않으면 그때 견인기사가 가서 가져 가는데 실질적으로 구청에서 단속도 안나갑니다. 이륜차 담당자가 전화 받고 나가서 1시간 기다린 후 안가져가면 견인보관소에 연락해서 견인해가라?? 이런건데 어느 공무원이 합니까? 공무원들은 절대 안합니다.",
+        "like_count": 0,
+        "published_at": "2024-11-04T04:20:41Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@쭈니-p4j",
+        "text": "구청에 연락해보니 시행령도 없어서 과태로 및 강제수거를 못한다고 하던데 맞나요?",
+        "like_count": 0,
+        "published_at": "2024-11-13T05:29:58Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@leejh7138",
+        "text": "마지막에 사용한 이용자에게 벌금을 부과해야된다.\n퀵라니 잼미니들 진짜",
+        "like_count": 11,
+        "published_at": "2024-10-13T11:21:24Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@mins.4267",
+        "text": "킥보드 걍 없애라. 득보다 실이 더 많타.",
+        "like_count": 30,
+        "published_at": "2024-10-13T11:53:49Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@ksj4092",
+        "text": "업체를 압박할께아니라 킥보드자체를 없애라~",
+        "like_count": 0,
+        "published_at": "2024-10-13T17:09:06Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@kongyangyang1972",
+        "text": "킥보드들 자전거도로 한가운데에 세워나서 통행 방해하는 것들도 있던데.",
+        "like_count": 0,
+        "published_at": "2025-07-09T01:05:05Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@zzunimo",
+        "text": "킥보드는 직접 구매해서 타는걸로ㅡ\n편하게 타라고 생긴 수단이 본인만 편하고 주차까지 편하게 해버리니...\n또 저건 스쿨존 단속못할거 아닌가??\n주차 지역을 정하거나 안되면 다ㅈ없애는게 학생, 보행자, 운전자 모두를 위해 낫다!!",
+        "like_count": 0,
+        "published_at": "2025-05-04T03:15:37Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@더뉴xq300",
+        "text": "업체가 아닌 탄 인간한테 부과해야지",
+        "like_count": 0,
+        "published_at": "2024-10-13T15:24:29Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@sdfa5",
+        "text": "저거 탄놈들에게 벌금 부과하게하고 업체는 저거 막댄놈들 사용제한걸어야됨",
+        "like_count": 0,
+        "published_at": "2024-11-03T12:36:12Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@박종만-o5h",
+        "text": "업체도 업체지만 민폐주차는 개인이 하는거니~마지막 주차한 개인에게도 불이익을 줘야한다!!!\n수거업체 직원들 택배 직원들처럼 죽음으로 내몰수도 있다!!!",
+        "like_count": 0,
+        "published_at": "2024-10-13T17:42:54Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@Jay-b9h8h",
+        "text": "제발 서울에서도 시행해라",
+        "like_count": 0,
+        "published_at": "2024-10-13T15:57:42Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@김기연-y7f",
+        "text": "불법 주차 킥보드 견인하는거는 잘하는대 불법 주차하는 람보르기니 같은것도좀 즉각 견인하거나 압류 조치좀 하자.",
+        "like_count": 1,
+        "published_at": "2024-10-13T16:24:15Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@독도대한",
+        "text": "전킥 사업자와 공무원 비리 조사해야함 왜 갑자기 전국 단위로 늘어난건지? 국감필요함",
+        "like_count": 1,
+        "published_at": "2024-10-13T14:23:02Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@희망찬꽃과금은보화",
+        "text": "킥보드좀 없애 주세요",
+        "like_count": 2,
+        "published_at": "2024-10-13T14:02:55Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@산토리니-p7m",
+        "text": "킥보드 전면 금지하라.\n저거 허가해준 놈 찾아라.",
+        "like_count": 12,
+        "published_at": "2024-10-13T13:36:39Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@김대철-u5q",
+        "text": "누가 몇시에 탔다는게 추적 가능할텐데 왜 이러는거지? 미성년자가 업소에서 술쳐먹는거랑 똑같이 대응하네",
+        "like_count": 0,
+        "published_at": "2024-10-13T19:17:29Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@qst595",
+        "text": "3년전 지자체 민원내니 바로 처리하는 우리 지자체. 칭찬했다,",
+        "like_count": 0,
+        "published_at": "2024-10-14T20:36:31Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@손가네인테리어필름대",
+        "text": "킥보드없애라 진짜위험하고 사용자들 개념없다.애들이 보고 배운다.",
+        "like_count": 1,
+        "published_at": "2024-10-13T15:17:07Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@투머치-h7k",
+        "text": "인도에 주차되있는 차랑 오토바이는 수거 못함?",
+        "like_count": 1,
+        "published_at": "2024-10-13T11:33:33Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@yth2013",
+        "text": "공유킥보도  없애면안되나?",
+        "like_count": 0,
+        "published_at": "2024-10-13T16:02:33Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@정영수-s8t",
+        "text": "고객한테고 벌금 물어라.",
+        "like_count": 0,
+        "published_at": "2024-10-13T15:48:36Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@srwhill",
+        "text": "맨날 주차장 앞에 누가 세워놔서 빡치게.",
+        "like_count": 0,
+        "published_at": "2024-10-24T12:44:58Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@커피한잔-e8h",
+        "text": "사회정화 시기",
+        "like_count": 0,
+        "published_at": "2024-10-13T12:55:00Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@Rtgyurfhj",
+        "text": "SUV 화물차로 회수하는게 더  편하지 않을까요?",
+        "like_count": 0,
+        "published_at": "2024-10-13T23:45:47Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@부우웅-o6t",
+        "text": "전동 킥보드 업체ㆍ벌금1000만씩 때려야 함ㆍ자전거 타다 저거 때문에 다치는 사람 겁나 많음ㆍ그리고  타고 아무대나 놓은   썩어빠진   사용자에게도   벌금 부과 해야됨",
+        "like_count": 0,
+        "published_at": "2024-10-13T15:50:53Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@글로리-m9f",
+        "text": "방송용 보여 주기식 엽겹내 저날만 열심히 단속 한거잖아 방송 나오니깐",
+        "like_count": 0,
+        "published_at": "2024-11-05T16:54:57Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@모나정",
+        "text": "업체가 뭔 죄냐...타는이들의 무지함이 문제지!!",
+        "like_count": 2,
+        "published_at": "2024-10-13T11:44:34Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@망부석-g4w",
+        "text": "🛴 사용자들의무질서주자가문제다 사용자불법주차에대한 교통법적용사용앱과태료부과을해야한다 🛴 사업자가무순죄가있나",
+        "like_count": 0,
+        "published_at": "2024-10-13T17:30:57Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@청순-z6c",
+        "text": "역시  최고여",
+        "like_count": 14,
+        "published_at": "2024-10-13T11:23:49Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@하루-z8o3s",
+        "text": "어휴... 나라땅덩이가 좁으니 별걸 다 문제로 만든닼ㅋㅋㅋㅋㅋㅋ",
+        "like_count": 0,
+        "published_at": "2024-10-13T18:32:48Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@워터밤양갱",
+        "text": "견인하면 주지말고 폐차해야할듯.",
+        "like_count": 0,
+        "published_at": "2024-10-13T16:13:33Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@sarang1356",
+        "text": "걍 포터2로 돈좀버시줘",
+        "like_count": 0,
+        "published_at": "2024-10-13T15:33:19Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@한광남-v6t",
+        "text": "광주에 있으면서 킥보드 주차 하는곳 이제와서 만들어 놓고 몇명이나 그런게 있다는걸 알지 ㅎ 주차라인 만들어 놓은곳 얼마나 될지 모르겠지만 거이 없던데  구청이 잘하는게 단속해서 돈뜯는것만 잘하는..",
+        "like_count": 0,
+        "published_at": "2024-10-13T16:38:47Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@김해일-z9i",
+        "text": "네 제발좀 강제조치 좀 하세요 아니 해주세요",
+        "like_count": 0,
+        "published_at": "2024-10-13T15:35:28Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@yyaangsung680",
+        "text": "25톤트럭으로해라승용차",
+        "like_count": 0,
+        "published_at": "2024-10-14T11:38:56Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@세훈천-n4y",
+        "text": "조선인   아니랄 까봐....",
+        "like_count": 1,
+        "published_at": "2024-10-13T14:40:18Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@섯다-v7u",
+        "text": "킥보드 개판임\n킥킥킥",
+        "like_count": 1,
+        "published_at": "2024-10-13T15:01:01Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@wlsrnjsdl",
+        "text": "보여주기식으로 반짝행정이었네요! 그저 불편을 겪는 시민,국민들!",
+        "like_count": 0,
+        "published_at": "2025-01-24T09:26:40Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@s2son50",
+        "text": "그냥 없애",
+        "like_count": 0,
+        "published_at": "2024-10-20T10:25:59Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@만지면선다-i1l",
+        "text": "수거업체에 벌금물릴게아니고.마지막에타고 내린버러지한테 벌금을 물어야지",
+        "like_count": 8,
+        "published_at": "2024-10-13T11:27:15Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@은반복두",
+        "text": "킥보드 견인하고 해당 업체 과태료까지 물길 바랍니다. 잘못은 사용자가 했다 할 수 있지만 그건 니들끼리 알아서 하시고요~",
+        "like_count": 1,
+        "published_at": "2024-10-13T11:28:14Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@scottbyeon6760",
+        "text": "하여튼 웃겨...아니 불법 캠핑카나 장박텐트 강제 철거는 그렇게 오랫동안 못하더니만 ... 전동킥보드는 만만한가봐?",
+        "like_count": 0,
+        "published_at": "2024-10-13T21:04:02Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@오제헌-p1c",
+        "text": "킥 없애면 택시만 좋져...전동 자전거 처럼 반납 구간을 정하면 그만 임니다",
+        "like_count": 0,
+        "published_at": "2024-10-13T13:26:00Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@두타산12",
+        "text": "수거인력늘려야겟네",
+        "like_count": 0,
+        "published_at": "2024-10-13T20:14:39Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@lhkriver1220",
+        "text": "역시 민주화의 성지 광주 답다 잘한다!! 응원합니다",
+        "like_count": 0,
+        "published_at": "2024-10-13T15:18:09Z"
+      },
+      {
+        "video_id": "Xt8TRqMuZRc",
+        "author": "@폭싹속아수다",
+        "text": "무단 방치 몽조리 수거하고 과태료 처분하라",
+        "like_count": 0,
+        "published_at": "2024-10-13T13:33:44Z"
+      },
+      {
+        "video_id": "D2hNIe74HEQ",
+        "author": "@fcktheccp",
+        "text": "전동 ㄴ 공유전동킥보드",
+        "like_count": 2,
+        "published_at": "2021-06-30T14:23:18Z"
+      },
+      {
+        "video_id": "D2hNIe74HEQ",
+        "author": "@메에-k1p",
+        "text": "진짜 킥보드 저런곳에 주차하는애들 생각은 하고사는건가 ;;",
+        "like_count": 0,
+        "published_at": "2021-07-01T14:32:20Z"
+      },
+      {
+        "video_id": "D2hNIe74HEQ",
+        "author": "@최성은-q8p",
+        "text": "정호 ㅎㅇ",
+        "like_count": 0,
+        "published_at": "2024-08-16T16:17:11Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@shitzinping4385",
+        "text": "운전면허증 인증도 없이 대여가능하게 되어있으므로 전면금지가 답이다",
+        "like_count": 591,
+        "published_at": "2024-09-19T13:02:20Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@KJH-fw9eq",
+        "text": "전동킥보드 때매 넘어진적도 있는데 짜증남. 이용자들이 아무데나 주차해서 걸려넘어지는 경우가 있음.",
+        "like_count": 40,
+        "published_at": "2024-09-19T14:25:26Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@user-spmkk",
+        "text": "이용자 편의가 아니라 시민의 안전을 목적으로 정책을 펴라",
+        "like_count": 283,
+        "published_at": "2024-09-19T12:55:28Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@흐아아암-n7d",
+        "text": "이걸 왜 억울해 하냐",
+        "like_count": 33,
+        "published_at": "2024-09-19T14:06:58Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@sk-gw5ns",
+        "text": "저놈의 킥보드~~~임대사업 못하도록 제재해야한다.",
+        "like_count": 129,
+        "published_at": "2024-09-19T12:44:12Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@예원-h1r",
+        "text": "공지사항을 못본게 아니고 안본거지 이참에 킥보드 다 없애버려라",
+        "like_count": 81,
+        "published_at": "2024-09-19T15:00:41Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@restar1029",
+        "text": "원래 공지 안보고 하다가 손해보면 공지 읽고 지키고 하는거지.. 잘못된걸 공지해놓은것도 아니고 해야되는거 공지했는데 안봐놓고 누구탓하냐",
+        "like_count": 74,
+        "published_at": "2024-09-19T13:12:49Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@이현주-y1v",
+        "text": "이게 이용자 편의를 위한 시스템 개선이 필요한 사례라고요?????? 기자님. 와.....",
+        "like_count": 11,
+        "published_at": "2024-09-19T16:49:00Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@soulpaladin7866",
+        "text": "ㅋㅋㅋ 그래서 저렇게 차랑 사람이랑 다 다니는 좁은 길에다 처 세워두는게 억울하다는겨?\n저건 공지를 보고 안보고를 떠나서 두뇌가 있으면 해도 되나 안되나 생각 가능한건데?",
+        "like_count": 645,
+        "published_at": "2024-09-19T12:32:49Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@Odaki_yuna",
+        "text": "은근 도보 세워두면 길막해서 짜증난다  도보위에 가는방향 일자로아니고 가로로 세워놓는 ㅁㅊ 놈들 뭐냐 ㅋㅋ",
+        "like_count": 15,
+        "published_at": "2024-09-19T16:35:29Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@parkhs8666",
+        "text": "저걸 공지를 해야 아는거냐? 남에 가게 앞에 횡단보도 이런데는 반납완료여부를 떠나서 당연히 안대야 되는거 아니냐?",
+        "like_count": 165,
+        "published_at": "2024-09-19T13:11:49Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@미스터엘-L",
+        "text": "누가 봐도 주차하면 안되는 장소에 주차를 한다는게 문제지.\n횡단보도 한가운데 주차한 사람도 있더라.",
+        "like_count": 5,
+        "published_at": "2024-09-25T05:05:06Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@inuneko5312",
+        "text": "상식적으로 본인이 그곳에 주차하면 불편할거라고 생각을 못하나??",
+        "like_count": 383,
+        "published_at": "2024-09-19T12:54:01Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@아지인짜",
+        "text": "이번에 일본출장갔다가 너무더워서 공유자전거를 처음으로 탔는데 빌릴때 빌리는장소 반납장소를 지정하게 되어있고 반납할때도 앱에 반납이라고 누르면 그 반납장소 주차선안에 세우고 사진찍어서 송신해야 반납완료되더라.이런건 보행자 불편하지않게 잘되어있는거같더라.",
+        "like_count": 3,
+        "published_at": "2024-09-19T15:34:03Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@극복-q1x",
+        "text": "이용자의 편의 증진을 위한 법이 아니라 비 이용자에게 피해를 주지 않게 더 강력한 처벌을 해야한다 인도가 온통 주차장이다",
+        "like_count": 67,
+        "published_at": "2024-09-19T13:32:28Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@sinso6662",
+        "text": "제대로 가르쳐주지마라 계속 돈뽑아내자 지들이 안알아보는거자체가 잘못이지 아무대나 주차하는것부터가 잘못임",
+        "like_count": 5,
+        "published_at": "2024-09-19T14:23:23Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@kidfoxninetail1236",
+        "text": "아니 ㅋㅋㅋㅋㅋㅋ 막 타다가 걍 버려둘땐 지들이 맞고 불법 주차 됐다고 뭐라하면 몰랐어 억울해 하면 그만이야??? 물론 선의의 피해자도 있겠지. 1000명이면 1명? 킥보드 타는 애들 거진 개판으로 버려두고 다니드만. 정 필요한 어른들은 본인들이 사서 타고 다니고. 20대후반까지 대충 타다 버린거 본게 동네에서만 100%인데 지들이 잘못한걸 뭘탓해?",
+        "like_count": 116,
+        "published_at": "2024-09-19T13:49:03Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@승짜응-1113",
+        "text": "없애라 좀...",
+        "like_count": 25,
+        "published_at": "2024-09-19T14:01:04Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@뚜비-p2n",
+        "text": "그리고 마지막 기자 멘트 킹받는데? 이용자의 편의성을위해 뭐 어쩌고저째? 면허증없으면 사용못하게부터 바꿔야지 무슨 얼어죽을놈의 편의성증진이야",
+        "like_count": 57,
+        "published_at": "2024-09-19T13:09:32Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@빨간약-x8j",
+        "text": "아씨 저거 그냥 타지마라ㅋㅋ 금지시켜라 저거 진짜 위험하다",
+        "like_count": 3,
+        "published_at": "2024-09-19T16:10:11Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@SHJung-jw2oc",
+        "text": "법을 모르면 몰지 마라.",
+        "like_count": 32,
+        "published_at": "2024-09-19T13:20:31Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@가주아-e3c",
+        "text": "그냥 퇴출시켜...",
+        "like_count": 5,
+        "published_at": "2024-09-19T14:32:29Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@현이아빠-y9n",
+        "text": "불법인지 몰랐다고 불법이 아닌건 아니다 \n상식적으로 아무데나 세워놓고 가도 된다고 생각하는게 문제지\n차도 저렇게 세워놓으면 딱지 끊듯이",
+        "like_count": 107,
+        "published_at": "2024-09-19T13:47:13Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@empires7777",
+        "text": "공지사항이고 나발이고 ㅋㅋㅋㅋ 저렇게 견인료 냈다니 속이다 시원하다.",
+        "like_count": 2,
+        "published_at": "2024-09-20T03:32:27Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@류류천",
+        "text": "생각도 안하고 멍청하면 멍청비용 내야지 서울시 일잘한다 화이팅",
+        "like_count": 380,
+        "published_at": "2024-09-19T12:55:29Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@Reginald-n5r",
+        "text": "상식적으로 생각을해봐라 도로옆에 주차하고 가는게 말이되냐 ?",
+        "like_count": 4,
+        "published_at": "2024-09-19T15:09:05Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@geospring00",
+        "text": "공유퀵보드 다 없애라. 좁은 공공 보행로를 사기업이 왜 점유하나?",
+        "like_count": 480,
+        "published_at": "2024-09-19T12:45:58Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@박성식-y1c",
+        "text": "공지사항 올려놨으면 확인을 해야지 확인 안하고 과태료 맞으니깐 억울하다하고 있네",
+        "like_count": 2,
+        "published_at": "2024-09-19T14:59:43Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@마린바리스타-e3j",
+        "text": "이거  좋은 제도네....   신문고에 일단 다 찍어서 올려야겠군!   그래야 정신 차리지 ㅎㅎㅎ",
+        "like_count": 53,
+        "published_at": "2024-09-19T13:07:48Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@hyobin0911",
+        "text": "지들이 공지 재대로 확인 안하고 사람 다니는 길, 남의 주차장입구 등등 아무대나 버리듯 놓고 가면서 억울한척하기는.. 알지도 못하고 무조건 타면 끝이냐.. 제발 좀 없애라..",
+        "like_count": 1,
+        "published_at": "2024-09-19T15:34:58Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@-SYnth-",
+        "text": "고작 4만원이라니.. 너무 황당해.",
+        "like_count": 2,
+        "published_at": "2024-09-19T15:22:30Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@yordlesynergy",
+        "text": "주차 금지 장소인지 아닌지 알 수 없는게 문제가 아니라 애초에 해당 업체의 자전거 보관 장소가 정해져있는데 거기에 반납을 하지 않고 길거리에 또는 목적지 부근에 버려버리니까 모를 수 밖에 없는거임.",
+        "like_count": 16,
+        "published_at": "2024-09-19T13:31:11Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@iilliIlli-s1g",
+        "text": "ㅋㅋㅋㅋㅋㅋㅋ음주운전도 몰랐으면 벌금 안내냐?",
+        "like_count": 35,
+        "published_at": "2024-09-19T12:37:12Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@전전진우-w9g",
+        "text": "기본적으로 생각해서 보행이나 차량에 불편이 없나 한번만 생각해보면 될걸 지맘대로 세워두고 뭐가 억울하다는겨 그리고 약정은 안읽어본 본인 책임이지 법원가도 똑같다",
+        "like_count": 2,
+        "published_at": "2024-09-19T15:56:45Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@프리버드나무",
+        "text": "빌린녀석이 방치하면 x10배로 내야지\n4만원은 인건비도안나온다",
+        "like_count": 60,
+        "published_at": "2024-09-19T12:43:20Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@평택시사회인야구",
+        "text": "우리동내 단속좀 해주라",
+        "like_count": 4,
+        "published_at": "2024-09-19T13:57:59Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@bsbjsiygqhuau",
+        "text": "상식적으로 세우면 안되겠다는 생각이 안들어서 제보한거야?ㅋㅋ",
+        "like_count": 10,
+        "published_at": "2024-09-19T13:30:55Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@훈훈-d6h",
+        "text": "아 걍 없애라고",
+        "like_count": 3,
+        "published_at": "2024-09-19T13:49:06Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@고경재",
+        "text": "보행로 다니기가 불편합니다.\n킥보드,공유자전거 길막고 주차된것 너무많음.\n킥보드 주차 통행에 지장없게 잘 주차하세요.",
+        "like_count": 7,
+        "published_at": "2024-09-19T13:26:09Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@김준제-v9y",
+        "text": "공유킥보드를 아무곳에서 주차를 하라고 해서 진짜 아무곳에 주차하지마라. 예의에 어긋난다. 큰 도로 위주로 눈에 잘 띄고 통행에 방해가 되지 않는 곳에 주차하면 된다. 이면도로, 골목길로 왜 타고 오냐? 가까운 거리는 도보로 걸어라. 지자체에서 설치한 킥보드 주차장에 주차하고 반납하라.",
+        "like_count": 1,
+        "published_at": "2024-09-22T20:55:03Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@좀만더버티자",
+        "text": "길바닥 널부러져 있는 킥보드보면 공유킥보드 타는 사람들은 전부 밉상으로 보인다.\n공지가 있던없던 양심있으면 구석탱이 사람이나 차량에 걸리적 거리지 않는곳에 잘 쳐박아두고 마무리하자.",
+        "like_count": 123,
+        "published_at": "2024-09-19T12:38:59Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@지훈-p3c",
+        "text": "공지사항 뜻을 모르냐? 공지사항에 올려놓았는데 지들이 안보고 주차해놓고 누굴탓하는거임? 난또 공지도안한줄 알았네 저인간들이 딱 전자제품 설명서 제대로 안읽고 사용하지말라는거 막 사용하다가 부셔먹고 하자있는 제품이라니 하면서 환불해달라고 진상떨 인간들이지",
+        "like_count": 1,
+        "published_at": "2024-09-19T16:48:50Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@방랑자수리-t2q8f",
+        "text": "타지마 그냥 짜증나면 타지마세요 버스타세요",
+        "like_count": 12,
+        "published_at": "2024-09-19T13:04:17Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@moving_yun0718",
+        "text": "지들이 숙지못하고 주차한걸 뭐 처억울하다고 제보를하냐 ㅋㅋㅋ",
+        "like_count": 1,
+        "published_at": "2024-09-19T16:41:20Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@jayzSOl",
+        "text": "전동킥보드나 전기자전거 제대로 사람이 지나다닐 수 있게 주차된게 몇퍼센트나 되려나…",
+        "like_count": 4,
+        "published_at": "2024-09-19T13:47:05Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@방코빅",
+        "text": "거기 주차하고 가도된다는 니 의식 수준이 더 황당하다ㅋㅋㅋㅋ",
+        "like_count": 1,
+        "published_at": "2024-09-19T16:39:40Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@mapsings6344",
+        "text": "와... 서울특별시 진짜 일 잘하네",
+        "like_count": 63,
+        "published_at": "2024-09-19T12:39:12Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@까칠이현",
+        "text": "아오 40만원은 받아라    편하게 탔으면 뒷정리도 잘해야는데 10대중에 9대는 자기 마음대로 그냥 반납하고 가버린다. \n심지어 차량 통행 방해하는 장소에까지 주차하고 그냥 가버린다. 그럼 그거 누가 치우냐",
+        "like_count": 2,
+        "published_at": "2024-09-19T14:09:04Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@dklim3742",
+        "text": "어려우면 타지 마!",
+        "like_count": 17,
+        "published_at": "2024-09-19T12:33:52Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@YURORO90",
+        "text": "공지를 볼 생각도 안하고 안보는데 공지 통하지 않고 어떻게 알려주리..??? 니 귀에다가 속삭여주기라도 해야됨???",
+        "like_count": 1,
+        "published_at": "2024-09-19T14:04:22Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@wana71",
+        "text": "시스템 개선 안됩니다. GPS가 부정확해서 기술적으로 세밀하게 금지구역을 걸 수 없어요. 금지가 답입니다.",
+        "like_count": 78,
+        "published_at": "2024-09-19T12:37:28Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@롱다리롱롱",
+        "text": "헬멧도 안쓰고 타는 인간들에게 무슨 배려를 하냐 그냥 게속 4만원씩 내라",
+        "like_count": 2,
+        "published_at": "2024-09-24T04:33:38Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@onwave862",
+        "text": "없애라",
+        "like_count": 4,
+        "published_at": "2024-09-19T13:35:40Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@convex2000ful",
+        "text": "운전면허나 원동기 면허 있음 시험 출제도 한번씩 나오고 하던데... 그리고 오래전 부터 지하철 10미터 이내인가 단속하고 있었는데.. 몰랐던 것 처럼 제보를 했네 무슨 생각 인건지 모르겠네(검색만 해도 답 나오는걸 \"아 내가 잘못했구나 \" 하고 반성해야지 제보를 하냐). 골목길 사거리나 횡단보도 앞에 세워둔 인간들 보면 진짜 지들 편하자고 다른 사람은 신경 안쓰고 그냥 두고 가던데 진짜 저런건 범칙금 씨게 물려야 합니다.",
+        "like_count": 0,
+        "published_at": "2024-09-19T18:05:29Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@정민박-c2f",
+        "text": "저게 뭐가 억울하다는거지 이해가 가지 않습니다",
+        "like_count": 5,
+        "published_at": "2024-09-19T13:45:56Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@즈오이-x2r",
+        "text": "개사이다!!! 아니 얼마전에 어떤 아이가 킥보드 타고 오더니 자전거 도로 딱 한 가운데 그대로 놓고 아무렇지도 않게 걸어가는데 너무 꼴보기 싫었는데, 그런 사람들 싹 다 벌금 먹이면 좋겠다",
+        "like_count": 0,
+        "published_at": "2024-09-20T05:55:06Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@조경민-n2m",
+        "text": "공유퀵보드 다 없애세요.",
+        "like_count": 6,
+        "published_at": "2024-09-19T13:06:26Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@이한강-v5u",
+        "text": "사진찍기전에 내용다 나옵니다 확인하시면돼요",
+        "like_count": 5,
+        "published_at": "2024-09-19T13:24:11Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@정망울",
+        "text": "잘한다 이러면서 점점 없애는거야. 이게 제대로다",
+        "like_count": 1,
+        "published_at": "2024-09-19T14:28:09Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@떤더-p9q",
+        "text": "억울해 하지말고 타지마라",
+        "like_count": 5,
+        "published_at": "2024-09-19T13:33:06Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@whisolee",
+        "text": "뭐가 황당하고 억울할까?\n니가 멍청한거다.,.본인이 멍청하다고 제보하고 인터뷰도 했네..",
+        "like_count": 2,
+        "published_at": "2024-09-19T14:18:27Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@조흔데이-l4h",
+        "text": "꼬시다\n쓰고 똑바로 대놔라",
+        "like_count": 6,
+        "published_at": "2024-09-19T13:07:25Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@wangsan19",
+        "text": "사용자들 헛소리말고 당연히 견인료 내라!",
+        "like_count": 14,
+        "published_at": "2024-09-19T12:50:41Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@누구겡-s9n",
+        "text": "킥보드 타는 인간들  보면  왜 화가 치밀까??",
+        "like_count": 2,
+        "published_at": "2024-09-19T14:59:51Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@gitaekpark",
+        "text": "참내 사용자가 문제 아닌가?",
+        "like_count": 3,
+        "published_at": "2024-09-19T13:56:15Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@swing4620",
+        "text": "각종 위반은 다하면서 벌금내는건 아깝지.",
+        "like_count": 2,
+        "published_at": "2024-09-19T14:00:37Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@L_D_ROK-YoonAgain",
+        "text": "그냥 안타면 됨.",
+        "like_count": 5,
+        "published_at": "2024-09-19T12:52:26Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@Ladaengi",
+        "text": "이참에 전면금지 시켜라",
+        "like_count": 1,
+        "published_at": "2024-09-19T15:18:58Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@채세원-u5z",
+        "text": "거기다 데는 니가 황당하다\n대만처럼 태형이 필요하다",
+        "like_count": 92,
+        "published_at": "2024-09-19T12:34:41Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@앜9928",
+        "text": "킥보드전담 경찰인력투입해야된다  \n음주에무면허 2인탑승 진짜 판을 치고다님",
+        "like_count": 1,
+        "published_at": "2024-09-23T09:54:22Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@dbrudtjs2",
+        "text": "견인비 더올려라 4만원이 뭐냐 400만원으로올려",
+        "like_count": 17,
+        "published_at": "2024-09-19T23:49:56Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@shinvov1",
+        "text": "면허 있어야 한다며 .  생각을 좀하고 반납하고 .. 좀 없애자 .",
+        "like_count": 1,
+        "published_at": "2024-09-19T13:50:03Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@코리아이리시",
+        "text": "면허증 없이 타게 해줬으면 니들이 도로교통법 공부해서 체크해야지.\n그럼 하나하나 다 해줘야 하니?\n니들 목숨 걸었으면 그정도 지식은 알고 타야지? 안그래?\n저건 당연히 기본 상식 아니냐?ㅋㅋㅋㅋ\n니들이 타고 빌리고 주차 아무렇게나 하는건 괜찮고?\n너희들이 평상시처럼 걸어다닐때 아무렇게나 주차 되어있는 킥보드 피하면서 걸으면 어떤 기분이들까?\n불편하고 짜증나지? 상대방도 똑같다.\n타는건 뭐라 안하는데 최소한 사람들에게 피해주지말고 갈꺼면 혼자 가라. 부탁한다.",
+        "like_count": 13,
+        "published_at": "2024-09-19T13:29:31Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@SleepingSounds-vs4bx",
+        "text": "저거 걸려서 넘어져서 구청에 애기하고 병원비첨부해서 다 받았음 \n야간이라 보이지 않아서 넘어졌음 \n반듯히 청구해서 보상받으세요",
+        "like_count": 1,
+        "published_at": "2024-09-21T00:15:43Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@map2t619",
+        "text": "안타면됨",
+        "like_count": 4,
+        "published_at": "2024-09-19T12:44:09Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@hoop_j289sa",
+        "text": "상식선에서 생각해봐라, 저렇게 대놓고 뭐가 억울한데?",
+        "like_count": 2,
+        "published_at": "2024-09-19T13:59:58Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@임스정제",
+        "text": "좀 없애라 실패작 사고도 많고 거리에 불편 언제까지 운영할려나",
+        "like_count": 2,
+        "published_at": "2024-09-19T15:42:50Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@guantanamera59",
+        "text": "퀵보드 타는 인간들은 교통사고 나서 죽어도 불쌍하지도 않음.\n범칙금 40만 원으로 올려라.",
+        "like_count": 4,
+        "published_at": "2024-09-19T13:08:41Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@이지원-w8u4o",
+        "text": "주차금지지역을 많이 만들것이 아니라 주차가 가능한 장소를 최대한 많이 만드는게 모두에게 편할듯",
+        "like_count": 0,
+        "published_at": "2024-09-19T14:31:24Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@llIllIllllIll-k8r",
+        "text": "그래서 기사 의도가 뭐임?\n공지를 해놨는데 못봤으면 사용자 책임이지. 내가 음주운전이 법으로 안되는 걸 몰랐다면 음주운전 해도 된다는 얘기?\n따릉이는 당연히 공공자전거니까 구청에서 앱관리를 잘하지만 사기업은 앱관리를 잘하겠음?\n그거 앱관리 잘할 정도였으면 인도에 무분별하게 전동퀵보드를 반납할 수 있게 했겠냐? 4만원 내기 아까우면 제대로 법을 알고 타던가 해라. 인도에 무분별하게 반납하지 말고",
+        "like_count": 11,
+        "published_at": "2024-09-19T13:40:48Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@그놈-s6k",
+        "text": "나이스!\n서울만 말고 전지역확대 부탁드립니다.",
+        "like_count": 1,
+        "published_at": "2024-09-19T14:29:58Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@내이름-k8y",
+        "text": "본방 뉴스로 봤다. 인터뷰 ㅈㄴ 어이없더라...ㅋㅋㅋㅋㅋ 빌린사람이 이용수칙 확인해야지 누굴탓하냐...과태로 400만원 때려라..!!",
+        "like_count": 7,
+        "published_at": "2024-09-19T14:10:11Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@까따조",
+        "text": "지가 뭘 잘못했는지도 모르니까 더 문제지",
+        "like_count": 1,
+        "published_at": "2024-09-19T23:21:43Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@tenbird18",
+        "text": "주차가 문제가 아니고 헬멧이나 제대로 쓰게해라..\n킥보드는 없애는게 답이다.\n아니면 정확한 사용이 이뤄지지 않으면 자동으로 벌금내게 하던지...\n2인사용,헬멧미작용,불법주차,신호위반,면혀증 미소지..등등.....\n이게 해결안돼면 없애는게 맞다.",
+        "like_count": 8,
+        "published_at": "2024-09-19T15:57:30Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@끄죠",
+        "text": "남의집 주차장에  넣고 쳐가는 놈도 있다.",
+        "like_count": 1,
+        "published_at": "2024-09-19T14:07:46Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@금처리",
+        "text": "쌤통이다 😂 아무데나 주차해놓고 머가억울한건지",
+        "like_count": 3,
+        "published_at": "2024-09-19T14:23:52Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@Zzzzzzong",
+        "text": "주차 금지구역도 쳐모르면 타지를 말던지 \n주차를 개떡같이 했으면 과태료를 쳐내던지",
+        "like_count": 1,
+        "published_at": "2024-09-19T14:14:23Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@gt1814",
+        "text": "킥보드 없애라고 ~~!",
+        "like_count": 5,
+        "published_at": "2024-09-19T13:26:02Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@S0쏜",
+        "text": "저건 4만언밖에 안대냐 폐지가 안돼면 10 만언으로 올려라",
+        "like_count": 2,
+        "published_at": "2024-09-23T16:32:52Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@스터너-j7c",
+        "text": "앱 운영하는놈들보고 책임지라고 해.",
+        "like_count": 2,
+        "published_at": "2024-09-19T19:30:32Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@remember20717",
+        "text": "저것도 공익 신고해서 마지막에 타고 내다버린 놈들이 벌금 때려박게 해야 한다. 골목길에 차가 지나갈 수 없게 세워두고, 차도에 세워두고 아주 가관이다.",
+        "like_count": 0,
+        "published_at": "2024-09-19T17:47:32Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@자유로운영혼-k5b",
+        "text": "솔직히 킥보드 업체에서 나몰라라하는것도 열받지만 자기물건 아니라고 아무대나 세워두는 그런사람이 더열받는다.. 킥라니도 문제고 여태 킥라니때문에 사고날뻔한적이 한두번이 아니다.",
+        "like_count": 1,
+        "published_at": "2024-09-19T15:14:42Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@1789새로운시대의시작",
+        "text": "과태로 부과하는 지자체를 탓할 게 아니라\n이용자들이  어디에 주차하면 안되는지 제대로 알려주지 않는 회사를 탓하고  그런 회사를 이용하지 마라\n 회사 대신 엉뚱하게 과태료 부과하는 지차체에 화풀이 하는 건 뻘짓이다",
+        "like_count": 0,
+        "published_at": "2024-09-20T09:03:16Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@제말이맞고님말은틀렸",
+        "text": "잘됐구만. 길목에다 세워두고 남에게 피해가 안간다고 생각했냐? 4만원도 적다. 40만원은 물려야지 정신차리지.",
+        "like_count": 1,
+        "published_at": "2024-09-19T15:06:46Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@enthusiaser",
+        "text": "공지는 못본게 아니라 안본거지. 일반시민 편의를 위해 없애야지. 기자가 사고유발러네.",
+        "like_count": 1,
+        "published_at": "2024-09-19T15:01:47Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@zaku-machine",
+        "text": "지 편함대로 타다가 아무데나 세운거겠지 돈나가니까 눈뒤집히나? 이용할거면 꼼꼼히 따져봐야지 역시 금융치료가 답이다",
+        "like_count": 1,
+        "published_at": "2024-09-19T13:52:51Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@슈티르-p5y",
+        "text": "전면 금지가 답이다. 견인비 청구 하면 관리 부주의인한 사고는 업체어서 진행하나",
+        "like_count": 0,
+        "published_at": "2024-09-20T03:45:02Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@junj9843",
+        "text": "폐지시켜라 어떤 인간이 저런 사업 시작햇냐 ㅡㅡ 폐지시켜라",
+        "like_count": 0,
+        "published_at": "2025-04-23T00:46:49Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@마하트마간디-b1y",
+        "text": "운행할 수 있는 모든 이동수단은 그것을 운행가능하다는 면허를 취득하게 해야된다. 그들도 교통법 정도는 알아야지\n그래야 미약하나마 인식이 개선되지",
+        "like_count": 0,
+        "published_at": "2024-09-24T01:50:06Z"
+      },
+      {
+        "video_id": "aI0awk0NBfc",
+        "author": "@naneunna-u7y",
+        "text": "장애인 구역에도 킥보드 내팽개친 놈들을 무수히 보았는데, 아무렇게나 반납해서 과태료 부과받은 놈들 쌤통이다.\n뉴스 주내용이 이용자 입장만 대변하는 것은 ㅈㄴ 마음에 안드네.",
+        "like_count": 1,
+        "published_at": "2024-09-19T14:07:53Z"
+      }
+    ]
+  },
+  "preset_3": {
+    "preset_id": "preset_3",
+    "query": "고령 운전자 면허 반납 조건부 면허 뉴스",
+    "issue_title": "고령 운전자 조건부 면허제 도입 및 면허 반납 의무화 논란",
+    "videos": [
+      {
+        "video_id": "yfAshZpECCo",
+        "title": "고령운전 사고 44% 늘었는데 면허 반납 2%...\"조건부 면허 필요\" / YTN",
+        "channel": " YTN",
+        "url": "https://www.youtube.com/watch?v=yfAshZpECCo",
+        "fetched_count": 15
+      },
+      {
+        "video_id": "BNG7q3aDOqU",
+        "title": "[자막뉴스] 고령 운전 위험? \"저도 다 압니다\"…욕먹어도 면허 반납 못 하는 이유 / KBS 2025.12.09.",
+        "channel": "KBS News",
+        "url": "https://www.youtube.com/watch?v=BNG7q3aDOqU",
+        "fetched_count": 7
+      },
+      {
+        "video_id": "Wv5awGH1-EM",
+        "title": "고령운전자 면허반납, 농촌은 남말",
+        "channel": "KNN NEWS",
+        "url": "https://www.youtube.com/watch?v=Wv5awGH1-EM",
+        "fetched_count": 1
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "title": "고령자 교통비 지원…면허 반납 효과 낼까? / KBS  2025.10.06.",
+        "channel": "KBS News",
+        "url": "https://www.youtube.com/watch?v=x3J5hpBci98",
+        "fetched_count": 19
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "title": "\"면허 반납하면 10만원 카드 드려요\" 고령운전자 반납하나 봤더니.. [뉴스.zip/MBC뉴스]",
+        "channel": "MBCNEWS",
+        "url": "https://www.youtube.com/watch?v=NKIvNrtdiGA",
+        "fetched_count": 100
+      },
+      {
+        "video_id": "YnBKCrgDvWs",
+        "title": "[집중인터뷰] 고령 운전자 면허 반납, 이동권 보장과 안전 대책은? / KBS  2025.09.05.",
+        "channel": "KBS News",
+        "url": "https://www.youtube.com/watch?v=YnBKCrgDvWs",
+        "fetched_count": 5
+      }
+    ],
+    "total_fetched": 147,
+    "comments": [
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@마크-s8t",
+        "text": "지방은 시내나가려면 운전해야하니 어쩔수없긴한데  몬가 정책적으로 정부에서 방법을 내야할듯",
+        "like_count": 1,
+        "published_at": "2026-10-05T00:23:31Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@moonhunt87",
+        "text": "고령자 되어도 일을 계속 해야 하는 현실에…",
+        "like_count": 1,
+        "published_at": "2026-10-04T22:53:37Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@아오진짜-v3l3i",
+        "text": "0:23 암만\n그래봤자\n차는\n뭐니\n뭐니\n해도\n안전이 제일입니다\n\n저ㅡ차는 \n브레이크를 가볍게 밟거나 밟은 발바닥이 딴 데 신경을 쓰느라 미끄러지거나 밀리면서 흘러내려 액셀페달이 같이 밟아지게 되거나 발목이 자연스럽게 까부라지면 페달들 사이에 신발바닥이 흰 탄력으로 끼이는 구조와 원리의 효과로서 저런 (급발진) 현상이 나타 나드라고요\n\n그러니까\n원인을 올바르게 알려 주던가!!\n담은\n고속도로 전광판에 브레이크를 밟을 때 액셀페달이 같이 밟히고 있지는 않는지를 살펴보시기 바랍니다 올리면 저런 일이 (급발진은) 그냥 사라집니다\n\n세계적으로 생명을 얼마나 살릴 텐데 이게 안되나!\n갑 갑~~ 허요!!\n\n페달간격이 좁으니까 헷갈리지 좀 더 떨어뜨려 놔라. 헷갈리지 않게. 한 발에 2개가 같이 밟히니 헷갈리지\n\n게다가 큰 신발이나 장화를 신어면 더 헷갈리지",
+        "like_count": 1,
+        "published_at": "2026-10-04T21:46:01Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@쿨파스tv-g4i",
+        "text": "의성군청에 반납한지 4개월이 넘었는데\n지원비는 안주고 있어요",
+        "like_count": 0,
+        "published_at": "2026-10-05T01:02:33Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@파인컷-n2b",
+        "text": "정기적으로 시험을 보게하는게 좋을듯??\n솔찍히 도로에 나가보면 말도안되게 운전하는 사람들 나이 많으신분들이 대다수\n생계형들 인정!! 그런데 본인 먹고 살겠다고 다른 사람들한테 피해주면 안되지\n시험보게하고 차에 고령운전자임을 주변에 알리게 하는표시도 있었음 좋겠음\n그래야 주변차량들도 조심하지 초보운전자 조심하는것처럼",
+        "like_count": 0,
+        "published_at": "2026-10-04T23:10:18Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@규한-l4t",
+        "text": "오늘 운전하다가 미친각으로 끼어드는 차 있어서 혼자 욕하고 넘어갔는데\n창문으로 보니까 70대 중반 할머니더라\n하..\n고령화가 진행 되는 만큼 나이 드시고 운전하는거 좋은데 본인이 민폐라 생각하면 면허 반납 하면 좋겠음",
+        "like_count": 0,
+        "published_at": "2026-10-05T04:42:50Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@마라도-h6i",
+        "text": "면허에 정년도입이 시급하다",
+        "like_count": 0,
+        "published_at": "2026-10-05T02:06:43Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@썹이-p4i",
+        "text": "고령이 될수록 보험 세금을 확 올리고 대중교통은 싸게 하면 되요",
+        "like_count": 0,
+        "published_at": "2026-10-05T01:15:39Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@youngmuncho4980",
+        "text": "미국은 필기시험 새로본다.",
+        "like_count": 0,
+        "published_at": "2026-10-04T22:07:48Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@jhlee9173",
+        "text": "면허 자진 반납하면 뭐하노?... 면허반납하고 지원 혜택 받고 무면허 운전하는데.. 무면허니까 당연히 무보험일테고.. 사고나면 피해자는 보상도 못받는다..\n눈가리고 아웅하는 형식적인 제도 말고, 실질적인 제도를 만들고 집행해라.. 하다못해 요즘 교통경찰 면허증 소지 검사 안하제?.. \n그러니까 무면허 미등록 대포차가 발길에 채일 정도다.. 내국인도 이런데 외국인은 오죽하겠나?\n길거리에서 음주운전 단속하듯이 랜덤으로 무면허운전, 미등록 대포차 단속해바라.. 많이 잡힐꺼다.. 법 집행자가 게을러서 집행안하면 법규정은 사문화되는거다..",
+        "like_count": 0,
+        "published_at": "2026-10-04T22:05:57Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@ariangerma",
+        "text": "자율주행차가 필요할듯",
+        "like_count": 0,
+        "published_at": "2026-10-05T08:34:25Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@door2forest0227",
+        "text": "사이버캡이 정답이다. 얼렁 도입되도록 머스크 꼬시자",
+        "like_count": 0,
+        "published_at": "2026-10-04T21:58:10Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@udod342",
+        "text": "반납하면 택시 탈수있는 교통카드 100만원짜리 줘라",
+        "like_count": 0,
+        "published_at": "2026-10-06T14:35:48Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@HML-x5m",
+        "text": "돈주기는 뭘줘 ?",
+        "like_count": 0,
+        "published_at": "2026-10-05T02:14:02Z"
+      },
+      {
+        "video_id": "yfAshZpECCo",
+        "author": "@sorinam2328",
+        "text": "고령자 인권침해방송 중단하라 ㅡ 생계를 위하여 운전을 하는 70세 국민입니다 가까운 일본은 고령자 사회가 정착된지 오래 그들은 고령자로 부르지 않고 노련한 숙련자라고 칭하며 기업제조업 고령자들에게는 숙련공이라 부른다 고령자를 대우하는 정부의 정책 사회적분위기또한 예의를 넘어 존중하는 모습이다 우리나라 도시도로사정은 시속50km가 전부다 이정도 속도이면 나이든 운전자에게 적합한 속도이며 최적의 조건이다  이따금 택시를 운전하는  나이가든 운전자를 만났지만 정말이지 감탄할정도로 목적지까지 안전하게 갔다 오히려 젊은층들이 전체사고발생률이 늘 높다 년간 사고발생률에 고령자는 가믐에 콩나듯한다 YTN은 즉각 국민들에게 사과방송하라",
+        "like_count": 0,
+        "published_at": "2026-10-04T22:25:18Z"
+      },
+      {
+        "video_id": "BNG7q3aDOqU",
+        "author": "@under_cover_90",
+        "text": "시골 이런데는 고령자분들 대부분인데... 운전이 필수긴 하잖아요 장도 보러 못 갈 텐뎅",
+        "like_count": 3,
+        "published_at": "2026-07-18T16:31:31Z"
+      },
+      {
+        "video_id": "BNG7q3aDOqU",
+        "author": "@newtw1977",
+        "text": "면허반납시켜야지",
+        "like_count": 0,
+        "published_at": "2026-10-17T02:35:13Z"
+      },
+      {
+        "video_id": "BNG7q3aDOqU",
+        "author": "@김태정-i4w",
+        "text": "고령운전자한테 뭐라할꺼없다 저런건 시스템탓을 해야지\n다들 늙는다; 늙어도 운전하는 상황자체를 안만들게끔 해줘야지",
+        "like_count": 0,
+        "published_at": "2026-10-13T05:16:37Z"
+      },
+      {
+        "video_id": "BNG7q3aDOqU",
+        "author": "@까마록",
+        "text": "골목길 없이는 차는 버릴 수 없다.",
+        "like_count": 1,
+        "published_at": "2025-12-09T07:55:32Z"
+      },
+      {
+        "video_id": "BNG7q3aDOqU",
+        "author": "@똓흓릆틏",
+        "text": "일본처럼 아에 강제로 노인들 부락을조성하고 대중교통수단을 제공해준다.\n만약 부락으로 안가겠다고하면 대중교통 및관련 서비스 안받겟다는 동의로 간주한다",
+        "like_count": 2,
+        "published_at": "2025-12-09T07:53:09Z"
+      },
+      {
+        "video_id": "BNG7q3aDOqU",
+        "author": "@밍밍밍밍-p4t",
+        "text": "운전할수밖에 없는 상황이 이해가 된다 이분들한테 뭐라 할것 없다\n아픈데 병원가는게 이렇게 힘들일이라면 일정한 나이가 되면 인간 존엄성을 유지하면서 죽을 수 있는 안락사를 허용하자",
+        "like_count": 1,
+        "published_at": "2025-12-10T02:49:38Z"
+      },
+      {
+        "video_id": "BNG7q3aDOqU",
+        "author": "@뾂쀎뾅쀑뾇쀓",
+        "text": "살만큼 살았음 좀 가라",
+        "like_count": 3,
+        "published_at": "2025-12-09T07:42:49Z"
+      },
+      {
+        "video_id": "Wv5awGH1-EM",
+        "author": "@김용진-z3n6s",
+        "text": "농사가 문제야 나이먹었으면 운전그만둬야지",
+        "like_count": 0,
+        "published_at": "2022-06-07T16:23:02Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@봄하늘-n9n",
+        "text": "혜택이 너무 적은데 내가 고령이라도 반납 안 함",
+        "like_count": 4,
+        "published_at": "2025-10-07T12:14:52Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@user-xb7mt6pl2i",
+        "text": "복지가 개판이니까 이런일이 일어나지 국민세금 어디다 쓰고있는지 어휴",
+        "like_count": 2,
+        "published_at": "2025-10-08T07:53:25Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@mutcxfui7gv",
+        "text": "군 면단위는 정말 차가 필요하니",
+        "like_count": 2,
+        "published_at": "2025-10-07T06:55:58Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@곤-u9t",
+        "text": "외진곳 사는거 아닌이상  반납이 맞다..",
+        "like_count": 1,
+        "published_at": "2025-10-06T02:00:28Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@박광위-c4w",
+        "text": "실용적이 없서 와 정권교재 할대마다 다른 말 해 난 반대",
+        "like_count": 1,
+        "published_at": "2025-10-08T13:22:40Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@나는고양이다-l4g",
+        "text": "이동권 보장? 그거 보장하자고 또 누굴 죽일려고\n남의집 담벼락으로 돌진해서 열몇살 딸내미 죽이고\n버스정류장으로 돌진해서 학생들 죽이고\n약국으로 돌진해서 약사 사망하고\n고령자들 1년마다 면허 재시험 치르게 해서 운전하면 안될 사람 걸러내야 억울하게 죽는일 감소한다",
+        "like_count": 5,
+        "published_at": "2025-10-07T16:33:46Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@이름업음-b1s",
+        "text": "현실적 어려움이 있든 말든 기본적인 능력도 안되면 당연히 박탈해야지 의사가 사망률 100%여도 의사 면허 냅둘거임?",
+        "like_count": 0,
+        "published_at": "2025-10-06T09:21:10Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@워킹대두-n8e",
+        "text": "저게 자율화가 아닌 강제화가 되야한다.만70넘으면 자동적으로 면허를 없애라.",
+        "like_count": 1,
+        "published_at": "2025-10-06T06:37:25Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@임태순-p8p",
+        "text": "로보택시나오면 차도 못탈수있으니 갖고있어야한다",
+        "like_count": 0,
+        "published_at": "2025-10-06T02:41:46Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@똥냄새향수",
+        "text": "탹시가 고령 사고를 냈으면 면허 취소도 하고 영업 번호도 취소 해버려 다른 사람들 얼마나 다치게 죽게 만들거냐",
+        "like_count": 0,
+        "published_at": "2025-10-08T17:11:30Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@불무리쿤",
+        "text": "장례식장과 자동차업체와 병원에서 좋은거임 싫은건 보험사 그리고 일반대중",
+        "like_count": 0,
+        "published_at": "2025-10-07T00:10:25Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@KN-6b",
+        "text": "대중교통? 웃기고있네 버스도 65세이상 기사 넘쳐나는구먼",
+        "like_count": 0,
+        "published_at": "2025-10-09T21:37:44Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@tmfrmatmfrma",
+        "text": "좋아",
+        "like_count": 0,
+        "published_at": "2025-10-06T15:11:43Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@고로짱-x3h",
+        "text": "반납했는  70대인데  다시2종면허 따려 합니다",
+        "like_count": 0,
+        "published_at": "2026-05-02T06:38:48Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@seongmin663",
+        "text": "강제로 뺏어야지 뭘 반납하게하냐 그냥 뺏어라",
+        "like_count": 0,
+        "published_at": "2026-01-26T22:21:10Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@김진남-o1c",
+        "text": "ㅎㅎㅎㅎ80넘은 어르슨도 차끌고 다니던데.그리고 정면 주행시 상향등에 난리가 장난 아닌데....그리고 현실적으로 돈있는 영감과할매가 면허반납할까?  ㅎㅎㅎㅎㅎ",
+        "like_count": 0,
+        "published_at": "2025-10-08T09:20:45Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@김회석-i4n",
+        "text": "무조건 고령예기 하지말고 적성검사에서 정확한검사후 예기해야지 무조건 고령고령 하지마세요 기분 나빠요",
+        "like_count": 0,
+        "published_at": "2026-04-19T11:33:15Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@qaws3",
+        "text": "이순걸군수님, 내년에 반납대상인데 반납하실건가요?\n나는 사고안나 괜찮아 그러시는거아니죠?",
+        "like_count": 0,
+        "published_at": "2026-02-10T06:55:39Z"
+      },
+      {
+        "video_id": "x3J5hpBci98",
+        "author": "@정순덕-w2b",
+        "text": "노인네들 면허 가능한지 인지능력 3개월마다 검사해야됨",
+        "like_count": 0,
+        "published_at": "2025-10-08T06:19:48Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@hrblifef1q",
+        "text": "매달 10만원씩 주면 모를까 누가 딱 10만원으로 반납함?",
+        "like_count": 16,
+        "published_at": "2023-10-07T06:49:34Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@그레이스-m5h",
+        "text": "나같으면 100만원 줘도 반납 안하겠다",
+        "like_count": 6,
+        "published_at": "2023-10-07T10:07:29Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@황대길-b7z",
+        "text": "멍멍이소리 그만하구 음주운전자들 면허증이나 영구 회수해라,",
+        "like_count": 5,
+        "published_at": "2023-10-07T08:29:23Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@밤꽃중달",
+        "text": "참내 10만원 받고 면허를 반납한다고  장난하나",
+        "like_count": 3,
+        "published_at": "2023-10-07T12:27:56Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@내산내밥",
+        "text": "저 법 만든색히는 10만원이랑 운전면허랑 가치가 같은지 생각좀 해봐라",
+        "like_count": 3,
+        "published_at": "2023-10-08T01:07:33Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@HHahaj-h3p",
+        "text": "나같아도 10만원 받느니 반납 안하겠다",
+        "like_count": 4,
+        "published_at": "2023-10-07T10:36:45Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@난이되어",
+        "text": "실제 운전자를 구분해서(자동차 보험 10년이상등), 1달에 10만원 지급한다해도 할까말까인데,\n1회성이면 절대 안하죠.",
+        "like_count": 4,
+        "published_at": "2023-10-07T12:32:40Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@정우영-기타",
+        "text": "왜 노인 운전사고 만 강조 하나요???젊은 사람들의 사고율 이 더 많치않나요?",
+        "like_count": 3,
+        "published_at": "2023-10-07T10:28:10Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@MBF-02VV",
+        "text": "매월 10만원임?\n꼴랑 10만원 받자고 운전면허 반납한다고? ㅋㅋㅋㅋ 장난치나;;",
+        "like_count": 2,
+        "published_at": "2023-10-07T08:54:08Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@양기만-s8o",
+        "text": "별  쓰잘떼기 없는 짖거리들만 하고있네  젋은 사람은  사고 없니? 나이를 떠나 자기 능력차가  있는법   면허 있으면  지맘대로 하라고 놔두세요  운전 못하겠으면 자기가 알아서  관두겠지,,  난 약고령 운전자에 속하지만  1차선병 걸린 운전자들 보면 한심 합디다 !\n차선 양보 개념도없는 1차선병 운전자들 이런 분들 때문에 보복 운전이란  용어가  탄생 했읍니다 40년 전엔 도로도 좁았지만 바쁜차가 있으면 앞차가 뒤차에게 앞서 가라고 양보가 미덕인 때가 있었지요  1차선은  천당 가는 지름길이라 생각 하시고  그분들을 위해  양보에  미덕을 보여  주시길,,,,,",
+        "like_count": 4,
+        "published_at": "2023-10-07T07:36:47Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@grthjjg",
+        "text": "장난치나?\n요즘 10만원이 개껌값이네!!!! ~~~현금  천만원주도 반납안한다~~~~~!",
+        "like_count": 2,
+        "published_at": "2023-10-07T07:10:49Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@sonyounggi",
+        "text": "10만원받고 누가 반납을 하나요. 반납을 했을 때 택시비 지원이라던지. 대중교통 무제한 무료등등 반납을 했을 때 이동수단에 대한 대책은 해결해주고 반납하고 해야지요.",
+        "like_count": 1,
+        "published_at": "2023-10-07T07:25:26Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@할수밖에없겠네요",
+        "text": "매달 10만원도 아니고 1회성 10만원이면 누가 반납함 씹 ㅋㅋㅋㅋ",
+        "like_count": 1,
+        "published_at": "2023-10-07T16:58:50Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@BlueSky-dv1mb",
+        "text": "너나 가져라! 10만원...\n면허 취득할때  10만원보다 더 들었던거 같은데...\n그냥 장농에 모셔둘게...",
+        "like_count": 2,
+        "published_at": "2023-10-07T15:10:16Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@서울대돌격고r",
+        "text": "100만원도아니고 10만원?\n퍽이나 하겠다",
+        "like_count": 2,
+        "published_at": "2023-10-07T15:25:01Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@m.revolution",
+        "text": "10만원? ㅋㅋ\n지금이 1970년이냐?",
+        "like_count": 2,
+        "published_at": "2023-10-07T07:11:04Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@우와닷",
+        "text": "일본 처럼 고령운잔자 스티커 발급해주고 스티커 의무 부착 해야 합니다 운전하다 보면 저속운전등 보면 대부분 고령운전자 목격 자주 합니다.",
+        "like_count": 19,
+        "published_at": "2023-10-07T06:46:56Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@신의-n8f",
+        "text": "10만원이 돈이냐? 그돈에 면허 반납하긋냥? ㅋㅋㅋ 돈아까운사람은 차 안탄다 기름값 보험료 수리비 등등 ㅋㅋ 고령자는 그냥 보험료 2배 받아랴 ㅋㅋㅋ",
+        "like_count": 2,
+        "published_at": "2023-10-11T05:03:37Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@입생노랑내",
+        "text": "현실적으로 힘들긴 하지.. 70~80대 노인이 숨만 쉬는 산송장도 아니고,  수십년을 운전하다가 한순간에 손 놓는 노인들이 얼마나 되겠나.. 특히나 농어촌에서 트럭 또는 자가 자동차가 필수 인데..  안정적인 자율주행 시스템이 개발되어 대중화 되는 방법 밖에 없을 듯.",
+        "like_count": 6,
+        "published_at": "2023-10-07T06:56:40Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@금쪽이-h9s",
+        "text": "아니 10만원카드주고 면허증 반납하는 사람있겠냐? 진짜 뇌가 동물만도 못하는 인간들이네;;; 교통비 인상하는데 10만카드받고 잘도 반납하겠다. 그냥 유도하지말고 필수로 해라... 그게 더 낫다",
+        "like_count": 21,
+        "published_at": "2023-10-07T06:47:14Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@mctheko",
+        "text": "10만원에 하겠냐?",
+        "like_count": 2,
+        "published_at": "2023-10-07T12:50:35Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@샤르망-l6p",
+        "text": "65세때 반납은 조금심하지 않아?,,,\n개인택시80세이상을 반납받아야지,,,,보기에도 위험한것같아,,,\n지금의65세면 운전쪽에는 아직멀었어요,,\n1차적으로80세 이상으로 합시다,,,",
+        "like_count": 3,
+        "published_at": "2023-10-07T08:08:57Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@TV-kp5ns",
+        "text": "바보냐?  면허  취득할때  학원비만  얼마인디  누나  10만원  받자고  반납하겠어  에효",
+        "like_count": 1,
+        "published_at": "2023-10-07T15:23:23Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@oong.e",
+        "text": "10만원 주는거 누구 머리에서 나온거냐 ㅋㅋㅋ 답답하다 답답해\n담당자 징계 해야 하는거 야닌가;;;",
+        "like_count": 8,
+        "published_at": "2023-10-07T08:23:57Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@4사우스포4",
+        "text": "꼴랑 십만원 에라이 퉤",
+        "like_count": 2,
+        "published_at": "2023-10-07T12:44:09Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@구구구구그기-q5y",
+        "text": "10만원 카드 발상한사람 대체 저런논리면 어쨰 국민들 위해서 일할수잇긴함? \n구조가 시골은 대중교통 안되서 힘들어서 차끌어야되는게 당연한거고 \n검사를 기준을 잘잡아서 예방을 해야지 손놓으면 억울하게 죽는사람 생긴다",
+        "like_count": 2,
+        "published_at": "2023-10-07T14:52:58Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@코인-h1t",
+        "text": "이게 근데 현실과는 괴리가좀 있다 우리 아부지도 곧 시골내려가서 사실건데 시골은 자가용 없으면 사실상 이동이 불가능하다 .... 버스가 많이 다니는거도 아니고 기차도 없고 깡촌이라 ;;;",
+        "like_count": 7,
+        "published_at": "2023-10-07T06:49:25Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@요요구르트-t8s",
+        "text": "ㅋㅋ 10만원 면허따는데 들어가는돈도 시간도 고작 10만원보상이라니...  에휴...  반납하겠나? 안하지.....",
+        "like_count": 1,
+        "published_at": "2023-10-14T08:18:49Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@911kook5",
+        "text": "면허 딸때 지출비용이 있는데 10만원주고  반납하라고 하니 어이가 없지",
+        "like_count": 10,
+        "published_at": "2023-10-07T06:53:30Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@soso-s6b",
+        "text": "당신같으면 10만원 주면 반납하시겠습니까?\n현실성 있는 방안을 해야 반납하겠지요",
+        "like_count": 1,
+        "published_at": "2023-10-07T14:33:32Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@조인성-p8g",
+        "text": "분기별로 10만원씩 줘라 .",
+        "like_count": 1,
+        "published_at": "2023-10-07T14:18:05Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@PB테슬라코리아",
+        "text": "100만원도 아니고 10만원 ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ ㅋㅋㅋ ㅋㅋ",
+        "like_count": 2,
+        "published_at": "2023-10-07T07:20:58Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@on.365",
+        "text": "도시는 교통이 잘되어있어  괜찮지만 시골은 차없으면 움직이기 힘들어서  괴리감이 느끼네요",
+        "like_count": 4,
+        "published_at": "2023-10-07T07:42:53Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@deepsound871",
+        "text": "10만원 1번주는거면 당연 반납하겠나요? 한번에 합격한 사람도있고 수십번을 보고 취득한 사람도 있겠지만 너무 적죠? 작은 반납금, 운행시간 및 야간 운전 제한, 1년에 한번씩 반사신경 및 능력평가 필수",
+        "like_count": 21,
+        "published_at": "2023-10-07T07:46:40Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@도루왕슛돌이",
+        "text": "우리 할아버지 81세까지 운전하시고 면허 반납하심 반납하시면서 하신 말씀이 이제 나는 한계가 왔다 였음 지금 현재 86세신데 버스와 택시 이용하시면서 하시는말이 불편하긴한데 주차걱정안해도되서 좋다였음",
+        "like_count": 2,
+        "published_at": "2023-10-10T05:07:17Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@나폴리-o2o",
+        "text": "장난하는거도 아니고 10만원 줄테니 반납하라고?? ㅎㅎㅎㅎㅎ",
+        "like_count": 1,
+        "published_at": "2023-10-09T18:50:17Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@저기어때-g2g",
+        "text": "누가. 10만원. 받고. 반납을하겠노",
+        "like_count": 6,
+        "published_at": "2023-10-07T06:41:52Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@huichchan",
+        "text": "도시분들이면 몰라도 시골은 차 운전 못하면 다리 없는거하고 다름 없음  나라 돈 겁나 많은거로 사람고용해서 시골  면허반납 노인들대상 무료 택시같은거 해라 나라 돈없다고 구라 치지말고 엄한데는 돈 겁나 잘쓰더라 ㅋㅋㅋ  시골은 모 짓고 관리도 못하고 사람도 안오는데 짓기는 겁나 짓더라 ㅋㅋ 울동네만 그런지 알앗더니 전국이 다 그러더라 그 돈이면 산유국 못지않게 행복하게 국민들 살겟다.",
+        "like_count": 1,
+        "published_at": "2023-10-07T11:30:40Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@장정기-y4p",
+        "text": "면허따는데\n돈 얼마나 들어는데\n겨우 십만원 안받고\n면허 반납안한다\n더 줘야야지",
+        "like_count": 2,
+        "published_at": "2023-10-07T11:42:59Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@이별하는길",
+        "text": "10만원ㅋㅋㅋ 방이틀잡으면 없는돈이다..사고가 3번이상나면 강제로 받는게낫지ㅋ 저돈으로 반납을하겠냐..운전해서 일다니면 하루만에 버는돈인데ㅋㅋㅋ돈이 몇백되도 할까말깐데 그리고 사고기준 잡아놓고 사고났을때 브레이크 엑셀 헷갈려서 사고났다? 그럼기준 무시하고 면허뺐어라",
+        "like_count": 3,
+        "published_at": "2023-10-07T06:58:31Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@junilpark4364",
+        "text": "대중교통이 좋은 대도시는 몰라도 지방도시만 되어도 차없으면 아예 시장이나 병원으로 이동하는 것조차 힘들어지니 반납을 못하는거지\n고령자 운전면허 반납보다 완전 자율주행차량 개발을 서두른 다음에 고령자는 일정수준 이상의 자율주행차량만 사도록 제한하는게 차라리 더 현실적이라고 생각함",
+        "like_count": 1,
+        "published_at": "2023-10-08T01:30:03Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@2찍요리사",
+        "text": "반납을 하겠냐 ㅋㅋㅋㅋ 발인하기 전까지 일하려면 면허 있어야지 ㅋㅋㅋㅋ",
+        "like_count": 12,
+        "published_at": "2023-10-07T06:34:43Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@Dagan_X",
+        "text": "1차선 정속충 할머니랑 아지매들이나 면허 반납하게 해라 아휴 진짜 속터져서 머리털 다빠질거 같다",
+        "like_count": 5,
+        "published_at": "2023-10-07T07:02:41Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@mins.4267",
+        "text": "이거 누구 아이디어에서 나왔냐?\n거꾸로 해보면 공뭔 담당자는 반납하겄냐?\n뇌가 있는건지 우동사리가 든건지. 일좀해라 좀.",
+        "like_count": 2,
+        "published_at": "2023-10-07T10:54:09Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@asaka6661",
+        "text": "자진반납을 하게해서 사고가 더 많아지는것같은데 강제적으로반납을 하게하면 말들이 많을테고 쉽게 해결하는방법이있죠\r\n운전면허라는게 적성검사를하고 면허를 갱신을하게 되는데 고령인경우는 그 기간을 짧게하고 적성검사시에 시력검사및 인지능력검사를 시행하여 면허갱신또는 취소를 하면됩니다\r\n그리고 현행법으로는 적성검사 만료일 다음날부터 1년경과 시 면허취소인데 그것도 고령의 경우에는 1년경과가 아닌 적성검사 만료일에 취소하게하면 적성검사를 더욱 지키게되겠죠",
+        "like_count": 1,
+        "published_at": "2023-10-07T07:01:35Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@투맨-i5r",
+        "text": "백 만원 주면  반납",
+        "like_count": 3,
+        "published_at": "2023-10-07T06:56:41Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@tigerkim7233",
+        "text": "우리 어머니도 70대인대 면허 반납하라고 못하겠다.. \n군에 면단위에 살아보면 안다... \n버스 일찍 끊기고.. 뭐 필요해도 저녁엔 사러 읍내로 나갈 수가 없다.. \n옆에 면에 볼일 있어서 가려는데 직통으로 가는 버스가 없다.. 면->읍->면으로 가야한다.. \n10분도 안걸릴 거리를 대기시간 포함 1시간 이상 걸려서 가야한다.. \n1회성 10만원에 반납 하겠냐? 100만원을 줘도 안하겠다..",
+        "like_count": 1,
+        "published_at": "2023-10-07T16:20:33Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@아딩구",
+        "text": "물가상승에다 지방같은 경우 대중교통 인프라가 더심각하게 않좋은대 10만원준다 어느누가 받납을 할지 현실적으로 불가능한 정책인듯",
+        "like_count": 1,
+        "published_at": "2023-10-07T17:28:56Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@osaka9871",
+        "text": "나 같아도 안할듯 ㅋㅋㅋㅋㅋㅋ 솔까 나이상관없이 년 한번 검사받게해서 운전하기에는 위험한사람들 면허를 제제해라",
+        "like_count": 4,
+        "published_at": "2023-10-07T06:35:56Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@HanRaGo",
+        "text": "고령자뿐만 아니라 심신미약이나 운전을 제데로 못하거나 잘 안지키는 사람들도 면허 취소 시켜야 될텐데......?",
+        "like_count": 1,
+        "published_at": "2023-10-07T13:39:42Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@으오-r2x",
+        "text": "고령 운전자 면허증반납도 좋지만 음주운전 처벌좀 100배 강화해라",
+        "like_count": 1,
+        "published_at": "2023-10-07T15:20:31Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@match_maker",
+        "text": "겨우 10에 반납하것냐",
+        "like_count": 1,
+        "published_at": "2023-10-07T08:27:08Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@수지맞은컴",
+        "text": "정부 니네들 우리고령형님들 무시하냐?",
+        "like_count": 1,
+        "published_at": "2023-10-07T07:32:08Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@HongCheese",
+        "text": "10만원 받으러 가는게 귀찮을정도다\n차가 없으면 대중교통 이용할테니 충전된 교통카드로 발급하면 좋을거 같은데\n60대에 반납하면 500만원\n70대에 반납하면 300만원\n80대에 반납하면 100만원\n교통카드라 다 사용못하는 분들도 있으니 실직적인 비용도 줄일 수 있고\n어르신들은 액수가 크니 반납할려고 할거고\n좀 합리적인 대안을 내놔야 사람들이 하겠지",
+        "like_count": 7,
+        "published_at": "2023-10-07T06:51:51Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@큐플-e7f",
+        "text": "매달10만원이면 반납할만하지",
+        "like_count": 1,
+        "published_at": "2023-10-07T16:20:50Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@jaeeun2543",
+        "text": "10만원 교통 카드를 매달 주는것도 아니고, 1회성? 장난 하나..",
+        "like_count": 5,
+        "published_at": "2023-10-07T07:03:40Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@티까-r3x",
+        "text": "국민수준이 나만 아니면 돼 수준인데 이게 되겟나 ㅋ",
+        "like_count": 1,
+        "published_at": "2023-10-07T15:20:02Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@만번의달",
+        "text": "급발진 사고까지 은근슬쩍 끼워 넣었네. 100세 시대라며 연금도 줄이고 늦게 줄 거라며 생 난리 치면서 운전은 고령이라네.  나 50대 이제 진입하지만 이런 건 아니라고 봄.  코에 걸면 코걸이고 귀에 걸면 귀걸이인가? 주기적으로 갱신 기간을  3년 정도로 하고 운전능력을 확인하고 운전을 안해도 되게 여건을 조성 하는게 더 중요함!!",
+        "like_count": 1,
+        "published_at": "2023-10-07T12:26:47Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@고고고-d4g",
+        "text": "나이 먹을수록 차가 더 필요하다는게 함정.. 버스타러가는데까지 걸어가야하고 기다리는데 20분 오르내리는데 뒤에서  눈치주고..",
+        "like_count": 30,
+        "published_at": "2023-10-07T08:24:42Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@프로김-e9l",
+        "text": "장난하냐ㅡ면허따는데ㅡ100만원은들었다ㅡㅡ",
+        "like_count": 1,
+        "published_at": "2023-10-07T15:59:18Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@지옥의천사하이템플러",
+        "text": "지방은 ㄹㅇ 차없으면 너무 불편해.... 대중교통이 서울급 아니면 10만원주는데 ㅋㅋㅋ 시외나 타지역 장거리 한번 가야 한다??? 돈 다쓰고 끝이지 뭐 ㅋㅋㅋ",
+        "like_count": 2,
+        "published_at": "2023-10-07T06:42:32Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@ora3942",
+        "text": "65세 이상 등록 차량은 번호판 색 넣어라 여러사람 잡지말고",
+        "like_count": 1,
+        "published_at": "2023-10-07T13:36:23Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@아는척그만해",
+        "text": "10만원준다고 면허반납해라고 꼬실게 아니라 세금을 년간 10만원씩 더 높이는게 낫지 ㅋㅋ 에혀 책상머리정책하고는",
+        "like_count": 1,
+        "published_at": "2023-10-07T08:13:25Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@대박부자09",
+        "text": "10만원ㅋㅋ 거지냐?",
+        "like_count": 1,
+        "published_at": "2023-10-07T07:37:08Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@O포르투나",
+        "text": "인지능력이 떨어지면 자발적으로 반납해야합니다",
+        "like_count": 15,
+        "published_at": "2023-10-07T06:37:39Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@행-w1s",
+        "text": "장롱면허들부터 면허 강제 반납시키자. 이들이 도로 나오면 고령운전자보다 더 무섭다.",
+        "like_count": 0,
+        "published_at": "2023-10-15T10:57:08Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@4279-p2g",
+        "text": "고작 10만원 ㅋㅋㅋ",
+        "like_count": 4,
+        "published_at": "2023-10-07T06:38:10Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@gomdory3chon",
+        "text": "마을회관 앞에 수요응답형 버스 정류장 설치하고 ATM처럼 목적지 버튼 누르면 30분 안에 도착하는 시스템이 필요하다. 이용객 없는 정류장은 거쳐갈 필요 없으니 효율성도 올라간다.",
+        "like_count": 0,
+        "published_at": "2023-10-11T02:41:48Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@동물을사랑합시다",
+        "text": "십만원 ~\n택도 없는 돈이군요~^^",
+        "like_count": 2,
+        "published_at": "2023-10-07T06:48:32Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@오늘부터낭만",
+        "text": "10만원 받을바에야 운전해야지",
+        "like_count": 1,
+        "published_at": "2023-10-07T07:43:32Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@uniuni.p",
+        "text": "ㅋㅋㅋ아니ㅜ매달 10만원 쥬는것도 아니고 ㅋㅋㅋ 개웃기네",
+        "like_count": 1,
+        "published_at": "2023-10-07T06:56:22Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@sinsungkim9036",
+        "text": "정책 자체가 이해가 안되네. 장롱. 아닌이상 누가 반납할까  머리가 있는건가",
+        "like_count": 1,
+        "published_at": "2023-10-07T06:49:44Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@박스초",
+        "text": "학원비정도 줘야 그래도 조금 반납하지..",
+        "like_count": 1,
+        "published_at": "2023-10-07T13:31:03Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@김정민-z4i1o",
+        "text": "대중교통 애용 합시다.",
+        "like_count": 0,
+        "published_at": "2023-10-08T00:57:18Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@realeimjeu9949",
+        "text": "차라리 교통약자 이동 보조 수단을 더 확대하세요 그게 더 실속있겠네",
+        "like_count": 0,
+        "published_at": "2023-10-07T14:52:54Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@danielchoi8592",
+        "text": "딸랑 1회성 카드라면 내가 된다해도 반납안한다 최소한 년단 한번씩은 충전해준다면 모를까 이젠 지하철 요금도 무임도 안된다고 난리인데 ...........",
+        "like_count": 1,
+        "published_at": "2023-10-07T06:48:00Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@날아라기태",
+        "text": "술먹고 운전하고 약먹고 운전하고 졸면서도 운전하는데\n나이많아 인지능력 떨어진게 대수냐?????",
+        "like_count": 1,
+        "published_at": "2023-10-07T06:52:20Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@ps.game.hunter",
+        "text": "10만원 개나줘라",
+        "like_count": 1,
+        "published_at": "2023-10-07T06:52:44Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@인털빤쓰런프로세스",
+        "text": "택시기사입니다 \n우리회사 매출  다섯손가락 안에 드는 최고령 형님 차 타봤습니다\n사고 안날라고 엄청 주의하는데 사고도 날뻔하고  손 엄청떨고  뒤에서 지릴뻔했습니다\n승객 안전을 위해서라도 필히 검사해서  걸러내야합니다",
+        "like_count": 0,
+        "published_at": "2023-10-18T19:31:51Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@Bellegoal",
+        "text": "음주운전 고령운전 초보운전 난폭운전 제발 혼자만 사고나길",
+        "like_count": 0,
+        "published_at": "2023-10-07T15:06:11Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@전주세발이",
+        "text": "전기자전거를 타려면 운전면허,원동기면허가 있어야 합니다 면허 반납후 자전거 면허라도 만들어 주면 좋을듯 합니다",
+        "like_count": 2,
+        "published_at": "2023-10-07T06:39:07Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@박혜정-t5p",
+        "text": "70세이상은 매년 검사의무화해 부적격자는 운전금지시켜야 한다.",
+        "like_count": 0,
+        "published_at": "2023-10-07T13:41:13Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@동물을사랑합시다",
+        "text": "일본은 나이가되면\n반납 하시데요",
+        "like_count": 1,
+        "published_at": "2023-10-07T06:47:36Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@awanderingguest.",
+        "text": "고령자 안전운전을 위해 신체검사를 매년 실시하고 강화해야됨",
+        "like_count": 14,
+        "published_at": "2023-10-07T07:13:32Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@마루-j3z",
+        "text": "긴급자동제동장치 의무화를 법제화 할 필요가 있음. 그런게 없으니 개나소나 급발진 음모론에 빠지는거 아니겠음? 이미 기술은 한국에 있음 비싸서문제지. 근데 의무장착이 법제화 된다면 대량생산으로 가격이 싸질수 있고 세금으로 지원을 활성화 해야한다고 생각",
+        "like_count": 0,
+        "published_at": "2023-10-07T12:27:27Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@dbfh1258",
+        "text": "결국 급가속 사고가 차량 결함이 아니라는 것을 인정하는 것임.",
+        "like_count": 0,
+        "published_at": "2023-10-07T07:13:51Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@마구니-z5w",
+        "text": "이번 기회에 면허 시험도 어렵게하고.갱신도 주기를 줄이고.간이 시험을 주기적으로 해서 면허 반납.",
+        "like_count": 0,
+        "published_at": "2023-10-07T14:22:43Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@허태식-p8v",
+        "text": "윤무능도 대통령직 반납하고 10만원 교통 카드나 받자.",
+        "like_count": 126,
+        "published_at": "2023-10-07T06:44:41Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@shira3518",
+        "text": "지원액을 삭감한다고하는데 무슨수로 첨단장비를 달거냐고",
+        "like_count": 0,
+        "published_at": "2023-10-07T14:55:47Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@마루-j3z",
+        "text": "일본 처럼 고령운전자는 자동제동장치를 부착하여야만 운전할수 있게 해야됨 Ai가 물체를 판단하여 자동으로 제동해주는 장치 이미 한국에도 라이다를 이용한 기술이 있음",
+        "like_count": 0,
+        "published_at": "2023-10-07T12:23:57Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@윤종숙-r1b",
+        "text": "단돈만원이라도 연금같이주면 반납자들이 많겠지요",
+        "like_count": 0,
+        "published_at": "2023-10-07T06:39:04Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@소소한행복으로살자",
+        "text": "면허 딸때 들어간 비용에 대한 합당한 보상이나  면허 반납후 대중교통 사용에 인세티브 대책이 정상아닌가?",
+        "like_count": 0,
+        "published_at": "2023-10-07T07:03:26Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@윤종훈-t7c",
+        "text": "본인이 인지능력 떨어지는것 같으면 자진반납해라 괜히 운전대 잡아서 무고한 사람을 죽이거나 다치게하지 말고 말이다",
+        "like_count": 0,
+        "published_at": "2023-10-07T15:43:29Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@SW-lg1xs",
+        "text": "면허 따는데 든 돈아 얼만데 십만원이면 누가 반납하나",
+        "like_count": 0,
+        "published_at": "2023-10-07T16:56:47Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@머하노진짜",
+        "text": "늙으면좀반납하고살아라 사고그만내고",
+        "like_count": 0,
+        "published_at": "2023-10-07T14:36:37Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@jonghan8370",
+        "text": "반납대신 발인이나 먼저 하자",
+        "like_count": 0,
+        "published_at": "2023-10-07T08:13:12Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@문정원-n5f",
+        "text": "운전면허학원비용은줘야지 애들 코묻은돈도 그정도는 안주겠다",
+        "like_count": 0,
+        "published_at": "2023-10-07T07:04:13Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@KoKosasa9",
+        "text": "그돈으로 1년에 한번씩시험을 치게만들어라고!! 고득점이면 돌려주라고!!",
+        "like_count": 0,
+        "published_at": "2023-10-07T08:20:24Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@iolalife8707",
+        "text": "기다리면 자율주행차 나온다",
+        "like_count": 0,
+        "published_at": "2023-10-14T10:21:51Z"
+      },
+      {
+        "video_id": "NKIvNrtdiGA",
+        "author": "@걸-h6q",
+        "text": "서울 영감님들은 운전을 요상스럽게 ㅎ하네",
+        "like_count": 0,
+        "published_at": "2023-10-07T07:47:06Z"
+      },
+      {
+        "video_id": "YnBKCrgDvWs",
+        "author": "@sungchouljung126",
+        "text": "마트 병원도 차 없으면 못간다.",
+        "like_count": 1,
+        "published_at": "2025-09-05T07:36:21Z"
+      },
+      {
+        "video_id": "YnBKCrgDvWs",
+        "author": "@김작가-e2u",
+        "text": "한동네만 운행하는 동네 1000원택시같은것이 있으면 좋겠습니다..금호동이면 금호동 내에서만 타고 내리고..",
+        "like_count": 0,
+        "published_at": "2025-09-05T07:52:27Z"
+      },
+      {
+        "video_id": "YnBKCrgDvWs",
+        "author": "@qst595",
+        "text": "45세 이상자 자율주행차량으로 운전하라고 강제해야 한다.",
+        "like_count": 0,
+        "published_at": "2025-09-05T08:23:31Z"
+      },
+      {
+        "video_id": "YnBKCrgDvWs",
+        "author": "@물개-h7m",
+        "text": "매달 현금. 100만원 씩줘바라",
+        "like_count": 0,
+        "published_at": "2025-09-05T07:15:55Z"
+      },
+      {
+        "video_id": "YnBKCrgDvWs",
+        "author": "@장상기-x7g",
+        "text": "8자대로 살다 죽는겨ᆢ",
+        "like_count": 0,
+        "published_at": "2025-09-05T08:16:23Z"
+      }
+    ]
+  }
+}
