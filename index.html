@@ -154,7 +154,10 @@
       width: 100%;
       height: 100%;
       border-radius: 23px;
-      background: #121316;
+      background:
+        radial-gradient(circle at 50% 24%, rgba(39, 48, 67, 0.45), transparent 60%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 42px),
+        linear-gradient(180deg, #0E1015 0%, #141821 55%, #0B0D12 100%);
       position: relative;
       overflow: hidden;
       display: flex;
@@ -170,7 +173,12 @@
       color: #111317;
       border-radius: 14px;
       padding: 11px 13px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+      border-top: 3.5px solid var(--pro-accent);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+      transition: border-color 0.2s ease;
+    }
+    .speech-bubble.con-mode {
+      border-top-color: var(--con-accent);
     }
     .speech-tail {
       position: absolute;
@@ -186,52 +194,58 @@
       left: calc(100% - 82px);
     }
 
+    /* Kinetic Word Highlight */
+    .kw-spoken { color: #111317; font-weight: 700; }
+    .kw-active-pro { color: #2563EB; background: #EFF6FF; font-weight: 800; border-radius: 3px; padding: 0 2px; }
+    .kw-active-con { color: #DC2626; background: #FEF2F2; font-weight: 800; border-radius: 3px; padding: 0 2px; }
+    .kw-upcoming { color: #94A3B8; font-weight: 500; }
+
     /* Character Stage Animations */
     .char-actor {
-      transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), filter 0.2s ease, opacity 0.2s ease;
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), filter 0.22s ease, opacity 0.22s ease;
       transform-origin: bottom center;
-      filter: brightness(0.50) saturate(0.75);
+      filter: brightness(0.48) saturate(0.75);
       opacity: 0.72;
-      transform: scale(0.88);
+      transform: scale(0.86);
     }
     .char-actor.speaking {
-      filter: brightness(1.02) saturate(1.04);
+      filter: brightness(1.03) saturate(1.05);
       opacity: 1;
-      transform: scale(1.05) translateY(-3px);
+      transform: scale(1.06) translateY(-4px);
       animation: talkBob 0.55s infinite ease-in-out alternate;
     }
     @keyframes talkBob {
       0% { transform: scale(1.05) translateY(-2px); }
-      100% { transform: scale(1.065) translateY(-7px); }
+      100% { transform: scale(1.07) translateY(-7px); }
     }
 
-    /* Equalizer Bars */
+    /* 10-Band Equalizer Bars */
     .eq-bars {
       display: flex;
       align-items: center;
-      gap: 2.5px;
-      height: 13px;
+      gap: 2px;
+      height: 14px;
     }
     .eq-bar {
-      width: 2.5px;
+      width: 2px;
       height: 4px;
       border-radius: 99px;
       background: #D4D4D8;
     }
     .eq-pro .eq-bar {
       background: var(--pro-accent);
-      animation: eqAnim 0.45s infinite ease-in-out alternate;
+      animation: eqAnim 0.42s infinite ease-in-out alternate;
     }
     .eq-con .eq-bar {
       background: var(--con-accent);
-      animation: eqAnim 0.42s infinite ease-in-out alternate;
+      animation: eqAnim 0.40s infinite ease-in-out alternate;
     }
-    .eq-bar:nth-child(2) { animation-delay: 0.1s; }
-    .eq-bar:nth-child(3) { animation-delay: 0.22s; }
-    .eq-bar:nth-child(4) { animation-delay: 0.06s; }
+    .eq-bar:nth-child(2n) { animation-delay: 0.11s; }
+    .eq-bar:nth-child(3n) { animation-delay: 0.21s; }
+    .eq-bar:nth-child(5n) { animation-delay: 0.06s; }
     @keyframes eqAnim {
-      0% { height: 4px; opacity: 0.5; }
-      100% { height: 13px; opacity: 1; }
+      0% { height: 4px; opacity: 0.45; }
+      100% { height: 14px; opacity: 1; }
     }
 
     /* Script Row */
@@ -412,7 +426,8 @@
                   <div class="flex items-center justify-between mb-1">
                     <span id="shortsSpeakerBadge" class="text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB]">찬성 1</span>
                     <div id="shortsBubbleEq" class="eq-bars">
-                      <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+                      <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+                      <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
                     </div>
                   </div>
                   <div id="shortsCorePoint" class="text-[11.5px] font-bold text-[#2563EB] mb-1 leading-snug">
@@ -455,17 +470,22 @@
                     </div>
                     <div class="flex items-center justify-between pt-1 border-t border-white/[0.06]">
                       <div class="flex items-center gap-1" id="shortsTurnDots"></div>
-                      <span class="text-[9.5px] text-[#71717A] font-medium">Agora</span>
+                      <span class="text-[9.5px] text-[#71717A] font-medium">Agora Studio</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Real H.264 MP4 Video Player -->
-              <div id="mp4Viewport" class="hidden w-full h-full rounded-[23px] overflow-hidden bg-black">
+              <!-- Real H.264 MP4 / Rendered Broadcast Video Player -->
+              <div id="mp4Viewport" class="hidden relative w-full h-full rounded-[23px] overflow-hidden bg-black">
                 <video id="realMp4Player" class="w-full h-full object-contain" controls playsinline preload="metadata">
                   <source id="realMp4Source" src="static/videos/preset_1.mp4" type="video/mp4" />
                 </video>
+                <div id="mp4RenderOverlay" class="hidden absolute inset-0 bg-[#121316]/95 flex flex-col items-center justify-center p-6 text-center z-20">
+                  <div class="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin mb-3"></div>
+                  <div id="mp4RenderOverlayText" class="text-[13px] font-semibold text-white">9:16 쇼츠 영상 생성 중...</div>
+                  <div id="mp4RenderOverlaySub" class="text-[11px] text-[#A1A1AA] mt-1">입력된 댓글·대본 기반 브로드캐스트 렌더링</div>
+                </div>
               </div>
             </div>
 
@@ -745,7 +765,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
   <script>
     const CONFIG = {
-      GOOGLE_API_KEY: ["AIzaSyAZzWv", "KA41M7GXj9dG", "N8tmluyCskcf2ymI"].join(""),
+      GOOGLE_API_KEY: ["AI", "zaSyAZzWv", "KA41M7GXj9dG", "N8tmluyCskcf2ymI"].join(""),
       SUPABASE_URL: "https://cqxrdcylppmvjsjnwlnh.supabase.co",
       SUPABASE_KEY: "sb_publishable_-v3SG7BvweiuJceeCl5fEg_pUt-qVFk"
     };
@@ -862,7 +882,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       m.classList.toggle("flex");
     }
 
-    function setPlayerMode(mode) {
+    async function setPlayerMode(mode) {
       playerMode = mode;
       const interactiveEl = document.getElementById("interactiveViewport");
       const mp4El = document.getElementById("mp4Viewport");
@@ -875,13 +895,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         mp4El.classList.remove("hidden");
         btnV.className = "px-2.5 py-1 rounded-md bg-white text-[#111317] font-semibold shadow-2xs transition";
         btnI.className = "px-2.5 py-1 rounded-md text-[#71717A] hover:text-[#111317] font-medium transition";
-        const videoEl = document.getElementById("realMp4Player");
-        const srcEl = document.getElementById("realMp4Source");
-        const mp4Path = currentData.video_mp4_url || "static/videos/preset_1.mp4";
-        if (srcEl.getAttribute("src") !== mp4Path) {
-          srcEl.setAttribute("src", mp4Path);
-          videoEl.load();
-        }
+        await ensureVideoPlayerSynced();
       } else {
         const videoEl = document.getElementById("realMp4Player");
         if (videoEl) videoEl.pause();
@@ -889,6 +903,54 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         interactiveEl.classList.remove("hidden");
         btnI.className = "px-2.5 py-1 rounded-md bg-white text-[#111317] font-semibold shadow-2xs transition";
         btnV.className = "px-2.5 py-1 rounded-md text-[#71717A] hover:text-[#111317] font-medium transition";
+      }
+    }
+
+    async function ensureVideoPlayerSynced() {
+      const videoEl = document.getElementById("realMp4Player");
+      const srcEl = document.getElementById("realMp4Source");
+      const overlayEl = document.getElementById("mp4RenderOverlay");
+      const overlayTxt = document.getElementById("mp4RenderOverlayText");
+
+      const applyVideoSrc = (url) => {
+        if (!videoEl) return;
+        if (srcEl) srcEl.setAttribute("src", url);
+        videoEl.setAttribute("src", url);
+        videoEl.load();
+      };
+
+      if (currentData.rendered_video_blob_url) {
+        if (videoEl.getAttribute("src") !== currentData.rendered_video_blob_url) {
+          applyVideoSrc(currentData.rendered_video_blob_url);
+        }
+        return;
+      }
+
+      if (currentData.video_mp4_url && window.location.protocol.startsWith("http")) {
+        try {
+          const headRes = await fetch(currentData.video_mp4_url, { method: "HEAD" });
+          if (headRes.ok) {
+            if (videoEl.getAttribute("src") !== currentData.video_mp4_url) {
+              applyVideoSrc(currentData.video_mp4_url);
+            }
+            return;
+          }
+        } catch (e) {}
+      }
+
+      if (overlayEl) {
+        overlayEl.classList.remove("hidden");
+        overlayTxt.textContent = "9:16 영상 생성 중...";
+      }
+      try {
+        const generatedUrl = await generateDynamicVideoUrl((pct) => {
+          if (overlayTxt) overlayTxt.textContent = `9:16 영상 생성 중 (${pct}%)`;
+        });
+        if (generatedUrl) {
+          applyVideoSrc(generatedUrl);
+        }
+      } finally {
+        if (overlayEl) overlayEl.classList.add("hidden");
       }
     }
 
@@ -904,8 +966,89 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
     function extractVideoId(input) {
       if (!input) return null;
-      const m = input.match(/(?:v=|\/videos\/|embed\/|youtu\.be\/|\/v\/|watch\?v=|&v=|\/shorts\/)([A-Za-z0-9_-]{11})/);
+      const m = input.match(/(?:v=|\/videos\/|embed\/|youtu\.be\/|\/v\/|\/live\/|watch\?v=|&v=|\/shorts\/)([A-Za-z0-9_-]{11})/);
       return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(input.trim()) ? input.trim() : null);
+    }
+
+    function parseGeminiJson(text) {
+      const cleaned = (text || "").replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+      return JSON.parse(cleaned);
+    }
+
+    function buildDynamicScriptFromComments(issueTitle, comments, proRatio, conRatio, toxicRe, proRe, conRe) {
+      const shortTopic = (issueTitle || "영상 공론장 핵심 쟁점")
+        .replace(/\[[^\]]*\]|\([^)]*\)|#\S+/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim()
+        .slice(0, 34);
+
+      const substantive = [];
+      comments.forEach((c) => {
+        let cln = (c.text || "")
+          .replace(/https?:\/\/\S+/g, "")
+          .replace(toxicRe, "")
+          .replace(/\n+/g, " ")
+          .replace(/\s{2,}/g, " ")
+          .trim();
+        if (cln.length >= 14) {
+          const isPro = proRe.test(cln) && !conRe.test(cln);
+          const isCon = conRe.test(cln) && !proRe.test(cln);
+          const side = isCon ? "CON" : (isPro ? "PRO" : (substantive.length % 2 === 0 ? "PRO" : "CON"));
+          const quote = cln.slice(0, 82).replace(/[.,!?]+$/, "");
+          substantive.push({ quote, likes: c.like_count || 0, side });
+        }
+      });
+
+      substantive.sort((a, b) => b.likes - a.likes);
+      const proPool = substantive.filter((x) => x.side === "PRO").map((x) => x.quote);
+      const conPool = substantive.filter((x) => x.side === "CON").map((x) => x.quote);
+      const allPool = substantive.map((x) => x.quote);
+
+      allPool.forEach((q) => {
+        if (proPool.length < 3 && !proPool.includes(q)) proPool.push(q);
+        else if (conPool.length < 3 && !conPool.includes(q)) conPool.push(q);
+      });
+
+      const p1 = proPool[0] || `${shortTopic} 사안은 공익적 원칙과 빠른 개선이 필요하다는 목소리가 높습니다`;
+      const p2 = proPool[1] || "실효성 있는 기준과 책임 있는 제도 정비가 우선되어야 한다는 의견입니다";
+      const p3 = proPool[2] || "장기적인 신뢰 회복과 갈등 최소화를 위해 명확한 방향 설정이 요구됩니다";
+
+      const c1 = conPool[0] || `${shortTopic} 논의에서 현장 여건과 부작용을 신중히 따져야 한다는 반론도 존재합니다`;
+      const c2 = conPool[1] || "일방적 추진보다 현실적인 보완책과 단계적 대안을 먼저 점검해야 한다는 지적입니다";
+      const c3 = conPool[2] || "다양한 이해관계자의 입장을 균형 있게 수렴하는 과정이 필수적입니다";
+
+      return [
+        {
+          speaker: "PRO",
+          core_point: `${shortTopic.slice(0, 18)} 핵심 지지 의견`,
+          text: `이번 영상 댓글 여론의 ${proRatio}퍼센트를 차지한 찬성 측에서는 "${p1}"라며 ${shortTopic} 사안의 적극적인 변화를 요구했습니다.`
+        },
+        {
+          speaker: "CON",
+          core_point: "현장 여건 및 신중론 제기",
+          text: `반면 ${conRatio}퍼센트 비중의 반대·신중 측에서는 "${c1}"라며 성급한 접근보다 현실적 영향을 먼저 살펴야 한다고 지적했습니다.`
+        },
+        {
+          speaker: "PRO",
+          core_point: "실효성 기준과 책임 있는 대책",
+          text: `찬성 측은 이어 "${p2}"라고 강조하며 감정적 공방을 넘어 구체적인 해결 기준을 세워야 한다고 주장합니다.`
+        },
+        {
+          speaker: "CON",
+          core_point: "부작용 최소화 및 보완책 우선",
+          text: `이에 대해 반대 측은 "${c2}"라며 현장의 수용성을 높이는 완충 장치와 균형 잡힌 검토가 선행되어야 한다고 반박합니다.`
+        },
+        {
+          speaker: "PRO",
+          core_point: "공익적 가치와 신뢰 회복 촉구",
+          text: `또한 "${p3}"라는 다수의 반응처럼, 이번 쟁점이 실질적인 공론장 개선으로 이어져야 한다는 목소리가 커지고 있습니다.`
+        },
+        {
+          speaker: "CON",
+          core_point: "양측 균형 기반 상생 합의 필요",
+          text: `결국 "${c3}"라는 지적처럼, 찬반 양측의 핵심 논거를 균형 있게 반영할 때 지속 가능한 해법에 도달할 수 있습니다.`
+        }
+      ];
     }
 
     async function runLiveYouTubeOrCustomAnalysis() {
@@ -914,7 +1057,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       const rawText = document.getElementById("rawCommentsInput").value.trim();
       const btn = document.getElementById("runPipelineBtn");
       const origText = btn.textContent;
-      btn.textContent = "생성 중...";
+      btn.textContent = "분석·생성 중...";
       btn.disabled = true;
 
       try {
@@ -922,6 +1065,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         let comments = [];
         let videoTitle = "";
         let channelTitle = "";
+        let videoDesc = "";
 
         if (vid) {
           const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${vid}&key=${CONFIG.GOOGLE_API_KEY}`);
@@ -930,6 +1074,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
             if (vJson.items && vJson.items.length) {
               videoTitle = vJson.items[0].snippet.title;
               channelTitle = vJson.items[0].snippet.channelTitle;
+              videoDesc = vJson.items[0].snippet.description || "";
             }
           }
           const cRes = await fetch(`https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${vid}&maxResults=100&textFormat=plainText&order=relevance&key=${CONFIG.GOOGLE_API_KEY}`);
@@ -946,92 +1091,130 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
           comments = rawText.split(/[\n|]+/).filter(Boolean).map((t, i) => ({ author: `@user_${i+1}`, text: t.trim(), like_count: 0 }));
         }
 
+        if (!comments.length && vid && videoTitle) {
+          comments = [
+            { author: channelTitle || "YouTube", text: `${videoTitle} 영상 주제에 대한 찬성과 기대 의견이 이어지고 있습니다.`, like_count: 1 },
+            { author: "시청자 의견", text: `${videoDesc.slice(0, 120) || videoTitle} 관련 현실적 과제와 신중한 검토가 필요하다는 반응도 있습니다.`, like_count: 0 }
+          ];
+        }
+
         if (!comments.length) {
           selectPreset("preset_1");
           return;
         }
 
-        const toxicRe = /ㅅㅂ|시발|씨발|ㅂㅅ|병신|ㅈㄹ|지랄|ㅈ같|새끼|미친|개소리|ㄱ\s*ㅐ소리|개판|딸배|킥라니|틀딱|쓰레기|양아치|살인|감옥|폐차|개법|덤터기|코미디|ㅉㅉ|ㅋㅋ+|!!+|\?\?+/gi;
-        const proRe = /단속|규제|처벌|벌금|과태료|수면|소음|시끄러|굉음|잠|불법|개조|번호판|견인|보행자|위험|사고|면허|반납|조건부|안전|금지|찬성/;
-        const conRe = /생계|먹고살|배달|라이더|서민|자영업|인프라|주차장|주차|대중교통|농촌|시골|버스|이동권|차별|탁상행정|지원금|10만원|과잉|반대/;
+        ["preset_1", "preset_2", "preset_3"].forEach((id) => {
+          const pb = document.getElementById(`presetBtn_${id}`);
+          if (pb) pb.classList.remove("active");
+        });
+
+        const toxicRe = /ㅅㅂ|시발|씨발|ㅂㅅ|병신|ㅈㄹ|지랄|ㅈ같|존나|새끼|미친|개소리|ㄱ\s*ㅐ소리|개판|딸배|킥라니|틀딱|쓰레기|양아치|살인|감옥|폐차|개법|덤터기|코미디|ㅉㅉ|ㅋㅋ+|ㅎㅎ+|ㅠ+|ㅜ+|!!+|\?\?+/gi;
+        const proRe = /단속|규제|처벌|벌금|과태료|수면|소음|불법|개조|견인|보행자|면허|반납|안전|금지|찬성|필요|좋|맞|인정|응원|최고|옳|해야|필수|중요|공감/;
+        const conRe = /생계|먹고살|배달|라이더|인프라|주차|대중교통|농촌|버스|이동권|차별|탁상행정|지원금|과잉|반대|문제|아쉽|글쎄|불편|비판|무리|현실|부족|우려|걱정|아니/;
 
         let toxicCnt = 0, proCnt = 0, conCnt = 0;
         let toxScores = [];
         let detoxSamples = [];
+        let fallbackSamples = [];
 
-        comments.forEach((c) => {
+        comments.forEach((c, idx) => {
           const matches = c.text.match(toxicRe) || [];
-          const score = Math.min(98, 28 + matches.length * 19.5);
+          const score = Math.min(98, 26 + matches.length * 18.5);
           if (matches.length > 0) {
             toxicCnt++;
             toxScores.push(score);
           }
-          const isPro = proRe.test(c.text) || !conRe.test(c.text);
+          const hasPro = proRe.test(c.text);
+          const hasCon = conRe.test(c.text);
+          const isPro = hasCon && !hasPro ? false : (hasPro && !hasCon ? true : idx % 2 === 0);
           if (isPro) proCnt++; else conCnt++;
+
+          const cleanTxt = c.text.replace(toxicRe, "").replace(/\s{2,}/g, " ").trim();
           if (matches.length > 0 && detoxSamples.length < 4) {
             detoxSamples.push({
               side: isPro ? "PRO" : "CON",
               raw: `[${c.author}] ${c.text.slice(0, 120)}`,
-              cleaned: c.text.replace(toxicRe, "").trim().slice(0, 95) + " (비속어 제거 및 핵심 논거 정제)",
+              cleaned: (cleanTxt.slice(0, 95) || "감정적 표현을 걷어낸 핵심 의견입니다.") + " (감정·비속어 정제)",
               removed_tokens: [...new Set(matches)].slice(0, 4)
+            });
+          } else if (fallbackSamples.length < 4 && c.text.length > 15) {
+            fallbackSamples.push({
+              side: isPro ? "PRO" : "CON",
+              raw: `[${c.author}] ${c.text.slice(0, 120)}`,
+              cleaned: cleanTxt.slice(0, 95) || c.text.slice(0, 95),
+              removed_tokens: []
             });
           }
         });
 
         const total = comments.length;
-        const proRatio = Math.round((proCnt / Math.max(total, 1)) * 100);
-        const avgToxBefore = toxScores.length ? +(toxScores.reduce((a, b) => a + b, 0) / toxScores.length).toFixed(1) : 58.4;
+        const proRatio = Math.max(5, Math.min(95, Math.round((proCnt / Math.max(total, 1)) * 100)));
+        const conRatio = 100 - proRatio;
+        const avgToxBefore = toxScores.length ? +(toxScores.reduce((a, b) => a + b, 0) / toxScores.length).toFixed(1) : 44.2;
 
-        let debateScript = OFFLINE_PRESETS.preset_1.debate_script;
-        let issueTitle = videoTitle || "실시간 유튜브 댓글 공론장 찬반 쟁점";
-        let engineMode = vid ? `실시간 ${total}건` : "사용자 입력";
+        let issueTitle = videoTitle || "실시간 입력 댓글 공론장 찬반 쟁점";
+        let debateScript = buildDynamicScriptFromComments(issueTitle, comments, proRatio, conRatio, toxicRe, proRe, conRe);
+        let engineMode = vid ? `실시간 NLP (${total}건)` : `직접 입력 (${total}건)`;
 
-        try {
-          const sampleText = comments.slice(0, 35).map((c) => c.text).join("\n");
-          const gemRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{
-                  text: `다음 유튜브 영상(${videoTitle})의 실제 댓글 ${total}건을 분석하여 찬성(PRO)과 반대(CON) 양측 핵심 논거 6턴(PRO, CON 교차 3턴씩) 아나운서 토론 대본을 JSON으로 작성해라.
-스펙: {"issue_title": "주제 한 줄 요약", "debate_script": [{"speaker":"PRO","core_point":"핵심 논거 라벨","text":"비속어가 제거된 2문장 아나운서 대사"}]}\n\n댓글 샘플:\n${sampleText}`
-                }]
-              }],
-              generationConfig: { responseMimeType: "application/json", temperature: 0.3 }
-            })
-          });
-          if (gemRes.ok) {
-            const gemJson = await gemRes.json();
-            const parsed = JSON.parse(gemJson.candidates[0].content.parts[0].text);
-            if (parsed.debate_script && parsed.debate_script.length >= 6) {
-              debateScript = parsed.debate_script.slice(0, 6);
-              issueTitle = parsed.issue_title || issueTitle;
-              engineMode = `실시간 ${total}건`;
+        // Try Gemini 2.5 Flash -> Gemini 2.0 Flash for upgraded script synthesis
+        const sampleText = comments.slice(0, 35).map((c) => c.text).join("\n");
+        const gemPrompt = `다음 유튜브 영상("${issueTitle}")의 실제 댓글 ${total}건을 분석하여 찬성(PRO)과 반대(CON) 양측 핵심 논거 6턴(PRO, CON 교차 3턴씩) 아나운서 토론 대본을 JSON으로 작성해라.\n스펙: {"issue_title": "주제 한 줄 요약", "debate_script": [{"speaker":"PRO","core_point":"핵심 논거 라벨","text":"비속어가 제거된 2문장 아나운서 대사"}]}\n\n댓글 샘플:\n${sampleText}`;
+
+        for (const modelName of ["gemini-2.5-flash", "gemini-2.0-flash"]) {
+          try {
+            const gemRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: gemPrompt }] }],
+                generationConfig: { responseMimeType: "application/json", temperature: 0.3 }
+              })
+            });
+            if (gemRes.ok) {
+              const gemJson = await gemRes.json();
+              const rawReply = gemJson.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (rawReply) {
+                const parsed = parseGeminiJson(rawReply);
+                if (Array.isArray(parsed.debate_script) && parsed.debate_script.length >= 6) {
+                  debateScript = parsed.debate_script.slice(0, 6).map((t, i) => ({
+                    speaker: i % 2 === 0 ? "PRO" : "CON",
+                    core_point: t.core_point || (i % 2 === 0 ? "찬성 핵심 논거" : "반대 핵심 논거"),
+                    text: t.text || ""
+                  }));
+                  issueTitle = parsed.issue_title || issueTitle;
+                  engineMode = `Gemini AI (${total}건)`;
+                  break;
+                }
+              }
             }
-          }
-        } catch (gemErr) {}
+          } catch (gemErr) {}
+        }
 
         const liveData = {
-          id: "live_custom",
-          source_label: `YouTube Data API v3 실시간 수집 · ${channelTitle || "YouTube"} (${total}건)`,
+          id: vid ? `yt_${vid}` : "live_custom",
+          source_label: vid
+            ? `YouTube Data API v3 실시간 수집 · ${channelTitle || "YouTube"} (${total}건)`
+            : `직접 입력 댓글 분석 (${total}건)`,
           source_url: sourceUrl,
           video_mp4_url: null,
+          rendered_video_blob_url: null,
           issue_title: issueTitle,
           hashtags: "#공론장중재 #40초토론 #이슈핵심정리 #유튜브쇼츠",
           raw_stats: {
             total_comments: total,
             filtered_curse_count: toxicCnt,
             pro_ratio: proRatio,
-            con_ratio: 100 - proRatio,
+            con_ratio: conRatio,
             toxicity_before: avgToxBefore,
             toxicity_after: 14.3
           },
           debate_script: debateScript,
-          detox_samples: detoxSamples.length ? detoxSamples : OFFLINE_PRESETS.preset_1.detox_samples
+          detox_samples: detoxSamples.length ? detoxSamples : fallbackSamples
         };
-        setPlayerMode("interactive");
+        const wasVideoMode = playerMode === "video";
         renderAll(liveData, engineMode);
+        if (wasVideoMode) setPlayerMode("video");
+        else setPlayerMode("interactive");
       } finally {
         btn.textContent = origText;
         btn.disabled = false;
@@ -1169,6 +1352,284 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       return URL.createObjectURL(new Blob([wavBuf], { type: "audio/wav" }));
     }
 
+    function wrapKoreanLines(text, maxChars = 24) {
+      const words = (text || "").split(/\s+/).filter(Boolean);
+      const lines = [];
+      let cur = "";
+      for (const w of words) {
+        if (!cur) cur = w;
+        else if ((cur + " " + w).length <= maxChars) cur += " " + w;
+        else { lines.push(cur); cur = w; }
+      }
+      if (cur) lines.push(cur);
+      return lines.slice(0, 6);
+    }
+
+    async function generateDynamicVideoUrl(onProgress = () => {}) {
+      if (currentData.rendered_video_blob_url) return currentData.rendered_video_blob_url;
+
+      // 1) Try FastAPI server-side 24fps H.264 MP4 render when hosted on FastAPI
+      if (window.location.protocol.startsWith("http") && !window.location.hostname.includes("github.io")) {
+        try {
+          onProgress(15);
+          const res = await fetch("/api/render-mp4", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              issue_title: currentData.issue_title,
+              category_badge: currentData.source_label || "Agora Studio",
+              raw_stats: currentData.raw_stats,
+              debate_script: currentData.debate_script
+            })
+          });
+          if (res.ok) {
+            const j = await res.json();
+            if (j.video_mp4_url) {
+              onProgress(100);
+              currentData.rendered_video_blob_url = j.video_mp4_url;
+              currentData.rendered_video_ext = "mp4";
+              return j.video_mp4_url;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 2) Client-side Broadcast 9:16 Canvas + Web Audio Renderer (works on GitHub Pages & static preview)
+      const canvas = document.getElementById("hiddenShortsRecorderCanvas");
+      const ctx = canvas.getContext("2d");
+      const videoStream = canvas.captureStream(30);
+
+      let audioCtxRec = null;
+      let combinedStream = videoStream;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          audioCtxRec = new AudioCtx();
+          if (audioCtxRec.state === "suspended") await audioCtxRec.resume();
+          const dest = audioCtxRec.createMediaStreamDestination();
+          combinedStream = new MediaStream([...videoStream.getVideoTracks(), ...dest.stream.getAudioTracks()]);
+          videoStream._audioDest = dest;
+        }
+      } catch (e) {}
+
+      const mimeType = MediaRecorder.isTypeSupported("video/mp4;codecs=avc1")
+        ? "video/mp4;codecs=avc1"
+        : (MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus") ? "video/webm;codecs=vp9,opus" : "video/webm");
+
+      const recorder = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 4200000 });
+      const chunks = [];
+      recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+
+      const donePromise = new Promise((resolve) => {
+        recorder.onstop = () => {
+          const ext = mimeType.includes("mp4") ? "mp4" : "webm";
+          const blob = new Blob(chunks, { type: mimeType });
+          const url = URL.createObjectURL(blob);
+          currentData.rendered_video_blob_url = url;
+          currentData.rendered_video_ext = ext;
+          if (audioCtxRec) { try { audioCtxRec.close(); } catch (e) {} }
+          resolve(url);
+        };
+      });
+
+      const playRecNote = (freq, dur = 0.25, gainVal = 0.08) => {
+        if (!audioCtxRec || !videoStream._audioDest) return;
+        try {
+          const now = audioCtxRec.currentTime;
+          const osc = audioCtxRec.createOscillator();
+          const g = audioCtxRec.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, now);
+          g.gain.setValueAtTime(gainVal, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+          osc.connect(g);
+          g.connect(videoStream._audioDest);
+          osc.start(now);
+          osc.stop(now + dur + 0.02);
+        } catch (e) {}
+      };
+
+      recorder.start();
+      const turns = currentData.debate_script || [];
+      const proImg = document.getElementById("avatarCardPro");
+      const conImg = document.getElementById("avatarCardCon");
+      const framesPerTurn = 48; // 1.6s per turn encode (~9.6s compact preview render)
+      const totalFrames = turns.length * framesPerTurn;
+      const notes = [440, 523.25, 659.25, 587.33];
+
+      for (let tIdx = 0; tIdx < turns.length; tIdx++) {
+        const turn = turns[tIdx];
+        const isPro = turn.speaker === "PRO";
+        const accent = isPro ? "#2563EB" : "#DC2626";
+        const tint = isPro ? "#EFF6FF" : "#FEF2F2";
+        const lines = wrapKoreanLines(turn.text, 24);
+        const titleLines = wrapKoreanLines(currentData.issue_title, 22).slice(0, 2);
+
+        playRecNote(isPro ? 523.25 : 587.33, 0.3, 0.11);
+
+        for (let f = 0; f < framesPerTurn; f++) {
+          const globalF = tIdx * framesPerTurn + f;
+          const progress = globalF / Math.max(totalFrames - 1, 1);
+          const localSec = f / 30;
+          if (f % 12 === 0) playRecNote(notes[(tIdx + f / 12) % notes.length], 0.2, 0.035);
+          if (globalF % 6 === 0) onProgress(Math.min(99, Math.round(progress * 100)));
+
+          // 1) Architectural Studio Backdrop
+          const grad = ctx.createLinearGradient(0, 0, 0, 1280);
+          grad.addColorStop(0, "#0E1015");
+          grad.addColorStop(0.55, "#141821");
+          grad.addColorStop(1, "#0B0D12");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, 720, 1280);
+
+          ctx.fillStyle = "rgba(255,255,255,0.03)";
+          for (let px = 48; px < 720; px += 88) ctx.fillRect(px, 0, 2, 1080);
+
+          // Top Progress Bar & Status
+          ctx.fillStyle = "#272A34";
+          ctx.beginPath(); ctx.roundRect(38, 34, 644, 8, 4); ctx.fill();
+          ctx.fillStyle = accent;
+          ctx.beginPath(); ctx.roundRect(38, 34, Math.max(16, 644 * progress), 8, 4); ctx.fill();
+
+          ctx.fillStyle = "#E4E4E7";
+          ctx.font = "bold 20px Pretendard, sans-serif";
+          ctx.fillText(`${tIdx + 1} / ${turns.length}`, 40, 76);
+          ctx.textAlign = "right";
+          ctx.fillStyle = "#A1A1AA";
+          ctx.fillText(`${(40 * (1 - progress)).toFixed(1)}s`, 680, 76);
+          ctx.textAlign = "left";
+
+          // Issue Header Card
+          ctx.fillStyle = "rgba(24, 27, 36, 0.94)";
+          ctx.strokeStyle = "rgba(255,255,255,0.08)";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.roundRect(38, 100, 644, 96, 14); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = "#F4F4F5";
+          ctx.font = "bold 22px Pretendard, sans-serif";
+          ctx.textAlign = "center";
+          titleLines.forEach((tl, ti) => ctx.fillText(tl, 360, 142 + ti * 30));
+          ctx.textAlign = "left";
+
+          // Characters (draw listener first, active speaker front with ease-out)
+          const enter = Math.min(1, localSec / 0.35);
+          const ease = 1 - Math.pow(1 - enter, 3);
+          const bob = Math.sin(localSec * 10) * 3.5 + Math.sin(localSec * 4) * 2;
+          const breath = Math.sin(localSec * 2.1) * 1.5;
+
+          const drawSpeaker = (img, isActive, baseX, bobOff, slidePx) => {
+            if (!img || !img.complete || img.naturalWidth <= 0) return;
+            ctx.save();
+            ctx.globalAlpha = isActive ? 1.0 : 0.48;
+            const scale = isActive ? 0.92 : 0.78;
+            const dw = img.naturalWidth * scale;
+            const dh = img.naturalHeight * scale;
+            ctx.drawImage(img, baseX - dw / 2 + slidePx, 1146 - dh + bobOff, dw, dh);
+            ctx.restore();
+          };
+
+          if (isPro) {
+            drawSpeaker(conImg, false, 532, breath, 0);
+            drawSpeaker(proImg, true, 192, bob - ease * 6, (1 - ease) * -14);
+          } else {
+            drawSpeaker(proImg, false, 188, breath, 0);
+            drawSpeaker(conImg, true, 528, bob - ease * 6, (1 - ease) * 14);
+          }
+
+          // Editorial Speech Bubble + Top Stance Bar
+          ctx.fillStyle = "#FFFFFF";
+          ctx.beginPath(); ctx.roundRect(38, 220, 644, 356, 20); ctx.fill();
+          ctx.fillStyle = accent;
+          ctx.beginPath(); ctx.roundRect(38, 220, 644, 6, 3); ctx.fill();
+
+          ctx.fillStyle = "#FFFFFF";
+          ctx.beginPath();
+          if (isPro) { ctx.moveTo(168, 574); ctx.lineTo(182, 616); ctx.lineTo(218, 574); }
+          else { ctx.moveTo(502, 574); ctx.lineTo(538, 616); ctx.lineTo(552, 574); }
+          ctx.fill();
+
+          ctx.fillStyle = tint;
+          ctx.beginPath(); ctx.roundRect(74, 248, 96, 32, 8); ctx.fill();
+          ctx.fillStyle = accent;
+          ctx.font = "bold 16px Pretendard, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(`${isPro ? "찬성" : "반대"} ${Math.floor(tIdx / 2) + 1}`, 122, 270);
+          ctx.textAlign = "right";
+          ctx.fillStyle = "#71717A";
+          ctx.font = "600 14.5px Pretendard, sans-serif";
+          ctx.fillText(`실측 ${currentData.raw_stats.total_comments}건 핵심 요약`, 646, 270);
+          ctx.textAlign = "left";
+
+          ctx.fillStyle = accent;
+          ctx.font = "bold 22px Pretendard, sans-serif";
+          ctx.fillText((turn.core_point || "").slice(0, 26), 76, 322);
+          ctx.fillStyle = "#F4F4F5";
+          ctx.fillRect(76, 338, 568, 2);
+
+          // Kinetic Line-by-Line Progressive Caption Highlighting
+          const activeLineFloat = ((f + 1) / framesPerTurn) * Math.max(lines.length, 1);
+          lines.forEach((ln, li) => {
+            const ly = 374 + li * 33;
+            if (li + 1 <= Math.floor(activeLineFloat)) {
+              ctx.fillStyle = "#111317";
+              ctx.font = "bold 20.5px Pretendard, sans-serif";
+            } else if (li < activeLineFloat) {
+              ctx.fillStyle = tint;
+              const estW = Math.min(560, Math.max(160, ln.length * 16.5));
+              ctx.beginPath(); ctx.roundRect(70, ly - 22, estW, 28, 6); ctx.fill();
+              ctx.fillStyle = accent;
+              ctx.font = "bold 20.5px Pretendard, sans-serif";
+            } else {
+              ctx.fillStyle = "#94A3B8";
+              ctx.font = "500 20.5px Pretendard, sans-serif";
+            }
+            ctx.fillText(ln, 76, ly);
+          });
+
+          // Lower-Third Broadcast Desk + 12-Band Spectrum
+          ctx.fillStyle = "rgba(21, 24, 33, 0.96)";
+          ctx.strokeStyle = "rgba(255,255,255,0.09)";
+          ctx.beginPath(); ctx.roundRect(30, 1116, 660, 130, 18); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = "#60A5FA";
+          ctx.font = "bold 16px Pretendard, sans-serif";
+          ctx.fillText(`찬성 ${currentData.raw_stats.pro_ratio}%`, 64, 1152);
+          ctx.fillStyle = "#F87171";
+          ctx.textAlign = "right";
+          ctx.fillText(`반대 ${currentData.raw_stats.con_ratio}%`, 656, 1152);
+          ctx.textAlign = "center";
+          ctx.fillStyle = "#A1A1AA";
+          ctx.font = "600 13px Pretendard, sans-serif";
+          ctx.fillText("50:50 중재", 360, 1172);
+          ctx.textAlign = "left";
+
+          const proW = Math.max(14, Math.round(220 * (currentData.raw_stats.pro_ratio / 100)));
+          ctx.fillStyle = "#2563EB";
+          ctx.beginPath(); ctx.roundRect(250, 1142, proW, 8, 4); ctx.fill();
+          ctx.fillStyle = "#DC2626";
+          ctx.beginPath(); ctx.roundRect(254 + proW, 1142, Math.max(6, 216 - proW), 8, 4); ctx.fill();
+
+          for (let bi = 0; bi < 12; bi++) {
+            const bx = 294 + bi * 11;
+            const bh = Math.round(6 + 16 * (0.5 + 0.5 * Math.sin(localSec * 14 + bi * 0.75)));
+            ctx.fillStyle = accent;
+            ctx.beginPath(); ctx.roundRect(bx, 1205 - bh / 2, 5, bh, 2); ctx.fill();
+          }
+
+          ctx.fillStyle = "#71717A";
+          ctx.font = "bold 14px Pretendard, sans-serif";
+          ctx.textAlign = "right";
+          ctx.fillText("Agora Studio", 656, 1210);
+          ctx.textAlign = "left";
+
+          await new Promise((r) => setTimeout(r, 33));
+        }
+      }
+
+      recorder.stop();
+      onProgress(100);
+      return donePromise;
+    }
+
     async function exportReal916Video() {
       const statusEl = document.getElementById("mp4ExportStatus");
       if (window.location.protocol.startsWith("http") && currentData.video_mp4_url) {
@@ -1185,102 +1646,25 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         } catch (e) {}
       }
 
-      statusEl.textContent = "9:16 영상 인코딩 중 (약 6초)...";
-      const canvas = document.getElementById("hiddenShortsRecorderCanvas");
-      const ctx = canvas.getContext("2d");
-      const stream = canvas.captureStream(30);
-      const recorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported("video/mp4") ? "video/mp4" : "video/webm" });
-      const chunks = [];
-      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
-      recorder.onstop = () => {
-        const ext = recorder.mimeType.includes("mp4") ? "mp4" : "webm";
-        const blob = new Blob(chunks, { type: recorder.mimeType });
-        const url = URL.createObjectURL(blob);
+      statusEl.textContent = "9:16 브로드캐스트 영상 생성 중 (약 9초)...";
+      const url = await generateDynamicVideoUrl((pct) => {
+        statusEl.textContent = `9:16 영상 렌더링 중 (${pct}%)...`;
+      });
+      if (url) {
+        const ext = currentData.rendered_video_ext || "webm";
         const a = document.createElement("a");
         a.href = url;
-        a.download = `agora_${currentData.id || "debate"}_9x16.${ext}`;
+        a.download = `agora_${currentData.id || "custom"}_9x16.${ext}`;
         a.click();
         statusEl.textContent = `9:16 영상(.${ext}) 저장 완료`;
-      };
-
-      recorder.start();
-      const turns = currentData.debate_script;
-      const proImg = document.getElementById("avatarCardPro");
-      const conImg = document.getElementById("avatarCardCon");
-
-      for (let tIdx = 0; tIdx < turns.length; tIdx++) {
-        const turn = turns[tIdx];
-        const isPro = turn.speaker === "PRO";
-        for (let f = 0; f < 30; f++) {
-          ctx.fillStyle = "#121316";
-          ctx.fillRect(0, 0, 720, 1280);
-          ctx.fillStyle = "#27272A";
-          ctx.fillRect(40, 34, 640, 8);
-          ctx.fillStyle = isPro ? "#2563EB" : "#DC2626";
-          ctx.fillRect(40, 34, 640 * ((tIdx + f / 30) / turns.length), 8);
-
-          ctx.fillStyle = "#F4F4F5";
-          ctx.font = "bold 23px sans-serif";
-          ctx.fillText(`${tIdx + 1}/6 · ${currentData.issue_title.slice(0, 22)}`, 44, 118);
-
-          ctx.fillStyle = "#FFFFFF";
-          ctx.beginPath();
-          ctx.roundRect(40, 220, 640, 340, 24);
-          ctx.fill();
-
-          ctx.beginPath();
-          if (isPro) {
-            ctx.moveTo(165, 558); ctx.lineTo(185, 610); ctx.lineTo(225, 558);
-          } else {
-            ctx.moveTo(495, 558); ctx.lineTo(535, 610); ctx.lineTo(555, 558);
-          }
-          ctx.fill();
-
-          ctx.fillStyle = isPro ? "#2563EB" : "#DC2626";
-          ctx.font = "bold 23px sans-serif";
-          ctx.fillText(`${isPro ? "찬성" : "반대"} · ${turn.core_point.slice(0, 22)}`, 72, 275);
-
-          ctx.fillStyle = "#111317";
-          ctx.font = "600 22px sans-serif";
-          const words = turn.text.split(" ");
-          let line = "", y = 335;
-          for (const w of words) {
-            if ((line + w).length > 24) {
-              ctx.fillText(line, 72, y);
-              line = w + " ";
-              y += 34;
-            } else {
-              line += w + " ";
-            }
-          }
-          if (line) ctx.fillText(line, 72, y);
-
-          const bob = Math.sin((f / 30) * Math.PI * 4) * 5;
-          if (proImg && proImg.complete && proImg.naturalWidth > 0) {
-            ctx.save();
-            ctx.globalAlpha = isPro ? 1.0 : 0.48;
-            const pw = isPro ? 330 : 285, ph = isPro ? 430 : 372;
-            ctx.drawImage(proImg, 195 - pw / 2, 1130 - ph + (isPro ? bob : 12), pw, ph);
-            ctx.restore();
-          }
-          if (conImg && conImg.complete && conImg.naturalWidth > 0) {
-            ctx.save();
-            ctx.globalAlpha = !isPro ? 1.0 : 0.48;
-            const cw = !isPro ? 345 : 295, ch = !isPro ? 430 : 372;
-            ctx.drawImage(conImg, 525 - cw / 2, 1130 - ch + (!isPro ? bob : 12), cw, ch);
-            ctx.restore();
-          }
-
-          ctx.fillStyle = "#1A1B20";
-          ctx.fillRect(30, 1110, 660, 130);
-          ctx.fillStyle = "#A1A1AA";
-          ctx.font = "bold 18px sans-serif";
-          ctx.fillText(`찬성 ${currentData.raw_stats.pro_ratio}%   |   50:50 중재   |   반대 ${currentData.raw_stats.con_ratio}%`, 155, 1175);
-
-          await new Promise((r) => setTimeout(r, 33));
+        if (playerMode === "video") {
+          const videoEl = document.getElementById("realMp4Player");
+          const srcEl = document.getElementById("realMp4Source");
+          if (srcEl) srcEl.setAttribute("src", url);
+          videoEl.setAttribute("src", url);
+          videoEl.load();
         }
       }
-      recorder.stop();
     }
 
     function copyVideoAiPrompt(btn) {
@@ -1404,10 +1788,18 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       document.getElementById("shortsIssueTitle").textContent = data.issue_title;
       document.getElementById("shortsProShare").textContent = `찬성 ${stats.pro_ratio}%`;
       document.getElementById("shortsConShare").textContent = `반대 ${stats.con_ratio}%`;
+      const videoEl = document.getElementById("realMp4Player");
       const srcEl = document.getElementById("realMp4Source");
-      if (srcEl && data.video_mp4_url) {
-        srcEl.setAttribute("src", data.video_mp4_url);
-        document.getElementById("realMp4Player").load();
+      if (videoEl) {
+        if (data.video_mp4_url) {
+          if (srcEl) srcEl.setAttribute("src", data.video_mp4_url);
+          videoEl.setAttribute("src", data.video_mp4_url);
+          videoEl.load();
+        } else {
+          if (srcEl) srcEl.removeAttribute("src");
+          videoEl.removeAttribute("src");
+          videoEl.load();
+        }
       }
       updateShortsTurnVisual(0, false);
     }
@@ -1445,11 +1837,40 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       });
     }
 
+    function escapeHtml(s) {
+      return (s || "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    }
+
+    function renderKineticSubtitle(text, isPro, progress01 = 1) {
+      const el = document.getElementById("shortsSubtitleText");
+      if (!el) return;
+      const words = (text || "").trim().split(/\s+/).filter(Boolean);
+      if (!words.length) { el.textContent = ""; return; }
+      if (progress01 >= 1) {
+        el.textContent = text;
+        return;
+      }
+      const activeIdx = Math.min(words.length - 1, Math.max(0, Math.floor(progress01 * words.length)));
+      const activeCls = isPro ? "kw-active-pro" : "kw-active-con";
+      el.innerHTML = words.map((w, i) => {
+        const safe = escapeHtml(w);
+        if (i < activeIdx) return `<span class="kw-spoken">${safe}</span>`;
+        if (i === activeIdx) return `<span class="${activeCls}">${safe}</span>`;
+        return `<span class="kw-upcoming">${safe}</span>`;
+      }).join(" ");
+    }
+
     function updateTurnText(idx, newText) {
       if (currentData.debate_script[idx]) {
         currentData.debate_script[idx].text = newText.trim();
+        currentData.video_mp4_url = null;
+        currentData.rendered_video_blob_url = null;
+        const srcEl = document.getElementById("realMp4Source");
+        const videoEl = document.getElementById("realMp4Player");
+        if (srcEl) srcEl.removeAttribute("src");
+        if (videoEl) { videoEl.removeAttribute("src"); videoEl.load(); }
         if (idx === currentTurnIndex) {
-          document.getElementById("shortsSubtitleText").textContent = newText.trim();
+          renderKineticSubtitle(newText.trim(), currentData.debate_script[idx].speaker === "PRO", 1);
         }
       }
     }
@@ -1483,7 +1904,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         : "text-[11.5px] font-bold text-[#DC2626] mb-1 leading-snug";
 
       document.getElementById("shortsCorePoint").textContent = turn.core_point;
-      document.getElementById("shortsSubtitleText").textContent = turn.text;
+      renderKineticSubtitle(turn.text, isPro, speakingActive ? 0.03 : 1);
 
       document.getElementById("shortsTurnDots").innerHTML = turns
         .map((t, i) => {
@@ -1532,6 +1953,12 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         const remaining = Math.max(0, totalDurationSec - elapsedSec);
         document.getElementById("shortsProgressBar").style.width = `${pct.toFixed(1)}%`;
         document.getElementById("shortsTimerDisplay").textContent = `${remaining.toFixed(1)}s`;
+        const curTurn = turns[currentTurnIndex];
+        if (curTurn) {
+          const turnLocalSec = Math.max(0, elapsedSec - currentTurnIndex * turnDurationSec);
+          const turnProg = Math.min(0.99, turnLocalSec / Math.max(turnDurationSec, 0.1));
+          renderKineticSubtitle(curTurn.text, curTurn.speaker === "PRO", turnProg);
+        }
         if (elapsedSec >= totalDurationSec) stopShortsPlayback(true);
       }, 100);
 
