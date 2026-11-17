@@ -95,10 +95,34 @@ def _split_turn_into_clauses(text: str) -> List[str]:
         return [" ".join(sents[:best_i]), " ".join(sents[best_i:])]
 
     words = s.split(" ")
-    if len(words) < 6 or len(s) < 36:
+    n = len(words)
+    if n < 6 or len(s) < 36:
         return [s]
-    mid = len(words) // 2
-    return [" ".join(words[:mid]), " ".join(words[mid:])]
+
+    lo = max(2, int(round(n * 0.33)))
+    hi = min(n - 2, int(round(n * 0.68)))
+    if lo > hi:
+        mid = n // 2
+        return [" ".join(words[:mid]), " ".join(words[mid:])]
+
+    total_chars = sum(len(w) for w in words)
+    best_idx = n // 2
+    best_score = -10**9.0
+    for i in range(lo, hi + 1):
+        prev_w = words[i - 1]
+        left_chars = sum(len(w) for w in words[:i])
+        balance_pen = abs(left_chars - total_chars * 0.5) * 0.16
+        sc = -balance_pen
+        if prev_w.endswith(","):
+            sc += 10.0
+        elif re.search(r"(위해|보다|지만|으나|으며|므로|면서|도록|는데|거나|거든)$", prev_w):
+            sc += 7.5
+        elif len(prev_w) >= 2 and prev_w[-1] in ("은", "는"):
+            sc += 3.5
+        if sc > best_score:
+            best_score = sc
+            best_idx = i
+    return [" ".join(words[:best_idx]), " ".join(words[best_idx:])]
 
 
 def normalize_korean_for_tts(text: str) -> str:
@@ -822,6 +846,21 @@ def _build_stage_assets() -> Dict[str, Any]:
     }
 
 
+def _pick_title_font_and_lines(
+    text: str, max_width: int, fonts: Dict[str, ImageFont.FreeTypeFont]
+) -> Tuple[ImageFont.FreeTypeFont, List[str]]:
+    clean = " ".join((text or "").split())
+    total_words = len([w for w in clean.split() if w])
+    for key in ["title_xl", "title_lg", "title_md"]:
+        f = fonts[key]
+        lines = _wrap_words_by_width(clean, f, max_width, max_lines=2)
+        if sum(len(ln) for ln in lines) >= total_words:
+            return f, [" ".join(ln) for ln in lines]
+    f = fonts["title_md"]
+    wrapped = _wrap_words_by_width(clean, f, max_width, max_lines=2)
+    return f, [" ".join(ln) for ln in wrapped]
+
+
 def _pick_core_font_and_lines(text: str, max_width: int, fonts: Dict[str, ImageFont.FreeTypeFont]) -> Tuple[ImageFont.FreeTypeFont, List[str]]:
     clean = " ".join((text or "").split())
     for key in ["core_lg", "core_md", "core_sm"]:
@@ -833,7 +872,7 @@ def _pick_core_font_and_lines(text: str, max_width: int, fonts: Dict[str, ImageF
 
 
 def _pick_caption_font_and_lines(clause_text: str, max_width: int, fonts: Dict[str, ImageFont.FreeTypeFont]) -> Tuple[ImageFont.FreeTypeFont, ImageFont.FreeTypeFont, List[List[str]], int]:
-    for b_key, d_key, lh in [("body_xl", "body_xl_dim", 58), ("body_lg", "body_lg_dim", 50)]:
+    for b_key, d_key, lh in [("body_xl", "body_xl_dim", 54), ("body_lg", "body_lg_dim", 48)]:
         bf = fonts[b_key]
         lines = _wrap_words_by_width(clause_text, bf, max_width, max_lines=3)
         word_cnt_wrapped = sum(len(x) for x in lines)
@@ -841,7 +880,7 @@ def _pick_caption_font_and_lines(clause_text: str, max_width: int, fonts: Dict[s
         if word_cnt_wrapped >= word_cnt_total:
             return bf, fonts[d_key], lines, lh
     bf = fonts["body_lg"]
-    return bf, fonts["body_lg_dim"], _wrap_words_by_width(clause_text, bf, max_width, max_lines=4), 46
+    return bf, fonts["body_lg_dim"], _wrap_words_by_width(clause_text, bf, max_width, max_lines=4), 42
 
 
 def _resolve_perspectives(raw_stats: Dict[str, Any], perspectives: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
@@ -865,6 +904,61 @@ def _resolve_perspectives(raw_stats: Dict[str, Any], perspectives: Optional[List
     ]
 
 
+def _draw_desk_nameplates(
+    desk_img: Image.Image,
+    turns: List[Dict[str, Any]],
+    turn_idx: int,
+    fonts: Dict[str, ImageFont.FreeTypeFont],
+) -> None:
+    """커브드 스튜디오 데스크 전면 패널에 현재 발화자/대기 패널 입장 명패를 깔끔하게 각인."""
+    cur_turn = turns[turn_idx]
+    cur_is_pro = cur_turn.get("speaker") == "PRO"
+    cur_ck = _get_turn_color_key(cur_turn)
+    cur_lbl = (cur_turn.get("perspective_label") or "").strip() or (
+        f"좌측 {turn_idx // 2 + 1}" if cur_is_pro else f"우측 {turn_idx // 2 + 1}"
+    )
+
+    opp_turn: Optional[Dict[str, Any]] = None
+    for step in range(1, len(turns) + 1):
+        for cand_i in (turn_idx + step, turn_idx - step):
+            if 0 <= cand_i < len(turns) and (turns[cand_i].get("speaker") == "PRO") != cur_is_pro:
+                opp_turn = turns[cand_i]
+                break
+        if opp_turn is not None:
+            break
+    opp_lbl = ((opp_turn.get("perspective_label") or "").strip() if opp_turn else "") or (
+        "우측 패널" if cur_is_pro else "좌측 패널"
+    )
+
+    d = ImageDraw.Draw(desk_img, "RGBA")
+
+    def paint_plate(center_x: int, label: str, active: bool, accent_col: Tuple[int, int, int, int]) -> None:
+        plate_font = fonts["desk_plate"]
+        tw = plate_font.getlength(label)
+        badge_w = 68 if active else 0
+        pw = int(max(220, min(390, tw + badge_w + 56)))
+        x0 = max(54, min(W - 54 - pw, center_x - pw // 2))
+        x1 = x0 + pw
+        y0, y1 = 1368, 1424
+        if active:
+            d.rounded_rectangle([x0, y0 + 5, x1, y1 + 5], radius=14, fill=(0, 0, 0, 120))
+            d.rounded_rectangle([x0, y0, x1, y1], radius=14, fill=(10, 14, 22, 240), outline=accent_col, width=3)
+            d.rounded_rectangle([x0 + 8, y0 + 8, x0 + 68, y1 - 8], radius=9, fill=accent_col)
+            d.text((x0 + 38, (y0 + y1) // 2), "발언", font=fonts["claim_tag"], fill=(255, 255, 255, 255), anchor="mm")
+            d.text(((x0 + 72 + x1 - 10) // 2, (y0 + y1) // 2), label, font=plate_font, fill=(255, 255, 255, 255), anchor="mm")
+        else:
+            d.rounded_rectangle([x0, y0, x1, y1], radius=14, fill=(12, 16, 25, 200), outline=(255, 255, 255, 42), width=2)
+            d.text((center_x, (y0 + y1) // 2), label, font=plate_font, fill=(182, 192, 208, 225), anchor="mm")
+
+    cur_accent = PALETTE[cur_ck]["accent"]
+    if cur_is_pro:
+        paint_plate(242, cur_lbl, True, cur_accent)
+        paint_plate(838, opp_lbl, False, cur_accent)
+    else:
+        paint_plate(242, opp_lbl, False, cur_accent)
+        paint_plate(838, cur_lbl, True, cur_accent)
+
+
 def _render_ui_hud_frame(
     issue_title: str,
     raw_stats: Dict[str, Any],
@@ -882,7 +976,7 @@ def _render_ui_hud_frame(
     active_word_idx: int,
     fonts: Dict[str, ImageFont.FreeTypeFont],
 ) -> Image.Image:
-    """고대비 2절 분할 대형 카라오케 말풍선 + 동적 다관점 라벨 & 스택 비율 바 + 하단 텔레메트리."""
+    """주제(골드+초대형 헤드라인) · 화자/입장(솔리드 컬러 배지) · 핵심 요점 · 발화 자막의 명확한 4단 계층 HUD."""
     overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(overlay, "RGBA")
 
@@ -893,71 +987,90 @@ def _render_ui_hud_frame(
     accent_pill = pal["pill"]
     accent_badge_txt = pal["txt"]
 
-    default_lbl = f"찬성 패널 {turn_idx // 2 + 1}" if is_pro else f"반대 패널 {turn_idx // 2 + 1}"
+    default_lbl = f"좌측 패널 {turn_idx // 2 + 1}" if is_pro else f"우측 패널 {turn_idx // 2 + 1}"
     speaker_label = (turn_data.get("perspective_label") or "").strip() or default_lbl
 
-    # 1) Top Broadcast Header Card (y=104..234)
-    d.rounded_rectangle([48, 104, W - 48, 234], radius=20, fill=(14, 17, 25, 240), outline=(255, 255, 255, 42), width=2)
-    live_text = f"LIVE · {mode_label}" if mode_label else "LIVE AI 공론장 중재"
-    live_w = int(max(210, fonts["badge_sm"].getlength(live_text) + 56))
-    d.rounded_rectangle([74, 118, min(W - 300, 74 + live_w), 150], radius=15, fill=(255, 255, 255, 22))
-    d.ellipse([90, 128, 102, 140], fill=accent)
-    d.text((112, 134), live_text, font=fonts["badge_sm"], fill=(241, 245, 249, 255), anchor="lm")
-    d.text((W - 74, 134), f"분석 {raw_stats.get('total_comments', 0)}건 데이터", font=fonts["badge_sm"], fill=(161, 161, 170, 255), anchor="rm")
+    # 1) TOPIC HERO BILLBOARD (y=98..288) — unmistakably the #1 show topic at a glance
+    tx0, ty0, tx1, ty1 = 48, 98, W - 48, 288
+    d.rounded_rectangle([tx0, ty0 + 8, tx1, ty1 + 8], radius=22, fill=(0, 0, 0, 125))
+    d.rounded_rectangle([tx0, ty0, tx1, ty1], radius=22, fill=(9, 13, 22, 248), outline=(250, 204, 21, 145), width=2)
+    d.rounded_rectangle([tx0, ty0, tx1, ty0 + 9], radius=8, fill=(250, 204, 21, 255))
+    d.rectangle([tx0, ty0 + 4, tx1, ty0 + 9], fill=(250, 204, 21, 255))
 
-    title_lines = _wrap_words_by_width(issue_title, fonts["title"], W - 168, max_lines=2)
-    title_start_y = 175 if len(title_lines) > 1 else 192
-    for ti, twords in enumerate(title_lines):
-        d.text((W // 2, title_start_y + ti * 38), " ".join(twords), font=fonts["title"], fill=(255, 255, 255, 255), anchor="mm")
+    # Row 1 inside Topic Card: Solid Gold "영상 주제" chip + Mode tag + Total dataset count
+    d.rounded_rectangle([76, ty0 + 20, 198, ty0 + 54], radius=10, fill=(250, 204, 21, 255))
+    d.text((137, ty0 + 37), "영상 주제", font=fonts["topic_tag"], fill=(9, 13, 22, 255), anchor="mm")
 
-    # 2) High-Contrast Editorial Speech Bubble (y=252..656, tail tip at 698, clears heads at y>=745)
-    bx0, by0, bx1, by1 = 48, 252, W - 48, 656
-    d.rounded_rectangle([bx0, by0 + 10, bx1, by1 + 10], radius=26, fill=(0, 0, 0, 115))
-    d.rounded_rectangle([bx0, by0, bx1, by1], radius=26, fill=(255, 255, 255, 254), outline=(15, 23, 42, 34), width=2)
+    mode_chip = mode_label or "다관점 분석"
+    mode_w = int(min(360, max(130, fonts["badge_sm"].getlength(mode_chip) + 32)))
+    d.rounded_rectangle([210, ty0 + 20, 210 + mode_w, ty0 + 54], radius=10, fill=(255, 255, 255, 24))
+    d.text((210 + mode_w // 2, ty0 + 37), mode_chip, font=fonts["badge_sm"], fill=(226, 232, 240, 255), anchor="mm")
+
+    d.text((W - 76, ty0 + 37), f"댓글 {raw_stats.get('total_comments', 0)}건 분석", font=fonts["badge_sm"], fill=(148, 163, 184, 255), anchor="rm")
+
+    # Giant Crisp Pure-White Topic Title (44px -> 40px -> 36px)
+    title_font, title_lines = _pick_title_font_and_lines(issue_title, W - 156, fonts)
+    if len(title_lines) == 1:
+        d.text((W // 2, ty0 + 122), title_lines[0], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
+    else:
+        d.text((W // 2, ty0 + 94), title_lines[0], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
+        d.text((W // 2, ty0 + 148), title_lines[1], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
+
+    # 2) SPEAKER STATEMENT BUBBLE (y=306..668, tail tip=708 -> clears anchor crowns y>=734!)
+    bx0, by0, bx1, by1 = 48, 306, W - 48, 668
+    d.rounded_rectangle([bx0, by0 + 10, bx1, by1 + 10], radius=24, fill=(0, 0, 0, 120))
+    d.rounded_rectangle([bx0, by0, bx1, by1], radius=24, fill=(255, 255, 255, 254), outline=(15, 23, 42, 34), width=2)
     d.rounded_rectangle([bx0, by0, bx1, by0 + 11], radius=8, fill=accent)
     d.rectangle([bx0, by0 + 5, bx1, by0 + 11], fill=accent)
 
     if is_pro:
-        d.polygon([(270, by1 - 2), (342, by1 - 2), (300, by1 + 42)], fill=(255, 255, 255, 254))
+        d.polygon([(265, by1 - 2), (335, by1 - 2), (295, by1 + 40)], fill=(255, 255, 255, 254))
     else:
-        d.polygon([(W - 342, by1 - 2), (W - 270, by1 - 2), (W - 300, by1 + 42)], fill=(255, 255, 255, 254))
+        d.polygon([(W - 335, by1 - 2), (W - 265, by1 - 2), (W - 295, by1 + 40)], fill=(255, 255, 255, 254))
 
-    # Row 1: Dynamic-width Perspective Pill + Clause Step Badge
-    sp_text_w = fonts["speaker"].getlength(speaker_label)
-    sp_pill_r = int(min(W - 240, 88 + max(150, sp_text_w + 46)))
-    d.rounded_rectangle([88, by0 + 26, sp_pill_r, by0 + 68], radius=11, fill=accent_pill)
-    d.text(((88 + sp_pill_r) // 2, by0 + 47), speaker_label, font=fonts["speaker"], fill=accent_badge_txt, anchor="mm")
+    # Row 1: Solid High-Contrast Perspective Badge (with directional arrow) + Clause Step Pill
+    spk_display = f"◀ {speaker_label}" if is_pro else f"{speaker_label} ▶"
+    sp_text_w = fonts["speaker"].getlength(spk_display)
+    sp_pill_r = int(min(W - 244, 84 + max(168, sp_text_w + 48)))
+    d.rounded_rectangle([84, by0 + 24, sp_pill_r, by0 + 70], radius=12, fill=accent)
+    d.text(((84 + sp_pill_r) // 2, by0 + 47), spk_display, font=fonts["speaker"], fill=(255, 255, 255, 255), anchor="mm")
 
-    d.rounded_rectangle([W - 216, by0 + 28, W - 88, by0 + 66], radius=10, fill=(241, 245, 249, 255))
-    d.text((W - 152, by0 + 47), f"논지 {clause_idx + 1} / {total_clauses}", font=fonts["meta"], fill=(71, 85, 105, 255), anchor="mm")
+    d.rounded_rectangle([W - 224, by0 + 26, W - 84, by0 + 68], radius=11, fill=(241, 245, 249, 255), outline=(203, 213, 225, 255), width=1)
+    d.text((W - 154, by0 + 47), f"논지 {clause_idx + 1} / {total_clauses}", font=fonts["meta"], fill=(51, 65, 85, 255), anchor="mm")
 
-    # Row 2: Full Uncut Core Point
-    core_font, core_lines = _pick_core_font_and_lines(turn_data.get("core_point", ""), W - 180, fonts)
+    # Row 2: Tinted Key Claim Banner (isolates Core Point from Spoken Subtitle)
+    core_font, core_lines = _pick_core_font_and_lines(turn_data.get("core_point", ""), W - 268, fonts)
+    claim_y0 = by0 + 84
+    claim_y1 = claim_y0 + (54 if len(core_lines) == 1 else 82)
+    d.rounded_rectangle([84, claim_y0, W - 84, claim_y1], radius=12, fill=accent_pill)
+    d.rounded_rectangle([84, claim_y0, 96, claim_y1], radius=6, fill=accent)
+    d.rectangle([90, claim_y0, 96, claim_y1], fill=accent)
+
+    d.rounded_rectangle([108, claim_y0 + 12, 168, claim_y0 + 42], radius=7, fill=accent)
+    d.text((138, claim_y0 + 27), "핵심", font=fonts["claim_tag"], fill=(255, 255, 255, 255), anchor="mm")
+
     if len(core_lines) == 1:
-        d.text((90, by0 + 96), core_lines[0], font=core_font, fill=accent_badge_txt, anchor="lm")
-        div_y = by0 + 124
+        d.text((180, (claim_y0 + claim_y1) // 2), core_lines[0], font=core_font, fill=accent_badge_txt, anchor="lm")
     else:
-        d.text((90, by0 + 88), core_lines[0], font=core_font, fill=accent_badge_txt, anchor="lm")
-        d.text((90, by0 + 116), core_lines[1], font=core_font, fill=accent_badge_txt, anchor="lm")
-        div_y = by0 + 138
-    d.line([(90, div_y), (W - 90, div_y)], fill=(226, 232, 240, 255), width=2)
+        d.text((180, claim_y0 + 26), core_lines[0], font=core_font, fill=accent_badge_txt, anchor="lm")
+        d.text((180, claim_y0 + 57), core_lines[1], font=core_font, fill=accent_badge_txt, anchor="lm")
 
-    # Row 3: Large 39px Kinetic Karaoke Captions
+    # Row 3: Bold Kinetic Spoken Captions centered vertically in remaining box
     space_w = caption_font.getlength(" ") + 3.0
     running_idx = 0
     block_h = len(caption_lines) * line_h
-    avail_h = (by1 - 24) - (div_y + 18)
-    start_y = div_y + 20 + max(0, (avail_h - block_h) // 2)
+    avail_h = (by1 - 18) - (claim_y1 + 14)
+    start_y = claim_y1 + 16 + max(0, (avail_h - block_h) // 2)
 
     for li, line_words in enumerate(caption_lines):
-        cx = 90.0
+        cx = 84.0
         cy = start_y + li * line_h
         for w_str in line_words:
             ww = caption_font.getlength(w_str)
             if running_idx < active_word_idx:
                 d.text((cx, cy), w_str, font=caption_font, fill=(15, 23, 42, 255), anchor="lt")
             elif running_idx == active_word_idx:
-                pill_pad_y = max(40, int(line_h * 0.84))
+                pill_pad_y = max(38, int(line_h * 0.84))
                 d.rounded_rectangle(
                     [int(cx - 8), int(cy - 4), int(cx + ww + 8), int(cy + pill_pad_y)],
                     radius=10,
@@ -1090,14 +1203,20 @@ def render_debate_mp4(
     fonts = {
         "hud": _load_font(FONT_BOLD_PATH, 23),
         "badge_sm": _load_font(FONT_BOLD_PATH, 19),
-        "title": _load_font(FONT_BOLD_PATH, 31),
-        "speaker": _load_font(FONT_BOLD_PATH, 22),
+        "topic_tag": _load_font(FONT_BOLD_PATH, 20),
+        "claim_tag": _load_font(FONT_BOLD_PATH, 18),
+        "desk_plate": _load_font(FONT_BOLD_PATH, 22),
+        "title_xl": _load_font(FONT_BOLD_PATH, 44),
+        "title_lg": _load_font(FONT_BOLD_PATH, 40),
+        "title_md": _load_font(FONT_BOLD_PATH, 36),
+        "title": _load_font(FONT_BOLD_PATH, 40),
+        "speaker": _load_font(FONT_BOLD_PATH, 23),
         "meta": _load_font(FONT_BOLD_PATH, 20),
-        "core_lg": _load_font(FONT_BOLD_PATH, 29),
-        "core_md": _load_font(FONT_BOLD_PATH, 26),
-        "core_sm": _load_font(FONT_BOLD_PATH, 23),
-        "body_xl": _load_font(FONT_BOLD_PATH, 39),
-        "body_xl_dim": _load_font(FONT_BOLD_PATH, 39),
+        "core_lg": _load_font(FONT_BOLD_PATH, 27),
+        "core_md": _load_font(FONT_BOLD_PATH, 24),
+        "core_sm": _load_font(FONT_BOLD_PATH, 21),
+        "body_xl": _load_font(FONT_BOLD_PATH, 38),
+        "body_xl_dim": _load_font(FONT_BOLD_PATH, 38),
         "body_lg": _load_font(FONT_BOLD_PATH, 34),
         "body_lg_dim": _load_font(FONT_BOLD_PATH, 34),
         "stat": _load_font(FONT_BOLD_PATH, 23),
@@ -1197,6 +1316,9 @@ def render_debate_mp4(
             side_key = "PRO" if is_pro else "CON"
             turn_bg.alpha_composite(assets["glows"][(side_key, ckey)])
 
+            turn_desk = assets["desk_fg"].copy()
+            _draw_desk_nameplates(turn_desk, turns, idx, fonts)
+
             focus_cx = (W * 0.468) if is_pro else (W * 0.532)
             n_f = turn_frame_counts[idx]
             for f in range(n_f):
@@ -1236,7 +1358,7 @@ def render_debate_mp4(
                     stage.paste(p_spr, (p_x, p_y), p_spr)
                     stage.paste(c_spr, (c_x, c_y), c_spr)
 
-                stage.paste(assets["desk_fg"], (0, 0), assets["desk_fg"])
+                stage.paste(turn_desk, (0, 0), turn_desk)
 
                 zoom = 1.022 + 0.030 * turn_prog
                 cw = W / zoom
@@ -1259,18 +1381,18 @@ def render_debate_mp4(
                 for s_i in range(total_turns):
                     sx0 = 48 + s_i * (seg_w + seg_gap)
                     sx1 = sx0 + seg_w
-                    draw.rounded_rectangle([sx0, 38, sx1, 47], radius=4, fill=(45, 50, 65, 220))
+                    draw.rounded_rectangle([sx0, 34, sx1, 43], radius=4, fill=(45, 50, 65, 220))
                     if s_i < idx:
                         s_col = PALETTE[_get_turn_color_key(turns[s_i])]["accent"]
-                        draw.rounded_rectangle([sx0, 38, sx1, 47], radius=4, fill=s_col)
+                        draw.rounded_rectangle([sx0, 34, sx1, 43], radius=4, fill=s_col)
                     elif s_i == idx:
                         fill_x = sx0 + max(10.0, (sx1 - sx0) * turn_prog)
-                        draw.rounded_rectangle([sx0, 38, fill_x, 47], radius=4, fill=accent_rgb)
+                        draw.rounded_rectangle([sx0, 34, fill_x, 43], radius=4, fill=accent_rgb)
 
-                draw.rounded_rectangle([48, 58, 162, 92], radius=12, fill=(14, 17, 25, 215))
-                draw.text((105, 75), f"{idx + 1:02d} / {total_turns:02d}", font=fonts["hud"], fill=(244, 244, 245, 255), anchor="mm")
-                draw.rounded_rectangle([W - 154, 58, W - 48, 92], radius=12, fill=(14, 17, 25, 215))
-                draw.text((W - 101, 75), f"{remaining_sec:.1f}s", font=fonts["hud"], fill=(228, 228, 231, 255), anchor="mm")
+                draw.rounded_rectangle([48, 54, 162, 88], radius=12, fill=(14, 17, 25, 215))
+                draw.text((105, 71), f"{idx + 1:02d} / {total_turns:02d}", font=fonts["hud"], fill=(244, 244, 245, 255), anchor="mm")
+                draw.rounded_rectangle([W - 154, 54, W - 48, 88], radius=12, fill=(14, 17, 25, 215))
+                draw.text((W - 101, 71), f"{remaining_sec:.1f}s", font=fonts["hud"], fill=(228, 228, 231, 255), anchor="mm")
 
                 eq_x0 = 365
                 for bi in range(24):

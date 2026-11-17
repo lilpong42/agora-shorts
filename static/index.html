@@ -243,7 +243,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 9px 11px 9px;
+      padding: 8px 10px 8px;
     }
 
     .stage-spotlight {
@@ -263,19 +263,19 @@
       position: relative;
       background: rgba(255, 255, 255, 0.99);
       color: #0F172A;
-      border-radius: 13px;
-      padding: 8px 11px 9px;
-      border: 1.5px solid rgba(15, 23, 42, 0.12);
-      border-top: 3.5px solid var(--pro-accent);
-      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.44);
+      border-radius: 12px;
+      padding: 6px 9px 7px;
+      border: 1.5px solid rgba(15, 23, 42, 0.14);
+      border-top: 3px solid var(--pro-accent);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.46);
       transition: border-color 0.2s ease;
     }
     .speech-bubble.con-mode { border-top-color: var(--con-accent); }
     .speech-tail {
       position: absolute;
-      bottom: -6px;
-      width: 12px;
-      height: 12px;
+      bottom: -5px;
+      width: 10px;
+      height: 10px;
       background: #FFFFFF;
       border-right: 1px solid rgba(15, 23, 42, 0.12);
       border-bottom: 1px solid rgba(15, 23, 42, 0.12);
@@ -646,32 +646,42 @@
                     <div class="w-full h-1 rounded-full bg-white/15 overflow-hidden mb-1">
                       <div id="shortsProgressBar" class="h-full bg-[#2563EB] transition-all duration-100" style="width: 0%"></div>
                     </div>
-                    <div class="flex items-center justify-between text-[9.5px] text-[#E4E4E7] mono-num mb-1">
-                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/90 font-semibold" id="shortsTurnCounter">1 / 6</span>
-                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/90 text-[#D4D4D8]" id="shortsTimerDisplay">0:00 / 0:56</span>
+                    <div class="flex items-center justify-between text-[9px] text-[#E4E4E7] mono-num mb-1">
+                      <span class="px-1.5 py-[1px] rounded bg-[#0E1015]/90 font-semibold" id="shortsTurnCounter">1 / 6</span>
+                      <span class="px-1.5 py-[1px] rounded bg-[#0E1015]/90 text-[#D4D4D8]" id="shortsTimerDisplay">0:00 / 0:56</span>
                     </div>
-                    <div class="rounded-lg bg-[#0E1015]/90 border border-white/15 px-2 py-1">
-                      <h3 id="shortsIssueTitle" class="text-[11px] font-bold text-white text-center leading-snug line-clamp-2">
+                    <div class="rounded-lg bg-[#090D16]/95 border border-[#FACC15]/55 border-t-[2.5px] border-t-[#FACC15] px-2 py-1 shadow-lg">
+                      <div class="flex items-center justify-between gap-1 mb-0.5">
+                        <div class="flex items-center gap-1 min-w-0">
+                          <span class="px-1.5 py-[1px] rounded bg-[#FACC15] text-[#090D16] text-[8.5px] font-extrabold leading-none shrink-0">영상 주제</span>
+                          <span id="shortsTopicModeTag" class="px-1 py-[1px] rounded bg-white/10 text-slate-200 text-[8px] font-semibold leading-none truncate">찬반 공론장 중재</span>
+                        </div>
+                        <span id="shortsCommentCountTag" class="text-[8px] text-slate-400 mono-num shrink-0">200건 분석</span>
+                      </div>
+                      <h3 id="shortsIssueTitle" class="text-[11.5px] font-extrabold text-white text-center leading-[1.24] line-clamp-2">
                         심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
                       </h3>
                     </div>
                   </div>
 
                   <div id="shortsSpeechBubble" class="speech-bubble">
-                    <div class="flex items-center justify-between mb-0.5">
-                      <div class="flex items-center gap-1.5">
-                        <span id="shortsSpeakerBadge" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#DBEAFE] text-[#1D4ED8]">규제 강화</span>
-                        <span id="shortsClauseBadge" class="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-[#F1F5F9] text-[#475569] mono-num">논지 1/2</span>
+                    <div class="flex items-center justify-between mb-1">
+                      <div class="flex items-center gap-1.5 min-w-0">
+                        <span id="shortsSpeakerBadge" class="text-[9.5px] font-extrabold px-2 py-[2px] rounded bg-[#2563EB] text-white truncate max-w-[140px]">◀ 규제 강화</span>
+                        <span id="shortsClauseBadge" class="text-[8.5px] font-semibold px-1.5 py-[1px] rounded bg-[#F1F5F9] text-[#475569] border border-slate-200/80 mono-num shrink-0">논지 1/2</span>
                       </div>
-                      <div id="shortsBubbleEq" class="eq-bars">
+                      <div id="shortsBubbleEq" class="eq-bars shrink-0">
                         <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
                         <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
                       </div>
                     </div>
-                    <div id="shortsCorePoint" class="text-[11px] font-bold text-[#1D4ED8] mb-0.5 leading-snug">
-                      헌법상 주거 평온권 및 심야 수면권 침해 심각
+                    <div id="shortsCoreBox" class="flex items-center gap-1.5 px-1.5 py-[3px] rounded-md mb-1 border-l-[3px]" style="background:#DBEAFE;border-left-color:#2563EB;">
+                      <span id="shortsCoreTag" class="px-1 py-[1px] rounded text-[8px] font-extrabold text-white shrink-0 leading-none" style="background:#2563EB;">핵심</span>
+                      <div id="shortsCorePoint" class="text-[10px] font-bold text-[#1D4ED8] leading-[1.22] line-clamp-1">
+                        헌법상 주거 평온권 및 심야 수면권 침해 심각
+                      </div>
                     </div>
-                    <p id="shortsSubtitleText" class="text-[12px] font-semibold text-[#0F172A] leading-[1.42] min-h-[38px]">
+                    <p id="shortsSubtitleText" class="text-[11px] font-bold text-[#0F172A] leading-[1.34] min-h-[30px]">
                       새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다.
                     </p>
                     <div class="speech-tail"></div>
@@ -696,6 +706,15 @@
                     alt="우측 진행자"
                     class="char-actor h-full w-auto max-w-none select-none pointer-events-none"
                   />
+                </div>
+
+                <!-- Seated Podium Desk Stance Nameplates -->
+                <div id="deskPlatePro" class="absolute -translate-x-1/2 pointer-events-none z-[25] inline-flex items-center gap-1 px-1.5 py-[2px] rounded-md bg-[#0A0E16]/95 border border-[#2563EB] shadow-md max-w-[116px]" style="left: 22.4%; bottom: 25.0%;">
+                  <span class="px-1 py-[1px] rounded bg-[#2563EB] text-white text-[7.5px] font-extrabold leading-none shrink-0">발언</span>
+                  <span class="text-[8.5px] font-bold text-white truncate">규제 강화</span>
+                </div>
+                <div id="deskPlateCon" class="absolute -translate-x-1/2 pointer-events-none z-[25] inline-flex items-center gap-1 px-2 py-[2px] rounded-md bg-[#0C1019]/85 border border-white/15 max-w-[108px]" style="left: 77.6%; bottom: 25.0%;">
+                  <span class="text-[8.5px] font-semibold text-slate-300 truncate">신중·보완</span>
                 </div>
 
                 <!-- Dynamic Multi-Perspective Telemetry Footer -->
@@ -1523,9 +1542,27 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         return [sents.slice(0, bestI).join(" "), sents.slice(bestI).join(" ")];
       }
       const words = s.split(" ");
-      if (words.length < 6 || s.length < 36) return [s];
-      const mid = Math.floor(words.length / 2);
-      return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+      const n = words.length;
+      if (n < 6 || s.length < 36) return [s];
+      const lo = Math.max(2, Math.round(n * 0.33));
+      const hi = Math.min(n - 2, Math.round(n * 0.68));
+      if (lo > hi) {
+        const mid = Math.floor(n / 2);
+        return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+      }
+      const totalChars = words.reduce((a, w) => a + w.length, 0);
+      let bestIdx = Math.floor(n / 2), bestScore = -1e9;
+      for (let i = lo; i <= hi; i++) {
+        const prevW = words[i - 1];
+        let leftChars = 0;
+        for (let j = 0; j < i; j++) leftChars += words[j].length;
+        let sc = -Math.abs(leftChars - totalChars * 0.5) * 0.16;
+        if (prevW.endsWith(",")) sc += 10.0;
+        else if (/(위해|보다|지만|으나|으며|므로|면서|도록|는데|거나|거든)$/.test(prevW)) sc += 7.5;
+        else if (prevW.length >= 2 && (prevW.endsWith("은") || prevW.endsWith("는"))) sc += 3.5;
+        if (sc > bestScore) { bestScore = sc; bestIdx = i; }
+      }
+      return [words.slice(0, bestIdx).join(" "), words.slice(bestIdx).join(" ")];
     }
 
     function buildWeightedWordTimeline(words) {
@@ -3357,28 +3394,43 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return c;
     }
 
+    function fitTitleCanvas(ctx, text, maxW) {
+      const clean = (text || "").replace(/\s+/g, " ").trim();
+      const totalWords = clean.split(/\s+/).filter(Boolean).length;
+      for (const sz of [44, 40, 36]) {
+        ctx.font = `bold ${sz}px Pretendard, sans-serif`;
+        const lines = wrapWordsByWidth(ctx, clean, maxW, 2);
+        const cnt = lines.reduce((a, b) => a + b.length, 0);
+        if (cnt >= totalWords) {
+          return { font: ctx.font, sz, lines: lines.map((ws) => ws.join(" ")) };
+        }
+      }
+      ctx.font = "bold 36px Pretendard, sans-serif";
+      return { font: ctx.font, sz: 36, lines: wrapWordsByWidth(ctx, clean, maxW, 2).map((ws) => ws.join(" ")) };
+    }
+
     function fitCorePointCanvas(ctx, text, maxW) {
       const clean = (text || "").replace(/\s+/g, " ").trim();
-      for (const sz of [29, 26, 23]) {
+      for (const sz of [27, 24, 21]) {
         ctx.font = `bold ${sz}px Pretendard, sans-serif`;
         if (ctx.measureText(clean).width <= maxW) {
           return { font: ctx.font, lines: [clean] };
         }
       }
-      ctx.font = "bold 23px Pretendard, sans-serif";
+      ctx.font = "bold 21px Pretendard, sans-serif";
       return { font: ctx.font, lines: wrapWordsByWidth(ctx, clean, maxW, 2).map((ws) => ws.join(" ")) };
     }
 
     function fitCaptionClauseCanvas(ctx, clauseText, maxW) {
       const wordsTotal = clauseText.trim().split(/\s+/).filter(Boolean).length;
-      for (const spec of [{ sz: 39, lh: 56 }, { sz: 34, lh: 48 }]) {
+      for (const spec of [{ sz: 38, lh: 54 }, { sz: 34, lh: 48 }]) {
         ctx.font = `bold ${spec.sz}px Pretendard, sans-serif`;
         const lines = wrapWordsByWidth(ctx, clauseText, maxW, 3);
         const cnt = lines.reduce((a, b) => a + b.length, 0);
         if (cnt >= wordsTotal) return { font: ctx.font, sz: spec.sz, lh: spec.lh, lines };
       }
-      ctx.font = "bold 33px Pretendard, sans-serif";
-      return { font: ctx.font, sz: 33, lh: 46, lines: wrapWordsByWidth(ctx, clauseText, maxW, 4) };
+      ctx.font = "bold 34px Pretendard, sans-serif";
+      return { font: ctx.font, sz: 34, lh: 42, lines: wrapWordsByWidth(ctx, clauseText, maxW, 4) };
     }
 
     async function generateDynamicVideoUrl(onProgress = () => {}) {
@@ -3534,8 +3586,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       };
       turns.forEach((t) => getStageCanvas(t.speaker === "PRO", getTurnColorKey(t)));
 
-      const deskC = createOffscreenCanvas(W, H);
-      const dCtx = deskC.getContext("2d");
+      const deskBaseC = createOffscreenCanvas(W, H);
+      const dCtx = deskBaseC.getContext("2d");
       dCtx.save();
       dCtx.beginPath();
       for (let x = 0; x <= W; x += 24) {
@@ -3551,6 +3603,72 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if (deskImg && deskImg.complete && deskImg.naturalWidth > 0) {
         dCtx.drawImage(deskImg, 0, 0, W, H);
       }
+
+      const drawDeskPlateOnCtx = (c, centerX, label, active, accentCol) => {
+        c.save();
+        c.font = "bold 22px Pretendard, sans-serif";
+        const tw = c.measureText(label).width;
+        const badgeW = active ? 68 : 0;
+        const pw = Math.round(Math.max(220, Math.min(390, tw + badgeW + 56)));
+        const x0 = Math.max(54, Math.min(W - 54 - pw, Math.round(centerX - pw / 2)));
+        const y0 = 1368, ph = 56, cyM = y0 + ph / 2;
+        if (active) {
+          c.fillStyle = "rgba(0, 0, 0, 0.47)";
+          drawRoundRect(c, x0, y0 + 5, pw, ph, 14); c.fill();
+          c.fillStyle = "rgba(10, 14, 22, 0.94)";
+          c.strokeStyle = accentCol;
+          c.lineWidth = 3;
+          drawRoundRect(c, x0, y0, pw, ph, 14); c.fill(); c.stroke();
+          c.fillStyle = accentCol;
+          drawRoundRect(c, x0 + 8, y0 + 8, 60, ph - 16, 9); c.fill();
+          c.textAlign = "center";
+          c.textBaseline = "middle";
+          c.fillStyle = "#FFFFFF";
+          c.font = "bold 18px Pretendard, sans-serif";
+          c.fillText("발언", x0 + 38, cyM);
+          c.font = "bold 22px Pretendard, sans-serif";
+          c.fillText(label, Math.round((x0 + 72 + x0 + pw - 10) / 2), cyM);
+        } else {
+          c.fillStyle = "rgba(12, 16, 25, 0.78)";
+          c.strokeStyle = "rgba(255, 255, 255, 0.16)";
+          c.lineWidth = 2;
+          drawRoundRect(c, x0, y0, pw, ph, 14); c.fill(); c.stroke();
+          c.textAlign = "center";
+          c.textBaseline = "middle";
+          c.fillStyle = "rgba(182, 192, 208, 0.88)";
+          c.font = "bold 22px Pretendard, sans-serif";
+          c.fillText(label, centerX, cyM);
+        }
+        c.restore();
+      };
+
+      const turnDeskCanvases = turns.map((turn, idx) => {
+        const tc = createOffscreenCanvas(W, H);
+        const tCtx = tc.getContext("2d");
+        tCtx.drawImage(deskBaseC, 0, 0);
+        const curIsPro = turn.speaker === "PRO";
+        const curPal = PALETTES[getTurnColorKey(turn)] || PALETTES.blue;
+        const curLbl = (turn.perspective_label || "").trim() || (curIsPro ? `좌측 ${Math.floor(idx / 2) + 1}` : `우측 ${Math.floor(idx / 2) + 1}`);
+        let oppTurn = null;
+        for (let step = 1; step <= turns.length; step++) {
+          for (const ci of [idx + step, idx - step]) {
+            if (ci >= 0 && ci < turns.length && (turns[ci].speaker === "PRO") !== curIsPro) {
+              oppTurn = turns[ci];
+              break;
+            }
+          }
+          if (oppTurn) break;
+        }
+        const oppLbl = ((oppTurn && oppTurn.perspective_label) || "").trim() || (curIsPro ? "우측 패널" : "좌측 패널");
+        if (curIsPro) {
+          drawDeskPlateOnCtx(tCtx, 242, curLbl, true, curPal.accent);
+          drawDeskPlateOnCtx(tCtx, 838, oppLbl, false, curPal.accent);
+        } else {
+          drawDeskPlateOnCtx(tCtx, 242, oppLbl, false, curPal.accent);
+          drawDeskPlateOnCtx(tCtx, 838, curLbl, true, curPal.accent);
+        }
+        return tc;
+      });
 
       // Decode audio buffers & compute acoustic RMS clause boundaries
       const ttsBuffers = audioCtxRec
@@ -3635,8 +3753,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       });
 
       // Pre-prepare layout, weighted word timelines, and RMS clause metadata per turn
-      ctx.font = "bold 31px Pretendard, sans-serif";
-      const titleLines = wrapWordsByWidth(ctx, currentData.issue_title, W - 168, 2).map((ws) => ws.join(" "));
+      const titleSpec = fitTitleCanvas(ctx, currentData.issue_title, W - 156);
 
       const turnAudioMeta = turns.map((turn, i) => {
         const buf = ttsBuffers[i];
@@ -3646,8 +3763,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
       const turnLayouts = turns.map((turn) => {
         const clauses = splitTurnIntoClauses(turn.text);
-        const coreSpec = fitCorePointCanvas(ctx, turn.core_point || "", W - 180);
-        const clauseSpecs = clauses.map((cTxt) => fitCaptionClauseCanvas(ctx, cTxt, W - 196));
+        const coreSpec = fitCorePointCanvas(ctx, turn.core_point || "", W - 268);
+        const clauseSpecs = clauses.map((cTxt) => fitCaptionClauseCanvas(ctx, cTxt, W - 180));
         const clauseWordTimelines = clauseSpecs.map((cs) => buildWeightedWordTimeline(cs.lines.flat()));
         const clauseWordCounts = clauseWordTimelines.map((tl) => Math.max(tl.length, 1));
         return { clauses, coreSpec, clauseSpecs, clauseWordTimelines, clauseWordCounts };
@@ -3753,7 +3870,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           blitHost(proIdleH, 225, 1316, idleBreath);
           blitHost(conActH, 855, 1316, talkCadence);
         }
-        ctx.drawImage(deskC, 0, 0);
+        ctx.drawImage(turnDeskCanvases[tIdx], 0, 0);
         ctx.restore();
 
         // 2) Top Segmented Bar + Counter/Timer Pills
@@ -3762,81 +3879,114 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         for (let si = 0; si < turns.length; si++) {
           const sx = 48 + si * (segW + segGap);
           ctx.fillStyle = "rgba(45, 50, 65, 0.86)";
-          drawRoundRect(ctx, sx, 38, segW, 9, 4); ctx.fill();
+          drawRoundRect(ctx, sx, 34, segW, 9, 4); ctx.fill();
           if (si < tIdx) {
             ctx.fillStyle = (PALETTES[getTurnColorKey(turns[si])] || PALETTES.blue).accent;
-            drawRoundRect(ctx, sx, 38, segW, 9, 4); ctx.fill();
+            drawRoundRect(ctx, sx, 34, segW, 9, 4); ctx.fill();
           } else if (si === tIdx) {
             ctx.fillStyle = accent;
-            drawRoundRect(ctx, sx, 38, Math.max(12, segW * turnProg), 9, 4); ctx.fill();
+            drawRoundRect(ctx, sx, 34, Math.max(12, segW * turnProg), 9, 4); ctx.fill();
           }
         }
 
-        ctx.fillStyle = "rgba(12, 14, 20, 0.88)";
-        drawRoundRect(ctx, 48, 58, 114, 36, 10); ctx.fill();
-        drawRoundRect(ctx, W - 186, 58, 138, 36, 10); ctx.fill();
+        ctx.fillStyle = "rgba(14, 17, 25, 0.85)";
+        drawRoundRect(ctx, 48, 54, 114, 34, 12); ctx.fill();
+        drawRoundRect(ctx, W - 186, 54, 138, 34, 12); ctx.fill();
 
-        ctx.fillStyle = "#F4F4F5";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
         ctx.font = "bold 22px Pretendard, sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(`${String(tIdx + 1).padStart(2, "0")} / ${String(turns.length).padStart(2, "0")}`, 105, 83);
+        ctx.fillStyle = "#F4F4F5";
+        ctx.fillText(`${String(tIdx + 1).padStart(2, "0")} / ${String(turns.length).padStart(2, "0")}`, 105, 71);
         ctx.fillStyle = "#E4E4E7";
-        ctx.fillText(`${formatMinSec(nowSec)} / ${formatMinSec(totalRenderSec)}`, W - 117, 83);
+        ctx.fillText(`${formatMinSec(nowSec)} / ${formatMinSec(totalRenderSec)}`, W - 117, 71);
+        ctx.textBaseline = "alphabetic";
         ctx.textAlign = "left";
 
-        // 3) Header Card (y=104..234)
-        ctx.fillStyle = "rgba(14, 17, 25, 0.94)";
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
-        ctx.lineWidth = 2;
-        drawRoundRect(ctx, 48, 104, W - 96, 130, 20); ctx.fill(); ctx.stroke();
+        // 3) TOPIC HERO BILLBOARD (y=98..288) — unmistakably the #1 show topic at a glance
+        const tx0 = 48, ty0 = 98, tw = W - 96, th = 190;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.49)";
+        drawRoundRect(ctx, tx0, ty0 + 8, tw, th, 22); ctx.fill();
 
-        const liveTxt = `LIVE · ${resolvedModeLbl}`;
-        ctx.font = "bold 18px Pretendard, sans-serif";
-        const liveW = Math.min(W - 360, Math.max(188, ctx.measureText(liveTxt).width + 54));
-        ctx.fillStyle = "rgba(255, 255, 255, 0.09)";
-        drawRoundRect(ctx, 74, 117, liveW, 30, 14); ctx.fill();
-        ctx.fillStyle = accent;
-        ctx.beginPath(); ctx.arc(92, 132, 6, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = "#F1F5F9";
-        ctx.fillText(liveTxt, 108, 138);
-        ctx.fillStyle = "#A1A1AA";
-        ctx.textAlign = "right";
-        ctx.fillText(`분석 ${(currentData.raw_stats && currentData.raw_stats.total_comments) || 0}건 데이터`, W - 74, 138);
+        ctx.fillStyle = "rgba(9, 13, 22, 0.97)";
+        ctx.strokeStyle = "rgba(250, 204, 21, 0.57)";
+        ctx.lineWidth = 2;
+        drawRoundRect(ctx, tx0, ty0, tw, th, 22); ctx.fill(); ctx.stroke();
+
+        ctx.save();
+        drawRoundRect(ctx, tx0, ty0, tw, th, 22);
+        ctx.clip();
+        ctx.fillStyle = "#FACC15";
+        ctx.fillRect(tx0, ty0, tw, 9);
+        ctx.restore();
+
+        // Row 1 inside Topic Card: Solid Gold "영상 주제" chip + Mode tag + Total dataset count
+        ctx.fillStyle = "#FACC15";
+        drawRoundRect(ctx, 76, ty0 + 20, 122, 34, 10); ctx.fill();
+        ctx.textBaseline = "middle";
         ctx.textAlign = "center";
+        ctx.font = "bold 20px Pretendard, sans-serif";
+        ctx.fillStyle = "#090D16";
+        ctx.fillText("영상 주제", 137, ty0 + 37);
 
+        ctx.font = "bold 19px Pretendard, sans-serif";
+        const modeW = Math.round(Math.min(360, Math.max(130, ctx.measureText(resolvedModeLbl).width + 32)));
+        ctx.fillStyle = "rgba(255, 255, 255, 0.10)";
+        drawRoundRect(ctx, 210, ty0 + 20, modeW, 34, 10); ctx.fill();
+        ctx.fillStyle = "#E2E8F0";
+        ctx.fillText(resolvedModeLbl, 210 + modeW / 2, ty0 + 37);
+
+        ctx.fillStyle = "#94A3B8";
+        ctx.textAlign = "right";
+        ctx.fillText(`댓글 ${(currentData.raw_stats && currentData.raw_stats.total_comments) || 0}건 분석`, W - 76, ty0 + 37);
+
+        // Giant Crisp Pure-White Topic Title (44px -> 40px -> 36px)
         ctx.fillStyle = "#FFFFFF";
-        ctx.font = "bold 31px Pretendard, sans-serif";
-        if (titleLines.length === 1) ctx.fillText(titleLines[0], W / 2, 198);
-        else { ctx.fillText(titleLines[0], W / 2, 180); ctx.fillText(titleLines[1], W / 2, 218); }
+        ctx.font = titleSpec.font;
+        ctx.textAlign = "center";
+        if (titleSpec.lines.length === 1) {
+          ctx.fillText(titleSpec.lines[0], W / 2, ty0 + 122);
+        } else {
+          ctx.fillText(titleSpec.lines[0], W / 2, ty0 + 94);
+          ctx.fillText(titleSpec.lines[1], W / 2, ty0 + 148);
+        }
+        ctx.textBaseline = "alphabetic";
         ctx.textAlign = "left";
 
-        // 4) Large High-Contrast 2-Clause Speech Bubble (y=252..656, tail tip y=698)
-        const bx0 = 48, by0 = 252, bw = W - 96, bh = 404;
-        ctx.fillStyle = "rgba(0, 0, 0, 0.38)";
-        drawRoundRect(ctx, bx0, by0 + 10, bw, bh, 26); ctx.fill();
+        // 4) SPEAKER STATEMENT BUBBLE (y=306..668, tail tip y=708 -> clears anchor crowns!)
+        const bx0 = 48, by0 = 306, bw = W - 96, bh = 362;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.47)";
+        drawRoundRect(ctx, bx0, by0 + 10, bw, bh, 24); ctx.fill();
 
-        ctx.fillStyle = "rgba(255, 255, 255, 0.99)";
-        ctx.strokeStyle = "rgba(15, 23, 42, 0.14)";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.996)";
+        ctx.strokeStyle = "rgba(15, 23, 42, 0.13)";
         ctx.lineWidth = 2;
-        drawRoundRect(ctx, bx0, by0, bw, bh, 26); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = accent;
-        drawRoundRect(ctx, bx0, by0, bw, 10, 6); ctx.fill();
+        drawRoundRect(ctx, bx0, by0, bw, bh, 24); ctx.fill(); ctx.stroke();
 
-        ctx.fillStyle = "rgba(255, 255, 255, 0.99)";
+        ctx.save();
+        drawRoundRect(ctx, bx0, by0, bw, bh, 24);
+        ctx.clip();
+        ctx.fillStyle = accent;
+        ctx.fillRect(bx0, by0, bw, 11);
+        ctx.restore();
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.996)";
         ctx.beginPath();
-        if (isPro) { ctx.moveTo(270, by0 + bh - 2); ctx.lineTo(300, by0 + bh + 44); ctx.lineTo(342, by0 + bh - 2); }
-        else { ctx.moveTo(W - 342, by0 + bh - 2); ctx.lineTo(W - 300, by0 + bh + 44); ctx.lineTo(W - 270, by0 + bh - 2); }
+        if (isPro) { ctx.moveTo(265, by0 + bh - 2); ctx.lineTo(295, by0 + bh + 40); ctx.lineTo(335, by0 + bh - 2); }
+        else { ctx.moveTo(W - 335, by0 + bh - 2); ctx.lineTo(W - 295, by0 + bh + 40); ctx.lineTo(W - 265, by0 + bh - 2); }
         ctx.fill();
 
-        // Dynamic-width Perspective Pill + Clause Badge
+        // Row 1: Solid High-Contrast Perspective Badge (with directional arrow) + Clause Step Pill
         const spkLabel = (turn.perspective_label || "").trim() || (isPro ? `좌측 패널 ${Math.floor(tIdx / 2) + 1}` : `우측 패널 ${Math.floor(tIdx / 2) + 1}`);
+        const spkDisplay = isPro ? `◀ ${spkLabel}` : `${spkLabel} ▶`;
         ctx.font = "bold 23px Pretendard, sans-serif";
-        const spkPillW = Math.min(W - 330, Math.max(152, ctx.measureText(spkLabel).width + 46));
-        ctx.fillStyle = tint;
-        drawRoundRect(ctx, 88, by0 + 26, spkPillW, 42, 11); ctx.fill();
-        ctx.fillStyle = badgeAccentTxt;
+        const spkPillW = Math.round(Math.min(W - 328, Math.max(168, ctx.measureText(spkDisplay).width + 48)));
+        ctx.fillStyle = accent;
+        drawRoundRect(ctx, 84, by0 + 24, spkPillW, 46, 12); ctx.fill();
+        ctx.textBaseline = "middle";
         ctx.textAlign = "center";
-        ctx.fillText(spkLabel, 88 + spkPillW / 2, by0 + 55);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(spkDisplay, 84 + spkPillW / 2, by0 + 47);
 
         // Acoustic RMS Pause + Weighted Word Sync (accounting for +0.10s AudioContext voice onset)
         const voiceAudioSec = Math.max(0, (localSec - 0.10) * playbackRate);
@@ -3851,43 +4001,62 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         const localWordIdx = syncPos.wordIdx;
 
         ctx.fillStyle = "#F1F5F9";
-        drawRoundRect(ctx, W - 216, by0 + 28, 128, 38, 10); ctx.fill();
-        ctx.fillStyle = "#475569";
+        ctx.strokeStyle = "#CBD5E1";
+        ctx.lineWidth = 1;
+        drawRoundRect(ctx, W - 224, by0 + 26, 140, 42, 11); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#334155";
         ctx.font = "bold 20px Pretendard, sans-serif";
-        ctx.fillText(`논지 ${activeClauseIdx + 1} / ${layout.clauseSpecs.length}`, W - 152, by0 + 54);
-        ctx.textAlign = "left";
+        ctx.fillText(`논지 ${activeClauseIdx + 1} / ${layout.clauseSpecs.length}`, W - 154, by0 + 47);
 
-        // Full Uncut Core Point
+        // Row 2: Tinted Key Claim Banner (isolates Core Point from Spoken Subtitle)
+        const claimH = layout.coreSpec.lines.length === 1 ? 54 : 82;
+        const claimY0 = by0 + 84;
+        const claimY1 = claimY0 + claimH;
+        ctx.fillStyle = tint;
+        drawRoundRect(ctx, 84, claimY0, W - 168, claimH, 12); ctx.fill();
+        ctx.save();
+        drawRoundRect(ctx, 84, claimY0, W - 168, claimH, 12);
+        ctx.clip();
+        ctx.fillStyle = accent;
+        ctx.fillRect(84, claimY0, 12, claimH);
+        ctx.restore();
+
+        ctx.fillStyle = accent;
+        drawRoundRect(ctx, 108, claimY0 + 12, 60, 30, 7); ctx.fill();
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 18px Pretendard, sans-serif";
+        ctx.fillText("핵심", 138, claimY0 + 27);
+
         ctx.fillStyle = badgeAccentTxt;
         ctx.font = layout.coreSpec.font;
-        let divY = by0 + 128;
+        ctx.textAlign = "left";
         if (layout.coreSpec.lines.length === 1) {
-          ctx.fillText(layout.coreSpec.lines[0], 90, by0 + 106);
+          ctx.fillText(layout.coreSpec.lines[0], 180, (claimY0 + claimY1) / 2);
         } else {
-          ctx.fillText(layout.coreSpec.lines[0], 90, by0 + 96);
-          ctx.fillText(layout.coreSpec.lines[1], 90, by0 + 124);
-          divY = by0 + 140;
+          ctx.fillText(layout.coreSpec.lines[0], 180, claimY0 + 26);
+          ctx.fillText(layout.coreSpec.lines[1], 180, claimY0 + 57);
         }
-        ctx.fillStyle = "#E2E8F0";
-        ctx.fillRect(90, divY, W - 180, 2);
+        ctx.textBaseline = "alphabetic";
 
-        // High-Contrast 39px Bold Karaoke Caption Words
+        // Row 3: Bold Kinetic Spoken Captions centered vertically in remaining box
         const cSpec = layout.clauseSpecs[activeClauseIdx];
         ctx.font = cSpec.font;
         const spW = ctx.measureText(" ").width + 3;
         const blockH = cSpec.lines.length * cSpec.lh;
-        const availH = (by0 + bh - 22) - (divY + 18);
-        const textTopY = divY + 22 + Math.max(0, (availH - blockH) / 2);
+        const availH = (by0 + bh - 18) - (claimY1 + 14);
+        const textTopY = claimY1 + 16 + Math.max(0, (availH - blockH) / 2);
 
         let wCounter = 0;
+        const pillPadY = Math.max(38, Math.round(cSpec.lh * 0.84));
         cSpec.lines.forEach((wordArr, li) => {
-          let curX = 90;
-          const baseY = textTopY + li * cSpec.lh + cSpec.sz * 0.82;
+          let curX = 84;
+          const lineY = textTopY + li * cSpec.lh;
+          const baseY = lineY + cSpec.sz * 0.84;
           wordArr.forEach((word) => {
             const ww = ctx.measureText(word).width;
             if (wCounter === localWordIdx) {
               ctx.fillStyle = tint;
-              drawRoundRect(ctx, curX - 8, baseY - cSpec.sz * 0.88, ww + 16, cSpec.lh * 0.84, 9); ctx.fill();
+              drawRoundRect(ctx, curX - 8, lineY - 4, ww + 16, pillPadY, 10); ctx.fill();
               ctx.fillStyle = badgeAccentTxt;
             } else if (wCounter < localWordIdx) {
               ctx.fillStyle = "#0F172A";
@@ -4279,6 +4448,10 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }, null, 2);
 
       document.getElementById("shortsIssueTitle").textContent = data.issue_title;
+      const topicModeEl = document.getElementById("shortsTopicModeTag");
+      if (topicModeEl) topicModeEl.textContent = modeLabel;
+      const commentCountEl = document.getElementById("shortsCommentCountTag");
+      if (commentCountEl) commentCountEl.textContent = `${stats.total_comments || 0}건 분석`;
       const legendRow = document.getElementById("shortsLegendRow");
       const ratioBar = document.getElementById("shortsRatioBar");
       const footLbl = document.getElementById("shortsModeFootLabel");
@@ -4648,15 +4821,50 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const badge = document.getElementById("shortsSpeakerBadge");
       const sideNum = Math.floor(safeIdx / 2) + 1;
       const lblText = (turn.perspective_label || "").trim() || (isPro ? `좌측 ${sideNum}` : `우측 ${sideNum}`);
-      badge.className = "text-[10px] font-bold px-1.5 py-0.5 rounded truncate max-w-[140px]";
-      badge.style.backgroundColor = pal.pillBg;
-      badge.style.color = pal.txt;
-      badge.textContent = lblText;
+      badge.className = "text-[9.5px] font-extrabold px-2 py-[2px] rounded text-white truncate max-w-[140px]";
+      badge.style.backgroundColor = pal.accent;
+      badge.style.color = "#FFFFFF";
+      badge.textContent = isPro ? `◀ ${lblText}` : `${lblText} ▶`;
+
+      const coreBox = document.getElementById("shortsCoreBox");
+      if (coreBox) {
+        coreBox.style.backgroundColor = pal.pillBg;
+        coreBox.style.borderLeftColor = pal.accent;
+      }
+      const coreTag = document.getElementById("shortsCoreTag");
+      if (coreTag) coreTag.style.backgroundColor = pal.accent;
 
       const coreEl = document.getElementById("shortsCorePoint");
-      coreEl.className = "text-[11px] font-bold mb-0.5 leading-snug";
+      coreEl.className = "text-[10px] font-bold leading-[1.22] line-clamp-1";
       coreEl.style.color = pal.txt;
       coreEl.textContent = turn.core_point;
+
+      let oppTurn = null;
+      for (let step = 1; step <= turns.length; step++) {
+        for (const ci of [safeIdx + step, safeIdx - step]) {
+          if (ci >= 0 && ci < turns.length && (turns[ci].speaker === "PRO") !== isPro) {
+            oppTurn = turns[ci];
+            break;
+          }
+        }
+        if (oppTurn) break;
+      }
+      const oppLbl = ((oppTurn && oppTurn.perspective_label) || "").trim() || (isPro ? "우측 패널" : "좌측 패널");
+      const renderDeskPlate = (elId, label, active) => {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (active) {
+          el.className = "absolute -translate-x-1/2 pointer-events-none z-[25] inline-flex items-center gap-1 px-1.5 py-[2px] rounded-md bg-[#0A0E16]/95 border shadow-md max-w-[116px]";
+          el.style.borderColor = pal.accent;
+          el.innerHTML = `<span class="px-1 py-[1px] rounded text-white text-[7.5px] font-extrabold leading-none shrink-0" style="background:${pal.accent}">발언</span><span class="text-[8.5px] font-bold text-white truncate">${escapeHtml(label)}</span>`;
+        } else {
+          el.className = "absolute -translate-x-1/2 pointer-events-none z-[25] inline-flex items-center gap-1 px-2 py-[2px] rounded-md bg-[#0C1019]/85 border border-white/15 max-w-[108px]";
+          el.style.borderColor = "rgba(255,255,255,0.16)";
+          el.innerHTML = `<span class="text-[8.5px] font-semibold text-slate-300 truncate">${escapeHtml(label)}</span>`;
+        }
+      };
+      renderDeskPlate("deskPlatePro", isPro ? lblText : oppLbl, isPro);
+      renderDeskPlate("deskPlateCon", isPro ? oppLbl : lblText, !isPro);
 
       renderKineticSubtitle(turn.text, cKey, speakingActive ? { clauseIdx: 0, wordIdx: 0 } : 1);
 
