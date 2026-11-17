@@ -3,150 +3,231 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>한냥 — 공론장 토론 쇼츠 스튜디오</title>
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <title>한냥 Studio — 다관점 여론 쇼츠 워크스테이션</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js" onerror="var s=document.createElement('script');s.src='static/vendor/tailwindcss.min.js';document.head.appendChild(s);"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       color-scheme: light;
-      --bg-page: #FAFAFA;
+      --bg-canvas: #F2F4F8;
       --bg-surface: #FFFFFF;
-      --bg-muted: #F4F4F5;
-      --border-hairline: #E4E4E7;
-      --ink-primary: #111317;
-      --ink-secondary: #3F3F46;
-      --ink-muted: #71717A;
-      --ink-subtle: #A1A1AA;
+      --bg-subtle: #F8FAFC;
+      --border-hairline: rgba(15, 23, 42, 0.08);
+      --border-strong: rgba(15, 23, 42, 0.14);
+      --ink-primary: #0F172A;
+      --ink-secondary: #334155;
+      --ink-muted: #64748B;
+      --ink-subtle: #94A3B8;
+      --tech-accent: #0284C7;
       --pro-accent: #2563EB;
-      --pro-tint: #EFF6FF;
       --con-accent: #DC2626;
-      --con-tint: #FEF2F2;
       --ok-accent: #059669;
+    }
+
+    button {
+      border: 0 solid transparent;
+      background: transparent;
+      cursor: pointer;
     }
 
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-      background-color: var(--bg-page);
+      background-color: var(--bg-canvas);
+      background-image: radial-gradient(circle at 50% -12%, rgba(255, 255, 255, 0.9), transparent 58%);
       color: var(--ink-primary);
-      letter-spacing: -0.015em;
+      letter-spacing: -0.016em;
       -webkit-font-smoothing: antialiased;
       min-height: 100vh;
     }
 
+    .mono-num {
+      font-family: 'JetBrains Mono', 'Pretendard', monospace;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+
+    /* Ceramic Architectural Surfaces */
     .studio-panel {
       background: var(--bg-surface);
       border: 1px solid var(--border-hairline);
-      border-radius: 16px;
+      border-radius: 18px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 1px 2px rgba(15, 23, 42, 0.03),
+        0 10px 28px -12px rgba(15, 23, 42, 0.07);
     }
 
     .studio-subpanel {
-      background: #FAFAFA;
-      border: 1px solid #EBEBED;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-hairline);
       border-radius: 12px;
     }
 
     .studio-input {
       background: #FFFFFF;
-      border: 1px solid #D4D4D8;
-      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 11px;
       color: var(--ink-primary);
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
     }
     .studio-input:focus {
       outline: none;
       border-color: var(--ink-primary);
-      box-shadow: 0 0 0 3px rgba(17, 19, 23, 0.08);
+      box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
     }
 
+    /* Tactile Precision Buttons */
     .btn-ink {
-      background: var(--ink-primary);
+      background: #0B0F17;
       color: #FFFFFF;
-      border-radius: 10px;
+      border: 1px solid #0B0F17;
+      border-radius: 11px;
       font-weight: 600;
-      transition: background-color 0.15s ease, transform 0.1s ease;
+      box-shadow: 0 2px 6px rgba(11, 15, 23, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      white-space: nowrap;
     }
-    .btn-ink:hover { background: #27272A; }
-    .btn-ink:active { transform: scale(0.99); }
+    .btn-ink:hover {
+      background: #1E293B;
+      border-color: #1E293B;
+      box-shadow: 0 4px 12px rgba(11, 15, 23, 0.22);
+    }
+    .btn-ink:active { transform: scale(0.985); }
 
     .btn-outline {
       background: #FFFFFF;
       color: var(--ink-primary);
-      border: 1px solid #D4D4D8;
-      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 11px;
       font-weight: 600;
-      transition: background-color 0.15s ease, border-color 0.15s ease;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+      white-space: nowrap;
     }
-    .btn-outline:hover { background: #F4F4F5; border-color: #A1A1AA; }
+    .btn-outline:hover { background: #F8FAFC; border-color: rgba(15, 23, 42, 0.26); }
+    .btn-outline:active { transform: scale(0.985); }
 
     .btn-ghost {
-      background: #F4F4F5;
+      background: #F1F5F9;
       color: var(--ink-secondary);
-      border-radius: 8px;
+      border: 1px solid transparent;
+      border-radius: 9px;
       font-weight: 600;
       transition: background-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
     }
-    .btn-ghost:hover { background: #E4E4E7; color: var(--ink-primary); }
+    .btn-ghost:hover { background: #E2E8F0; color: var(--ink-primary); }
 
-    .mono-num { font-variant-numeric: tabular-nums; }
-
-    /* Navigation Tabs */
-    .nav-tab {
-      position: relative;
-      padding: 0 4px;
-      height: 100%;
+    /* Precision Segmented Navigation */
+    .seg-track {
       display: inline-flex;
       align-items: center;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--ink-muted);
-      transition: color 0.15s ease;
+      flex-shrink: 0;
+      background: #EFF2F6;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      padding: 3px;
+      border-radius: 11px;
+      gap: 2px;
     }
-    .nav-tab:hover { color: var(--ink-primary); }
-    .nav-tab.active {
-      color: var(--ink-primary);
-      font-weight: 600;
-    }
-    .nav-tab.active::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: -1px;
-      height: 2px;
-      background: var(--ink-primary);
-    }
-
-    /* Topic Preset Tabs */
-    .topic-pill {
-      padding: 6px 12px;
+    .seg-btn {
+      padding: 5px 12px;
+      border: 0;
+      background: transparent;
       border-radius: 8px;
       font-size: 12.5px;
-      font-weight: 500;
+      font-weight: 600;
+      color: var(--ink-muted);
+      transition: all 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .seg-btn:hover { color: var(--ink-primary); }
+    .seg-btn.active {
+      background: #FFFFFF;
+      color: var(--ink-primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.10), 0 0 0 1px rgba(15, 23, 42, 0.04);
+    }
+
+    .nav-tab {
+      position: relative;
+      padding: 5px 10px;
+      border: 0;
+      background: transparent;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    @media (min-width: 640px) {
+      .nav-tab { padding: 6px 13px; font-size: 13px; }
+    }
+    .nav-tab:hover { color: var(--ink-primary); background: rgba(15, 23, 42, 0.04); }
+    .nav-tab.active {
+      background: #FFFFFF;
+      color: var(--ink-primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.09), 0 0 0 1px rgba(15, 23, 42, 0.06);
+    }
+
+    /* Compact Preset & Sample Chips */
+    .topic-pill {
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
       color: var(--ink-muted);
       background: transparent;
       border: 1px solid transparent;
       transition: all 0.15s ease;
+      white-space: nowrap;
     }
     .topic-pill:hover {
-      background: #F4F4F5;
+      background: #F1F5F9;
       color: var(--ink-primary);
     }
     .topic-pill.active {
-      background: #F4F4F5;
-      border-color: #D4D4D8;
-      color: var(--ink-primary);
-      font-weight: 600;
+      background: #0B0F17;
+      border-color: #0B0F17;
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(11, 15, 23, 0.16);
     }
 
-    /* 9:16 Broadcast Phone Frame */
+    .sample-chip {
+      padding: 4px 9px;
+      border-radius: 7px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #334155;
+      background: #F8FAFC;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .sample-chip:hover {
+      background: #FFFFFF;
+      border-color: rgba(15, 23, 42, 0.22);
+      color: #0F172A;
+      transform: translateY(-0.5px);
+    }
+
+    /* 9:16 Anodized Obsidian Reference Monitor */
     .phone-chassis {
       width: 320px;
       height: 570px;
       margin: 0 auto;
       border-radius: 30px;
-      padding: 8px;
-      background: #18181B;
-      box-shadow: 0 20px 44px -12px rgba(9, 9, 11, 0.25);
+      padding: 7px;
+      background: linear-gradient(160deg, #1E2430 0%, #0D1017 45%, #07090D 100%);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow:
+        0 26px 56px -16px rgba(15, 23, 42, 0.36),
+        0 4px 12px rgba(15, 23, 42, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
       position: relative;
     }
 
@@ -156,7 +237,6 @@
       border-radius: 23px;
       background:
         radial-gradient(circle at 50% 24%, rgba(39, 48, 67, 0.45), transparent 60%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 42px),
         linear-gradient(180deg, #0E1015 0%, #141821 55%, #0B0D12 100%);
       position: relative;
       overflow: hidden;
@@ -178,7 +258,7 @@
       background: radial-gradient(circle at 72% 62%, rgba(220, 38, 38, 0.36), rgba(220, 38, 38, 0.08) 40%, transparent 68%);
     }
 
-    /* Editorial Speech Bubble */
+    /* High-Contrast Speech Bubble */
     .speech-bubble {
       position: relative;
       background: rgba(255, 255, 255, 0.99);
@@ -190,9 +270,7 @@
       box-shadow: 0 14px 30px rgba(0, 0, 0, 0.48);
       transition: border-color 0.2s ease;
     }
-    .speech-bubble.con-mode {
-      border-top-color: var(--con-accent);
-    }
+    .speech-bubble.con-mode { border-top-color: var(--con-accent); }
     .speech-tail {
       position: absolute;
       bottom: -7px;
@@ -205,11 +283,9 @@
       left: 66px;
       transition: left 0.24s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .speech-bubble.con-mode .speech-tail {
-      left: calc(100% - 82px);
-    }
+    .speech-bubble.con-mode .speech-tail { left: calc(100% - 82px); }
 
-    /* High-Contrast Kinetic Word Highlight (2~4+ Multi-Perspective Palettes) */
+    /* High-Contrast Kinetic Word Highlight */
     .kw-spoken { color: #0F172A; font-weight: 700; }
     .kw-active-pro, .kw-active-blue { color: #1D4ED8; background: #DBEAFE; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
     .kw-active-con, .kw-active-red { color: #B91C1C; background: #FEE2E2; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
@@ -238,18 +314,8 @@
     }
 
     /* 10-Band Equalizer Bars */
-    .eq-bars {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      height: 14px;
-    }
-    .eq-bar {
-      width: 2px;
-      height: 4px;
-      border-radius: 99px;
-      background: #D4D4D8;
-    }
+    .eq-bars { display: flex; align-items: center; gap: 2px; height: 14px; }
+    .eq-bar { width: 2px; height: 4px; border-radius: 99px; background: #D4D4D8; }
     .eq-pro .eq-bar, .eq-blue .eq-bar { background: #2563EB; animation: eqAnim 0.42s infinite ease-in-out alternate; }
     .eq-con .eq-bar, .eq-red .eq-bar { background: #DC2626; animation: eqAnim 0.40s infinite ease-in-out alternate; }
     .eq-violet .eq-bar { background: #7C3AED; animation: eqAnim 0.41s infinite ease-in-out alternate; }
@@ -263,51 +329,91 @@
       100% { height: 14px; opacity: 1; }
     }
 
-    /* Script Row */
+    /* Clean Architectural Timeline Cards with Progressive Disclosure */
     .script-row {
-      background: #FAFAFA;
-      border: 1px solid #EBEBED;
-      border-radius: 10px;
-      padding: 11px 13px;
-      cursor: pointer;
-      transition: border-color 0.15s ease, background-color 0.15s ease;
+      position: relative;
+      background: #FAFBFD;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-left-width: 3px;
+      border-left-color: #CBD5E1;
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: all 0.16s ease;
     }
-    .script-row:hover { border-color: #D4D4D8; background: #F4F4F5; }
-    .script-row.active-pro, .script-row.active-blue { border-color: #93C5FD; background: #EFF6FF; }
-    .script-row.active-con, .script-row.active-red { border-color: #FCA5A5; background: #FEF2F2; }
-    .script-row.active-violet { border-color: #C4B5FD; background: #F5F3FF; }
-    .script-row.active-emerald { border-color: #6EE7B7; background: #ECFDF5; }
-    .script-row.active-amber { border-color: #FCD34D; background: #FFFBEB; }
+    .script-row:hover {
+      background: #FFFFFF;
+      border-color: rgba(15, 23, 42, 0.16);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    }
+    .script-row.active-pro, .script-row.active-blue {
+      background: #FFFFFF;
+      border-color: #93C5FD;
+      border-left-color: #2563EB;
+      box-shadow: 0 6px 18px -6px rgba(37, 99, 235, 0.18);
+    }
+    .script-row.active-con, .script-row.active-red {
+      background: #FFFFFF;
+      border-color: #FCA5A5;
+      border-left-color: #DC2626;
+      box-shadow: 0 6px 18px -6px rgba(220, 38, 38, 0.18);
+    }
+    .script-row.active-violet {
+      background: #FFFFFF;
+      border-color: #C4B5FD;
+      border-left-color: #7C3AED;
+      box-shadow: 0 6px 18px -6px rgba(124, 58, 237, 0.18);
+    }
+    .script-row.active-emerald {
+      background: #FFFFFF;
+      border-color: #6EE7B7;
+      border-left-color: #059669;
+      box-shadow: 0 6px 18px -6px rgba(5, 150, 105, 0.18);
+    }
+    .script-row.active-amber {
+      background: #FFFFFF;
+      border-color: #FCD34D;
+      border-left-color: #D97706;
+      box-shadow: 0 6px 18px -6px rgba(217, 119, 6, 0.18);
+    }
+    .script-row .row-tools {
+      opacity: 0.45;
+      transition: opacity 0.15s ease;
+    }
+    .script-row:hover .row-tools,
+    .script-row:focus-within .row-tools {
+      opacity: 1;
+    }
 
-    /* Minimal Toggle Switch */
+    /* Hardware Toggle Switch */
     .min-switch {
       position: relative;
       display: inline-block;
       width: 34px;
-      height: 20px;
+      height: 19px;
     }
     .min-switch input { opacity: 0; width: 0; height: 0; }
     .min-slider {
       position: absolute;
       cursor: pointer;
       inset: 0;
-      background: #D4D4D8;
+      background: #CBD5E1;
       border-radius: 999px;
       transition: 0.18s;
     }
     .min-slider::before {
       content: "";
       position: absolute;
-      height: 14px;
-      width: 14px;
+      height: 13px;
+      width: 13px;
       left: 3px;
       bottom: 3px;
       background: #FFFFFF;
       border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
       transition: 0.18s;
     }
-    .min-switch input:checked + .min-slider { background: var(--ink-primary); }
-    .min-switch input:checked + .min-slider::before { transform: translateX(14px); }
+    .min-switch input:checked + .min-slider { background: #0B0F17; }
+    .min-switch input:checked + .min-slider::before { transform: translateX(15px); }
 
     /* Non-intrusive Studio Toast */
     #studioToast {
@@ -315,13 +421,14 @@
       bottom: 22px;
       left: 50%;
       transform: translate(-50%, 16px);
-      background: #111317;
+      background: #0B0F17;
       color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       padding: 9px 16px;
       border-radius: 999px;
       font-size: 12.5px;
       font-weight: 600;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.25);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease, transform 0.2s ease;
@@ -334,173 +441,189 @@
   </style>
 </head>
 <body>
-  <!-- Architectural Studio Top Bar -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E4E4E7]">
-    <div class="max-w-[1120px] mx-auto px-5 h-14 flex items-center justify-between">
-      <div class="flex items-center gap-6 h-full">
-        <div class="flex items-center gap-2.5">
-          <!-- Split-Bar Debate Monogram -->
-          <div class="w-6 h-6 rounded-md bg-[#111317] flex items-center justify-center gap-0.5">
-            <span class="w-1 h-3 rounded-xs bg-[#60A5FA]"></span>
-            <span class="w-1 h-3 rounded-xs bg-[#F87171]"></span>
+  <!-- Sleek Precision Top Bar -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-900/[0.07]">
+    <div class="max-w-[1160px] mx-auto px-3.5 sm:px-6 h-14 flex items-center justify-between gap-2 sm:gap-3">
+      <div class="flex items-center gap-2.5 sm:gap-4 shrink-0">
+        <div class="flex items-center gap-2 shrink-0">
+          <!-- Precision Split-Spectrum Emblem -->
+          <div class="w-7 h-7 rounded-lg bg-[#0B0F17] flex items-center justify-center gap-[3px] shadow-sm">
+            <span class="w-1 h-3 rounded-full bg-[#38BDF8]"></span>
+            <span class="w-1 h-2 rounded-full bg-[#F87171]"></span>
+            <span class="w-1 h-3.5 rounded-full bg-[#A78BFA]"></span>
           </div>
-          <span class="font-bold text-[15.5px] text-[#111317] tracking-tight">한냥</span>
-          <span class="hidden sm:inline text-[12px] text-[#A1A1AA] font-medium">/ 공론장 쇼츠 스튜디오</span>
+          <div class="flex items-baseline gap-2">
+            <span class="font-bold text-[15px] text-slate-900 tracking-tight whitespace-nowrap">한냥 <span class="hidden sm:inline">Studio</span></span>
+            <span class="hidden md:inline text-[11px] font-semibold text-slate-400 mono-num">MULTI-VIEW ENGINE</span>
+          </div>
         </div>
 
-        <nav class="flex items-center gap-5 h-full">
+        <nav class="seg-track shrink-0" aria-label="메인 뷰 전환">
           <button id="tabBtnStudio" onclick="switchView('studio')" class="nav-tab active">
             쇼츠 제작
           </button>
           <button id="tabBtnAnalytics" onclick="switchView('analytics')" class="nav-tab">
-            댓글 분석 데이터
+            분석 데이터
           </button>
         </nav>
       </div>
 
-      <div class="flex items-center gap-3.5">
-        <button onclick="toggleApiKeyModal()" class="text-[12.5px] font-medium text-[#71717A] hover:text-[#111317] transition">
-          API · 음성 설정
+      <div class="flex items-center gap-2 shrink-0">
+        <button onclick="toggleApiKeyModal()" class="btn-outline h-8 px-2.5 sm:px-3 text-[11.5px] sm:text-[12px] inline-flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+          <span>음성 · API</span>
         </button>
-        <a href="https://github.com/lilpong42/agora-shorts" target="_blank" class="text-[12.5px] font-medium text-[#71717A] hover:text-[#111317] transition">
+        <a href="https://github.com/lilpong42/agora-shorts" target="_blank" class="btn-ghost h-8 px-2.5 text-[12px] hidden sm:inline-flex items-center">
           GitHub
         </a>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-[1120px] mx-auto px-5 py-6 space-y-5">
+  <!-- MAIN WORKSPACE -->
+  <main class="max-w-[1160px] mx-auto px-4 sm:px-6 py-5 space-y-4">
 
     <!-- =================================================================== -->
     <!-- VIEW 1: STUDIO WORKSPACE                                            -->
     <!-- =================================================================== -->
-    <section id="viewStudio" class="space-y-5">
-      <!-- Compact Command Bar -->
-      <div class="studio-panel p-4 sm:p-5">
-        <div class="flex flex-col md:flex-row md:items-center gap-2.5">
+    <section id="viewStudio" class="space-y-4">
+
+      <!-- Unified Sleek Input Dock -->
+      <div class="studio-panel p-3.5 sm:p-4 space-y-3">
+        <div class="flex flex-col md:flex-row md:items-center gap-2">
+          <!-- Omnibar URL Field -->
           <div class="relative flex-1 flex items-center">
+            <span class="absolute left-3 text-[11px] font-bold text-slate-400 mono-num select-none pointer-events-none">SRC</span>
             <input
               id="sourceUrlInput"
               type="text"
-              placeholder="유튜브 영상 URL 붙여넣기 (토론·제품리뷰·게임·일상영상 모두 지원)"
+              placeholder="유튜브 링크 붙여넣기 (토론 · IT 리뷰 · 게임 · 일상 반응)"
               onkeydown="if(event.key==='Enter'){event.preventDefault();runLiveYouTubeOrCustomAnalysis();}"
-              class="studio-input w-full h-10 pl-3.5 pr-[108px] text-[13.5px]"
+              class="studio-input w-full h-10 pl-11 pr-[106px] text-[13.5px]"
             />
             <div class="absolute right-1.5 flex items-center gap-1">
               <button
                 type="button"
                 onclick="pasteFromClipboard()"
-                title="클립보드에서 URL 또는 댓글 붙여넣기"
-                class="px-2 py-1 rounded-md text-[11.5px] font-semibold text-[#52525B] bg-[#F4F4F5] hover:bg-[#E4E4E7] hover:text-[#111317] transition"
+                title="클립보드 붙여넣기"
+                class="px-2 py-1 rounded-md text-[11px] font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 transition"
               >붙여넣기</button>
               <button
                 type="button"
                 onclick="clearSourceInputs()"
-                title="입력 초기화"
-                class="w-6 h-6 rounded-md text-[13px] font-bold text-[#A1A1AA] hover:text-[#111317] hover:bg-[#F4F4F5] flex items-center justify-center transition"
+                title="입력 지우기"
+                class="w-6 h-6 rounded-md text-[13px] font-bold text-slate-400 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition"
               >×</button>
             </div>
           </div>
+
+          <!-- Compact Mode + Primary Action -->
           <div class="flex flex-wrap items-center gap-2 shrink-0">
             <select
               id="analysisModeSelect"
               onchange="onAnalysisModeChange()"
               title="분석 관점 형식 선택"
-              class="studio-input h-10 px-2.5 text-[12.5px] font-semibold text-[#111317] bg-white"
+              class="studio-input h-10 px-2.5 text-[12.5px] font-semibold text-slate-800"
             >
-              <option value="auto">자동 감지 (다관점/찬반)</option>
+              <option value="auto">형식: 자동 감지</option>
               <option value="multi">다관점 비교 (2~4축)</option>
               <option value="proscons">장단점·체감 리뷰</option>
               <option value="debate">찬반 공론장 토론</option>
-              <option value="summary">핵심 반응 브리핑</option>
+              <option value="summary">핵심 반응 요약</option>
             </select>
-            <button
-              id="runPipelineBtn"
-              onclick="runLiveYouTubeOrCustomAnalysis()"
-              class="btn-ink h-10 px-4 text-[13.5px]"
-            >
-              쇼츠 생성
-            </button>
             <button
               id="toggleCustomBtn"
               onclick="toggleCustomTextBox()"
-              class="btn-outline h-10 px-3 text-[13px]"
+              class="btn-outline h-10 px-3 text-[12.5px]"
             >
-              댓글 직접 입력
+              댓글 직접입력
+            </button>
+            <button
+              id="runPipelineBtn"
+              onclick="runLiveYouTubeOrCustomAnalysis()"
+              class="btn-ink h-10 px-4 text-[13px] inline-flex items-center gap-1.5"
+            >
+              <span>쇼츠 생성</span>
             </button>
           </div>
         </div>
 
-        <div class="mt-3 pt-3 border-t border-[#F4F4F5] flex flex-wrap items-center justify-between gap-2">
+        <!-- Slim Strip: Empirical Presets + 1-Click Diverse Samples + Telemetry -->
+        <div class="pt-2.5 border-t border-slate-900/[0.06] flex flex-wrap items-center justify-between gap-2">
           <div class="flex flex-wrap items-center gap-1.5">
-            <span class="text-[12px] font-medium text-[#71717A] mr-1">실측 예시</span>
+            <span class="text-[11px] font-bold text-slate-400 mono-num mr-0.5">실측 527</span>
             <button id="presetBtn_preset_1" onclick="selectPreset('preset_1')" class="topic-pill active">
-              심야 오토바이 소음 (200건)
+              오토바이 소음
             </button>
             <button id="presetBtn_preset_2" onclick="selectPreset('preset_2')" class="topic-pill">
-              대학가 전동킥보드 (180건)
+              전동킥보드
             </button>
             <button id="presetBtn_preset_3" onclick="selectPreset('preset_3')" class="topic-pill">
-              고령 운전자 3관점 (147건)
+              고령 운전자 3관점
             </button>
+            <span class="hidden sm:inline text-slate-300 mx-0.5">|</span>
+            <span class="text-[11px] font-bold text-slate-400 mono-num">샘플</span>
+            <button type="button" onclick="applySamplePack('it_review')" class="sample-chip">IT 리뷰</button>
+            <button type="button" onclick="applySamplePack('game_patch')" class="sample-chip">게임 패치</button>
+            <button type="button" onclick="applySamplePack('four_day')" class="sample-chip">주4일제</button>
           </div>
-          <div class="flex items-center gap-2">
-            <span id="pipelineStepBadge" class="hidden px-2 py-0.5 rounded-md bg-[#F4F4F5] text-[11.5px] font-semibold text-[#3F3F46]"></span>
-            <span class="text-[12px] text-[#71717A]" id="miniSummaryStats">댓글 200건 중 과열 58건(29.0%) 정제</span>
+          <div class="flex items-center gap-2 ml-auto">
+            <span id="pipelineStepBadge" class="hidden px-2 py-0.5 rounded-md bg-sky-50 border border-sky-200 text-[11px] font-bold text-sky-700 mono-num"></span>
+            <span class="text-[11.5px] font-medium text-slate-500 mono-num" id="miniSummaryStats">댓글 200건 중 과열 58건(29.0%) 정제</span>
           </div>
         </div>
 
-        <div id="commandNotice" class="hidden mt-3 px-3 py-2 rounded-lg text-[12px] font-medium bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]"></div>
+        <div id="commandNotice" class="hidden px-3 py-2 rounded-lg text-[12px] font-medium bg-red-50 text-red-700 border border-red-200"></div>
 
-        <div id="customTextWrapper" class="hidden mt-3 pt-3 border-t border-[#F4F4F5] space-y-2.5">
+        <!-- Expandable Custom Comment Input Drawer -->
+        <div id="customTextWrapper" class="hidden pt-2.5 border-t border-slate-900/[0.06] space-y-2">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex flex-wrap items-center gap-1.5">
-              <span class="text-[11.5px] font-semibold text-[#71717A]">1클릭 샘플 체험:</span>
-              <button type="button" onclick="applySamplePack('it_review')" class="px-2.5 py-1 rounded-md text-[11.5px] font-medium bg-[#F4F4F5] hover:bg-[#E4E4E7] text-[#111317] transition">IT 신제품 리뷰 (4관점)</button>
-              <button type="button" onclick="applySamplePack('game_patch')" class="px-2.5 py-1 rounded-md text-[11.5px] font-medium bg-[#F4F4F5] hover:bg-[#E4E4E7] text-[#111317] transition">게임 밸런스 패치 (3관점)</button>
-              <button type="button" onclick="applySamplePack('four_day')" class="px-2.5 py-1 rounded-md text-[11.5px] font-medium bg-[#F4F4F5] hover:bg-[#E4E4E7] text-[#111317] transition">주 4일제 다자 시각</button>
-              <button type="button" onclick="applySamplePack('noise_debate')" class="px-2.5 py-1 rounded-md text-[11.5px] font-medium bg-[#F4F4F5] hover:bg-[#E4E4E7] text-[#111317] transition">소음 규제 찬반</button>
+              <span class="text-[11.5px] font-semibold text-slate-500">샘플 채우기:</span>
+              <button type="button" onclick="applySamplePack('it_review')" class="sample-chip">IT 신제품 리뷰 (4관점)</button>
+              <button type="button" onclick="applySamplePack('game_patch')" class="sample-chip">게임 밸런스 패치</button>
+              <button type="button" onclick="applySamplePack('four_day')" class="sample-chip">주 4일제 다자 시각</button>
+              <button type="button" onclick="applySamplePack('noise_debate')" class="sample-chip">소음 규제 찬반</button>
             </div>
-            <span id="customLineCountLabel" class="text-[11.5px] font-medium text-[#71717A] mono-num">0줄 입력됨</span>
+            <span id="customLineCountLabel" class="text-[11.5px] font-semibold text-slate-500 mono-num">0줄 입력됨</span>
           </div>
           <textarea
             id="rawCommentsInput"
             rows="3"
             oninput="updateCustomLineCount()"
             onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();runLiveYouTubeOrCustomAnalysis();}"
-            placeholder="댓글·후기 텍스트를 줄바꿈으로 구분해 붙여넣으세요. (유튜브 커뮤니티, 제품 리뷰, 게임 반응 등 주제 제한 없음 · Ctrl+Enter 실행)"
+            placeholder="댓글·후기를 줄바꿈으로 구분해 붙여넣으세요 (주제 제한 없음 · Ctrl+Enter 실행)"
             class="studio-input w-full p-3 text-[13px] leading-relaxed"
           ></textarea>
           <div class="flex items-center justify-between gap-2">
-            <button type="button" onclick="document.getElementById('rawCommentsInput').value='';updateCustomLineCount();" class="btn-ghost px-3 py-1.5 text-[12px]">입력 비우기</button>
-            <button type="button" onclick="runLiveYouTubeOrCustomAnalysis()" class="btn-ink px-4 py-1.5 text-[12.5px]">이 댓글로 바로 분석</button>
+            <button type="button" onclick="document.getElementById('rawCommentsInput').value='';updateCustomLineCount();" class="btn-ghost px-3 py-1.5 text-[12px]">비우기</button>
+            <button type="button" onclick="runLiveYouTubeOrCustomAnalysis()" class="btn-ink px-4 py-1.5 text-[12.5px]">이 댓글로 분석 실행</button>
           </div>
         </div>
       </div>
 
-      <!-- 2-Column Studio Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <!-- 2-Column Precision Studio Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
 
-        <!-- LEFT (5 cols): 9:16 SHORTS PREVIEW & EXPORT -->
-        <div class="lg:col-span-5">
-          <div class="studio-panel p-5 flex flex-col items-center">
-            <div class="w-full flex items-center justify-between mb-4">
-              <div class="inline-flex bg-[#F4F4F5] p-0.5 rounded-lg text-[12px]">
-                <button id="modeInteractiveBtn" onclick="setPlayerMode('interactive')" class="px-2.5 py-1 rounded-md bg-white text-[#111317] font-semibold shadow-2xs transition">
+        <!-- LEFT (5 cols, Sticky on Desktop): OBSIDIAN 9:16 MONITOR & TRANSPORT -->
+        <div class="lg:col-span-5 lg:sticky lg:top-20">
+          <div class="studio-panel p-4 sm:p-5 flex flex-col items-center">
+            <!-- Monitor Mode Bar -->
+            <div class="w-full flex items-center justify-between mb-3.5">
+              <div class="seg-track">
+                <button id="modeInteractiveBtn" onclick="setPlayerMode('interactive')" class="seg-btn active">
                   실시간 프리뷰
                 </button>
-                <button id="modeVideoBtn" onclick="setPlayerMode('video')" class="px-2.5 py-1 rounded-md text-[#71717A] hover:text-[#111317] font-medium transition">
-                  영상 파일 렌더
+                <button id="modeVideoBtn" onclick="setPlayerMode('video')" class="seg-btn">
+                  MP4 렌더
                 </button>
               </div>
-              <span id="ttsStatusLabel" class="text-[12px] font-medium text-[#52525B] mono-num">약 56초</span>
+              <span id="ttsStatusLabel" class="text-[11.5px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md mono-num">총 56.2s</span>
             </div>
 
-            <!-- Phone Frame -->
+            <!-- Anodized Obsidian 9:16 Monitor Frame -->
             <div class="phone-chassis">
               <div id="interactiveViewport" class="phone-screen">
-                <!-- 9:16 Broadcast Debate Studio Backdrop -->
                 <img
                   id="studioSetImg"
                   src="static/assets/studio_set.jpg"
@@ -508,9 +631,7 @@
                   alt=""
                   class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
                 />
-                <!-- Volumetric Speaker Spotlight -->
                 <div id="stageSpotlight" class="stage-spotlight"></div>
-                <!-- Smoked-Glass Desk + Dual Mics Foreground Occlusion -->
                 <img
                   id="studioDeskFgImg"
                   src="static/assets/studio_desk_fg.png"
@@ -519,24 +640,23 @@
                   class="absolute inset-0 w-full h-full object-cover pointer-events-none z-20"
                 />
 
-                <!-- Top Broadcast HUD + Headline + High-Readability 2-Clause Bubble -->
+                <!-- Top HUD + High-Contrast 2-Clause Bubble -->
                 <div class="relative z-30 space-y-1.5">
                   <div>
                     <div class="w-full h-1 rounded-full bg-white/15 overflow-hidden mb-1.5">
                       <div id="shortsProgressBar" class="h-full bg-[#2563EB] transition-all duration-100" style="width: 0%"></div>
                     </div>
                     <div class="flex items-center justify-between text-[10px] text-[#E4E4E7] mono-num mb-1.5">
-                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/85 font-semibold" id="shortsTurnCounter">1 / 6</span>
-                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/85 text-[#D4D4D8]" id="shortsTimerDisplay">0:00 / 0:56</span>
+                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/90 font-semibold" id="shortsTurnCounter">1 / 6</span>
+                      <span class="px-1.5 py-0.5 rounded bg-[#0E1015]/90 text-[#D4D4D8]" id="shortsTimerDisplay">0:00 / 0:56</span>
                     </div>
-                    <div class="rounded-lg bg-[#0E1015]/88 border border-white/12 px-2.5 py-1.5">
+                    <div class="rounded-lg bg-[#0E1015]/90 border border-white/15 px-2.5 py-1.5">
                       <h3 id="shortsIssueTitle" class="text-[11.5px] font-bold text-white text-center leading-snug line-clamp-2">
                         심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
                       </h3>
                     </div>
                   </div>
 
-                  <!-- Clean High-Contrast 2-Clause Editorial Bubble -->
                   <div id="shortsSpeechBubble" class="speech-bubble">
                     <div class="flex items-center justify-between mb-1">
                       <div class="flex items-center gap-1.5">
@@ -558,7 +678,7 @@
                   </div>
                 </div>
 
-                <!-- Two Anchors Positioned Behind Studio Desk (z-10) -->
+                <!-- Two Studio Anchors Behind Desk -->
                 <img
                   id="avatarCardPro"
                   src="static/assets/pro_avatar.png"
@@ -574,8 +694,8 @@
                   class="char-actor absolute z-10 right-[14px] bottom-[144px] h-[138px] w-auto object-contain select-none pointer-events-none"
                 />
 
-                <!-- Dynamic Multi-Perspective Lower Telemetry Card -->
-                <div id="shortsTelemetryArea" class="relative z-30 rounded-xl bg-[#0E1119]/92 px-2.5 py-2 border border-white/10 mt-auto">
+                <!-- Dynamic Multi-Perspective Telemetry Footer -->
+                <div id="shortsTelemetryArea" class="relative z-30 rounded-xl bg-[#0E1119]/90 px-2.5 py-2 border border-white/10 mt-auto">
                   <div id="shortsLegendRow" class="flex items-center justify-between gap-1 text-[9.5px] font-semibold mb-1 truncate">
                     <span class="text-[#60A5FA] mono-num">규제 강화 88%</span>
                     <span class="text-[#A1A1AA]">찬반 공론장 중재</span>
@@ -595,118 +715,158 @@
               <!-- Real Broadcast Video Player -->
               <div id="mp4Viewport" class="hidden relative w-full h-full rounded-[23px] overflow-hidden bg-black">
                 <video id="realMp4Player" class="w-full h-full object-contain" controls playsinline preload="metadata"></video>
-                <div id="mp4RenderOverlay" class="hidden absolute inset-0 bg-[#121316]/95 flex flex-col items-center justify-center p-6 text-center z-20">
-                  <div class="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin mb-3"></div>
+                <div id="mp4RenderOverlay" class="hidden absolute inset-0 bg-[#0B0F17]/95 flex flex-col items-center justify-center p-6 text-center z-20">
+                  <div class="w-8 h-8 rounded-full border-2 border-white/20 border-t-sky-400 animate-spin mb-3"></div>
                   <div id="mp4RenderOverlayText" class="text-[13px] font-semibold text-white">AI 음성 + 9:16 방송 영상 생성 중...</div>
-                  <div id="mp4RenderOverlaySub" class="text-[11px] text-[#A1A1AA] mt-1">입력된 대본 길이에 맞춰 음성과 자막을 동기화하고 있습니다.</div>
+                  <div id="mp4RenderOverlaySub" class="text-[11px] text-slate-400 mt-1">입력된 대본 길이에 맞춰 음성과 자막을 동기화하고 있습니다.</div>
                 </div>
               </div>
             </div>
 
-            <!-- Controls -->
-            <div class="w-full max-w-[320px] mt-4 space-y-2.5">
+            <!-- Tactile Transport & Acoustic Dock -->
+            <div class="w-full max-w-[320px] mt-3.5 space-y-2.5">
               <div class="flex items-center gap-1.5">
                 <button type="button" onclick="stepTurn(-1)" title="이전 턴 (←)" class="btn-outline w-10 h-10 flex items-center justify-center text-[12px] shrink-0">◀</button>
-                <button id="playShortsBtn" onclick="toggleShortsPlayback()" class="btn-outline flex-1 h-10 text-[13.5px]">
+                <button id="playShortsBtn" onclick="toggleShortsPlayback()" class="btn-outline flex-1 h-10 text-[13px]">
                   <span id="playBtnLabel">재생</span>
                 </button>
                 <button type="button" onclick="stepTurn(1)" title="다음 턴 (→)" class="btn-outline w-10 h-10 flex items-center justify-center text-[12px] shrink-0">▶</button>
-                <button id="exportMp4Btn" onclick="exportReal916Video()" class="btn-ink px-3.5 h-10 text-[13px] shrink-0">
-                  영상 저장
+                <button id="exportMp4Btn" onclick="exportReal916Video()" class="btn-ink px-3.5 h-10 text-[12.5px] shrink-0">
+                  MP4 저장
                 </button>
               </div>
 
-              <div class="flex items-center justify-between gap-2 pt-1 text-[11.5px] text-[#52525B]">
-                <select id="voiceEngineSelect" onchange="onVoiceModeChange()" class="bg-[#F4F4F5] border border-[#E4E4E7] rounded-md px-2 py-1 text-[11.5px] font-medium text-[#111317] outline-none">
+              <!-- Unified Slim Acoustic Dock -->
+              <div class="studio-subpanel px-2.5 py-1.5 flex items-center justify-between gap-2 text-[11.5px] text-slate-600">
+                <select id="voiceEngineSelect" onchange="onVoiceModeChange()" class="bg-transparent font-semibold text-slate-800 outline-none cursor-pointer text-[11.5px]">
                   <option value="auto">음성: 자동 (Cloud/표준)</option>
-                  <option value="browser">음성: 표준 한국어 (즉시)</option>
-                  <option value="gemini">음성: Gemini 3.8 한국어</option>
+                  <option value="browser">음성: 표준 한국어</option>
+                  <option value="gemini">음성: Gemini 3.8</option>
                 </select>
-                <button id="speedToggleBtn" onclick="togglePlaybackSpeed()" class="px-2 py-1 rounded-md bg-[#F4F4F5] border border-[#E4E4E7] font-semibold text-[#111317] mono-num hover:bg-[#E4E4E7] transition">
-                  1.0x
-                </button>
-                <label class="flex items-center gap-1.5 cursor-pointer select-none shrink-0">
-                  <span>전환음</span>
-                  <span class="min-switch">
-                    <input id="chimeToggle" type="checkbox" checked onchange="saveUiPrefs()" />
-                    <span class="min-slider"></span>
-                  </span>
-                </label>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button id="speedToggleBtn" onclick="togglePlaybackSpeed()" class="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-semibold text-slate-800 mono-num hover:bg-slate-50 transition">
+                    1.0x
+                  </button>
+                  <label class="flex items-center gap-1 cursor-pointer select-none">
+                    <span class="text-[11px] font-medium">효과음</span>
+                    <span class="min-switch">
+                      <input id="chimeToggle" type="checkbox" checked onchange="saveUiPrefs()" />
+                      <span class="min-slider"></span>
+                    </span>
+                  </label>
+                </div>
               </div>
-              <p class="text-center text-[11px] text-[#A1A1AA]">단축키: Space 재생/정지 · ←/→ 턴 이동</p>
-              <div id="mp4ExportStatus" class="text-center text-[11.5px] font-medium text-[#059669] min-h-[16px] leading-snug"></div>
+              <div class="flex items-center justify-between text-[10.5px] text-slate-400 px-0.5">
+                <span class="mono-num">Space 재생 · ←/→ 턴 이동</span>
+                <span id="mp4ExportStatus" class="font-medium text-emerald-600 truncate max-w-[170px]"></span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- RIGHT (7 cols): METADATA & FLEXIBLE MULTI-PERSPECTIVE SCRIPT -->
-        <div class="lg:col-span-7 space-y-5">
+        <!-- RIGHT (7 cols): FOCUSED CONTEXT RADAR + TABBED INSPECTOR (SCRIPT FIRST!) -->
+        <div class="lg:col-span-7 space-y-4">
 
-          <!-- YouTube Upload Metadata -->
-          <div class="studio-panel p-5 space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <h2 class="text-[15.5px] font-bold text-[#111317]">업로드 메타데이터</h2>
-                <p class="text-[12.5px] text-[#71717A] mt-0.5">유튜브 쇼츠 업로드 화면에 그대로 붙여넣는 제목과 설명란</p>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <button type="button" onclick="copyFullMetadata(this)" class="btn-outline px-2.5 py-1.5 text-[12px]">
-                  제목·설명 전체 복사
-                </button>
-                <a href="https://studio.youtube.com" target="_blank" class="btn-ghost px-3 py-1.5 text-[12px]">
-                  YouTube Studio
-                </a>
-              </div>
-            </div>
-
-            <div class="space-y-3">
-              <div>
-                <div class="flex items-center justify-between mb-1">
-                  <label class="text-[12.5px] font-semibold text-[#3F3F46]">쇼츠 제목</label>
-                  <button onclick="copyField('publishTitleInput', this)" class="text-[12px] font-semibold text-[#111317] hover:underline">복사</button>
+          <!-- Active Perspective Radar & One-Click Quick Copy -->
+          <div class="studio-panel p-4 sm:p-5 space-y-3">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span id="studioTopicModeBadge" class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10.5px] font-bold">찬반 공론장 중재</span>
+                  <span class="text-[11px] font-semibold text-slate-400 mono-num">PERSPECTIVE RADAR</span>
                 </div>
-                <input id="publishTitleInput" type="text" class="studio-input w-full px-3 py-2 text-[13.5px] font-medium" />
+                <h1 id="studioIssueHeadline" class="text-[15.5px] font-bold text-slate-900 leading-snug line-clamp-2">
+                  심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
+                </h1>
               </div>
-
-              <div>
-                <div class="flex items-center justify-between mb-1">
-                  <label class="text-[12.5px] font-semibold text-[#3F3F46]">설명 및 해시태그</label>
-                  <button onclick="copyField('publishDescInput', this)" class="text-[12px] font-semibold text-[#111317] hover:underline">복사</button>
-                </div>
-                <textarea id="publishDescInput" rows="3" class="studio-input w-full px-3 py-2 text-[13px] leading-relaxed"></textarea>
-              </div>
-            </div>
-
-            <div class="pt-3 border-t border-[#F4F4F5] flex flex-wrap items-center justify-between gap-2">
-              <button onclick="switchView('analytics')" class="text-[12.5px] font-medium text-[#71717A] hover:text-[#111317] transition">
-                분석 리포트 및 PNG 차트 보기 →
+              <button type="button" onclick="copyFullMetadata(this)" class="btn-outline h-8 px-2.5 text-[11.5px] shrink-0">
+                제목·설명 복사
               </button>
-              <div class="flex items-center gap-2">
-                <button onclick="copyVideoAiPrompt(this)" class="btn-ghost px-3 py-1.5 text-[12px]">
-                  영상 AI 프롬프트 복사
-                </button>
-                <button onclick="saveToSupabase()" id="saveSupabaseBtn" class="btn-ghost px-3 py-1.5 text-[12px]">
-                  아카이브 저장
-                </button>
-              </div>
             </div>
+            <div id="studioOverviewBar" class="w-full h-2 rounded-full bg-slate-100 overflow-hidden flex gap-0.5">
+              <div class="h-full bg-[#2563EB]" style="width:88%"></div>
+              <div class="h-full bg-[#DC2626]" style="width:12%"></div>
+            </div>
+            <div id="studioOverviewLegend" class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] font-semibold"></div>
           </div>
 
-          <!-- Flexible 2-8 Turn Multi-Perspective Script Editor -->
-          <div class="studio-panel p-5">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-3.5">
-              <div>
-                <h2 id="scriptEditorHeading" class="text-[15.5px] font-bold text-[#111317]">스튜디오 대본 (6턴)</h2>
-                <p class="text-[12.5px] text-[#71717A] mt-0.5">소제목·대사 수정, 관점·좌석 전환, 순서 조정 및 턴 추가/삭제(2~8턴) 지원</p>
+          <!-- Focused Right Inspector Card with Segmented Mode Tabs -->
+          <div class="studio-panel p-4 sm:p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-900/[0.06]">
+              <div class="seg-track">
+                <button id="studioTabScript" type="button" onclick="switchStudioInspector('script')" class="seg-btn active">
+                  <span id="scriptEditorHeading">스튜디오 대본 (6턴)</span>
+                </button>
+                <button id="studioTabPublish" type="button" onclick="switchStudioInspector('publish')" class="seg-btn">
+                  업로드 메타 · 내보내기
+                </button>
               </div>
+
               <div class="flex items-center gap-2">
-                <div id="scriptPerspectiveBadges" class="flex flex-wrap items-center gap-1"></div>
-                <button id="addTurnBtn" type="button" onclick="addScriptTurn()" class="btn-outline px-2.5 py-1 text-[12px] shrink-0">
+                <div id="scriptPerspectiveBadges" class="hidden sm:flex flex-wrap items-center gap-1"></div>
+                <button id="addTurnBtn" type="button" onclick="addScriptTurn()" class="btn-outline h-8 px-2.5 text-[12px] shrink-0">
                   + 턴 추가
                 </button>
               </div>
             </div>
-            <div id="debateScriptList" class="space-y-2.5"></div>
+
+            <!-- SUB-PANEL 1 (DEFAULT): FLEXIBLE 2-8 TURN SCRIPT TIMELINE -->
+            <div id="panelScriptTab" class="space-y-2.5">
+              <div class="flex items-center justify-between text-[11.5px] text-slate-400 px-0.5">
+                <span>소제목·대사 클릭해 직접 수정 · 관점 변경 시 9:16 영상 색상이 자동 동기화됩니다</span>
+              </div>
+              <div id="debateScriptList" class="space-y-2"></div>
+            </div>
+
+            <!-- SUB-PANEL 2: YOUTUBE UPLOAD METADATA & CLOUD ARCHIVE -->
+            <div id="panelPublishTab" class="hidden space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h2 class="text-[14.5px] font-bold text-slate-900">유튜브 쇼츠 업로드 메타데이터</h2>
+                  <p class="text-[12px] text-slate-500 mt-0.5">생성된 제목·해시태그를 그대로 복사해 업로드하세요</p>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" onclick="copyFullMetadata(this)" class="btn-ink h-8 px-3 text-[12px]">
+                    제목·설명 전체 복사
+                  </button>
+                  <a href="https://studio.youtube.com" target="_blank" class="btn-outline h-8 px-3 text-[12px] inline-flex items-center">
+                    YouTube Studio ↗
+                  </a>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="text-[12px] font-semibold text-slate-700">쇼츠 제목</label>
+                    <button onclick="copyField('publishTitleInput', this)" class="text-[11.5px] font-semibold text-slate-900 hover:underline">복사</button>
+                  </div>
+                  <input id="publishTitleInput" type="text" class="studio-input w-full px-3 py-2 text-[13.5px] font-medium" />
+                </div>
+
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="text-[12px] font-semibold text-slate-700">설명 및 해시태그</label>
+                    <button onclick="copyField('publishDescInput', this)" class="text-[11.5px] font-semibold text-slate-900 hover:underline">복사</button>
+                  </div>
+                  <textarea id="publishDescInput" rows="4" class="studio-input w-full px-3 py-2 text-[13px] leading-relaxed"></textarea>
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-slate-900/[0.06] flex flex-wrap items-center justify-between gap-2">
+                <button onclick="switchView('analytics')" class="text-[12px] font-semibold text-slate-500 hover:text-slate-900 transition">
+                  분석 리포트 및 차트 PNG 보기 →
+                </button>
+                <div class="flex items-center gap-2">
+                  <button onclick="copyVideoAiPrompt(this)" class="btn-ghost px-3 py-1.5 text-[12px]">
+                    영상 AI 프롬프트 복사
+                  </button>
+                  <button onclick="saveToSupabase()" id="saveSupabaseBtn" class="btn-outline px-3 py-1.5 text-[12px]">
+                    아카이브 저장
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -716,48 +876,48 @@
     <!-- =================================================================== -->
     <!-- VIEW 2: ANALYTICS REPORT & ARCHIVE                                  -->
     <!-- =================================================================== -->
-    <section id="viewAnalytics" class="hidden space-y-5">
+    <section id="viewAnalytics" class="hidden space-y-4">
       <div class="studio-panel p-5 sm:p-6">
-        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-[#F4F4F5]">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-900/[0.06]">
           <div>
-            <span class="text-[12px] font-semibold text-[#71717A]">YouTube Data API v3 · 다관점 여론 분석 데이터</span>
-            <h2 id="reportIssueTitle" class="text-[18px] font-bold text-[#111317] mt-0.5">
+            <span class="text-[11px] font-bold text-slate-400 mono-num">YOUTUBE DATA API V3 · TELEMETRY REPORT</span>
+            <h2 id="reportIssueTitle" class="text-[17.5px] font-bold text-slate-900 mt-0.5">
               심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
             </h2>
-            <p id="activeSourceLabel" class="text-[12px] text-[#71717A] mt-1"></p>
+            <p id="activeSourceLabel" class="text-[12px] text-slate-500 mt-1"></p>
           </div>
-          <span id="latencyBadge" class="px-2.5 py-1 rounded-md bg-[#F4F4F5] border border-[#E4E4E7] text-[12px] font-semibold text-[#3F3F46] mono-num">
+          <span id="latencyBadge" class="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[12px] font-semibold text-slate-700 mono-num">
             실측 200건
           </span>
         </div>
 
-        <!-- 4 Metrics -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+        <!-- 4 KPI Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div class="studio-subpanel p-4">
-            <div class="text-[12px] font-medium text-[#71717A]">공격성 댓글 정화</div>
+            <div class="text-[11.5px] font-semibold text-slate-500">공격성 댓글 정화</div>
             <div class="mt-1.5 flex items-baseline gap-1.5">
-              <span id="statFilterRate" class="text-[22px] font-bold text-[#111317] mono-num">29.0%</span>
-              <span id="statFilterCount" class="text-[12px] text-[#71717A] mono-num">(58/200)</span>
+              <span id="statFilterRate" class="text-[22px] font-bold text-slate-900 mono-num">29.0%</span>
+              <span id="statFilterCount" class="text-[11.5px] text-slate-500 mono-num">(58/200)</span>
             </div>
           </div>
           <div class="studio-subpanel p-4">
-            <div class="text-[12px] font-medium text-[#71717A]">정화 전 과열도</div>
+            <div class="text-[11.5px] font-semibold text-slate-500">정화 전 과열도</div>
             <div class="mt-1.5 flex items-baseline gap-1">
-              <span id="statToxicityBefore" class="text-[22px] font-bold text-[#DC2626] mono-num">64.2</span>
-              <span class="text-[12px] text-[#71717A]">점</span>
+              <span id="statToxicityBefore" class="text-[22px] font-bold text-red-600 mono-num">64.2</span>
+              <span class="text-[12px] text-slate-400">점</span>
             </div>
           </div>
           <div class="studio-subpanel p-4">
-            <div class="text-[12px] font-medium text-[#71717A]">정화 후 논리성</div>
+            <div class="text-[11.5px] font-semibold text-slate-500">정화 후 논리성</div>
             <div class="mt-1.5 flex items-baseline gap-1.5">
-              <span id="statLogicAfter" class="text-[22px] font-bold text-[#2563EB] mono-num">85.5</span>
-              <span id="statToxicityAfterSub" class="text-[12px] text-[#059669] mono-num">(과열 14.5)</span>
+              <span id="statLogicAfter" class="text-[22px] font-bold text-blue-600 mono-num">85.5</span>
+              <span id="statToxicityAfterSub" class="text-[11.5px] text-emerald-600 mono-num">(과열 14.5)</span>
             </div>
           </div>
           <div class="studio-subpanel p-4">
-            <div class="text-[12px] font-medium text-[#71717A]">과열도 감소폭</div>
+            <div class="text-[11.5px] font-semibold text-slate-500">과열도 감소폭</div>
             <div class="mt-1.5 flex items-baseline gap-1">
-              <span id="statToxicityDelta" class="text-[22px] font-bold text-[#059669] mono-num">-49.7pt</span>
+              <span id="statToxicityDelta" class="text-[22px] font-bold text-emerald-600 mono-num">-49.7pt</span>
             </div>
           </div>
         </div>
@@ -766,15 +926,15 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mt-3.5">
           <div class="studio-subpanel p-4">
             <div id="analyticsStanceHeader" class="flex justify-between items-center text-[12px] font-semibold mb-2">
-              <span id="stanceModeTag" class="text-[#111317]">찬반 공론장 중재</span>
-              <span class="text-[#71717A]" id="stanceTotalLabel">원본 댓글 여론</span>
+              <span id="stanceModeTag" class="text-slate-900">찬반 공론장 중재</span>
+              <span class="text-slate-500" id="stanceTotalLabel">원본 댓글 여론</span>
             </div>
-            <div id="analyticsStackedBar" class="w-full h-2.5 rounded-full bg-[#E4E4E7] overflow-hidden flex gap-0.5">
+            <div id="analyticsStackedBar" class="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden flex gap-0.5">
               <div class="h-full bg-[#2563EB]" style="width: 88%"></div>
               <div class="h-full bg-[#DC2626]" style="width: 12%"></div>
             </div>
             <div id="analyticsPerspectivesLegend" class="mt-2.5 space-y-1.5"></div>
-            <p id="analyticsStanceDesc" class="text-[11.5px] text-[#71717A] mt-2.5">
+            <p id="analyticsStanceDesc" class="text-[11.5px] text-slate-500 mt-2.5">
               편향된 원본 댓글 분포에서도 핵심 관점별 논거를 추출해 대본으로 균형을 맞춥니다.
             </p>
           </div>
@@ -782,19 +942,19 @@
           <div class="studio-subpanel p-4 space-y-3">
             <div>
               <div class="flex justify-between text-[12px] mb-1">
-                <span class="text-[#3F3F46] font-medium">정화 전 과열 표본</span>
-                <span id="barToxBeforeLabel" class="font-bold text-[#DC2626] mono-num">64.2 / 100</span>
+                <span class="text-slate-700 font-medium">정화 전 과열 표본</span>
+                <span id="barToxBeforeLabel" class="font-bold text-red-600 mono-num">64.2 / 100</span>
               </div>
-              <div class="w-full h-2 rounded-full bg-[#E4E4E7] overflow-hidden">
+              <div class="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
                 <div id="barToxBeforeFill" class="h-full bg-[#DC2626] rounded-full" style="width: 64.2%"></div>
               </div>
             </div>
             <div>
               <div class="flex justify-between text-[12px] mb-1">
-                <span class="text-[#3F3F46] font-medium">정화 후 대본 논리성</span>
-                <span id="barLogicAfterLabel" class="font-bold text-[#2563EB] mono-num">85.5 / 100</span>
+                <span class="text-slate-700 font-medium">정화 후 대본 논리성</span>
+                <span id="barLogicAfterLabel" class="font-bold text-blue-600 mono-num">85.5 / 100</span>
               </div>
-              <div class="w-full h-2 rounded-full bg-[#E4E4E7] overflow-hidden">
+              <div class="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
                 <div id="barLogicAfterFill" class="h-full bg-[#2563EB] rounded-full" style="width: 85.5%"></div>
               </div>
             </div>
@@ -806,8 +966,8 @@
       <div class="studio-panel p-5 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 class="text-[15.5px] font-bold text-[#111317]">실측 댓글 527건 통계 차트</h3>
-            <p class="text-[12.5px] text-[#71717A] mt-0.5">제안서 서식 4 삽입용 고해상도 PNG 내보내기 지원</p>
+            <h3 class="text-[15.5px] font-bold text-slate-900">실측 댓글 527건 통계 차트</h3>
+            <p class="text-[12.5px] text-slate-500 mt-0.5">제안서 삽입용 고해상도 PNG 내보내기 지원</p>
           </div>
           <div class="flex gap-2">
             <button onclick="downloadCanvasAsPng('kdeCanvas', 'chart1_sentiment_shift.png')" class="btn-outline px-3 py-1.5 text-[12px]">
@@ -820,36 +980,36 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div class="rounded-xl overflow-hidden border border-[#E4E4E7] bg-white">
+          <div class="rounded-xl overflow-hidden border border-slate-200 bg-white">
             <canvas id="kdeCanvas" width="1200" height="740" class="w-full h-auto block"></canvas>
           </div>
-          <div class="rounded-xl overflow-hidden border border-[#E4E4E7] bg-white">
+          <div class="rounded-xl overflow-hidden border border-slate-200 bg-white">
             <canvas id="clusterCanvas" width="1200" height="740" class="w-full h-auto block"></canvas>
           </div>
         </div>
       </div>
 
       <!-- Comment Detox Before/After & Archive -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <div class="lg:col-span-7 studio-panel p-5">
-          <h3 class="text-[15.5px] font-bold text-[#111317] mb-3.5">댓글 순화 전후 대조</h3>
+          <h3 class="text-[15.5px] font-bold text-slate-900 mb-3.5">댓글 순화 전후 대조</h3>
           <div id="detoxSamplesList" class="space-y-2.5"></div>
         </div>
 
         <div class="lg:col-span-5 studio-panel p-5 space-y-4">
           <div class="flex items-center justify-between">
-            <h3 class="text-[15.5px] font-bold text-[#111317]">클라우드 아카이브</h3>
-            <button onclick="toggleSqlModal()" class="text-[12px] font-semibold text-[#111317] hover:underline">DB 설정</button>
+            <h3 class="text-[15.5px] font-bold text-slate-900">클라우드 아카이브</h3>
+            <button onclick="toggleSqlModal()" class="text-[12px] font-semibold text-slate-900 hover:underline">DB 설정</button>
           </div>
-          <div id="supabaseArchiveList" class="space-y-2 text-[12.5px] text-[#71717A]">
-            <p class="studio-subpanel p-3">스튜디오에서 <strong>아카이브 저장</strong>을 누르면 Supabase에 기록됩니다.</p>
+          <div id="supabaseArchiveList" class="space-y-2 text-[12.5px] text-slate-500">
+            <p class="studio-subpanel p-3"><strong>업로드 메타 · 내보내기</strong> 탭에서 아카이브 저장을 누르면 Supabase에 기록됩니다.</p>
           </div>
-          <div class="pt-3 border-t border-[#F4F4F5]">
+          <div class="pt-3 border-t border-slate-900/[0.06]">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-[12.5px] font-semibold text-[#3F3F46]">구조화 JSON 출력</span>
-              <button id="copyJsonBtn" onclick="copyJsonSchema()" class="text-[12px] font-semibold text-[#111317] hover:underline">복사</button>
+              <span class="text-[12.5px] font-semibold text-slate-700">구조화 JSON 출력</span>
+              <button id="copyJsonBtn" onclick="copyJsonSchema()" class="text-[12px] font-semibold text-slate-900 hover:underline">복사</button>
             </div>
-            <pre id="jsonSchemaPreview" class="text-[11px] leading-relaxed text-[#27272A] bg-[#F4F4F5] rounded-lg p-3 overflow-auto max-h-56 mono-num border border-[#E4E4E7]"></pre>
+            <pre id="jsonSchemaPreview" class="text-[11px] leading-relaxed text-slate-800 bg-slate-50 rounded-lg p-3 overflow-auto max-h-56 mono-num border border-slate-200"></pre>
           </div>
         </div>
       </div>
@@ -857,16 +1017,16 @@
   </main>
 
   <!-- Modal for Supabase SQL -->
-  <div id="sqlModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+  <div id="sqlModal" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="studio-panel max-w-xl w-full p-6 space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-[16px] font-bold text-[#111317]">Supabase 테이블 초기 설정</h3>
+        <h3 class="text-[16px] font-bold text-slate-900">Supabase 테이블 초기 설정</h3>
         <button onclick="toggleSqlModal()" class="btn-ghost px-3 py-1 text-[12px]">닫기</button>
       </div>
-      <p class="text-[12.5px] text-[#71717A]">
+      <p class="text-[12.5px] text-slate-500">
         Supabase 대시보드 SQL Editor에서 아래 DDL을 한 번 실행하면 클라우드 저장이 활성화됩니다.
       </p>
-      <pre id="sqlCodeBlock" class="text-[11.5px] text-[#111317] bg-[#F4F4F5] border border-[#E4E4E7] rounded-lg p-3.5 overflow-auto max-h-60 mono-num">create table if not exists public.hannyang_debates (
+      <pre id="sqlCodeBlock" class="text-[11.5px] text-slate-900 bg-slate-50 border border-slate-200 rounded-lg p-3.5 overflow-auto max-h-60 mono-num">create table if not exists public.hannyang_debates (
   id uuid default gen_random_uuid() primary key,
   preset_id text,
   source_url text not null,
@@ -894,34 +1054,34 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
   </div>
 
   <!-- Modal for Google API Key & Voice Settings -->
-  <div id="apiKeyModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+  <div id="apiKeyModal" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="studio-panel max-w-md w-full p-6 space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-[16px] font-bold text-[#111317]">API · 음성 합성 설정</h3>
+        <h3 class="text-[16px] font-bold text-slate-900">API · 음성 합성 설정</h3>
         <button onclick="toggleApiKeyModal()" class="btn-ghost px-3 py-1 text-[12px]">닫기</button>
       </div>
-      <p class="text-[12.5px] text-[#52525B] leading-relaxed">
+      <p class="text-[12.5px] text-slate-600 leading-relaxed">
         실시간 프리뷰는 왜곡 없는 표준 한국어 음성을 1:1 자막 동기화로 재생합니다. Google Cloud TTS 또는 유료 Gemini API 키가 있으면 AI 아나운서 음성과 MP4 더빙에도 바로 적용됩니다.
       </p>
       <div class="space-y-2">
-        <label class="text-[12px] font-semibold text-[#3F3F46] block">Google AI / Cloud API Key (브라우저 로컬 저장)</label>
+        <label class="text-[12px] font-semibold text-slate-700 block">Google AI / Cloud API Key (브라우저 로컬 저장)</label>
         <input id="customApiKeyInput" type="password" placeholder="새 Google AI / Cloud API 키 입력 (비워두면 기본 키 사용)" class="studio-input w-full h-10 px-3 text-[13px] mono-num" />
       </div>
       <div class="grid grid-cols-2 gap-2.5">
         <div>
-          <label class="text-[11.5px] font-semibold text-[#3F3F46] block mb-1">좌측 진행자 (L) 표준 음성</label>
+          <label class="text-[11.5px] font-semibold text-slate-700 block mb-1">좌측 진행자 (L) 표준 음성</label>
           <select id="proVoiceSelect" onchange="onBrowserVoicePick()" class="studio-input w-full h-9 px-2.5 text-[12px]">
             <option value="auto">자동 최적 선택</option>
           </select>
         </div>
         <div>
-          <label class="text-[11.5px] font-semibold text-[#3F3F46] block mb-1">우측 진행자 (R) 표준 음성</label>
+          <label class="text-[11.5px] font-semibold text-slate-700 block mb-1">우측 진행자 (R) 표준 음성</label>
           <select id="conVoiceSelect" onchange="onBrowserVoicePick()" class="studio-input w-full h-9 px-2.5 text-[12px]">
             <option value="auto">자동 최적 선택</option>
           </select>
         </div>
       </div>
-      <div id="voiceDiagStatus" class="text-[12px] text-[#52525B] bg-[#F4F4F5] border border-[#E4E4E7] rounded-lg px-3 py-2 leading-relaxed">
+      <div id="voiceDiagStatus" class="text-[12px] text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 leading-relaxed">
         한국어 음성 탐색 중...
       </div>
       <div class="flex items-center justify-between gap-2 pt-1">
@@ -1464,6 +1624,23 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
     }
 
+    function switchStudioInspector(tab = "script") {
+      const isPublish = tab === "publish";
+      const tabScript = document.getElementById("studioTabScript");
+      const tabPublish = document.getElementById("studioTabPublish");
+      const panelScript = document.getElementById("panelScriptTab");
+      const panelPublish = document.getElementById("panelPublishTab");
+      const addBtn = document.getElementById("addTurnBtn");
+      const badges = document.getElementById("scriptPerspectiveBadges");
+
+      if (tabScript) tabScript.classList.toggle("active", !isPublish);
+      if (tabPublish) tabPublish.classList.toggle("active", isPublish);
+      if (panelScript) panelScript.classList.toggle("hidden", isPublish);
+      if (panelPublish) panelPublish.classList.toggle("hidden", !isPublish);
+      if (addBtn) addBtn.classList.toggle("hidden", isPublish);
+      if (badges) badges.classList.toggle("sm:hidden", isPublish);
+    }
+
     function toggleCustomTextBox() {
       const wrap = document.getElementById("customTextWrapper");
       if (!wrap) return;
@@ -1661,16 +1838,16 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         stopShortsPlayback(false);
         interactiveEl.classList.add("hidden");
         mp4El.classList.remove("hidden");
-        btnV.className = "px-2.5 py-1 rounded-md bg-white text-[#111317] font-semibold shadow-2xs transition";
-        btnI.className = "px-2.5 py-1 rounded-md text-[#71717A] hover:text-[#111317] font-medium transition";
+        if (btnV) btnV.classList.add("active");
+        if (btnI) btnI.classList.remove("active");
         await ensureVideoPlayerSynced();
       } else {
         const videoEl = document.getElementById("realMp4Player");
         if (videoEl) videoEl.pause();
         mp4El.classList.add("hidden");
         interactiveEl.classList.remove("hidden");
-        btnI.className = "px-2.5 py-1 rounded-md bg-white text-[#111317] font-semibold shadow-2xs transition";
-        btnV.className = "px-2.5 py-1 rounded-md text-[#71717A] hover:text-[#111317] font-medium transition";
+        if (btnI) btnI.classList.add("active");
+        if (btnV) btnV.classList.remove("active");
       }
     }
 
@@ -1748,8 +1925,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         return;
       }
       el.className = isWarn
-        ? "mt-3 px-3 py-2 rounded-lg text-[12px] font-medium bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]"
-        : "mt-3 px-3 py-2 rounded-lg text-[12px] font-medium bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE]";
+        ? "px-3 py-2 rounded-lg text-[12px] font-medium bg-red-50 text-red-700 border border-red-200"
+        : "px-3 py-2 rounded-lg text-[12px] font-medium bg-sky-50 text-sky-700 border border-sky-200";
       el.textContent = msg;
       el.classList.remove("hidden");
     }
@@ -3800,6 +3977,12 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const statusEl = document.getElementById("mp4ExportStatus");
       // Resume AudioContext synchronously inside user click gesture BEFORE async waits!
       getOrResumeAudioContext();
+      const setStatus = (msg, clsColor = "text-slate-600") => {
+        if (!statusEl) return;
+        statusEl.className = `font-medium ${clsColor} truncate max-w-[180px] text-right`;
+        statusEl.title = msg;
+        statusEl.textContent = msg;
+      };
       try {
         // Only direct-download pre-baked MP4 if it is verified to include real spoken dialogue
         if (window.location.protocol.startsWith("http") && currentData.video_mp4_url && currentData.has_voice_track) {
@@ -3810,17 +3993,16 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               a.href = currentData.video_mp4_url;
               a.download = `${currentData.id || "hannyang_shorts"}_9x16.mp4`;
               a.click();
-              statusEl.className = "text-center text-[11.5px] font-medium text-[#059669] min-h-[16px]";
-              statusEl.textContent = "음성 포함 1080×1920 MP4 다운로드 완료";
+              setStatus("MP4 다운로드 완료", "text-emerald-600");
+              showToast("음성 포함 1080×1920 MP4 다운로드 완료");
               return;
             }
           } catch (e) {}
         }
 
-        statusEl.className = "text-center text-[11.5px] font-medium text-[#2563EB] min-h-[16px]";
-        statusEl.textContent = "한국어 AI 보이스 + 1080×1920 영상 생성 준비 중...";
+        setStatus("음성·영상 준비 중...", "text-sky-600");
         const res = await generateDynamicVideoUrl((pct, label) => {
-          statusEl.textContent = label || `Full-HD 영상 렌더링 중 (${pct}%)...`;
+          setStatus(label || `렌더링 (${pct}%)`, "text-sky-600");
         });
         if (res && res.url) {
           const ext = res.ext || currentData.rendered_video_ext || "webm";
@@ -3829,17 +4011,17 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           a.download = `hannyang_${currentData.id || "shorts"}_1080x1920.${ext}`;
           a.click();
           if (res.hasVoice) {
-            statusEl.className = "text-center text-[11.5px] font-medium text-[#059669] min-h-[16px]";
-            statusEl.textContent = `AI 음성 합본 1080×1920 영상(.${ext}) 저장 완료`;
+            setStatus(`음성 합본 .${ext} 저장 완료`, "text-emerald-600");
+            showToast(`AI 음성 합본 1080×1920 (.${ext}) 저장 완료`);
           } else if (res.partialVoice) {
-            statusEl.className = "text-center text-[11.5px] font-medium text-[#D97706] min-h-[16px]";
-            statusEl.textContent = `AI 음성 ${res.voicedCount || 0}/${res.totalTurns || (currentData.debate_script || []).length || 6}턴만 반영됨 (할당량 제한) — 전체 음성 원하시면 [API·음성 설정] 확인`;
+            setStatus(`일부 음성 반영 (${res.voicedCount || 0}/${res.totalTurns || 6}턴)`, "text-amber-600");
+            showToast("할당량 제한으로 일부 턴 음성만 반영됨 — [음성 · API]에서 키 확인");
           } else {
-            statusEl.className = "text-center text-[11.5px] font-medium text-[#D97706] min-h-[16px]";
             const reasonPrefix = res.reason === "quota_429"
-              ? "AI 음성 할당량(429) 초과로 "
-              : "AI 음성 API 키·할당량 제한으로 ";
-            statusEl.textContent = `${reasonPrefix}BGM 버전(.${ext})이 저장됨 — 상단 [API·음성 설정]에서 키 변경 가능`;
+              ? "음성 할당량(429) 초과 · "
+              : "음성 키 제한 · ";
+            setStatus(`${reasonPrefix}BGM .${ext} 저장됨`, "text-amber-600");
+            showToast(`${reasonPrefix}BGM 버전(.${ext}) 저장됨 — [음성 · API]에서 키 설정 가능`);
           }
           if (playerMode === "video") {
             const videoEl = document.getElementById("realMp4Player");
@@ -3848,8 +4030,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           }
         }
       } catch (err) {
-        statusEl.className = "text-center text-[11.5px] font-medium text-[#DC2626] min-h-[16px]";
-        statusEl.textContent = `영상 생성 오류: ${err && err.message ? err.message : "렌더링 실패"}`;
+        setStatus("영상 생성 실패", "text-red-600");
+        showToast(`영상 생성 오류: ${err && err.message ? err.message : "렌더링 실패"}`);
       }
     }
 
@@ -3936,12 +4118,39 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       document.getElementById("miniSummaryStats").textContent =
         `${modeLabel} · 댓글 ${stats.total_comments}건 중 과열 ${stats.filtered_curse_count}건(${filterRate}%) 정제`;
 
+      const radarModeEl = document.getElementById("studioTopicModeBadge");
+      if (radarModeEl) radarModeEl.textContent = modeLabel;
+      const radarHeadEl = document.getElementById("studioIssueHeadline");
+      if (radarHeadEl) radarHeadEl.textContent = data.issue_title;
+      const radarBarEl = document.getElementById("studioOverviewBar");
+      if (radarBarEl) {
+        radarBarEl.innerHTML = persps.map((p) => {
+          const pal = PALETTES[p.color] || PALETTES.blue;
+          return `<div class="h-full rounded-full transition-all duration-300" style="width:${p.ratio}%;background:${pal.accent}"></div>`;
+        }).join("");
+      }
+      const radarLegendEl = document.getElementById("studioOverviewLegend");
+      if (radarLegendEl) {
+        radarLegendEl.innerHTML = persps.map((p) => {
+          const pal = PALETTES[p.color] || PALETTES.blue;
+          const kwText = (p.keywords && p.keywords.length)
+            ? `<span class="text-slate-400 font-medium text-[11px] hidden sm:inline">(${escapeHtml(p.keywords.slice(0, 2).join(", "))})</span>`
+            : "";
+          return `
+            <span class="inline-flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full shrink-0" style="background:${pal.accent}"></span>
+              <span class="text-slate-800">${escapeHtml(p.label)}</span>
+              <span class="mono-num font-bold" style="color:${pal.txt}">${p.ratio}%</span>
+              ${kwText}
+            </span>
+          `;
+        }).join("");
+      }
+
       const perspBadgesEl = document.getElementById("scriptPerspectiveBadges");
       if (perspBadgesEl) {
-        perspBadgesEl.innerHTML = persps.map((p) => {
-          const pal = PALETTES[p.color] || PALETTES.blue;
-          return `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold mono-num" style="background:${pal.pillBg};color:${pal.txt}">${escapeHtml(p.short_label)} ${p.ratio}%</span>`;
-        }).join("");
+        perspBadgesEl.className = "hidden";
+        perspBadgesEl.innerHTML = "";
       }
 
       document.getElementById("reportIssueTitle").textContent = data.issue_title;
@@ -4033,7 +4242,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const legendRow = document.getElementById("shortsLegendRow");
       const ratioBar = document.getElementById("shortsRatioBar");
       const footLbl = document.getElementById("shortsModeFootLabel");
-      if (footLbl) footLbl.textContent = `한냥 Studio · ${modeLabel}`;
+      if (footLbl) footLbl.textContent = "한냥 Studio";
 
       if (legendRow) {
         if (persps.length <= 2) {
@@ -4123,48 +4332,47 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         const card = document.createElement("div");
         card.id = `scriptTurnItem_${idx}`;
         card.className = `script-row ${idx === currentTurnIndex ? `active-${cKey}` : ""}`;
-        card.onclick = () => {
-          setPlayerMode("interactive");
-          startShortsPlayback(idx);
-        };
+        card.style.borderLeftColor = idx === currentTurnIndex ? pal.accent : pal.borderSoft;
         card.innerHTML = `
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-            <div class="flex items-center gap-1.5 min-w-0 flex-1">
-              <select
-                aria-label="관점 선택"
-                onclick="event.stopPropagation()"
-                onchange="changeTurnPerspective(${idx}, this.value)"
-                style="background:${pal.pillBg};color:${pal.txt}"
-                class="px-1.5 py-0.5 text-[11px] font-bold rounded outline-none cursor-pointer shrink-0 border border-transparent hover:border-black/15"
-              >${selectOpts}</select>
+          <div class="flex items-center justify-between gap-2 mb-1.5">
+            <div class="flex items-center gap-1.5 min-w-0">
               <button
                 type="button"
-                onclick="event.stopPropagation();toggleTurnSide(${idx})"
-                title="좌/우 진행자 좌석 전환"
-                class="px-1.5 py-0.5 text-[10.5px] font-semibold rounded bg-white border border-[#E4E4E7] text-[#52525B] hover:text-[#111317] shrink-0"
-              >${isPro ? "좌측 L" : "우측 R"}</button>
-              <span
-                contenteditable="true"
-                onclick="event.stopPropagation()"
-                oninput="updateTurnCorePoint(${idx}, this.textContent)"
-                onblur="renderScriptList()"
-                class="text-[13px] font-bold text-[#111317] truncate outline-none focus:bg-white rounded px-1 -mx-1"
-              >${escapeHtml(turn.core_point)}</span>
+                onclick="setPlayerMode('interactive');startShortsPlayback(${idx})"
+                title="턴 ${idx + 1}부터 미리보기 재생"
+                class="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-[11px] font-bold mono-num text-slate-700 hover:border-slate-400 hover:text-slate-900 shrink-0 transition"
+              >${String(idx + 1).padStart(2, "0")} ▶</button>
+              <select
+                aria-label="관점 선택"
+                onchange="changeTurnPerspective(${idx}, this.value)"
+                style="background:${pal.pillBg};color:${pal.txt}"
+                class="px-2 py-0.5 text-[11px] font-bold rounded-md outline-none cursor-pointer shrink-0 border border-transparent hover:border-slate-900/15"
+              >${selectOpts}</select>
+              <span id="scriptTurnTime_${idx}" class="text-[11px] text-slate-400 mono-num shrink-0">${formatMinSec(sTime)}–${formatMinSec(eTime)}</span>
             </div>
-            <div class="flex items-center gap-1 shrink-0" onclick="event.stopPropagation()">
-              <span id="scriptTurnTime_${idx}" class="text-[11px] text-[#71717A] mono-num mr-1">${formatMinSec(sTime)}–${formatMinSec(eTime)}</span>
-              <button type="button" onclick="setPlayerMode('interactive');startShortsPlayback(${idx})" title="이 턴부터 재생" class="w-6 h-6 rounded hover:bg-white text-[11px] text-[#3F3F46] hover:text-[#111317] flex items-center justify-center transition">▶</button>
-              <button type="button" onclick="moveScriptTurn(${idx}, -1)" ${idx === 0 ? "disabled" : ""} title="위로 이동" class="w-6 h-6 rounded hover:bg-white text-[11px] text-[#71717A] hover:text-[#111317] disabled:opacity-30 flex items-center justify-center transition">↑</button>
-              <button type="button" onclick="moveScriptTurn(${idx}, 1)" ${idx === turns.length - 1 ? "disabled" : ""} title="아래로 이동" class="w-6 h-6 rounded hover:bg-white text-[11px] text-[#71717A] hover:text-[#111317] disabled:opacity-30 flex items-center justify-center transition">↓</button>
-              <button type="button" onclick="deleteScriptTurn(${idx})" ${turns.length <= 2 ? "disabled" : ""} title="턴 삭제" class="w-6 h-6 rounded hover:bg-[#FEF2F2] text-[12px] font-bold text-[#A1A1AA] hover:text-[#DC2626] disabled:opacity-25 flex items-center justify-center transition">×</button>
+            <div class="row-tools flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onclick="toggleTurnSide(${idx})"
+                title="좌/우 진행자 좌석 전환"
+                class="px-1.5 py-0.5 text-[10.5px] font-semibold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 shrink-0 transition"
+              >${isPro ? "좌측 L" : "우측 R"}</button>
+              <button type="button" onclick="moveScriptTurn(${idx}, -1)" ${idx === 0 ? "disabled" : ""} title="위로 이동" class="w-6 h-6 rounded-md hover:bg-slate-100 text-[11px] text-slate-500 hover:text-slate-900 disabled:opacity-30 flex items-center justify-center transition">↑</button>
+              <button type="button" onclick="moveScriptTurn(${idx}, 1)" ${idx === turns.length - 1 ? "disabled" : ""} title="아래로 이동" class="w-6 h-6 rounded-md hover:bg-slate-100 text-[11px] text-slate-500 hover:text-slate-900 disabled:opacity-30 flex items-center justify-center transition">↓</button>
+              <button type="button" onclick="deleteScriptTurn(${idx})" ${turns.length <= 2 ? "disabled" : ""} title="턴 삭제" class="w-6 h-6 rounded-md hover:bg-red-50 text-[12px] font-bold text-slate-400 hover:text-red-600 disabled:opacity-25 flex items-center justify-center transition">×</button>
             </div>
           </div>
+          <div
+            contenteditable="true"
+            oninput="updateTurnCorePoint(${idx}, this.textContent)"
+            onblur="renderScriptList()"
+            class="text-[13px] font-bold text-slate-900 leading-snug outline-none focus:bg-white rounded-md px-1.5 -mx-1.5 py-0.5 mb-0.5"
+          >${escapeHtml(turn.core_point)}</div>
           <p
             contenteditable="true"
-            onclick="event.stopPropagation()"
             oninput="updateTurnText(${idx}, this.textContent)"
             onblur="renderScriptList()"
-            class="text-[12.5px] text-[#3F3F46] leading-relaxed outline-none focus:text-[#111317] focus:bg-white rounded px-1.5 -mx-1.5 py-0.5"
+            class="text-[12.5px] text-slate-600 leading-relaxed outline-none focus:text-slate-900 focus:bg-white rounded-md px-1.5 -mx-1.5 py-0.5"
           >${escapeHtml(turn.text)}</p>
         `;
         scriptContainer.appendChild(card);
@@ -4425,8 +4633,15 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       turns.forEach((t, i) => {
         const el = document.getElementById(`scriptTurnItem_${i}`);
         if (!el) return;
+        const ck = getTurnColorKey(t);
+        const tPal = PALETTES[ck] || PALETTES.blue;
         el.classList.remove("active-pro", "active-con", "active-blue", "active-red", "active-violet", "active-emerald", "active-amber");
-        if (i === safeIdx) el.classList.add(`active-${getTurnColorKey(t)}`);
+        if (i === safeIdx) {
+          el.classList.add(`active-${ck}`);
+          el.style.borderLeftColor = tPal.accent;
+        } else {
+          el.style.borderLeftColor = tPal.borderSoft;
+        }
       });
     }
 
