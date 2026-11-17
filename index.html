@@ -209,10 +209,13 @@
       left: calc(100% - 82px);
     }
 
-    /* High-Contrast Kinetic Word Highlight */
+    /* High-Contrast Kinetic Word Highlight (2~4+ Multi-Perspective Palettes) */
     .kw-spoken { color: #0F172A; font-weight: 700; }
-    .kw-active-pro { color: #1D4ED8; background: #DBEAFE; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
-    .kw-active-con { color: #B91C1C; background: #FEE2E2; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-active-pro, .kw-active-blue { color: #1D4ED8; background: #DBEAFE; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-active-con, .kw-active-red { color: #B91C1C; background: #FEE2E2; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-active-violet { color: #6D28D9; background: #EDE9FE; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-active-emerald { color: #047857; background: #D1FAE5; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-active-amber { color: #B45309; background: #FEF3C7; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
     .kw-upcoming { color: #334155; font-weight: 600; }
 
     /* Character Stage Animations */
@@ -247,14 +250,11 @@
       border-radius: 99px;
       background: #D4D4D8;
     }
-    .eq-pro .eq-bar {
-      background: var(--pro-accent);
-      animation: eqAnim 0.42s infinite ease-in-out alternate;
-    }
-    .eq-con .eq-bar {
-      background: var(--con-accent);
-      animation: eqAnim 0.40s infinite ease-in-out alternate;
-    }
+    .eq-pro .eq-bar, .eq-blue .eq-bar { background: #2563EB; animation: eqAnim 0.42s infinite ease-in-out alternate; }
+    .eq-con .eq-bar, .eq-red .eq-bar { background: #DC2626; animation: eqAnim 0.40s infinite ease-in-out alternate; }
+    .eq-violet .eq-bar { background: #7C3AED; animation: eqAnim 0.41s infinite ease-in-out alternate; }
+    .eq-emerald .eq-bar { background: #059669; animation: eqAnim 0.41s infinite ease-in-out alternate; }
+    .eq-amber .eq-bar { background: #D97706; animation: eqAnim 0.41s infinite ease-in-out alternate; }
     .eq-bar:nth-child(2n) { animation-delay: 0.11s; }
     .eq-bar:nth-child(3n) { animation-delay: 0.21s; }
     .eq-bar:nth-child(5n) { animation-delay: 0.06s; }
@@ -273,8 +273,11 @@
       transition: border-color 0.15s ease, background-color 0.15s ease;
     }
     .script-row:hover { border-color: #D4D4D8; background: #F4F4F5; }
-    .script-row.active-pro { border-color: #93C5FD; background: #EFF6FF; }
-    .script-row.active-con { border-color: #FCA5A5; background: #FEF2F2; }
+    .script-row.active-pro, .script-row.active-blue { border-color: #93C5FD; background: #EFF6FF; }
+    .script-row.active-con, .script-row.active-red { border-color: #FCA5A5; background: #FEF2F2; }
+    .script-row.active-violet { border-color: #C4B5FD; background: #F5F3FF; }
+    .script-row.active-emerald { border-color: #6EE7B7; background: #ECFDF5; }
+    .script-row.active-amber { border-color: #FCD34D; background: #FFFBEB; }
 
     /* Minimal Toggle Switch */
     .min-switch {
@@ -305,6 +308,29 @@
     }
     .min-switch input:checked + .min-slider { background: var(--ink-primary); }
     .min-switch input:checked + .min-slider::before { transform: translateX(14px); }
+
+    /* Non-intrusive Studio Toast */
+    #studioToast {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translate(-50%, 16px);
+      background: #111317;
+      color: #FFFFFF;
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 60;
+    }
+    #studioToast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
   </style>
 </head>
 <body>
@@ -352,16 +378,43 @@
     <section id="viewStudio" class="space-y-5">
       <!-- Compact Command Bar -->
       <div class="studio-panel p-4 sm:p-5">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-2.5">
-          <div class="relative flex-1">
+        <div class="flex flex-col md:flex-row md:items-center gap-2.5">
+          <div class="relative flex-1 flex items-center">
             <input
               id="sourceUrlInput"
               type="text"
-              placeholder="유튜브 영상 URL을 붙여넣어 찬반 AI 아바타 토론 쇼츠 생성 (대사 길이 자동 맞춤)"
-              class="studio-input w-full h-10 px-3.5 text-[13.5px]"
+              placeholder="유튜브 영상 URL 붙여넣기 (토론·제품리뷰·게임·일상영상 모두 지원)"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();runLiveYouTubeOrCustomAnalysis();}"
+              class="studio-input w-full h-10 pl-3.5 pr-[108px] text-[13.5px]"
             />
+            <div class="absolute right-1.5 flex items-center gap-1">
+              <button
+                type="button"
+                onclick="pasteFromClipboard()"
+                title="클립보드에서 URL 또는 댓글 붙여넣기"
+                class="px-2 py-1 rounded-md text-[11.5px] font-semibold text-[#52525B] bg-[#F4F4F5] hover:bg-[#E4E4E7] hover:text-[#111317] transition"
+              >붙여넣기</button>
+              <button
+                type="button"
+                onclick="clearSourceInputs()"
+                title="입력 초기화"
+                class="w-6 h-6 rounded-md text-[13px] font-bold text-[#A1A1AA] hover:text-[#111317] hover:bg-[#F4F4F5] flex items-center justify-center transition"
+              >×</button>
+            </div>
           </div>
-          <div class="flex items-center gap-2 shrink-0">
+          <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <select
+              id="analysisModeSelect"
+              onchange="onAnalysisModeChange()"
+              title="분석 관점 형식 선택"
+              class="studio-input h-10 px-2.5 text-[12.5px] font-semibold text-[#111317] bg-white"
+            >
+              <option value="auto">자동 감지 (다관점/찬반)</option>
+              <option value="multi">다관점 비교 (2~4축)</option>
+              <option value="proscons">장단점·체감 리뷰</option>
+              <option value="debate">찬반 공론장 토론</option>
+              <option value="summary">핵심 반응 브리핑</option>
+            </select>
             <button
               id="runPipelineBtn"
               onclick="runLiveYouTubeOrCustomAnalysis()"
@@ -370,10 +423,11 @@
               쇼츠 생성
             </button>
             <button
+              id="toggleCustomBtn"
               onclick="toggleCustomTextBox()"
               class="btn-outline h-10 px-3 text-[13px]"
             >
-              텍스트 입력
+              댓글 직접 입력
             </button>
           </div>
         </div>
@@ -388,21 +442,40 @@
               대학가 전동킥보드 (180건)
             </button>
             <button id="presetBtn_preset_3" onclick="selectPreset('preset_3')" class="topic-pill">
-              고령 운전자 면허 (147건)
+              고령 운전자 3관점 (147건)
             </button>
           </div>
-          <span class="text-[12px] text-[#71717A]" id="miniSummaryStats">댓글 200건 중 과열 58건(29.0%) 정제</span>
+          <div class="flex items-center gap-2">
+            <span id="pipelineStepBadge" class="hidden px-2 py-0.5 rounded-md bg-[#F4F4F5] text-[11.5px] font-semibold text-[#3F3F46]"></span>
+            <span class="text-[12px] text-[#71717A]" id="miniSummaryStats">댓글 200건 중 과열 58건(29.0%) 정제</span>
+          </div>
         </div>
 
         <div id="commandNotice" class="hidden mt-3 px-3 py-2 rounded-lg text-[12px] font-medium bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]"></div>
 
-        <div id="customTextWrapper" class="hidden mt-3 pt-3 border-t border-[#F4F4F5]">
+        <div id="customTextWrapper" class="hidden mt-3 pt-3 border-t border-[#F4F4F5] space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-[11.5px] font-semibold text-[#71717A]">1클릭 샘플 체험:</span>
+              <button type="button" onclick="applySamplePack('it_review')" class="px-2.5 py-1 rounded-md text-[11.5px] font-medium bg-[#F4F4F5] hover:bg-[#E4E4E7] text-[#111317] transition">IT 신제품 리뷰 (4관점)</button>
+              <button type="button" onclick="applySamplePack('game_patch')" class="px-2.5 py-1 rounded-md text-[11.5px] font-medium bg-[#F4F4F5] hover:bg-[#E4E4E7] text-[#111317] transition">게임 밸런스 패치 (3관점)</button>
+              <button type="button" onclick="applySamplePack('four_day')" class="px-2.5 py-1 rounded-md text-[11.5px] font-medium bg-[#F4F4F5] hover:bg-[#E4E4E7] text-[#111317] transition">주 4일제 다자 시각</button>
+              <button type="button" onclick="applySamplePack('noise_debate')" class="px-2.5 py-1 rounded-md text-[11.5px] font-medium bg-[#F4F4F5] hover:bg-[#E4E4E7] text-[#111317] transition">소음 규제 찬반</button>
+            </div>
+            <span id="customLineCountLabel" class="text-[11.5px] font-medium text-[#71717A] mono-num">0줄 입력됨</span>
+          </div>
           <textarea
             id="rawCommentsInput"
-            rows="2"
-            placeholder="URL 대신 댓글 텍스트를 줄바꿈으로 구분해 입력한 뒤 [쇼츠 생성]을 누르세요."
-            class="studio-input w-full p-3 text-[13px]"
+            rows="3"
+            oninput="updateCustomLineCount()"
+            onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();runLiveYouTubeOrCustomAnalysis();}"
+            placeholder="댓글·후기 텍스트를 줄바꿈으로 구분해 붙여넣으세요. (유튜브 커뮤니티, 제품 리뷰, 게임 반응 등 주제 제한 없음 · Ctrl+Enter 실행)"
+            class="studio-input w-full p-3 text-[13px] leading-relaxed"
           ></textarea>
+          <div class="flex items-center justify-between gap-2">
+            <button type="button" onclick="document.getElementById('rawCommentsInput').value='';updateCustomLineCount();" class="btn-ghost px-3 py-1.5 text-[12px]">입력 비우기</button>
+            <button type="button" onclick="runLiveYouTubeOrCustomAnalysis()" class="btn-ink px-4 py-1.5 text-[12.5px]">이 댓글로 바로 분석</button>
+          </div>
         </div>
       </div>
 
@@ -467,7 +540,7 @@
                   <div id="shortsSpeechBubble" class="speech-bubble">
                     <div class="flex items-center justify-between mb-1">
                       <div class="flex items-center gap-1.5">
-                        <span id="shortsSpeakerBadge" class="text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#DBEAFE] text-[#1D4ED8]">찬성 1</span>
+                        <span id="shortsSpeakerBadge" class="text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#DBEAFE] text-[#1D4ED8]">규제 강화</span>
                         <span id="shortsClauseBadge" class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#F1F5F9] text-[#475569] mono-num">논지 1/2</span>
                       </div>
                       <div id="shortsBubbleEq" class="eq-bars">
@@ -490,27 +563,31 @@
                   id="avatarCardPro"
                   src="static/assets/pro_avatar.png"
                   onerror="this.onerror=null;this.src='pro_avatar.png'"
-                  alt="찬성 화자"
+                  alt="좌측 진행자"
                   class="char-actor speaking absolute z-10 left-[14px] bottom-[140px] h-[152px] w-auto object-contain select-none pointer-events-none"
                 />
                 <img
                   id="avatarCardCon"
                   src="static/assets/con_avatar.png"
                   onerror="this.onerror=null;this.src='con_avatar.png'"
-                  alt="반대 화자"
+                  alt="우측 진행자"
                   class="char-actor absolute z-10 right-[14px] bottom-[144px] h-[138px] w-auto object-contain select-none pointer-events-none"
                 />
 
-                <!-- Lower Telemetry Card over Reflective Studio Floor -->
-                <div class="relative z-30 rounded-xl bg-[#0E1119]/92 px-3 py-2 border border-white/10 mt-auto">
-                  <div class="flex items-center justify-between text-[10px] font-semibold mb-1.5">
-                    <span class="text-[#60A5FA] mono-num" id="shortsProShare">찬성 88%</span>
-                    <span class="text-[#A1A1AA]">50:50 중재</span>
-                    <span class="text-[#F87171] mono-num" id="shortsConShare">반대 12%</span>
+                <!-- Dynamic Multi-Perspective Lower Telemetry Card -->
+                <div id="shortsTelemetryArea" class="relative z-30 rounded-xl bg-[#0E1119]/92 px-2.5 py-2 border border-white/10 mt-auto">
+                  <div id="shortsLegendRow" class="flex items-center justify-between gap-1 text-[9.5px] font-semibold mb-1 truncate">
+                    <span class="text-[#60A5FA] mono-num">규제 강화 88%</span>
+                    <span class="text-[#A1A1AA]">찬반 공론장 중재</span>
+                    <span class="text-[#F87171] mono-num">신중·보완 12%</span>
+                  </div>
+                  <div id="shortsRatioBar" class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden flex gap-0.5 mb-1.5">
+                    <div class="h-full bg-[#2563EB] rounded-full" style="width: 88%"></div>
+                    <div class="h-full bg-[#DC2626] rounded-full" style="width: 12%"></div>
                   </div>
                   <div class="flex items-center justify-between pt-1 border-t border-white/[0.08]">
                     <div class="flex items-center gap-1" id="shortsTurnDots"></div>
-                    <span class="text-[9.5px] text-[#A1A1AA] font-semibold">한냥 Studio</span>
+                    <span id="shortsModeFootLabel" class="text-[9.5px] text-[#A1A1AA] font-semibold">한냥 Studio</span>
                   </div>
                 </div>
               </div>
@@ -528,12 +605,14 @@
 
             <!-- Controls -->
             <div class="w-full max-w-[320px] mt-4 space-y-2.5">
-              <div class="grid grid-cols-2 gap-2">
-                <button id="playShortsBtn" onclick="toggleShortsPlayback()" class="btn-outline h-10 text-[13.5px]">
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="stepTurn(-1)" title="이전 턴 (←)" class="btn-outline w-10 h-10 flex items-center justify-center text-[12px] shrink-0">◀</button>
+                <button id="playShortsBtn" onclick="toggleShortsPlayback()" class="btn-outline flex-1 h-10 text-[13.5px]">
                   <span id="playBtnLabel">재생</span>
                 </button>
-                <button id="exportMp4Btn" onclick="exportReal916Video()" class="btn-ink h-10 text-[13.5px]">
-                  영상 다운로드
+                <button type="button" onclick="stepTurn(1)" title="다음 턴 (→)" class="btn-outline w-10 h-10 flex items-center justify-center text-[12px] shrink-0">▶</button>
+                <button id="exportMp4Btn" onclick="exportReal916Video()" class="btn-ink px-3.5 h-10 text-[13px] shrink-0">
+                  영상 저장
                 </button>
               </div>
 
@@ -549,29 +628,35 @@
                 <label class="flex items-center gap-1.5 cursor-pointer select-none shrink-0">
                   <span>전환음</span>
                   <span class="min-switch">
-                    <input id="chimeToggle" type="checkbox" checked />
+                    <input id="chimeToggle" type="checkbox" checked onchange="saveUiPrefs()" />
                     <span class="min-slider"></span>
                   </span>
                 </label>
               </div>
+              <p class="text-center text-[11px] text-[#A1A1AA]">단축키: Space 재생/정지 · ←/→ 턴 이동</p>
               <div id="mp4ExportStatus" class="text-center text-[11.5px] font-medium text-[#059669] min-h-[16px] leading-snug"></div>
             </div>
           </div>
         </div>
 
-        <!-- RIGHT (7 cols): METADATA & EDITABLE 6-TURN SCRIPT -->
+        <!-- RIGHT (7 cols): METADATA & FLEXIBLE MULTI-PERSPECTIVE SCRIPT -->
         <div class="lg:col-span-7 space-y-5">
 
           <!-- YouTube Upload Metadata -->
           <div class="studio-panel p-5 space-y-4">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 class="text-[15.5px] font-bold text-[#111317]">업로드 메타데이터</h2>
                 <p class="text-[12.5px] text-[#71717A] mt-0.5">유튜브 쇼츠 업로드 화면에 그대로 붙여넣는 제목과 설명란</p>
               </div>
-              <a href="https://studio.youtube.com" target="_blank" class="btn-ghost px-3 py-1.5 text-[12px]">
-                YouTube Studio
-              </a>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="copyFullMetadata(this)" class="btn-outline px-2.5 py-1.5 text-[12px]">
+                  제목·설명 전체 복사
+                </button>
+                <a href="https://studio.youtube.com" target="_blank" class="btn-ghost px-3 py-1.5 text-[12px]">
+                  YouTube Studio
+                </a>
+              </div>
             </div>
 
             <div class="space-y-3">
@@ -607,16 +692,21 @@
             </div>
           </div>
 
-          <!-- 6-Turn Script Editor -->
+          <!-- Flexible 2-8 Turn Multi-Perspective Script Editor -->
           <div class="studio-panel p-5">
-            <div class="flex items-center justify-between mb-3.5">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3.5">
               <div>
-                <h2 class="text-[15.5px] font-bold text-[#111317]">6턴 토론 대본</h2>
-                <p class="text-[12.5px] text-[#71717A] mt-0.5">문장을 직접 편집하거나 턴을 클릭해 해당 구간부터 바로 재생합니다.</p>
+                <h2 id="scriptEditorHeading" class="text-[15.5px] font-bold text-[#111317]">스튜디오 대본 (6턴)</h2>
+                <p class="text-[12.5px] text-[#71717A] mt-0.5">소제목·대사 수정, 관점·좌석 전환, 순서 조정 및 턴 추가/삭제(2~8턴) 지원</p>
               </div>
-              <span class="text-[12px] font-medium text-[#71717A] mono-num">PRO 3 · CON 3</span>
+              <div class="flex items-center gap-2">
+                <div id="scriptPerspectiveBadges" class="flex flex-wrap items-center gap-1"></div>
+                <button id="addTurnBtn" type="button" onclick="addScriptTurn()" class="btn-outline px-2.5 py-1 text-[12px] shrink-0">
+                  + 턴 추가
+                </button>
+              </div>
             </div>
-            <div id="debateScriptList" class="space-y-2"></div>
+            <div id="debateScriptList" class="space-y-2.5"></div>
           </div>
 
         </div>
@@ -630,7 +720,7 @@
       <div class="studio-panel p-5 sm:p-6">
         <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-[#F4F4F5]">
           <div>
-            <span class="text-[12px] font-semibold text-[#71717A]">YouTube Data API v3 실측 데이터</span>
+            <span class="text-[12px] font-semibold text-[#71717A]">YouTube Data API v3 · 다관점 여론 분석 데이터</span>
             <h2 id="reportIssueTitle" class="text-[18px] font-bold text-[#111317] mt-0.5">
               심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
             </h2>
@@ -672,20 +762,20 @@
           </div>
         </div>
 
-        <!-- Stance & Detox Bars -->
+        <!-- Dynamic Multi-Perspective Stance & Detox Bars -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mt-3.5">
           <div class="studio-subpanel p-4">
-            <div class="flex justify-between text-[12px] font-semibold mb-2">
-              <span class="text-[#2563EB]">찬성 <span id="proRatioText" class="mono-num">88%</span></span>
+            <div id="analyticsStanceHeader" class="flex justify-between items-center text-[12px] font-semibold mb-2">
+              <span id="stanceModeTag" class="text-[#111317]">찬반 공론장 중재</span>
               <span class="text-[#71717A]" id="stanceTotalLabel">원본 댓글 여론</span>
-              <span class="text-[#DC2626]">반대 <span id="conRatioText" class="mono-num">12%</span></span>
             </div>
-            <div class="w-full h-2 rounded-full bg-[#E4E4E7] overflow-hidden flex">
-              <div id="proBarFill" class="h-full bg-[#2563EB] transition-all duration-500" style="width: 88%"></div>
-              <div id="conBarFill" class="h-full bg-[#DC2626] transition-all duration-500" style="width: 12%"></div>
+            <div id="analyticsStackedBar" class="w-full h-2.5 rounded-full bg-[#E4E4E7] overflow-hidden flex gap-0.5">
+              <div class="h-full bg-[#2563EB]" style="width: 88%"></div>
+              <div class="h-full bg-[#DC2626]" style="width: 12%"></div>
             </div>
-            <p class="text-[12px] text-[#71717A] mt-2.5">
-              편향된 원본 댓글 분포에서도 소수 의견의 핵심 논거를 추출해 50:50 대본으로 균형을 맞춥니다.
+            <div id="analyticsPerspectivesLegend" class="mt-2.5 space-y-1.5"></div>
+            <p id="analyticsStanceDesc" class="text-[11.5px] text-[#71717A] mt-2.5">
+              편향된 원본 댓글 분포에서도 핵심 관점별 논거를 추출해 대본으로 균형을 맞춥니다.
             </p>
           </div>
 
@@ -819,13 +909,13 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       </div>
       <div class="grid grid-cols-2 gap-2.5">
         <div>
-          <label class="text-[11.5px] font-semibold text-[#3F3F46] block mb-1">찬성(PRO) 표준 음성</label>
+          <label class="text-[11.5px] font-semibold text-[#3F3F46] block mb-1">좌측 진행자 (L) 표준 음성</label>
           <select id="proVoiceSelect" onchange="onBrowserVoicePick()" class="studio-input w-full h-9 px-2.5 text-[12px]">
             <option value="auto">자동 최적 선택</option>
           </select>
         </div>
         <div>
-          <label class="text-[11.5px] font-semibold text-[#3F3F46] block mb-1">반대(CON) 표준 음성</label>
+          <label class="text-[11.5px] font-semibold text-[#3F3F46] block mb-1">우측 진행자 (R) 표준 음성</label>
           <select id="conVoiceSelect" onchange="onBrowserVoicePick()" class="studio-input w-full h-9 px-2.5 text-[12px]">
             <option value="auto">자동 최적 선택</option>
           </select>
@@ -841,6 +931,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     </div>
   </div>
 
+  <div id="studioToast"></div>
   <canvas id="hiddenShortsRecorderCanvas" width="1080" height="1920" class="hidden"></canvas>
 
   <script>
@@ -851,77 +942,216 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       SUPABASE_KEY: "sb_publishable_-v3SG7BvweiuJceeCl5fEg_pUt-qVFk"
     };
 
+    const PALETTE_ORDER = ["blue", "red", "violet", "emerald", "amber"];
+    const PALETTES = {
+      blue: {
+        accent: "#2563EB", txt: "#1D4ED8", pillBg: "#DBEAFE", barTxt: "#60A5FA",
+        spotlight0: "rgba(37, 99, 235, 0.36)", spotlight1: "rgba(37, 99, 235, 0.08)",
+        canvasSpot0: "rgba(37, 99, 235, 0.42)", canvasSpot1: "rgba(37, 99, 235, 0.14)",
+        dotBg: "bg-[#2563EB]", borderSoft: "#93C5FD", rowBg: "#EFF6FF"
+      },
+      red: {
+        accent: "#DC2626", txt: "#B91C1C", pillBg: "#FEE2E2", barTxt: "#F87171",
+        spotlight0: "rgba(220, 38, 38, 0.36)", spotlight1: "rgba(220, 38, 38, 0.08)",
+        canvasSpot0: "rgba(220, 38, 38, 0.42)", canvasSpot1: "rgba(220, 38, 38, 0.14)",
+        dotBg: "bg-[#DC2626]", borderSoft: "#FCA5A5", rowBg: "#FEF2F2"
+      },
+      violet: {
+        accent: "#7C3AED", txt: "#6D28D9", pillBg: "#EDE9FE", barTxt: "#A78BFA",
+        spotlight0: "rgba(124, 58, 237, 0.36)", spotlight1: "rgba(124, 58, 237, 0.08)",
+        canvasSpot0: "rgba(124, 58, 237, 0.42)", canvasSpot1: "rgba(124, 58, 237, 0.14)",
+        dotBg: "bg-[#7C3AED]", borderSoft: "#C4B5FD", rowBg: "#F5F3FF"
+      },
+      emerald: {
+        accent: "#059669", txt: "#047857", pillBg: "#D1FAE5", barTxt: "#34D399",
+        spotlight0: "rgba(5, 150, 105, 0.36)", spotlight1: "rgba(5, 150, 105, 0.08)",
+        canvasSpot0: "rgba(5, 150, 105, 0.42)", canvasSpot1: "rgba(5, 150, 105, 0.14)",
+        dotBg: "bg-[#059669]", borderSoft: "#6EE7B7", rowBg: "#ECFDF5"
+      },
+      amber: {
+        accent: "#D97706", txt: "#B45309", pillBg: "#FEF3C7", barTxt: "#FBBF24",
+        spotlight0: "rgba(217, 119, 6, 0.36)", spotlight1: "rgba(217, 119, 6, 0.08)",
+        canvasSpot0: "rgba(217, 119, 6, 0.42)", canvasSpot1: "rgba(217, 119, 6, 0.14)",
+        dotBg: "bg-[#D97706]", borderSoft: "#FCD34D", rowBg: "#FFFBEB"
+      }
+    };
+
+    const SAMPLE_PACKS = {
+      it_review: {
+        mode: "multi",
+        comments: [
+          "배터리 타임이랑 저전력 효율은 진짜 역대급으로 오래 가네요 하루 종일 씁니다",
+          "배터리 오래 가는 게 가장 만족스럽고 외근할 때 든든해요",
+          "카메라 야간 저조도 화질이 전작보다 훨씬 선명하고 색감도 깔끔해져서 만족스럽습니다",
+          "카메라 줌이랑 인물 사진 결과물이 좋아졌다는 평이 많네요",
+          "근데 출고가가 너무 비싸게 나와서 가격 가성비 생각하면 부담이 꽤 크긴 해요",
+          "가격 인상 폭이 커서 전작 할인이나 공시지원금 기다리는 게 대안일 듯",
+          "고사양 게임 조금만 돌리면 후면 발열이 올라오고 무게도 묵직해서 불편합니다",
+          "디자인 마감은 깔끔한데 발열 관리랑 기본 용량 128기가는 아쉽네요"
+        ].join("\n")
+      },
+      game_patch: {
+        mode: "multi",
+        comments: [
+          "이번 신규 스토리랑 BGM 퀄리티는 진짜 최고다 몰입감 미쳤음 기대 이상이네요",
+          "상위 던전 보상 개편 방향은 좋은데 신규 유저 진입 장벽이 여전히 너무 높은 게 문제",
+          "스킬 밸런스 수치랑 쿨타임만 좀 다듬고 매칭 속도 패치 해주면 완벽할 것 같은데요",
+          "과금 패키지 효율이 예전보다 아쉽다는 반응도 많아서 무과금 유저 배려 개선안이 필요합니다",
+          "최적화 프레임 드랍 현상부터 다음 업데이트에서 우선 수정해줬으면 좋겠네요"
+        ].join("\n")
+      },
+      four_day: {
+        mode: "multi",
+        comments: [
+          "생산성 집중도가 높아지고 워라밸이 좋아져서 번아웃 예방에 정말 도움이 됩니다",
+          "중소기업이나 현장 제조·서비스 업종은 인건비와 납기 부담 때문에 당장 도입이 어렵습니다",
+          "임금 삭감 없는 일괄 4일제보다 격주 4일제나 유연근무·코어타임부터 단계적으로 도입하는 게 현실적 대안이죠",
+          "업종별 특성과 교대 근무 체계를 고려한 맞춤형 보완 정책과 세제 지원이 병행되어야 합니다"
+        ].join("\n")
+      },
+      noise_debate: {
+        mode: "debate",
+        comments: [
+          "새벽 주택가 오토바이 배기 소음 단속과 처벌 규제를 즉각 강화해야 시민이 잠을 잡니다",
+          "전면 번호판 의무화와 불법 소음기 개조 업체에 대한 강력한 과태료 부과가 필수입니다",
+          "생계형 야간 배달 라이더 전체를 범죄자 취급하면 안 되며 플랫폼 속도 경쟁부터 고쳐야 합니다",
+          "무작정 통행 금지하기 전에 전기 이륜차 전환 보조금과 배달 인프라 보완이 먼저입니다"
+        ].join("\n")
+      }
+    };
+
+    function getTurnColorKey(turn) {
+      const ck = (turn && turn.color ? String(turn.color) : "").trim().toLowerCase();
+      if (PALETTES[ck]) return ck;
+      return (turn && turn.speaker === "CON") ? "red" : "blue";
+    }
+
+    function getTurnPalette(turn) {
+      return PALETTES[getTurnColorKey(turn)] || PALETTES.blue;
+    }
+
+    function resolvePerspectives(data) {
+      if (data && Array.isArray(data.perspectives) && data.perspectives.length >= 2) {
+        return data.perspectives.slice(0, 4).map((p, i) => {
+          const ck = PALETTES[(p.color || "").toLowerCase()] ? p.color.toLowerCase() : PALETTE_ORDER[i % 4];
+          return {
+            id: p.id || `P${i + 1}`,
+            label: p.label || p.short_label || `관점 ${i + 1}`,
+            short_label: (p.short_label || p.label || `관점 ${i + 1}`).slice(0, 12),
+            ratio: Math.max(1, Number(p.ratio) || 25),
+            color: ck,
+            keywords: Array.isArray(p.keywords) ? p.keywords : []
+          };
+        });
+      }
+      const stats = (data && data.raw_stats) || {};
+      const proR = Math.max(1, Math.min(99, Number(stats.pro_ratio) || 50));
+      return [
+        { id: "P1", label: "찬성·지지", short_label: "찬성", ratio: proR, color: "blue", keywords: [] },
+        { id: "P2", label: "반대·보완", short_label: "반대", ratio: Math.max(1, 100 - proR), color: "red", keywords: [] }
+      ];
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const el = document.getElementById("studioToast");
+      if (!el || !msg) return;
+      el.textContent = msg;
+      el.classList.add("show");
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+
     const OFFLINE_PRESETS = {
       preset_1: {
         id: "preset_1",
+        analysis_mode: "debate",
+        mode_label: "찬반 공론장 중재",
         source_label: "YouTube Data API v3 실측 · YTN(vNIXiWyXs90), MBC(lt7knjTuuOM), 연합뉴스TV(Cs_A2EcMsto) 200건",
         source_url: "https://www.youtube.com/watch?v=vNIXiWyXs90",
         video_mp4_url: "static/videos/preset_1.mp4",
         has_voice_track: false,
         issue_title: "심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란",
         hashtags: "#심야오토바이소음 #배달라이더 #공론장중재 #핵심토론 #쇼츠",
+        perspectives: [
+          { id: "P1", label: "단속·소음 규제 강화", short_label: "규제 강화", ratio: 88, color: "blue", keywords: ["배기소음", "단속강화", "번호판"] },
+          { id: "P2", label: "라이더 생존권·인프라", short_label: "신중·보완", ratio: 12, color: "red", keywords: ["생계형", "전기이륜차", "핀셋단속"] }
+        ],
         raw_stats: { total_comments: 200, filtered_curse_count: 58, pro_ratio: 88, con_ratio: 12, toxicity_before: 64.2, toxicity_after: 14.5 },
         debate_script: [
-          { speaker: "PRO", core_point: "헌법상 주거 평온권 및 심야 수면권 침해 심각", text: "새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다. 유명무실한 현행 소음 기준을 대폭 낮추고 상시 음향 단속 카메라와 즉각적인 처벌 법안을 도입해야 합니다." },
-          { speaker: "CON", core_point: "생계형 배달 라이더 생존권 및 플랫폼 속도 경쟁 구조", text: "일부 불법 개조 운전자의 일탈을 이유로 야간 생계형 라이더 전체의 운행을 제한하는 것은 과도한 생존권 침해입니다. 배달 시간 단축을 강요하는 플랫폼 알고리즘과 야간 할증 구조를 개선하는 것이 근본적인 해결책입니다." },
-          { speaker: "PRO", core_point: "전면 번호판 의무화 및 불법 소음기 개조 원천 차단", text: "단속 경찰 앞에서도 보란 듯이 굉음을 내며 도주할 수 있는 이유는 후면 번호판 중심의 허술한 식별 체계 때문입니다. 전면 번호판 부착을 의무화하고 불법 머플러 개조 업체와 운전자에게 징벌적 과태료를 부과해야 합니다." },
-          { speaker: "CON", core_point: "전기 이륜차 보급 인프라 및 배터리 교환소 선행 확충", text: "단속과 처벌만으로는 반복되는 소음 갈등을 근본적으로 해결할 수 없습니다. 영세 배달 종사자들이 무소음 전기 이륜차로 부담 없이 전환할 수 있도록 구매 보조금과 배터리 교환 인프라를 먼저 확충해야 합니다." },
-          { speaker: "PRO", core_point: "주거 밀집 지역 심야 내연기관 이륜차 통행 제한 구역 지정", text: "아파트 단지와 주택가 골목에서는 밤 열한 시 이후 고소음 내연기관 이륜차 진입을 제한하는 심야 정온 구역 지정이 시급합니다. 다수 시민의 건강권과 환경권 보호는 더 이상 미룰 수 없는 공공의 책무입니다." },
-          { speaker: "CON", core_point: "야간 자영업 생태계 보호 및 핀셋 단속 기반 상생 거버넌스", text: "심야 배달을 일괄 차단하면 야간 매출에 의존하는 영세 소상공인과 교대 근무 소비자들까지 연쇄적인 피해를 입게 됩니다. 획일적 통행 금지 대신 소음 기준 초과 차량만 정밀 타격하는 스마트 단속과 친환경 인센티브를 병행해야 합니다." }
+          { speaker: "PRO", perspective_id: "P1", perspective_label: "규제 강화", color: "blue", core_point: "헌법상 주거 평온권 및 심야 수면권 침해 심각", text: "새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다. 유명무실한 현행 소음 기준을 대폭 낮추고 상시 음향 단속 카메라와 즉각적인 처벌 법안을 도입해야 합니다." },
+          { speaker: "CON", perspective_id: "P2", perspective_label: "신중·보완", color: "red", core_point: "생계형 배달 라이더 생존권 및 플랫폼 속도 경쟁 구조", text: "일부 불법 개조 운전자의 일탈을 이유로 야간 생계형 라이더 전체의 운행을 제한하는 것은 과도한 생존권 침해입니다. 배달 시간 단축을 강요하는 플랫폼 알고리즘과 야간 할증 구조를 개선하는 것이 근본적인 해결책입니다." },
+          { speaker: "PRO", perspective_id: "P1", perspective_label: "규제 강화", color: "blue", core_point: "전면 번호판 의무화 및 불법 소음기 개조 원천 차단", text: "단속 경찰 앞에서도 보란 듯이 굉음을 내며 도주할 수 있는 이유는 후면 번호판 중심의 허술한 식별 체계 때문입니다. 전면 번호판 부착을 의무화하고 불법 머플러 개조 업체와 운전자에게 징벌적 과태료를 부과해야 합니다." },
+          { speaker: "CON", perspective_id: "P2", perspective_label: "신중·보완", color: "red", core_point: "전기 이륜차 보급 인프라 및 배터리 교환소 선행 확충", text: "단속과 처벌만으로는 반복되는 소음 갈등을 근본적으로 해결할 수 없습니다. 영세 배달 종사자들이 무소음 전기 이륜차로 부담 없이 전환할 수 있도록 구매 보조금과 배터리 교환 인프라를 먼저 확충해야 합니다." },
+          { speaker: "PRO", perspective_id: "P1", perspective_label: "규제 강화", color: "blue", core_point: "주거 밀집 지역 심야 내연기관 이륜차 통행 제한 구역 지정", text: "아파트 단지와 주택가 골목에서는 밤 열한 시 이후 고소음 내연기관 이륜차 진입을 제한하는 심야 정온 구역 지정이 시급합니다. 다수 시민의 건강권과 환경권 보호는 더 이상 미룰 수 없는 공공의 책무입니다." },
+          { speaker: "CON", perspective_id: "P2", perspective_label: "신중·보완", color: "red", core_point: "야간 자영업 생태계 보호 및 핀셋 단속 기반 상생 거버넌스", text: "심야 배달을 일괄 차단하면 야간 매출에 의존하는 영세 소상공인과 교대 근무 소비자들까지 연쇄적인 피해를 입게 됩니다. 획일적 통행 금지 대신 소음 기준 초과 차량만 정밀 타격하는 스마트 단속과 친환경 인센티브를 병행해야 합니다." }
         ],
         detox_samples: [
-          { side: "PRO", raw: "[YTN] 단속 의지도 없으면서 ㄱ ㅐ소리!!! 파출소 배달가는 딸배도 붕붕 거리더라", cleaned: "일선 단속의 실효성이 부족하여 공공기관 인근에서도 이륜차 소음이 방치되고 있으므로 상시 단속 체계를 강화해야 합니다.", removed_tokens: ["ㄱ ㅐ소리!!!", "딸배도"] },
-          { side: "PRO", raw: "[좋아요 53] 강력처벌 해야 합니다..오토바이 자동차 배기음 폭발하는 소리 진짜 살인을 부릅니다.", cleaned: "심야 시간대 기준치를 초과하는 배기 소음은 극심한 정신적 고통을 유발하므로 처벌 수위를 대폭 강화해야 합니다.", removed_tokens: ["살인을 부릅니다"] },
-          { side: "PRO", raw: "[MBC] 오토바이 소음 단속 백날해봐라 없어지는가....처벌법이 개법인데 그때뿐이지.", cleaned: "일회성 합동 단속만으로는 소음 근절이 어려우므로 관련 처벌 법규와 배기음 허용 기준 자체를 실효성 있게 개정해야 합니다.", removed_tokens: ["백날해봐라", "개법인데"] },
-          { side: "CON", raw: "[연합뉴스TV] 먹고살려고 밤잠 줄여가며 배달 뛰는 기사들까지 싸잡아서 범죄자 취급하네 법 지키는 사람이 더 많다", cleaned: "법규를 준수하는 다수의 생계형 배달 종사자까지 일괄 규제의 대상으로 삼기보다 불법 개조 차량에 한정한 핀셋 단속이 필요합니다.", removed_tokens: ["싸잡아서", "범죄자 취급"] }
+          { side: "PRO", perspective_label: "규제 강화", color: "blue", raw: "[YTN] 단속 의지도 없으면서 ㄱ ㅐ소리!!! 파출소 배달가는 딸배도 붕붕 거리더라", cleaned: "일선 단속의 실효성이 부족하여 공공기관 인근에서도 이륜차 소음이 방치되고 있으므로 상시 단속 체계를 강화해야 합니다.", removed_tokens: ["ㄱ ㅐ소리!!!", "딸배도"] },
+          { side: "PRO", perspective_label: "규제 강화", color: "blue", raw: "[좋아요 53] 강력처벌 해야 합니다..오토바이 자동차 배기음 폭발하는 소리 진짜 살인을 부릅니다.", cleaned: "심야 시간대 기준치를 초과하는 배기 소음은 극심한 정신적 고통을 유발하므로 처벌 수위를 대폭 강화해야 합니다.", removed_tokens: ["살인을 부릅니다"] },
+          { side: "PRO", perspective_label: "규제 강화", color: "blue", raw: "[MBC] 오토바이 소음 단속 백날해봐라 없어지는가....처벌법이 개법인데 그때뿐이지.", cleaned: "일회성 합동 단속만으로는 소음 근절이 어려우므로 관련 처벌 법규와 배기음 허용 기준 자체를 실효성 있게 개정해야 합니다.", removed_tokens: ["백날해봐라", "개법인데"] },
+          { side: "CON", perspective_label: "신중·보완", color: "red", raw: "[연합뉴스TV] 먹고살려고 밤잠 줄여가며 배달 뛰는 기사들까지 싸잡아서 범죄자 취급하네 법 지키는 사람이 더 많다", cleaned: "법규를 준수하는 다수의 생계형 배달 종사자까지 일괄 규제의 대상으로 삼기보다 불법 개조 차량에 한정한 핀셋 단속이 필요합니다.", removed_tokens: ["싸잡아서", "범죄자 취급"] }
         ]
       },
       preset_2: {
         id: "preset_2",
+        analysis_mode: "debate",
+        mode_label: "찬반 공론장 중재",
         source_label: "YouTube Data API v3 실측 · MBC(Xt8TRqMuZRc), SBS(aI0awk0NBfc), TBS(D2hNIe74HEQ) 180건",
         source_url: "https://www.youtube.com/watch?v=Xt8TRqMuZRc",
         video_mp4_url: "static/videos/preset_2.mp4",
         has_voice_track: false,
         issue_title: "대학가·도심 공유 전동킥보드 즉시 견인 및 통행 금지 논란",
         hashtags: "#전동킥보드 #킥보드견인 #보행안전 #공론장중재 #쇼츠",
+        perspectives: [
+          { id: "P1", label: "보행 안전·즉시 견인", short_label: "견인·규제", ratio: 87, color: "blue", keywords: ["보행안전", "무단방치", "허가제"] },
+          { id: "P2", label: "전용 주차·이동권 공존", short_label: "인프라·공존", ratio: 13, color: "red", keywords: ["주차존", "GPS감속", "라스트마일"] }
+        ],
         raw_stats: { total_comments: 180, filtered_curse_count: 32, pro_ratio: 87, con_ratio: 13, toxicity_before: 61.5, toxicity_after: 14.2 },
         debate_script: [
-          { speaker: "PRO", core_point: "보행자 안전 위협 및 인도 무단 방치 기기 즉시 견인", text: "인도와 골목길 한가운데 아무렇게나 방치된 공유 전동킥보드는 보행자의 통행을 가로막고 심각한 안전사고를 유발하고 있습니다. 유예 시간 없는 즉시 강제 견인을 전국 지자체로 확대하고 무단 방치 이용자에게 과태료를 직접 부과해야 합니다." },
-          { speaker: "CON", core_point: "전용 주차 구역(PM 파킹존) 인프라 확충 선행 필요", text: "반납할 수 있는 전용 주차 구역조차 마련하지 않은 채 무조건 견인부터 시행하는 것은 앞뒤가 바뀐 행정입니다. 지자체와 대여 업체가 협력하여 보도 위 지정 거치대와 표준 주차 인프라를 먼저 구축해야 합니다." },
-          { speaker: "PRO", core_point: "무면허·이인 탑승 방조 및 민간 업체 연대 배상 책임", text: "면허 인증을 우회해 청소년이 헬멧 없이 두 명씩 타고 질주하는 사고가 끊이지 않는데도 수익을 올리는 대여 업체는 책임을 회피하고 있습니다. 철저한 실명 인증을 의무화하고 인명 사고 시 대여 업체에도 강력한 관리 책임을 물어야 합니다." },
-          { speaker: "CON", core_point: "대중교통 막차 이후 청년·대학생 라스트마일 이동권 보장", text: "마을버스가 끊긴 심야 시간이나 언덕이 많은 대학가에서 전동킥보드는 청년과 직장인의 이동 비용과 시간을 줄여주는 실용적인 대체 교통수단입니다. 전면 퇴출 대신 보행 밀집 구간 지피에스 자동 감속 기술로 안전을 확보해야 합니다." },
-          { speaker: "PRO", core_point: "시각장애인 점자블록 침범 및 소방 통행로 확보 최우선", text: "점자블록과 다세대 주택 입구에 쓰러진 전동킥보드는 교통약자의 보행을 막고 화재 시 소방차 진입을 지연시키는 위험 요소입니다. 시민의 생명과 보행 안전권은 개인의 단거리 이동 편의보다 항상 우선되어야 합니다." },
-          { speaker: "CON", core_point: "이용자 안전 교육 강화 및 친환경 모빌리티 상생 거버넌스", text: "단거리 친환경 모빌리티 자체를 불법화하여 퇴출시키기보다는 번호판 등록제와 지정 구역 외 반납 불가 시스템을 도입하는 것이 현실적입니다. 지자체와 플랫폼 기업이 비용을 분담하는 합리적 공존 모델이 필요합니다." }
+          { speaker: "PRO", perspective_id: "P1", perspective_label: "견인·규제", color: "blue", core_point: "보행자 안전 위협 및 인도 무단 방치 기기 즉시 견인", text: "인도와 골목길 한가운데 아무렇게나 방치된 공유 전동킥보드는 보행자의 통행을 가로막고 심각한 안전사고를 유발하고 있습니다. 유예 시간 없는 즉시 강제 견인을 전국 지자체로 확대하고 무단 방치 이용자에게 과태료를 직접 부과해야 합니다." },
+          { speaker: "CON", perspective_id: "P2", perspective_label: "인프라·공존", color: "red", core_point: "전용 주차 구역(PM 파킹존) 인프라 확충 선행 필요", text: "반납할 수 있는 전용 주차 구역조차 마련하지 않은 채 무조건 견인부터 시행하는 것은 앞뒤가 바뀐 행정입니다. 지자체와 대여 업체가 협력하여 보도 위 지정 거치대와 표준 주차 인프라를 먼저 구축해야 합니다." },
+          { speaker: "PRO", perspective_id: "P1", perspective_label: "견인·규제", color: "blue", core_point: "민간 공유 킥보드 대여 업체의 관리 책임 및 허가제 도입", text: "수익은 민간 대여 업체가 거두면서 무면허 주행과 기기 방치로 인한 사회적 비용은 시민과 지자체가 떠안고 있습니다. 공유 모빌리티 사업을 등록제에서 허가제로 전환하고 안전 관리 의무를 위반한 업체의 영업을 제한해야 합니다." },
+          { speaker: "CON", perspective_id: "P2", perspective_label: "인프라·공존", color: "red", core_point: "억울한 견인료 부과 피해 방지 및 GPS 기술적 규제 대안", text: "정상적으로 반납한 이용자에게까지 며칠 뒤 수만 원의 견인료를 일방 청구하는 등 무분별한 견인 행정의 부작용이 속출하고 있습니다. 전면 퇴출이나 과잉 견인 대신 지피에스 기반 지정 구역 외 반납 차단 기술을 의무화해야 합니다." },
+          { speaker: "PRO", perspective_id: "P1", perspective_label: "견인·규제", color: "blue", core_point: "교통약자 보행권 수호 및 보행 밀집 구역 통행 금지", text: "점자블록과 횡단보도 앞에 쓰러진 킥보드는 시각장애인과 유모차, 노약자에게 도로 위 흉기와 다름없습니다. 대학가와 어린이 보호구역 등 보행 밀집 지역에서는 전동킥보드 통행을 전면 금지해야 합니다." },
+          { speaker: "CON", perspective_id: "P2", perspective_label: "인프라·공존", color: "red", core_point: "단거리 대중교통 보완재로서의 편익 및 합리적 제도화", text: "전동킥보드는 대중교통 사각지대를 연결하는 친환경 라스트마일 이동수단으로서 분명한 수요와 편익이 존재합니다. 일괄적인 퇴출보다는 속도 제한과 번호판 부착, 전용 주차존 확충을 통해 제도권 안에서 안전하게 공존해야 합니다." }
         ],
         detox_samples: [
-          { side: "PRO", raw: "[MBC] 킥라니들 진짜 싹 다 없애야 함 인도 위에 툭 던져놓고 가는 양아치들 때문에 사람 다친다", cleaned: "무단 방치된 전동킥보드와 난폭 주행으로 보행자 안전이 위협받고 있으므로 강제 견인 및 이용 규제 강화가 필요합니다.", removed_tokens: ["킥라니들", "싹 다", "양아치들"] },
-          { side: "PRO", raw: "[SBS] 16살 중딩이 면허도 없이 둘이 타고 다니다가 사고 나는데 업체는 돈만 쳐먹고 나몰라라 함", cleaned: "무면허 및 2인 탑승을 방치한 대여 업체의 관리 책임을 강화하고 실명 기반 면허 확인 시스템을 의무화해야 합니다.", removed_tokens: ["돈만 쳐먹고", "나몰라라"] },
-          { side: "CON", raw: "[TBS] 주차장도 하나도 안 만들어놓고 무조건 견인해서 4만원씩 뜯어가면 누가 타냐 걍 탁상행정이지", cleaned: "전용 주차 구역 등 기반 인프라 확충 없이 과도한 견인료만 부과하는 정책은 실효성이 떨어지는 행정입니다.", removed_tokens: ["뜯어가면", "탁상행정이지"] },
-          { side: "CON", raw: "[MBC] 밤에 버스 끊기면 대학가 원룸촌에서 킥보드 없으면 30분 걸어가야 됨 금지보다 주차구역을 늘려라", cleaned: "심야 대중교통 공백을 보완하는 라스트마일 이동수단으로서의 순기능을 고려해 전면 금지보다 전용 주차존 확충이 바람직합니다.", removed_tokens: [] }
+          { side: "PRO", perspective_label: "견인·규제", color: "blue", raw: "[MBC] 제발 그냥 전동킥보드든 전기자전거든 다 없애라.... 사용자들이 저렇게 개판치고 서로 불편해지는데 왜 있어야 되냐???", cleaned: "무단 방치와 안전수칙 미준수로 인한 사회적 불편이 크므로 공유 모빌리티에 대한 강력한 통행 및 영업 규제가 필요합니다.", removed_tokens: ["다 없애라", "개판치고"] },
+          { side: "PRO", perspective_label: "견인·규제", color: "blue", raw: "[좋아요 29] 도대체 킥보드는 안전문제에 불법주차등 문제투성인데 왜 채택하는거죠? 불법주차하는 사용자에게 책임을 물으세요!!!", cleaned: "보행 안전과 보도 질서 확립을 위해 불법 주차 및 무단 방치 이용자에게 명확한 법적·경제적 책임을 부과해야 합니다.", removed_tokens: ["문제투성인데", "!!!"] },
+          { side: "CON", perspective_label: "인프라·공존", color: "red", raw: "[좋아요 19] 킥보드 업체가 주차장소를 만들고 영업을 해야지... 아무 길이나 방치되어 있는 킥보드는 주차 인프라부터 강제해야 한다", cleaned: "무단 방치 문제를 근본적으로 해결하기 위해 대여 업체와 지자체가 전용 주차 공간을 의무적으로 확보하도록 제도화해야 합니다.", removed_tokens: ["아무 길이나"] },
+          { side: "CON", perspective_label: "인프라·공존", color: "red", raw: "[SBS] 킥보드 타지도 않았는데 번호판도 없으니 누가 옮겨놔도 사용자한테 4만원 덤터기 씌우는 게 말이 되냐 황당하네", cleaned: "제3자의 기기 이동 등으로 인한 억울한 견인료 부과 피해를 막기 위해 명확한 반납 인증 및 과징금 분쟁 조정 절차가 필요합니다.", removed_tokens: ["덤터기 씌우는", "황당하네"] }
         ]
       },
       preset_3: {
         id: "preset_3",
+        analysis_mode: "multi",
+        mode_label: "3관점 여론 비교",
         source_label: "YouTube Data API v3 실측 · MBC(NKIvNrtdiGA), KBS(x3J5hpBci98 외 2건), YTN(yfAshZpECCo) 147건",
         source_url: "https://www.youtube.com/watch?v=NKIvNrtdiGA",
         video_mp4_url: "static/videos/preset_3.mp4",
         has_voice_track: false,
-        issue_title: "고령 운전자 조건부 면허제 도입 및 면허 반납 의무화 논란",
-        hashtags: "#고령운전자 #조건부면허 #면허반납 #공론장중재 #쇼츠",
+        issue_title: "고령 운전자 면허 논쟁, 실기검증·이동권·안전기술 3대 시각",
+        hashtags: "#고령운전자 #다관점여론 #실기시험 #이동권 #페달오조작방지 #쇼츠",
+        perspectives: [
+          { id: "P1", label: "실기·정기 검증 강화", short_label: "안전 검증", ratio: 47, color: "blue", keywords: ["실기시험", "면허갱신", "정년"] },
+          { id: "P2", label: "농촌·생계 이동권 보장", short_label: "이동권 보장", ratio: 33, color: "red", keywords: ["대중교통", "농어촌", "생계운전"] },
+          { id: "P3", label: "오조작 장치·기술 대안", short_label: "기술 대안", ratio: 20, color: "violet", keywords: ["오조작방지", "자율주행", "복지택시"] }
+        ],
         raw_stats: { total_comments: 147, filtered_curse_count: 36, pro_ratio: 78, con_ratio: 22, toxicity_before: 62.4, toxicity_after: 14.5 },
         debate_script: [
-          { speaker: "PRO", core_point: "페달 오조작 및 인지 저하로 인한 중대 인명사고 예방", text: "고령 운전자의 브레이크·액셀 페달 오조작과 판단 지연으로 인한 돌진 사고가 매년 급증하며 무고한 시민의 생명을 위협하고 있습니다. 일정 연령 이상을 대상으로 정기 주행 실기시험과 조건부 면허제를 즉각 의무화해야 합니다." },
-          { speaker: "CON", core_point: "일회성 10만 원 지원의 비현실성과 대중교통 소외지역 이동권", text: "버스가 드문 농어촌과 지방에서 고작 일회성 십만 원 교통카드를 주고 면허를 반납하라는 것은 이동권을 포기하라는 말과 같습니다. 병원 진료와 일상생활이 가능하도록 대체 대중교통망과 정기 교통비 바우처를 먼저 확충해야 합니다." },
-          { speaker: "PRO", core_point: "실질적 주행 능력 검진 강화 및 페달 오조작 방지 장치 의무화", text: "생계형 운전이라 하더라도 타인의 생명과 공공 안전보다 우선될 수는 없습니다. 면허 갱신 주기를 단축하여 엄격한 실기 평가를 시행하고 페달 오조작 방지 안전장치가 장착된 차량만 운전을 허용해야 합니다." },
-          { speaker: "CON", core_point: "생계형 고령 운전자 보호 및 연령 중심 획일적 규제 반대", text: "은퇴 후 화물이나 택시 운전으로 생계를 이어가는 고령층에게 나이만을 기준으로 면허를 박탈하는 것은 심각한 생존권 위협입니다. 연령에 따른 일괄 규제 대신 개인별 건강 상태와 실제 운전 역량을 평가하는 정밀 검증 체계가 공정합니다." },
-          { speaker: "PRO", core_point: "고속도로·야간 주행 제한 조건부 면허의 단계적 도입", text: "전면적인 운전 금지가 어렵다면 사고 치사율이 높은 야간 시간대와 고속도로 주행부터 제한하는 조건부 면허제를 우선 시행해야 합니다. 초고령사회 진입에 맞춘 선제적인 교통안전 제도 개편은 더 이상 미룰 수 없습니다." },
-          { speaker: "CON", core_point: "수요응답형 복지 택시 확충 및 안전 보조장치 국가 지원", text: "자발적인 면허 반납률을 높이려면 면허 반납 후에도 이동에 불편이 없도록 호출형 복지 택시와 무상 교통 지원을 상시화해야 합니다. 안전 보조장치 장착 보조금과 이동권 보장 정책이 함께 갈 때 사회적 합의가 가능합니다." }
+          { speaker: "PRO", perspective_id: "P1", perspective_label: "안전 검증", color: "blue", core_point: "페달 오조작 및 인지 저하 예방을 위한 정기 실기 평가", text: "전체 댓글의 47퍼센트를 차지한 안전 검증 측에서는 고령 운전자의 판단 지연과 페달 오조작 사고를 막기 위해 정기 실주행 시험과 인지 적성검사를 대폭 강화해야 한다고 강조합니다." },
+          { speaker: "CON", perspective_id: "P2", perspective_label: "이동권 보장", color: "red", core_point: "일회성 10만 원 지원의 한계와 농어촌 대중교통 공백", text: "반면 33퍼센트 비중의 이동권 보장 측에서는 버스조차 드문 지방과 농어촌에서 단발성 십만 원 교통카드만 주고 면허를 반납하라는 것은 일상생활을 포기하라는 탁상행정이라고 지적합니다." },
+          { speaker: "PRO", perspective_id: "P3", perspective_label: "기술 대안", color: "violet", core_point: "페달 오조작 방지 장치 및 자율주행 보조 기술 의무화", text: "여기에 제3의 시각인 20퍼센트의 기술 대안 측에서는 나이로 면허를 일괄 회수하기보다 페달 오조작 방지 센서와 긴급 자동 제동 장치를 국가 보조금으로 보급하는 것이 현실적이라고 제안합니다." },
+          { speaker: "CON", perspective_id: "P2", perspective_label: "이동권 보장", color: "red", core_point: "생계형 운전자 차별 경계 및 연령 중심 획일 규제 반대", text: "또한 택시나 화물로 생계를 이어가는 고령층에게 연령만을 잣대로 운전을 막는 것은 공정하지 않으며, 실제 건강 상태와 주행 데이터로 역량을 따져야 한다는 목소리도 높습니다." },
+          { speaker: "PRO", perspective_id: "P1", perspective_label: "안전 검증", color: "blue", core_point: "면허 갱신 주기 단축과 사고 치사율 구간 단계적 제한", text: "안전 검증 측 역시 형식적인 서류 갱신을 폐지하고 야간과 고속도로 주행을 제한하는 조건부 면허를 단계적으로 적용해 공공 도로 안전을 먼저 확보하자고 거듭 촉구합니다." },
+          { speaker: "CON", perspective_id: "P3", perspective_label: "기술 대안", color: "violet", core_point: "수요응답형 복지 택시 확충과 안전장치 기반 상생 해법", text: "결국 댓글창의 다각도 의견을 종합하면 정기 검증으로 위험 운전을 거르되, 호출형 복지 택시와 안전 보조장치를 함께 지원해야 실효성 있는 제도 정착이 가능합니다." }
         ],
         detox_samples: [
-          { side: "PRO", raw: "[MBC] 오늘 운전하다가 미친각으로 끼어드는 차 있어서 욕하고 넘어갔는데 70대 할머니더라 본인이 민폐라 생각하면 면허 반납 좀 해라", cleaned: "고령에 따른 인지능력 및 시야 저하로 위험 주행이 발생할 경우 공공 안전을 위해 자발적 면허 반납과 적성검사 강화가 필요합니다.", removed_tokens: ["미친각으로", "욕하고", "민폐라"] },
-          { side: "PRO", raw: "[KBS] 솔직히 도로에 나가보면 말도안되게 운전하는 사람들 나이 많으신분들이 대다수 본인 먹고 살겠다고 남한테 피해주면 안되지 정기 시험 봐라!!", cleaned: "생계 목적의 운전이더라도 도로 위 타인의 안전을 위협하지 않도록 고령 운전자 대상 정기 실기시험을 의무화해야 합니다.", removed_tokens: ["말도안되게", "!!"] },
-          { side: "CON", raw: "[MBC] 면허 반납하면 10만원 카드 한 장 달랑 주면서 반납하라고 하는 게 코미디지 시골은 버스도 없는데 걸어 다니란 소리냐", cleaned: "대중교통이 취약한 지역 여건을 무시한 일회성 10만 원 지원책은 실효성이 낮으므로 지속적인 대체 이동수단 지원이 선행되어야 합니다.", removed_tokens: ["달랑 주면서", "코미디지"] },
-          { side: "CON", raw: "[YTN] 나이로만 딱 잘라서 면허 뺏는 건 차별이다 젊은 사람 음주운전 난폭운전이 더 위험한데 운전 능력으로만 평가해야 맞지", cleaned: "연령만을 기준으로 한 획일적 면허 제한은 역차별 소지가 있으므로 객관적인 개인별 실주행 능력 평가 제도를 도입해야 합니다.", removed_tokens: ["딱 잘라서", "면허 뺏는"] }
+          { side: "PRO", perspective_label: "안전 검증", color: "blue", raw: "[MBC] 오늘 운전하다가 미친각으로 끼어드는 차 있어서 욕하고 넘어갔는데 70대 할머니더라 본인이 민폐라 생각하면 면허 반납 좀 해라", cleaned: "고령에 따른 인지능력 및 시야 저하로 위험 주행이 발생할 경우 공공 안전을 위해 자발적 면허 반납과 적성검사 강화가 필요합니다.", removed_tokens: ["미친각으로", "욕하고", "민폐라"] },
+          { side: "PRO", perspective_label: "안전 검증", color: "blue", raw: "[KBS] 솔직히 도로에 나가보면 말도안되게 운전하는 사람들 나이 많으신분들이 대다수 본인 먹고 살겠다고 남한테 피해주면 안되지 정기 시험 봐라!!", cleaned: "생계 목적의 운전이더라도 도로 위 타인의 안전을 위협하지 않도록 고령 운전자 대상 정기 실기시험을 의무화해야 합니다.", removed_tokens: ["말도안되게", "!!"] },
+          { side: "CON", perspective_label: "이동권 보장", color: "red", raw: "[MBC] 면허 반납하면 10만원 카드 한 장 달랑 주면서 반납하라고 하는 게 코미디지 시골은 버스도 없는데 걸어 다니란 소리냐", cleaned: "대중교통이 취약한 지역 여건을 무시한 일회성 10만 원 지원책은 실효성이 낮으므로 지속적인 대체 이동수단 지원이 선행되어야 합니다.", removed_tokens: ["달랑 주면서", "코미디지"] },
+          { side: "PRO", perspective_label: "기술 대안", color: "violet", raw: "[YTN] 나이로만 딱 잘라서 면허 뺏는 건 차별이다 젊은 사람 음주운전 난폭운전이 더 위험한데 운전 능력으로만 평가해야 맞지", cleaned: "연령만을 기준으로 한 획일적 면허 제한 대신 안전 보조장치 장착과 객관적 개인별 실주행 능력 평가 제도를 도입해야 합니다.", removed_tokens: ["딱 잘라서", "면허 뺏는"] }
         ]
       }
     };
@@ -930,7 +1160,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     let isPlaying = false;
     let playerMode = "interactive";
     let currentTurnIndex = 0;
-    let playbackRate = 1.0;
+    let playbackRate = Number(localStorage.getItem("hannyang_playback_rate") || "1") || 1.0;
     let elapsedSec = 0.0;
     let timerInterval = null;
     let turnTimeout = null;
@@ -946,6 +1176,37 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     let geminiKoVoicesCache = { key: "", pro: null, con: null, probed: false };
     let selectedProVoiceURI = localStorage.getItem("hannyang_pro_voice_uri") || "auto";
     let selectedConVoiceURI = localStorage.getItem("hannyang_con_voice_uri") || "auto";
+
+    function saveUiPrefs() {
+      const m = document.getElementById("analysisModeSelect")?.value || "auto";
+      const v = document.getElementById("voiceEngineSelect")?.value || "auto";
+      const ch = document.getElementById("chimeToggle")?.checked ? "1" : "0";
+      localStorage.setItem("hannyang_analysis_mode", m);
+      localStorage.setItem("hannyang_voice_engine", v);
+      localStorage.setItem("hannyang_chime_enabled", ch);
+      localStorage.setItem("hannyang_playback_rate", String(playbackRate));
+    }
+
+    function loadUiPrefs() {
+      const m = localStorage.getItem("hannyang_analysis_mode");
+      const v = localStorage.getItem("hannyang_voice_engine");
+      const ch = localStorage.getItem("hannyang_chime_enabled");
+      const mEl = document.getElementById("analysisModeSelect");
+      const vEl = document.getElementById("voiceEngineSelect");
+      const cEl = document.getElementById("chimeToggle");
+      const spEl = document.getElementById("speedToggleBtn");
+      if (m && mEl && [...mEl.options].some((o) => o.value === m)) mEl.value = m;
+      if (v && vEl && [...vEl.options].some((o) => o.value === v)) vEl.value = v;
+      if (ch !== null && cEl) cEl.checked = ch === "1";
+      if (![1.0, 1.15, 1.25].includes(playbackRate)) playbackRate = 1.0;
+      if (spEl) spEl.textContent = `${playbackRate}x`;
+    }
+
+    function onAnalysisModeChange() {
+      saveUiPrefs();
+      const modeLbl = document.getElementById("analysisModeSelect")?.selectedOptions?.[0]?.textContent || "자동 감지";
+      showToast(`분석 모드: ${modeLbl}`);
+    }
 
     function scoreKoreanVoice(v) {
       const name = (v && v.name) || "";
@@ -990,7 +1251,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if (diagEl) {
         const picked = pickBestKoreanVoices();
         if (list.length) {
-          diagEl.textContent = `감지된 브라우저 한국어 음성 ${list.length}개 · 적용 중: 찬성 [${picked.pro ? picked.pro.name : "기본"}] / 반대 [${picked.con ? picked.con.name : "기본"}]`;
+          diagEl.textContent = `감지된 브라우저 한국어 음성 ${list.length}개 · 적용 중: 좌측(L) [${picked.pro ? picked.pro.name : "기본"}] / 우측(R) [${picked.con ? picked.con.name : "기본"}]`;
         } else {
           diagEl.textContent = "브라우저 내장 한국어 음성이 감지되지 않았습니다 (타이머 자막 동기화 모드로 동작).";
         }
@@ -1204,7 +1465,107 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     }
 
     function toggleCustomTextBox() {
-      document.getElementById("customTextWrapper").classList.toggle("hidden");
+      const wrap = document.getElementById("customTextWrapper");
+      if (!wrap) return;
+      wrap.classList.toggle("hidden");
+      if (!wrap.classList.contains("hidden")) {
+        updateCustomLineCount();
+        document.getElementById("rawCommentsInput")?.focus();
+      }
+    }
+
+    function updateCustomLineCount() {
+      const raw = document.getElementById("rawCommentsInput")?.value || "";
+      const cnt = raw.split(/[\n|]+/).map((s) => s.trim()).filter(Boolean).length;
+      const lbl = document.getElementById("customLineCountLabel");
+      if (lbl) lbl.textContent = `${cnt}줄 입력됨`;
+    }
+
+    function setPipelineStep(stepText = "") {
+      const el = document.getElementById("pipelineStepBadge");
+      if (!el) return;
+      if (!stepText) {
+        el.classList.add("hidden");
+        el.textContent = "";
+      } else {
+        el.textContent = stepText;
+        el.classList.remove("hidden");
+      }
+    }
+
+    async function pasteFromClipboard() {
+      const urlEl = document.getElementById("sourceUrlInput");
+      try {
+        const txt = (await navigator.clipboard.readText() || "").trim();
+        if (!txt) {
+          showToast("클립보드가 비어 있습니다.");
+          return;
+        }
+        const vid = extractVideoId(txt);
+        if (vid || /^https?:\/\//i.test(txt)) {
+          if (urlEl) {
+            urlEl.value = txt;
+            urlEl.focus();
+          }
+          showToast("링크 붙여넣기 완료 · Enter로 바로 분석");
+        } else {
+          const wrap = document.getElementById("customTextWrapper");
+          const rawEl = document.getElementById("rawCommentsInput");
+          if (wrap) wrap.classList.remove("hidden");
+          if (rawEl) {
+            rawEl.value = txt;
+            rawEl.focus();
+          }
+          updateCustomLineCount();
+          showToast("댓글 텍스트 붙여넣기 완료");
+        }
+      } catch (e) {
+        if (urlEl) urlEl.focus();
+        showToast("브라우저 클립보드 권한이 제한되어 직접 Ctrl+V로 붙여넣어 주세요.");
+      }
+    }
+
+    function clearSourceInputs() {
+      const urlEl = document.getElementById("sourceUrlInput");
+      const rawEl = document.getElementById("rawCommentsInput");
+      if (urlEl) urlEl.value = "";
+      if (rawEl) rawEl.value = "";
+      updateCustomLineCount();
+      setCommandNotice("");
+      setPipelineStep("");
+      if (urlEl) urlEl.focus();
+      showToast("입력이 초기화되었습니다.");
+    }
+
+    function applySamplePack(key) {
+      const pack = SAMPLE_PACKS[key];
+      if (!pack) return;
+      const modeSel = document.getElementById("analysisModeSelect");
+      const urlEl = document.getElementById("sourceUrlInput");
+      const wrap = document.getElementById("customTextWrapper");
+      const rawEl = document.getElementById("rawCommentsInput");
+      if (modeSel) modeSel.value = pack.mode || "multi";
+      if (urlEl) urlEl.value = "";
+      if (wrap) wrap.classList.remove("hidden");
+      if (rawEl) rawEl.value = pack.comments;
+      updateCustomLineCount();
+      saveUiPrefs();
+      runLiveYouTubeOrCustomAnalysis();
+    }
+
+    function copyFullMetadata(btn) {
+      const title = document.getElementById("publishTitleInput")?.value || "";
+      const desc = document.getElementById("publishDescInput")?.value || "";
+      const combined = `${title}\n\n${desc}`.trim();
+      if (!combined) return;
+      navigator.clipboard.writeText(combined).then(() => {
+        if (btn) {
+          const orig = btn.textContent;
+          btn.textContent = "전체 복사됨";
+          setTimeout(() => { btn.textContent = orig; }, 1600);
+        }
+        showToast("제목·설명 전체 복사됨");
+      });
     }
 
     function toggleSqlModal() {
@@ -1260,15 +1621,22 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     }
 
     function onVoiceModeChange() {
+      saveUiPrefs();
       if (isPlaying) stopShortsPlayback(false);
       updateIdleTimerDisplay();
+      const selLbl = document.getElementById("voiceEngineSelect")?.selectedOptions?.[0]?.textContent || "자동";
+      showToast(selLbl);
     }
 
     function togglePlaybackSpeed() {
-      playbackRate = playbackRate === 1.0 ? 1.15 : 1.0;
-      document.getElementById("speedToggleBtn").textContent = playbackRate === 1.0 ? "1.0x" : "1.15x";
+      if (playbackRate === 1.0) playbackRate = 1.15;
+      else if (playbackRate === 1.15) playbackRate = 1.25;
+      else playbackRate = 1.0;
+      document.getElementById("speedToggleBtn").textContent = `${playbackRate}x`;
+      saveUiPrefs();
       renderScriptList();
       updateIdleTimerDisplay();
+      showToast(`재생 속도 ${playbackRate}x`);
       if (currentData.rendered_video_blob_url) currentData.rendered_video_blob_url = null;
       if (isPlaying) startShortsPlayback(currentTurnIndex);
     }
@@ -1404,57 +1772,507 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return JSON.parse(cleaned);
     }
 
-    function buildDynamicScriptFromComments(issueTitle, comments, proRatio, conRatio, toxicRe, proRe, conRe) {
-      const cleanRawTopic = (issueTitle || "영상 공론장 핵심 쟁점")
+    const POS_CUES = [
+      "좋", "최고", "만족", "장점", "추천", "깔끔", "선명", "기대", "감동", "유용",
+      "혁신", "쾌적", "빠르", "편하", "필수", "인정", "응원", "옳", "찬성", "동의",
+      "공감", "훌륭", "대박", "잘", "이득", "재밌", "갓", "혜자", "필요", "의무"
+    ];
+    const CRIT_CUES = [
+      "아쉽", "불편", "비싸", "부담", "문제", "부족", "실망", "우려", "걱정", "최악",
+      "느리", "과잉", "탁상행정", "차별", "위축", "피로", "한계", "반대", "무겁", "무거",
+      "단점", "창렬", "과금", "버그", "발열", "글쎄", "무리", "비판", "불쌍", "피해"
+    ];
+    const ALT_CUES = [
+      "차라리", "대신", "보완", "개선", "패치", "수정", "조건", "비교", "전작", "타사",
+      "균형", "해결", "제안", "방법", "도입", "병행", "인프라", "지원", "대안", "가성비",
+      "할인", "업데이트", "절충", "단계", "어떨까", "나을"
+    ];
+    const DEBATE_CUES = ["찬성", "반대", "규제", "금지", "의무", "법안", "처벌", "폐지", "논란", "도입", "권리", "생존권"];
+    const REVIEW_CUES = ["가격", "가성비", "스펙", "성능", "배터리", "카메라", "디자인", "화질", "무게", "발열", "장점", "단점", "후기", "리뷰", "전작", "추천", "실사용"];
+    const KO_STOPWORDS = new Set([
+      "진짜", "너무", "정말", "완전", "그냥", "솔직히", "역시", "근데", "그리고", "하지만",
+      "그러나", "그런데", "아니라", "결국", "이번", "이번엔", "영상", "댓글", "사람", "사람들",
+      "우리", "자기", "때문", "정도", "부분", "하나", "모든", "많이", "조금", "엄청", "약간",
+      "무조건", "항상", "계속", "아직", "다시", "오늘", "지금", "이거", "저거", "그거",
+      "이건", "저건", "그건", "여기", "거기", "어디", "누구", "무엇", "어떤", "이런",
+      "저런", "그런", "이렇", "같다", "같음", "같은", "같아", "있음", "없음", "있는",
+      "없는", "하는", "되는", "하면", "되면", "해서", "되서", "해야", "하고", "이고",
+      "이다", "입니다", "합니다", "됩니다", "네요", "군요", "거든요", "잖아요", "어요", "아요",
+      "생각", "느낌", "전반", "경우", "사실", "원래", "보니", "일단", "제발", "확실히",
+      "시청자", "주제", "의견", "관련", "대해", "대한", "위해", "위한", "통해", "이상",
+      "훨씬", "아무리", "어느", "서로", "매우", "가장", "더욱", "아예", "굳이", "이미",
+      "당연히", "분명히", "제대로", "요즘", "최근", "함께", "같이", "먼저", "다소", "직접",
+      "질이", "잠을", "삶의", "종일", "말이", "것이", "수가", "때가", "곳이",
+      "오래", "신규", "유저", "예방", "도움", "문제", "해결", "필요",
+      "가고", "오고", "보고", "주고", "쓰고", "타고", "좋고", "많고"
+    ]);
+    const JOSA_SUFFIXES = [
+      "에서는", "에서도", "으로는", "으로도", "이라는", "이라고", "까지", "부터", "처럼",
+      "보다", "에서", "으로", "에게", "한테", "이랑", "하고", "이나", "이라", "은", "는",
+      "이", "가", "을", "를", "에", "의", "도", "만", "로", "와", "과", "랑"
+    ];
+    const PREDICATE_ENDING_RE = /(?:합니다|됩니다|입니다|랍니다|습니다|ㅂ니다|한다|된다|했다|됐다|겠다|였다|이다|하다|되다|없다|있다|으면|어야|아야|여야|지만|면서|니까|거든|잖아|네요|군요|어요|아요|해요|돼요|어렵|좋겠|바랍|필요하|같음|인듯|일듯|할듯|뛰는|타는|보는|주는|받는|가는|오는|만든|나온|생긴|싶은)$/;
+    const TOXIC_RE = /ㅅㅂ|시발|씨발|ㅂㅅ|병신|ㅈㄹ|지랄|ㅈ같|존나|새끼|미친|개소리|ㄱ\s*ㅐ소리|개판|꺼져|닥쳐|딸배|킥라니|틀딱|노인네|충들|소음충|오토바이충|폭주족|양아치|쓰레기|버러지|인간말종|민폐|극혐|혐오|역겹|뒤지|죽어|죽이|살인|불질러|망해|감옥|깜빵|폐차|박멸|무법천지|개법|덤터기|코미디|ㅉㅉ|ㅋㅋ+|ㅎㅎ+|ㅠ+|ㅜ+|!!+|\?\?+/gi;
+    const MODE_LABELS = {
+      debate: "찬반 공론장 중재",
+      multi: "다관점 여론 비교",
+      proscons: "장단점·체감 분석",
+      summary: "핵심 반응 브리핑"
+    };
+
+    function stripJosa(tok) {
+      for (const suf of JOSA_SUFFIXES) {
+        if (tok.endsWith(suf) && tok.length - suf.length >= 2) {
+          return tok.slice(0, tok.length - suf.length);
+        }
+      }
+      return tok;
+    }
+
+    function extractTokens(text) {
+      const clean = (text || "").replace(/https?:\/\/\S+/g, " ").replace(TOXIC_RE, " ");
+      const rawTokens = clean.match(/[가-힣A-Za-z0-9]{2,10}/g) || [];
+      const out = [];
+      for (const t of rawTokens) {
+        if (/^\d+$/.test(t)) continue;
+        if (PREDICATE_ENDING_RE.test(t)) continue;
+        const stem = stripJosa(t);
+        if (PREDICATE_ENDING_RE.test(stem)) continue;
+        if (stem.length < 2 || KO_STOPWORDS.has(stem) || KO_STOPWORDS.has(t)) continue;
+        if (stem.length <= 8) out.push(stem);
+      }
+      return out;
+    }
+
+    function scoreCommentTones(text) {
+      const s = text || "";
+      let pos = 0, crit = 0, alt = 0;
+      for (const k of POS_CUES) if (s.includes(k)) pos++;
+      for (const k of CRIT_CUES) if (s.includes(k)) crit++;
+      for (const k of ALT_CUES) if (s.includes(k)) alt++;
+      return { pos, crit, alt };
+    }
+
+    function resolveAnalysisMode(reqMode, commentsList, issueTitle) {
+      const m = (reqMode || "auto").trim().toLowerCase();
+      if (["debate", "multi", "proscons", "summary"].includes(m)) return m;
+      const joined = (issueTitle || "") + " " + commentsList.slice(0, 40).map((c) => (c.text || "").slice(0, 140)).join(" ");
+      let debHits = 0, revHits = 0, altHits = 0;
+      for (const k of DEBATE_CUES) if (joined.includes(k)) debHits++;
+      for (const k of REVIEW_CUES) if (joined.includes(k)) revHits++;
+      for (const k of ALT_CUES) if (joined.includes(k)) altHits++;
+      if (revHits >= 3 && debHits < 3) return "proscons";
+      if (debHits >= 3 && altHits < 2 && revHits === 0) return "debate";
+      return "multi";
+    }
+
+    function normalizeRatios(rawCounts) {
+      const safe = rawCounts.map((c) => Math.max(1, c || 0));
+      const tot = safe.reduce((a, b) => a + b, 0) || 1;
+      const pcts = safe.map((c) => Math.max(5, Math.round((c / tot) * 100)));
+      const diff = 100 - pcts.reduce((a, b) => a + b, 0);
+      if (pcts.length) {
+        let maxIdx = 0;
+        for (let i = 1; i < pcts.length; i++) if (pcts[i] > pcts[maxIdx]) maxIdx = i;
+        pcts[maxIdx] = Math.max(5, pcts[maxIdx] + diff);
+      }
+      return pcts;
+    }
+
+    function pickFacetKw(items, pred, excludeSet = new Set()) {
+      const df = new Map();
+      for (const it of items) {
+        if (pred(it)) {
+          for (const t of it.tokens) {
+            if (!excludeSet.has(t)) df.set(t, (df.get(t) || 0) + 1);
+          }
+        }
+      }
+      let best = "", bestScore = 0, bestCompact = -1, bestNegLen = -999;
+      for (const [k, v] of df.entries()) {
+        const comp = (k.length >= 2 && k.length <= 4) ? 1 : 0;
+        const negLen = -k.length;
+        if (v > bestScore || (v === bestScore && (comp > bestCompact || (comp === bestCompact && negLen > bestNegLen)))) {
+          best = k; bestScore = v; bestCompact = comp; bestNegLen = negLen;
+        }
+      }
+      return best;
+    }
+
+    function clusterCommentsMultiperspective(commentsList, issueTitle, analysisMode = "auto") {
+      const resolvedMode = resolveAnalysisMode(analysisMode, commentsList, issueTitle);
+      const docFreq = new Map();
+      const parsedItems = [];
+      const toxicScores = [];
+      const allRawScores = [];
+      const afterScores = [];
+      let toxicCount = 0;
+      const severeWords = ["죽", "불질", "쓰레기", "양아치", "딸배", "킥라니", "틀딱", "새끼", "ㅅㅂ", "ㅂㅅ", "극혐", "박멸"];
+
+      commentsList.forEach((c, idx) => {
+        const txt = (c.text || "").trim();
+        if (!txt) return;
+        const matches = [...new Set(txt.match(TOXIC_RE) || [])];
+        const excl = (txt.match(/[!?~ㅋㅎ]{2,}/g) || []).length;
+        let baseTox = 24.0 + matches.length * 18.5 + excl * 7.5;
+        if (severeWords.some((w) => txt.includes(w))) baseTox += 20.0;
+        const toxScore = Math.min(98.0, Math.max(11.0, +baseTox.toFixed(1)));
+        allRawScores.push(toxScore);
+
+        const isToxic = matches.length > 0 || toxScore >= 47.0;
+        if (isToxic) {
+          toxicCount++;
+          toxicScores.push(toxScore);
+        }
+        afterScores.push(+Math.max(8.0, Math.min(24.0, 11.0 + toxScore * 0.08)).toFixed(1));
+
+        const cleaned = txt.replace(/https?:\/\/\S+/g, "").replace(TOXIC_RE, "").replace(/\s{2,}/g, " ").trim();
+        const tokens = extractTokens(cleaned);
+        const tokenSet = new Set(tokens);
+        for (const t of tokenSet) docFreq.set(t, (docFreq.get(t) || 0) + 1);
+
+        parsedItems.push({
+          idx,
+          author: c.author || "익명",
+          likes: Number(c.like_count) || 0,
+          raw: txt,
+          cleaned,
+          tokens: tokenSet,
+          tones: scoreCommentTones(cleaned),
+          matches,
+          isToxic
+        });
+      });
+
+      const sortedKws = [...docFreq.entries()]
+        .filter((kv) => kv[1] >= 1)
+        .sort((a, b) => {
+          if (b[1] !== a[1]) return b[1] - a[1];
+          const aComp = (a[0].length >= 2 && a[0].length <= 4) ? 1 : 0;
+          const bComp = (b[0].length >= 2 && b[0].length <= 4) ? 1 : 0;
+          if (bComp !== aComp) return bComp - aComp;
+          return a[0].length - b[0].length;
+        });
+      const topKws = sortedKws.slice(0, 16).map((kv) => kv[0]);
+
+      let clusters = [];
+      if (resolvedMode === "debate") {
+        clusters = [
+          { id: "P1", label: "핵심 지지·필요론", short_label: "찬성·필요", color: "blue", kws: topKws.slice(0, 3), items: [] },
+          { id: "P2", label: "신중·현실 보완론", short_label: "반대·보완", color: "red", kws: topKws.slice(3, 6).length ? topKws.slice(3, 6) : topKws.slice(0, 2), items: [] }
+        ];
+        parsedItems.forEach((it) => {
+          const pSc = it.tones.pos;
+          const cSc = it.tones.crit + it.tones.alt;
+          const target = pSc > cSc ? 0 : (cSc > pSc ? 1 : (it.idx % 2));
+          clusters[target].items.push(it);
+        });
+      } else if (resolvedMode === "proscons") {
+        const excl = new Set();
+        const posKw = pickFacetKw(parsedItems, (it) => it.tones.pos > it.tones.crit, excl);
+        if (posKw) excl.add(posKw);
+        const critKw = pickFacetKw(parsedItems, (it) => it.tones.crit > it.tones.pos, excl);
+        if (critKw) excl.add(critKw);
+        const altKw = pickFacetKw(parsedItems, (it) => it.tones.alt > 0, excl);
+        clusters = [
+          { id: "P1", label: posKw ? `${posKw} 긍정 호평` : "핵심 강점·호평", short_label: posKw ? `${posKw.slice(0, 6)} 호평` : "장점 호평", color: "blue", kws: posKw ? [posKw] : topKws.slice(0, 2), items: [] },
+          { id: "P2", label: critKw ? `${critKw} 아쉬움 지적` : "단점·부담 지적", short_label: critKw ? `${critKw.slice(0, 6)} 지적` : "아쉬움 지적", color: "red", kws: critKw ? [critKw] : topKws.slice(2, 4), items: [] },
+          { id: "P3", label: altKw ? `${altKw} 비교·대안` : "가성비·비교 대안", short_label: altKw ? `${altKw.slice(0, 6)} 대안` : "비교·대안", color: "violet", kws: altKw ? [altKw] : topKws.slice(4, 6), items: [] }
+        ];
+        parsedItems.forEach((it) => {
+          const t = it.tones;
+          if (t.alt > 0 && t.alt >= t.pos) clusters[2].items.push(it);
+          else if (t.crit > t.pos) clusters[1].items.push(it);
+          else if (t.pos > 0) clusters[0].items.push(it);
+          else clusters[parsedItems.length >= 3 ? 2 : (it.idx % 3)].items.push(it);
+        });
+      } else {
+        const wantK = (parsedItems.length >= 8 && topKws.length >= 4) ? 4 : 3;
+        const chosenAnchors = [];
+        for (const kw of topKws) {
+          if (!chosenAnchors.some((a) => kw.includes(a) || a.includes(kw))) chosenAnchors.push(kw);
+          if (chosenAnchors.length >= wantK) break;
+        }
+        if (chosenAnchors.length >= 3) {
+          const bucketItems = chosenAnchors.map(() => []);
+          for (const it of parsedItems) {
+            let bestK = -1;
+            chosenAnchors.forEach((ak, ki) => {
+              if (it.tokens.has(ak) || it.cleaned.includes(ak)) {
+                if (bestK === -1 || bucketItems[ki].length < bucketItems[bestK].length) bestK = ki;
+              }
+            });
+            if (bestK === -1) {
+              bestK = 0;
+              for (let i = 1; i < chosenAnchors.length; i++) {
+                if (bucketItems[i].length < bucketItems[bestK].length) bestK = i;
+              }
+            }
+            bucketItems[bestK].push(it);
+          }
+          chosenAnchors.forEach((ak, ki) => {
+            const bItems = bucketItems[ki];
+            const sumPos = bItems.reduce((a, x) => a + x.tones.pos, 0);
+            const sumCrit = bItems.reduce((a, x) => a + x.tones.crit, 0);
+            const sumAlt = bItems.reduce((a, x) => a + x.tones.alt, 0);
+            let suf = "현실 시선", shortSuf = "의견", colorHint = "violet";
+            if (sumCrit > sumPos && sumCrit >= sumAlt) { suf = "아쉬움·지적"; shortSuf = "지적"; colorHint = "red"; }
+            else if (sumAlt > sumPos && sumAlt >= sumCrit) { suf = "개선·대안"; shortSuf = "대안"; colorHint = "violet"; }
+            else if (sumPos > sumCrit) { suf = "공감·호평"; shortSuf = "호평"; colorHint = ki >= 2 ? "emerald" : "blue"; }
+            else if (ki === 0) { suf = "핵심 시각"; shortSuf = "시각"; colorHint = "blue"; }
+
+            const usedColors = new Set(clusters.map((c) => c.color));
+            const col = !usedColors.has(colorHint)
+              ? colorHint
+              : (PALETTE_ORDER.find((pc) => !usedColors.has(pc)) || PALETTE_ORDER[ki % 4]);
+            const lbl = `${ak} ${suf}`;
+            const shortLbl = `${ak.slice(0, 6)} ${shortSuf}`.slice(0, 11);
+            clusters.push({
+              id: `P${ki + 1}`,
+              label: lbl,
+              short_label: shortLbl,
+              color: col,
+              kws: [ak],
+              items: bItems
+            });
+          });
+        } else {
+          clusters = [
+            { id: "P1", label: "핵심 공감·강점", short_label: "공감·강점", color: "blue", kws: topKws.slice(0, 2), items: [] },
+            { id: "P2", label: "우려·현실 지적", short_label: "현실 지적", color: "red", kws: topKws.slice(2, 4), items: [] },
+            { id: "P3", label: "보완·대안 시각", short_label: "대안 시각", color: "violet", kws: topKws.slice(4, 6), items: [] }
+          ];
+          parsedItems.forEach((it) => {
+            const t = it.tones;
+            if (t.alt > 0 && t.alt >= t.pos) clusters[2].items.push(it);
+            else if (t.crit > t.pos) clusters[1].items.push(it);
+            else if (t.pos > 0) clusters[0].items.push(it);
+            else clusters[it.idx % 3].items.push(it);
+          });
+        }
+      }
+
+      const nonEmpty = clusters.filter((c) => c.items.length > 0);
+      if (nonEmpty.length >= 2) clusters = nonEmpty;
+      const ratios = normalizeRatios(clusters.map((c) => c.items.length));
+      const perspectives = clusters.map((cl, ci) => ({
+        id: cl.id,
+        label: cl.label,
+        short_label: cl.short_label,
+        ratio: ratios[ci],
+        color: cl.color,
+        keywords: (cl.kws || []).filter(Boolean).slice(0, 3)
+      }));
+
+      const itemToCl = new Map();
+      clusters.forEach((cl) => cl.items.forEach((it) => itemToCl.set(it.idx, cl)));
+
+      const detoxSamples = [];
+      for (const it of parsedItems) {
+        const cl = itemToCl.get(it.idx) || clusters[0];
+        const isLeft = cl.color === "blue" || cl.color === "emerald";
+        if (it.isToxic && detoxSamples.length < 4 && it.raw.length > 12) {
+          detoxSamples.push({
+            side: isLeft ? "PRO" : "CON",
+            perspective_label: cl.short_label,
+            color: cl.color,
+            raw: `[${it.author}] ${it.raw.replace(/\n+/g, " ").slice(0, 125)}`,
+            cleaned: it.cleaned.length > 12
+              ? `${it.cleaned.slice(0, 95)} (과열 표현을 덜어내고 핵심 관점으로 정제)`
+              : "과열된 감정 표현을 배제하고 핵심 취지만 남긴 정제 의견입니다.",
+            removed_tokens: it.matches.length ? it.matches.slice(0, 4) : ["과열표현"]
+          });
+        }
+      }
+      if (!detoxSamples.length) {
+        for (const it of parsedItems.slice(0, 4)) {
+          if (it.raw.length > 10) {
+            const cl = itemToCl.get(it.idx) || clusters[0];
+            const isLeft = cl.color === "blue" || cl.color === "emerald";
+            detoxSamples.push({
+              side: isLeft ? "PRO" : "CON",
+              perspective_label: cl.short_label,
+              color: cl.color,
+              raw: `[${it.author}] ${it.raw.replace(/\n+/g, " ").slice(0, 125)}`,
+              cleaned: (it.cleaned || it.raw).slice(0, 100),
+              removed_tokens: []
+            });
+          }
+        }
+      }
+
+      const avgToxBefore = toxicScores.length
+        ? +(toxicScores.reduce((a, b) => a + b, 0) / toxicScores.length).toFixed(1)
+        : (allRawScores.length ? +(allRawScores.reduce((a, b) => a + b, 0) / allRawScores.length).toFixed(1) : 42.0);
+      const avgToxAfter = afterScores.length
+        ? +(afterScores.reduce((a, b) => a + b, 0) / afterScores.length).toFixed(1)
+        : 14.2;
+
+      const modeLabel = resolvedMode === "debate"
+        ? MODE_LABELS.debate
+        : (resolvedMode === "proscons" ? MODE_LABELS.proscons : (resolvedMode === "summary" ? MODE_LABELS.summary : `${perspectives.length}관점 여론 비교`));
+
+      let proR = perspectives[0] ? perspectives[0].ratio : 50;
+      let conR = perspectives.length > 1 ? perspectives.slice(1).reduce((a, p) => a + p.ratio, 0) : (100 - proR);
+      if (resolvedMode !== "debate") {
+        const posSum = perspectives.filter((p) => p.color === "blue" || p.color === "emerald").reduce((a, p) => a + p.ratio, 0);
+        if (posSum > 0) {
+          proR = Math.max(1, Math.min(99, posSum));
+          conR = 100 - proR;
+        }
+      }
+
+      return {
+        analysis_mode: resolvedMode,
+        mode_label: modeLabel,
+        perspectives,
+        clusters,
+        total_comments: commentsList.length,
+        filtered_curse_count: toxicCount,
+        pro_ratio: proR,
+        con_ratio: conR,
+        toxicity_before: avgToxBefore,
+        toxicity_after: avgToxAfter,
+        detox_samples: detoxSamples
+      };
+    }
+
+    function buildDynamicScriptFromClusters(issueTitle, clusterRes) {
+      let shortTopic = (issueTitle || "이번 주제 댓글 여론")
         .replace(/\[[^\]]*\]|\([^)]*\)|#\S+/g, "")
         .replace(/\s{2,}/g, " ")
         .trim();
-      const shortTopic = trimKoreanWords(cleanRawTopic, 34) || "영상 공론장 핵심 쟁점";
-      const labelTopic = trimKoreanWords(shortTopic, 16);
+      if (shortTopic.length > 36) shortTopic = `${trimKoreanWords(shortTopic, 34)}...`;
+      if (!shortTopic) shortTopic = "이번 주제 댓글 여론";
 
-      const substantive = [];
-      comments.forEach((c) => {
-        let cln = (c.text || "")
-          .replace(/https?:\/\/\S+/g, "")
-          .replace(toxicRe, "")
-          .replace(/\n+/g, " ")
-          .replace(/\s{2,}/g, " ")
-          .trim();
-        if (cln.length >= 14) {
-          const isPro = proRe.test(cln) && !conRe.test(cln);
-          const isCon = conRe.test(cln) && !proRe.test(cln);
-          const side = isCon ? "CON" : (isPro ? "PRO" : (substantive.length % 2 === 0 ? "PRO" : "CON"));
-          const quote = trimKoreanWords(cln, 82).replace(/[.,!?]+$/, "");
-          substantive.push({ quote, likes: c.like_count || 0, side });
+      const perspectives = clusterRes.perspectives || [];
+      const clusters = clusterRes.clusters || [];
+      const mode = clusterRes.analysis_mode || "multi";
+
+      const quotesByCluster = [];
+      const allSubstantive = [];
+      for (const cl of clusters) {
+        const sortedItems = [...cl.items].sort((a, b) => (b.likes || 0) - (a.likes || 0));
+        const qs = [];
+        for (const it of sortedItems) {
+          const q = trimKoreanWords(it.cleaned, 84).replace(/[.,!?\s]+$/, "");
+          if (q.length >= 10 && !qs.includes(q)) {
+            qs.push(q);
+            if (!allSubstantive.includes(q)) allSubstantive.push(q);
+          }
         }
-      });
+        quotesByCluster.push(qs);
+      }
 
-      substantive.sort((a, b) => b.likes - a.likes);
-      const proPool = substantive.filter((x) => x.side === "PRO").map((x) => x.quote);
-      const conPool = substantive.filter((x) => x.side === "CON").map((x) => x.quote);
-      const allPool = substantive.map((x) => x.quote);
+      const nP = perspectives.length;
+      const pSeq = nP >= 4 ? [0, 1, 2, 3, 0, 2] : (nP === 3 ? [0, 1, 2, 1, 0, 2] : [0, 1, 0, 1, 0, 1]);
+      const usedQuotes = new Set();
+      const usedIdx = new Array(nP).fill(0);
 
-      allPool.forEach((q) => {
-        if (proPool.length < 3 && !proPool.includes(q)) proPool.push(q);
-        else if (conPool.length < 3 && !conPool.includes(q)) conPool.push(q);
-      });
-
-      const p1 = proPool[0] || `${shortTopic} 사안은 공익적 원칙과 빠른 개선이 필요하다는 목소리가 높습니다`;
-      const p2 = proPool[1] || "실효성 있는 기준과 책임 있는 제도 정비가 우선되어야 한다는 의견입니다";
-      const p3 = proPool[2] || "장기적인 신뢰 회복과 갈등 최소화를 위해 명확한 방향 설정이 요구됩니다";
-
-      const c1 = conPool[0] || `${shortTopic} 논의에서 현장 여건과 부작용을 신중히 따져야 한다는 반론도 존재합니다`;
-      const c2 = conPool[1] || "일방적 추진보다 현실적인 보완책과 단계적 대안을 먼저 점검해야 한다는 지적입니다";
-      const c3 = conPool[2] || "다양한 이해관계자의 입장을 균형 있게 수렴하는 과정이 필수적입니다";
-
-      return [
-        { speaker: "PRO", core_point: `${labelTopic} 핵심 지지`, text: `이번 영상 댓글 여론의 ${proRatio}퍼센트를 차지한 찬성 측에서는 "${p1}"라며 ${shortTopic} 사안의 적극적인 변화를 요구했습니다.` },
-        { speaker: "CON", core_point: "현장 여건 및 신중론 제기", text: `반면 ${conRatio}퍼센트 비중의 반대·신중 측에서는 "${c1}"라며 성급한 접근보다 현실적 영향을 먼저 살펴야 한다고 지적했습니다.` },
-        { speaker: "PRO", core_point: "실효성 기준과 책임 있는 대책", text: `찬성 측은 이어 "${p2}"라고 강조하며 감정적 공방을 넘어 구체적인 해결 기준을 세워야 한다고 주장합니다.` },
-        { speaker: "CON", core_point: "부작용 최소화 및 보완책 우선", text: `이에 대해 반대 측은 "${c2}"라며 현장의 수용성을 높이는 완충 장치와 균형 잡힌 검토가 선행되어야 한다고 반박합니다.` },
-        { speaker: "PRO", core_point: "공익적 가치와 신뢰 회복 촉구", text: `또한 "${p3}"라는 다수의 반응처럼, 이번 쟁점이 실질적인 공론장 개선으로 이어져야 한다는 목소리가 커지고 있습니다.` },
-        { speaker: "CON", core_point: "양측 균형 기반 상생 합의 필요", text: `결국 "${c3}"라는 지적처럼, 찬반 양측의 핵심 논거를 균형 있게 반영할 때 지속 가능한 해법에 도달할 수 있습니다.` }
+      const openersMulti = [
+        (r, l) => `먼저 전체 반응의 ${r}퍼센트를 차지한 ${l} 시각을 살펴보겠습니다.`,
+        (r, l) => `반면 ${r}퍼센트 비중의 ${l} 의견에서는 다른 지점을 짚습니다.`,
+        (r, l) => `세 번째 시선인 ${l} 측에서는 ${r}퍼센트의 시청자가 색다른 관점을 보탰습니다.`,
+        (r, l) => `이어서 ${l} 반응을 보면, 댓글창의 현실적인 고민이 드러납니다.`,
+        (r, l) => `${l} 입장에서는 앞선 논점에 더해 구체적인 체감 사례도 덧붙였습니다.`,
+        (r, l) => `결국 ${l} 시각까지 함께 짚어보면 이번 사안의 입체적인 흐름이 한눈에 보입니다.`
       ];
+      const openersDebate = [
+        (r, l) => `실제 댓글의 ${r}퍼센트를 차지한 ${l} 측에서는 뚜렷한 원칙을 내세웠습니다.`,
+        (r, l) => `반면 ${r}퍼센트 비중의 ${l} 측에서는 현실적인 우려를 제기합니다.`,
+        (r, l) => `${l} 측은 한 걸음 더 나아가 실질적인 기준과 실행력을 강조하고 있습니다.`,
+        (r, l) => `이에 대해 ${l} 측은 성급한 접근보다 부작용 보완이 먼저라고 맞섭니다.`,
+        (r, l) => `또한 ${l} 측에서는 장기적인 공익과 신뢰 회복을 핵심 과제로 꼽았습니다.`,
+        (r, l) => `종합하면 ${l} 측의 문제의식까지 균형 있게 반영해야 합리적 해법이 나옵니다.`
+      ];
+
+      const script = [];
+      for (let turnI = 0; turnI < 6; turnI++) {
+        const pi = pSeq[turnI] % Math.max(1, nP);
+        const persp = perspectives[pi] || { id: "P1", short_label: "핵심 관점", label: "핵심 관점", ratio: 50, color: "blue" };
+        const pool = quotesByCluster[pi] || [];
+        let chosenQ = "";
+        while (usedIdx[pi] < pool.length) {
+          const cand = pool[usedIdx[pi]++];
+          if (!usedQuotes.has(cand)) { chosenQ = cand; usedQuotes.add(cand); break; }
+        }
+        if (!chosenQ) {
+          for (const q of allSubstantive) {
+            if (!usedQuotes.has(q)) { chosenQ = q; usedQuotes.add(q); break; }
+          }
+        }
+        if (!chosenQ) chosenQ = `${shortTopic} 사안에서 ${persp.label} 측면을 비중 있게 다뤄야 합니다`;
+
+        const tmplFn = (mode === "debate" ? openersDebate : openersMulti)[turnI];
+        const intro = tmplFn(persp.ratio, persp.short_label);
+        const corePt = chosenQ.length > 10 ? trimKoreanWords(chosenQ, 32) : persp.label;
+        script.push({
+          speaker: turnI % 2 === 0 ? "PRO" : "CON",
+          perspective_id: persp.id,
+          perspective_label: persp.short_label,
+          color: persp.color,
+          core_point: corePt,
+          text: `${intro} "${chosenQ}." 이처럼 댓글창의 다양한 목소리가 모이고 있습니다.`
+        });
+      }
+      return script;
+    }
+
+    function normalizeGeminiAnalysis(parsed, clusterRes, fallbackTitle) {
+      if (!parsed || !Array.isArray(parsed.debate_script) || parsed.debate_script.length < 4) return null;
+      let perspectives = [];
+      if (Array.isArray(parsed.perspectives) && parsed.perspectives.length >= 2) {
+        const rawP = parsed.perspectives.slice(0, 4);
+        const ratios = normalizeRatios(rawP.map((p) => Number(p.ratio) || 25));
+        const usedColors = new Set();
+        rawP.forEach((p, idx) => {
+          let ck = String(p.color || "").toLowerCase();
+          if (!PALETTES[ck] || usedColors.has(ck)) {
+            ck = PALETTE_ORDER.find((c) => !usedColors.has(c)) || PALETTE_ORDER[idx % 4];
+          }
+          usedColors.add(ck);
+          const lbl = String(p.label || p.short_label || `관점 ${idx + 1}`).trim();
+          const shortLbl = String(p.short_label || trimKoreanWords(lbl, 11)).trim().slice(0, 12);
+          perspectives.push({
+            id: String(p.id || `P${idx + 1}`),
+            label: lbl,
+            short_label: shortLbl,
+            ratio: ratios[idx],
+            color: ck,
+            keywords: Array.isArray(p.keywords) ? p.keywords : []
+          });
+        });
+      } else {
+        perspectives = clusterRes.perspectives;
+      }
+
+      const pById = new Map(perspectives.map((p) => [p.id, p]));
+      const normScript = parsed.debate_script.slice(0, 8).map((t, idx) => {
+        const pid = String(t.perspective_id || "");
+        const matchedP = pById.get(pid) || perspectives[idx % perspectives.length];
+        let ck = String(t.color || "").toLowerCase();
+        if (!PALETTES[ck]) ck = matchedP.color;
+        const pLbl = String(t.perspective_label || matchedP.short_label).trim().slice(0, 12);
+        const spk = (t.speaker === "PRO" || t.speaker === "CON") ? t.speaker : (idx % 2 === 0 ? "PRO" : "CON");
+        return {
+          speaker: spk,
+          perspective_id: matchedP.id,
+          perspective_label: pLbl,
+          color: ck,
+          core_point: String(t.core_point || matchedP.label).trim(),
+          text: String(t.text || "").trim()
+        };
+      });
+      if (normScript.some((x) => !x.text)) return null;
+
+      const modeLbl = String(parsed.mode_label || "").trim() || (perspectives.length >= 3 ? `${perspectives.length}관점 여론 비교` : clusterRes.mode_label);
+      return {
+        issue_title: String(parsed.issue_title || fallbackTitle).trim(),
+        analysis_mode: String(parsed.detected_mode || clusterRes.analysis_mode).trim(),
+        mode_label: modeLbl,
+        perspectives,
+        debate_script: normScript
+      };
     }
 
     async function runLiveYouTubeOrCustomAnalysis() {
@@ -1462,6 +2280,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       setCommandNotice("");
       const sourceUrl = document.getElementById("sourceUrlInput").value.trim();
       const rawText = document.getElementById("rawCommentsInput").value.trim();
+      const selectedMode = document.getElementById("analysisModeSelect")?.value || "auto";
       const btn = document.getElementById("runPipelineBtn");
       const origText = btn.textContent;
       btn.textContent = "분석·생성 중...";
@@ -1471,7 +2290,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         const vid = extractVideoId(sourceUrl) || extractVideoId(rawText);
 
         if (!vid && !rawText) {
-          setCommandNotice("유튜브 영상 URL을 입력하거나 [텍스트 입력]으로 댓글을 넣어 주세요.");
+          setCommandNotice("유튜브 영상 URL을 입력하거나 [댓글 직접 입력]으로 내용을 넣어 주세요.");
           return;
         }
         if (sourceUrl && !vid && !rawText) {
@@ -1479,12 +2298,13 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           return;
         }
 
+        setPipelineStep("1/4 댓글·서버 확인");
         if (window.location.protocol.startsWith("http") && !window.location.hostname.includes("github.io")) {
           try {
             const apiRes = await fetch("/api/analyze", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ source_url: sourceUrl, raw_text: rawText })
+              body: JSON.stringify({ source_url: sourceUrl, raw_text: rawText, analysis_mode: selectedMode })
             });
             if (apiRes.ok) {
               const apiData = await apiRes.json();
@@ -1494,8 +2314,10 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
                   if (pb) pb.classList.remove("active");
                 });
                 if (apiData.notice) setCommandNotice(apiData.notice, false);
+                setPipelineStep("완료");
                 const wasVideoMode = playerMode === "video";
                 renderAll(apiData, apiData.engine_mode || `실시간 (${apiData.raw_stats.total_comments}건)`);
+                showToast("다관점 쇼츠 대본 생성 완료");
                 if (wasVideoMode) setPlayerMode("video");
                 else setPlayerMode("interactive");
                 return;
@@ -1511,6 +2333,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         let ytErrorReason = "";
 
         if (vid) {
+          setPipelineStep("1/4 유튜브 수집 중");
           try {
             const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${vid}&key=${CONFIG.GOOGLE_API_KEY}`);
             if (vRes.ok) {
@@ -1553,23 +2376,24 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         }
 
         if (!comments.length && rawText) {
-          comments = rawText.split(/[\n|]+/).filter(Boolean).map((t, i) => ({ author: `@user_${i+1}`, text: t.trim(), like_count: 0 }));
+          comments = rawText.split(/[\n|]+/).filter(Boolean).map((t, i) => ({ author: `@user_${i + 1}`, text: t.trim(), like_count: 0 }));
         }
 
         if (!comments.length && vid) {
           const fallbackTitle = videoTitle || `YouTube 영상 (${vid})`;
           comments = [
-            { author: channelTitle || "YouTube", text: `${fallbackTitle} 주제에 대한 찬성과 개선 요구 의견이 주목받고 있습니다.`, like_count: 1 },
-            { author: "시청자 의견", text: `${(videoDesc || fallbackTitle).slice(0, 120)} 관련 현실적 과제와 신중한 검토가 필요하다는 반응도 있습니다.`, like_count: 0 }
+            { author: channelTitle || "YouTube", text: `${fallbackTitle} 주제의 핵심 강점과 기대 포인트가 주목받고 있습니다.`, like_count: 1 },
+            { author: "시청자 의견", text: `${(videoDesc || fallbackTitle).slice(0, 120)} 관련 현실적인 부담이나 아쉬운 지점을 짚는 반응도 있습니다.`, like_count: 0 },
+            { author: "대안 의견", text: `${fallbackTitle} 관련 보완책이나 비교 대안을 함께 따져봐야 한다는 제안도 나옵니다.`, like_count: 0 }
           ];
           const reasonHint = ytErrorReason === "commentsDisabled"
-            ? "해당 영상은 댓글이 비활성화되어 영상 제목·설명 기반으로 찬반 대본을 생성했습니다."
-            : `댓글을 불러오지 못해(${ytErrorReason || "API 제한 또는 댓글 없음"}) 영상 제목 기반으로 대본을 구성했습니다.`;
+            ? "해당 영상은 댓글이 비활성화되어 영상 제목·설명 기반으로 다관점 대본을 생성했습니다."
+            : `댓글을 불러오지 못해(${ytErrorReason || "API 제한 또는 댓글 없음"}) 영상 제목 기반으로 다관점 대본을 구성했습니다.`;
           setCommandNotice(reasonHint, false);
         }
 
         if (!comments.length) {
-          setCommandNotice("분석할 댓글을 찾지 못했습니다. [텍스트 입력]으로 댓글 내용을 넣어 주세요.");
+          setCommandNotice("분석할 댓글을 찾지 못했습니다. [댓글 직접 입력]으로 내용을 넣어 주세요.");
           return;
         }
 
@@ -1578,56 +2402,26 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           if (pb) pb.classList.remove("active");
         });
 
-        const toxicRe = /ㅅㅂ|시발|씨발|ㅂㅅ|병신|ㅈㄹ|지랄|ㅈ같|존나|새끼|미친|개소리|ㄱ\s*ㅐ소리|개판|딸배|킥라니|틀딱|쓰레기|양아치|살인|감옥|폐차|개법|덤터기|코미디|ㅉㅉ|ㅋㅋ+|ㅎㅎ+|ㅠ+|ㅜ+|!!+|\?\?+/gi;
-        const proRe = /단속|규제|처벌|벌금|과태료|수면|소음|불법|개조|견인|보행자|면허|반납|안전|금지|찬성|필요|좋|맞|인정|응원|최고|옳|해야|필수|중요|공감|의무/;
-        const conRe = /생계|먹고살|배달|라이더|인프라|주차|대중교통|농촌|버스|이동권|차별|탁상행정|지원금|과잉|반대|문제|아쉽|글쎄|불편|비판|무리|현실|부족|우려|걱정|아니|위축/;
+        setPipelineStep("2/4 비속어 정제·관점 추출");
+        let issueTitle = videoTitle || "실시간 입력 댓글 다관점 분석";
+        const clusterRes = clusterCommentsMultiperspective(comments, issueTitle, selectedMode);
+        let resolvedMode = clusterRes.analysis_mode;
+        let modeLabel = clusterRes.mode_label;
+        let perspectives = clusterRes.perspectives;
+        let debateScript = buildDynamicScriptFromClusters(issueTitle, clusterRes);
+        const total = clusterRes.total_comments;
+        let engineMode = vid ? `실시간 ${perspectives.length}관점 (${total}건)` : `직접 입력 ${perspectives.length}관점 (${total}건)`;
 
-        let toxicCnt = 0, proCnt = 0, conCnt = 0;
-        let toxScores = [];
-        let detoxSamples = [];
-        let fallbackSamples = [];
-
-        comments.forEach((c, idx) => {
-          const matches = c.text.match(toxicRe) || [];
-          const score = Math.min(98, 26 + matches.length * 18.5);
-          if (matches.length > 0) {
-            toxicCnt++;
-            toxScores.push(score);
-          }
-          const hasPro = proRe.test(c.text);
-          const hasCon = conRe.test(c.text);
-          const isPro = hasCon && !hasPro ? false : (hasPro && !hasCon ? true : idx % 2 === 0);
-          if (isPro) proCnt++; else conCnt++;
-
-          const cleanTxt = c.text.replace(toxicRe, "").replace(/\s{2,}/g, " ").trim();
-          if (matches.length > 0 && detoxSamples.length < 4) {
-            detoxSamples.push({
-              side: isPro ? "PRO" : "CON",
-              raw: `[${c.author}] ${c.text.slice(0, 120)}`,
-              cleaned: (cleanTxt.slice(0, 95) || "감정적 표현을 걷어낸 핵심 의견입니다.") + " (감정·비속어 정제)",
-              removed_tokens: [...new Set(matches)].slice(0, 4)
-            });
-          } else if (fallbackSamples.length < 4 && c.text.length > 15) {
-            fallbackSamples.push({
-              side: isPro ? "PRO" : "CON",
-              raw: `[${c.author}] ${c.text.slice(0, 120)}`,
-              cleaned: cleanTxt.slice(0, 95) || c.text.slice(0, 95),
-              removed_tokens: []
-            });
-          }
-        });
-
-        const total = comments.length;
-        const proRatio = Math.max(5, Math.min(95, Math.round((proCnt / Math.max(total, 1)) * 100)));
-        const conRatio = 100 - proRatio;
-        const avgToxBefore = toxScores.length ? +(toxScores.reduce((a, b) => a + b, 0) / toxScores.length).toFixed(1) : 44.2;
-
-        let issueTitle = videoTitle || "실시간 입력 댓글 공론장 찬반 쟁점";
-        let debateScript = buildDynamicScriptFromComments(issueTitle, comments, proRatio, conRatio, toxicRe, proRe, conRe);
-        let engineMode = vid ? `실시간 NLP (${total}건)` : `직접 입력 (${total}건)`;
-
+        setPipelineStep("3/4 AI 대본 구조화");
         const sampleText = comments.slice(0, 35).map((c) => c.text).join("\n");
-        const gemPrompt = `다음 유튜브 영상("${issueTitle}")의 실제 댓글 ${total}건을 분석하여 찬성(PRO)과 반대(CON) 양측 핵심 논거 6턴(PRO, CON 교차 3턴씩) 아나운서 토론 대본을 JSON으로 작성해라.\n스펙: {"issue_title": "주제 한 줄 요약", "debate_script": [{"speaker":"PRO","core_point":"핵심 논거 라벨","text":"비속어가 제거된 자연스러운 2문장 아나운서 대사"}]}\n\n댓글 샘플:\n${sampleText}`;
+        const modeGuidance = {
+          debate: "찬성과 반대 양측 핵심 논거로 2관점 균형 토론을 구성해라.",
+          multi: "반드시 찬성/반대 이분법에 가두지 말고, 댓글에서 드러나는 3~4개의 실제 관점·이해관계·감상 축(blue, red, violet, emerald)을 추출해 큐레이터 대본을 구성해라.",
+          proscons: "장점·호평 / 아쉬움·단점 / 비교·구매·개선 대안 3관점(blue, red, violet)으로 균형 있게 구성해라.",
+          summary: "시청자·유저의 핵심 반응 3~4축(blue, red, violet, emerald)을 뉴스룸 브리핑처럼 정리해라."
+        }[resolvedMode] || "주제 성격에 맞게 2~4개의 실제 댓글 관점 축(blue, red, violet, emerald)을 자유롭게 추출해라.";
+
+        const gemPrompt = `다음 콘텐츠("${issueTitle}")의 실제 댓글 ${total}건을 분석해 6턴 아나운서 쇼츠 대본 JSON을 작성해라.\n규칙: ${modeGuidance}\n2명의 스튜디오 아나운서(speaker는 좌/우 발화 교차를 위해 PRO, CON 번갈아 배치)가 각 관점(perspective_id, perspective_label, color)을 번갈아 명쾌하게 소개한다.\n스펙: {"issue_title": "주제 한 줄 요약", "detected_mode": "multi", "mode_label": "예: 3관점 여론 비교", "perspectives": [{"id":"P1","label":"핵심 관점명","short_label":"짧은라벨(8자이내)","ratio":45,"color":"blue|red|violet|emerald"}], "debate_script": [{"speaker":"PRO","perspective_id":"P1","perspective_label":"짧은라벨","color":"blue","core_point":"핵심 요약","text":"비속어가 제거된 자연스러운 2문장 표준 한국어 아나운서 대사"}]}\n\n댓글 샘플:\n${sampleText}`;
 
         for (const modelName of ["gemini-2.5-flash", "gemini-2.0-flash"]) {
           try {
@@ -1644,14 +2438,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               const rawReply = gemJson.candidates?.[0]?.content?.parts?.[0]?.text;
               if (rawReply) {
                 const parsed = parseGeminiJson(rawReply);
-                if (Array.isArray(parsed.debate_script) && parsed.debate_script.length >= 6) {
-                  debateScript = parsed.debate_script.slice(0, 6).map((t, i) => ({
-                    speaker: i % 2 === 0 ? "PRO" : "CON",
-                    core_point: t.core_point || (i % 2 === 0 ? "찬성 핵심 논거" : "반대 핵심 논거"),
-                    text: t.text || ""
-                  }));
-                  issueTitle = parsed.issue_title || issueTitle;
-                  engineMode = `Gemini AI (${total}건)`;
+                const norm = normalizeGeminiAnalysis(parsed, clusterRes, issueTitle);
+                if (norm) {
+                  issueTitle = norm.issue_title;
+                  resolvedMode = norm.analysis_mode;
+                  modeLabel = norm.mode_label;
+                  perspectives = norm.perspectives;
+                  debateScript = norm.debate_script;
+                  engineMode = `Gemini ${perspectives.length}관점 (${total}건)`;
                   break;
                 }
               }
@@ -1659,35 +2453,47 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           } catch (gemErr) {}
         }
 
+        setPipelineStep("4/4 스튜디오 반영 완료");
+        const kwTags = perspectives
+          .map((p) => (p.short_label || "").replace(/[·\s]/g, ""))
+          .filter(Boolean)
+          .map((k) => `#${k}`)
+          .join(" ");
+
         const liveData = {
           id: vid ? `yt_${vid}` : "live_custom",
+          analysis_mode: resolvedMode,
+          mode_label: modeLabel,
+          perspectives,
           source_label: vid
             ? `YouTube Data API v3 실시간 수집 · ${channelTitle || "YouTube"} (${total}건)`
-            : `직접 입력 댓글 분석 (${total}건)`,
+            : `직접 입력 댓글 다관점 분석 (${total}건 · ${modeLabel})`,
           source_url: sourceUrl,
           video_mp4_url: null,
           has_voice_track: false,
           rendered_video_blob_url: null,
           issue_title: issueTitle,
-          hashtags: "#한냥 #공론장중재 #핵심토론 #유튜브쇼츠",
+          hashtags: `#한냥 #다관점쇼츠 ${kwTags} #유튜브쇼츠`.trim(),
           raw_stats: {
             total_comments: total,
-            filtered_curse_count: toxicCnt,
-            pro_ratio: proRatio,
-            con_ratio: conRatio,
-            toxicity_before: avgToxBefore,
-            toxicity_after: 14.3
+            filtered_curse_count: clusterRes.filtered_curse_count,
+            pro_ratio: clusterRes.pro_ratio,
+            con_ratio: clusterRes.con_ratio,
+            toxicity_before: clusterRes.toxicity_before,
+            toxicity_after: clusterRes.toxicity_after
           },
           debate_script: debateScript,
-          detox_samples: detoxSamples.length ? detoxSamples : fallbackSamples
+          detox_samples: clusterRes.detox_samples
         };
         const wasVideoMode = playerMode === "video";
         renderAll(liveData, engineMode);
+        showToast(`${perspectives.length}개 관점 · ${debateScript.length}턴 대본 생성됨`);
         if (wasVideoMode) setPlayerMode("video");
         else setPlayerMode("interactive");
       } finally {
         btn.textContent = origText;
         btn.disabled = false;
+        setTimeout(() => setPipelineStep(""), 2600);
       }
     }
 
@@ -1725,6 +2531,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         }
         if (saved) {
           btn.textContent = "저장됨";
+          showToast("클라우드 아카이브에 저장됨");
           loadSupabaseArchive();
         } else {
           btn.textContent = "DB 설정 필요";
@@ -2247,7 +3054,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     }
 
     async function prepareAllVoices(onProgress = () => {}, opts = {}) {
-      const turns = (currentData.debate_script || []).slice(0, 6);
+      const turns = (currentData.debate_script || []).slice(0, 8);
       const engineMode = opts.engineMode || document.getElementById("voiceEngineSelect")?.value || "auto";
       const forVideoExport = !!opts.forVideoExport;
 
@@ -2290,7 +3097,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
 
       // 2) Live preview in "auto" mode: never degrade to mismatched English accents or 429 mid-video;
-      //    use crisp Per-Clause Event-Locked Browser Korean TTS consistently across all 6 turns!
+      //    use crisp Per-Clause Event-Locked Browser Korean TTS consistently across all turns!
       if (!forVideoExport && engineMode === "auto") {
         return { ok: false, voicedCount: 0, totalTurns: turns.length, mode: "browser", reason: "" };
       }
@@ -2395,7 +3202,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
     async function generateDynamicVideoUrl(onProgress = () => {}) {
       if (currentData.rendered_video_blob_url) {
-        const totalTurns = Math.min((currentData.debate_script || []).length, 6);
+        const totalTurns = Math.min((currentData.debate_script || []).length, 8);
         return {
           url: currentData.rendered_video_blob_url,
           hasVoice: !!currentData._renderedHasVoice,
@@ -2408,7 +3215,9 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
 
       const audioCtxRec = getOrResumeAudioContext();
-      const turns = (currentData.debate_script || []).slice(0, 6);
+      const turns = (currentData.debate_script || []).slice(0, 8);
+      const resolvedPersp = resolvePerspectives(currentData);
+      const resolvedModeLbl = currentData.mode_label || (resolvedPersp.length >= 3 ? `${resolvedPersp.length}관점 여론 비교` : "AI 공론장 중재");
       onProgress(4, "한국어 AI 음성 트랙 합성 준비 중...");
 
       // 1) Synthesize voices BEFORE launching recorder/server render
@@ -2428,6 +3237,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               issue_title: currentData.issue_title,
               category_badge: currentData.source_label || "한냥 Studio",
               raw_stats: currentData.raw_stats,
+              perspectives: resolvedPersp,
+              mode_label: resolvedModeLbl,
               debate_script: turns,
               turn_audio_b64_list: turnAudioList.map((x) => (x ? x.b64 : null))
             })
@@ -2478,8 +3289,12 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const conImg = document.getElementById("avatarCardCon");
       await Promise.all([studioImg, deskImg, proImg, conImg].map(waitImageReady));
 
-      // Pre-bake offscreen canvases ONCE so every 30fps frame blits in <3ms (zero CPU blur lag!)
-      const bakeStage = (isPro) => {
+      // Pre-bake offscreen canvases per (side, colorKey) ONCE so every 30fps frame blits in <3ms!
+      const stageCache = {};
+      const getStageCanvas = (isPro, colorKey) => {
+        const key = `${isPro ? "L" : "R"}_${colorKey}`;
+        if (stageCache[key]) return stageCache[key];
+        const pal = PALETTES[colorKey] || PALETTES.blue;
         const c = createOffscreenCanvas(W, H);
         const cx = c.getContext("2d");
         if (studioImg && studioImg.complete && studioImg.naturalWidth > 0) {
@@ -2492,14 +3307,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         const sx = isPro ? W * 0.28 : W * 0.72;
         const sy = H * 0.58;
         const rad = cx.createRadialGradient(sx, sy, 24, sx, sy, 440);
-        rad.addColorStop(0, isPro ? "rgba(37,99,235,0.42)" : "rgba(220,38,38,0.42)");
-        rad.addColorStop(0.5, isPro ? "rgba(37,99,235,0.14)" : "rgba(220,38,38,0.14)");
+        rad.addColorStop(0, pal.canvasSpot0);
+        rad.addColorStop(0.5, pal.canvasSpot1);
         rad.addColorStop(1, "rgba(0,0,0,0)");
         cx.fillStyle = rad; cx.fillRect(0, 0, W, H);
+        stageCache[key] = c;
         return c;
       };
-      const proStageC = bakeStage(true);
-      const conStageC = bakeStage(false);
+      turns.forEach((t) => getStageCanvas(t.speaker === "PRO", getTurnColorKey(t)));
 
       const bakeHost = (img, targetH, active) => {
         if (!img || !img.complete || img.naturalWidth <= 0) return null;
@@ -2630,12 +3445,19 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const masterStartPerf = performance.now() + 140;
 
       // Schedule sample-accurate voices & stingers onto the AudioContext timeline!
+      const chimeFreqMap = {
+        blue: [440, 554.37],
+        red: [587.33, 493.88],
+        violet: [554.37, 659.25],
+        emerald: [493.88, 659.25],
+        amber: [440, 587.33]
+      };
       if (audioCtxRec && audioDest) {
         turns.forEach((turn, idx) => {
           const tStart = masterStartAudioTime + turnStartsSec[idx];
-          const isPro = turn.speaker === "PRO";
+          const cKey = getTurnColorKey(turn);
           try {
-            const freqs = isPro ? [440, 554.37] : [523.25, 659.25];
+            const freqs = chimeFreqMap[cKey] || [440, 554.37];
             freqs.forEach((f, fi) => {
               const osc = audioCtxRec.createOscillator();
               const g = audioCtxRec.createGain();
@@ -2676,9 +3498,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         const turnProg = Math.min(1, localSec / Math.max(turnDur, 0.1));
         const globalProg = Math.min(1, nowSec / Math.max(totalRenderSec, 0.1));
         const isPro = turn.speaker === "PRO";
-        const accent = isPro ? "#2563EB" : "#DC2626";
-        const badgeAccentTxt = isPro ? "#1D4ED8" : "#B91C1C";
-        const tint = isPro ? "#DBEAFE" : "#FEE2E2";
+        const cKey = getTurnColorKey(turn);
+        const pal = PALETTES[cKey] || PALETTES.blue;
+        const accent = pal.accent;
+        const badgeAccentTxt = pal.txt;
+        const tint = pal.pillBg;
 
         onProgress(Math.min(99, Math.round(22 + globalProg * 77)), `${ttsBuffers[tIdx] ? "AI 음성 + " : ""}1080p 방송 영상 녹화 중 (${formatMinSec(nowSec)} / ${formatMinSec(totalRenderSec)})`);
 
@@ -2696,7 +3520,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         ctx.scale(zoom, zoom);
         ctx.translate(-cx, -cy);
 
-        ctx.drawImage(isPro ? proStageC : conStageC, 0, 0);
+        ctx.drawImage(getStageCanvas(isPro, cKey), 0, 0);
 
         const talkBounce = Math.sin(localSec * 11) * 4.2 + Math.sin(localSec * 4.5) * 2;
         const idleBreath = Math.sin(localSec * 2.2) * 1.8;
@@ -2723,7 +3547,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           ctx.fillStyle = "rgba(45, 50, 65, 0.86)";
           drawRoundRect(ctx, sx, 38, segW, 9, 4); ctx.fill();
           if (si < tIdx) {
-            ctx.fillStyle = turns[si].speaker === "PRO" ? "#2563EB" : "#DC2626";
+            ctx.fillStyle = (PALETTES[getTurnColorKey(turns[si])] || PALETTES.blue).accent;
             drawRoundRect(ctx, sx, 38, segW, 9, 4); ctx.fill();
           } else if (si === tIdx) {
             ctx.fillStyle = accent;
@@ -2738,7 +3562,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         ctx.fillStyle = "#F4F4F5";
         ctx.font = "bold 22px Pretendard, sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(`0${tIdx + 1} / 0${turns.length}`, 105, 83);
+        ctx.fillText(`${String(tIdx + 1).padStart(2, "0")} / ${String(turns.length).padStart(2, "0")}`, 105, 83);
         ctx.fillStyle = "#E4E4E7";
         ctx.fillText(`${formatMinSec(nowSec)} / ${formatMinSec(totalRenderSec)}`, W - 117, 83);
         ctx.textAlign = "left";
@@ -2749,11 +3573,24 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         ctx.lineWidth = 2;
         drawRoundRect(ctx, 48, 104, W - 96, 130, 20); ctx.fill(); ctx.stroke();
 
+        const liveTxt = `LIVE · ${resolvedModeLbl}`;
+        ctx.font = "bold 18px Pretendard, sans-serif";
+        const liveW = Math.min(W - 360, Math.max(188, ctx.measureText(liveTxt).width + 54));
+        ctx.fillStyle = "rgba(255, 255, 255, 0.09)";
+        drawRoundRect(ctx, 74, 117, liveW, 30, 14); ctx.fill();
+        ctx.fillStyle = accent;
+        ctx.beginPath(); ctx.arc(92, 132, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#F1F5F9";
+        ctx.fillText(liveTxt, 108, 138);
+        ctx.fillStyle = "#A1A1AA";
+        ctx.textAlign = "right";
+        ctx.fillText(`분석 ${(currentData.raw_stats && currentData.raw_stats.total_comments) || 0}건 데이터`, W - 74, 138);
+        ctx.textAlign = "center";
+
         ctx.fillStyle = "#FFFFFF";
         ctx.font = "bold 31px Pretendard, sans-serif";
-        ctx.textAlign = "center";
-        if (titleLines.length === 1) ctx.fillText(titleLines[0], W / 2, 179);
-        else { ctx.fillText(titleLines[0], W / 2, 156); ctx.fillText(titleLines[1], W / 2, 198); }
+        if (titleLines.length === 1) ctx.fillText(titleLines[0], W / 2, 198);
+        else { ctx.fillText(titleLines[0], W / 2, 180); ctx.fillText(titleLines[1], W / 2, 218); }
         ctx.textAlign = "left";
 
         // 4) Large High-Contrast 2-Clause Speech Bubble (y=252..656, tail tip y=698)
@@ -2774,13 +3611,15 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         else { ctx.moveTo(W - 342, by0 + bh - 2); ctx.lineTo(W - 300, by0 + bh + 44); ctx.lineTo(W - 270, by0 + bh - 2); }
         ctx.fill();
 
-        // Speaker Badge + Clause Badge
-        ctx.fillStyle = tint;
-        drawRoundRect(ctx, 88, by0 + 26, 172, 42, 11); ctx.fill();
-        ctx.fillStyle = badgeAccentTxt;
+        // Dynamic-width Perspective Pill + Clause Badge
+        const spkLabel = (turn.perspective_label || "").trim() || (isPro ? `좌측 패널 ${Math.floor(tIdx / 2) + 1}` : `우측 패널 ${Math.floor(tIdx / 2) + 1}`);
         ctx.font = "bold 23px Pretendard, sans-serif";
+        const spkPillW = Math.min(W - 330, Math.max(152, ctx.measureText(spkLabel).width + 46));
+        ctx.fillStyle = tint;
+        drawRoundRect(ctx, 88, by0 + 26, spkPillW, 42, 11); ctx.fill();
+        ctx.fillStyle = badgeAccentTxt;
         ctx.textAlign = "center";
-        ctx.fillText(`${isPro ? "찬성 패널" : "반대 패널"} ${Math.floor(tIdx / 2) + 1}`, 174, by0 + 55);
+        ctx.fillText(spkLabel, 88 + spkPillW / 2, by0 + 55);
 
         // Acoustic RMS Pause + Weighted Word Sync (accounting for +0.10s AudioContext voice onset)
         const voiceAudioSec = Math.max(0, (localSec - 0.10) * playbackRate);
@@ -2844,31 +3683,68 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           });
         });
 
-        // 5) Lower Telemetry Card + 24-Band EQ
+        // 5) Dynamic Multi-Perspective Lower Telemetry Card + 24-Band EQ
         const ly0 = 1652, lh = 206;
         ctx.fillStyle = "rgba(14, 17, 25, 0.94)";
         ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
         ctx.lineWidth = 2;
         drawRoundRect(ctx, 48, ly0, W - 96, lh, 26); ctx.fill(); ctx.stroke();
 
-        ctx.fillStyle = "#60A5FA";
-        ctx.font = "bold 24px Pretendard, sans-serif";
-        ctx.fillText(`찬성 ${currentData.raw_stats.pro_ratio}%`, 94, ly0 + 54);
-        ctx.fillStyle = "#F87171";
-        ctx.textAlign = "right";
-        ctx.fillText(`반대 ${currentData.raw_stats.con_ratio}%`, W - 94, ly0 + 54);
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#A1A1AA";
-        ctx.font = "600 19px Pretendard, sans-serif";
-        ctx.fillText("AI 50:50 공론장 중재", W / 2, ly0 + 82);
-        ctx.textAlign = "left";
+        if (resolvedPersp.length <= 2) {
+          const p0 = resolvedPersp[0];
+          const p1 = resolvedPersp[1] || { short_label: "대안", ratio: Math.max(1, 100 - p0.ratio), color: "red" };
+          const c0 = PALETTES[p0.color] || PALETTES.blue;
+          const c1 = PALETTES[p1.color] || PALETTES.red;
+          ctx.font = "bold 23px Pretendard, sans-serif";
+          ctx.fillStyle = c0.barTxt;
+          ctx.fillText(`${p0.short_label} ${p0.ratio}%`, 94, ly0 + 54);
+          ctx.fillStyle = c1.barTxt;
+          ctx.textAlign = "right";
+          ctx.fillText(`${p1.short_label} ${p1.ratio}%`, W - 94, ly0 + 54);
+          ctx.textAlign = "center";
+          ctx.fillStyle = "#A1A1AA";
+          ctx.font = "600 19px Pretendard, sans-serif";
+          ctx.fillText(resolvedModeLbl, W / 2, ly0 + 84);
+          ctx.textAlign = "left";
 
-        const barX0 = 310, barW = W - 620;
-        const proW = Math.max(24, Math.round(barW * (currentData.raw_stats.pro_ratio / 100)));
-        ctx.fillStyle = "#2563EB";
-        drawRoundRect(ctx, barX0, ly0 + 38, proW, 14, 7); ctx.fill();
-        ctx.fillStyle = "#DC2626";
-        drawRoundRect(ctx, barX0 + proW + 6, ly0 + 38, Math.max(20, barW - proW - 6), 14, 7); ctx.fill();
+          const barX0 = 316, barW = W - 632;
+          const totR = Math.max(1, p0.ratio + p1.ratio);
+          const w0 = Math.max(24, Math.round(barW * (p0.ratio / totR)));
+          ctx.fillStyle = c0.accent;
+          drawRoundRect(ctx, barX0, ly0 + 40, w0, 14, 7); ctx.fill();
+          ctx.fillStyle = c1.accent;
+          drawRoundRect(ctx, barX0 + w0 + 6, ly0 + 40, Math.max(20, barW - w0 - 6), 14, 7); ctx.fill();
+        } else {
+          const nP = resolvedPersp.length;
+          const totR = resolvedPersp.reduce((a, b) => a + Math.max(1, b.ratio), 0) || 100;
+          const innerL = 90, innerR = W - 90, spanW = innerR - innerL, colW = spanW / nP;
+          ctx.font = "bold 20px Pretendard, sans-serif";
+          ctx.textAlign = "center";
+          resolvedPersp.forEach((p, pi) => {
+            const pc = PALETTES[p.color] || PALETTES.blue;
+            ctx.fillStyle = pc.barTxt;
+            ctx.fillText(`${p.short_label} ${p.ratio}%`, Math.round(innerL + colW * (pi + 0.5)), ly0 + 44);
+          });
+
+          const segGap = 6, availW = spanW - segGap * (nP - 1);
+          let curX = innerL;
+          resolvedPersp.forEach((p, pi) => {
+            const pc = PALETTES[p.color] || PALETTES.blue;
+            const segLen = pi < nP - 1 ? availW * (Math.max(1, p.ratio) / totR) : (innerR - curX);
+            const drawW = Math.max(18, segLen);
+            ctx.fillStyle = pc.accent;
+            drawRoundRect(ctx, Math.round(curX), ly0 + 64, Math.min(innerR - Math.round(curX), Math.round(drawW)), 14, 7); ctx.fill();
+            curX += drawW + segGap;
+          });
+
+          ctx.fillStyle = "#A1A1AA";
+          ctx.font = "600 19px Pretendard, sans-serif";
+          ctx.fillText(resolvedModeLbl, W / 2, ly0 + 104);
+          ctx.textAlign = "left";
+        }
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+        ctx.fillRect(86, ly0 + 118, W - 172, 2);
 
         const eqCount = 24, eqGap = 15;
         const eqStartX = W / 2 - (eqCount * eqGap) / 2;
@@ -2880,10 +3756,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           drawRoundRect(ctx, bx, ly0 + 150 - bhEq / 2, 7, bhEq, 3); ctx.fill();
         }
 
+        const dotStep = turns.length > 6 ? 30 : 34;
         for (let di = 0; di < turns.length; di++) {
-          const dx = 94 + di * 34;
+          const dx = 94 + di * dotStep;
           ctx.fillStyle = di === tIdx ? accent : (di < tIdx ? "#A1A1AA" : "#2D313E");
-          drawRoundRect(ctx, dx, ly0 + 154, di === tIdx ? 26 : 18, 10, 5); ctx.fill();
+          drawRoundRect(ctx, dx, ly0 + 154, di === tIdx ? 24 : 16, 10, 5); ctx.fill();
         }
 
         ctx.fillStyle = "#A1A1AA";
@@ -2956,7 +3833,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
             statusEl.textContent = `AI 음성 합본 1080×1920 영상(.${ext}) 저장 완료`;
           } else if (res.partialVoice) {
             statusEl.className = "text-center text-[11.5px] font-medium text-[#D97706] min-h-[16px]";
-            statusEl.textContent = `AI 음성 ${res.voicedCount || 0}/${res.totalTurns || 6}턴만 반영됨 (할당량 제한) — 전체 음성 원하시면 [API·음성 설정] 확인`;
+            statusEl.textContent = `AI 음성 ${res.voicedCount || 0}/${res.totalTurns || (currentData.debate_script || []).length || 6}턴만 반영됨 (할당량 제한) — 전체 음성 원하시면 [API·음성 설정] 확인`;
           } else {
             statusEl.className = "text-center text-[11.5px] font-medium text-[#D97706] min-h-[16px]";
             const reasonPrefix = res.reason === "quota_429"
@@ -2980,26 +3857,32 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const promptText = [
         `[한냥 9:16 YouTube Shorts Video Prompt]`,
         `Topic: ${currentData.issue_title}`,
-        `2 anchors debating calmly behind a dark broadcast desk.`,
-        ...currentData.debate_script.map((t, i) => `Turn ${i + 1} (${t.speaker}): ${t.text}`)
+        `Format: ${currentData.mode_label || "Multi-perspective curation"}`,
+        `2 anchors present diverse audience perspectives behind a dark broadcast desk.`,
+        ...currentData.debate_script.map((t, i) => `Turn ${i + 1} [${t.perspective_label || t.speaker}] (${t.speaker}): ${t.text}`)
       ].join("\n");
       navigator.clipboard.writeText(promptText).then(() => {
         const orig = btn.textContent;
         btn.textContent = "복사됨";
+        showToast("영상 AI 프롬프트 복사됨");
         setTimeout(() => { btn.textContent = orig; }, 1500);
       });
     }
 
-    function playTurnChime(speaker) {
+    function playTurnChime(turnOrSpeaker) {
       const toggle = document.getElementById("chimeToggle");
       if (toggle && !toggle.checked) return;
       try {
         const ctx = getOrResumeAudioContext();
         if (!ctx) return;
+        const cKey = (turnOrSpeaker && typeof turnOrSpeaker === "object")
+          ? getTurnColorKey(turnOrSpeaker)
+          : (turnOrSpeaker === "CON" ? "red" : "blue");
+        const baseMap = { blue: 440, red: 587.33, violet: 523.25, emerald: 493.88, amber: 415.30 };
+        const baseFreq = baseMap[cKey] || 440;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "sine";
-        const baseFreq = speaker === "PRO" ? 440 : 587.33;
         osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.25, ctx.currentTime + 0.14);
         gain.gain.setValueAtTime(0.05, ctx.currentTime);
@@ -3014,6 +3897,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     function selectPreset(presetId) {
       stopShortsPlayback(false);
       setCommandNotice("");
+      if (typeof setPipelineStep === "function") setPipelineStep("");
       const statusEl = document.getElementById("mp4ExportStatus");
       if (statusEl) statusEl.textContent = "";
       ["preset_1", "preset_2", "preset_3"].forEach((id) => {
@@ -3031,17 +3915,34 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     function renderAll(data, engineMode) {
       currentData = data;
       const stats = data.raw_stats;
+      const persps = resolvePerspectives(data);
+      const modeLabel = data.mode_label || (persps.length >= 3 ? `${persps.length}관점 여론 비교` : "찬반 공론장 중재");
       const totSec = Math.round(getTotalDurationSec());
 
       const filterRate = ((stats.filtered_curse_count / Math.max(stats.total_comments, 1)) * 100).toFixed(1);
       const logicIndex = (100 - stats.toxicity_after).toFixed(1);
       const delta = (stats.toxicity_after - stats.toxicity_before).toFixed(1);
+      const perspSummary = persps.map((p) => `${p.short_label} ${p.ratio}%`).join(" · ");
 
-      document.getElementById("publishTitleInput").value = `[AI 공론장 토론] ${data.issue_title.slice(0, 52)} #쇼츠`;
-      document.getElementById("publishDescInput").value =
-        `유튜브 실제 댓글 ${stats.total_comments}건을 분석해 비속어를 제거하고 찬반 핵심 논거만 50:50으로 정리한 ${totSec}초 토론 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#한냥 #공론장중재 #핵심토론 #쇼츠"}`;
+      if (persps.length >= 3) {
+        document.getElementById("publishTitleInput").value = `[다관점 요약] ${data.issue_title.slice(0, 52)} #쇼츠`;
+        document.getElementById("publishDescInput").value =
+          `실제 댓글 ${stats.total_comments}건을 분석해 과열·비속어를 걸러내고 ${persps.length}개 핵심 시각(${perspSummary})으로 입체 정리한 ${totSec}초 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#한냥 #다관점쇼츠 #여론분석 #쇼츠"}`;
+      } else {
+        document.getElementById("publishTitleInput").value = `[AI 공론장 토론] ${data.issue_title.slice(0, 52)} #쇼츠`;
+        document.getElementById("publishDescInput").value =
+          `유튜브 실제 댓글 ${stats.total_comments}건을 분석해 비속어를 제거하고 양측 핵심 논거(${perspSummary})를 균형 있게 정리한 ${totSec}초 토론 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#한냥 #공론장중재 #핵심토론 #쇼츠"}`;
+      }
       document.getElementById("miniSummaryStats").textContent =
-        `댓글 ${stats.total_comments}건 중 과열 ${stats.filtered_curse_count}건(${filterRate}%) 정제`;
+        `${modeLabel} · 댓글 ${stats.total_comments}건 중 과열 ${stats.filtered_curse_count}건(${filterRate}%) 정제`;
+
+      const perspBadgesEl = document.getElementById("scriptPerspectiveBadges");
+      if (perspBadgesEl) {
+        perspBadgesEl.innerHTML = persps.map((p) => {
+          const pal = PALETTES[p.color] || PALETTES.blue;
+          return `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold mono-num" style="background:${pal.pillBg};color:${pal.txt}">${escapeHtml(p.short_label)} ${p.ratio}%</span>`;
+        }).join("");
+      }
 
       document.getElementById("reportIssueTitle").textContent = data.issue_title;
       document.getElementById("activeSourceLabel").textContent = data.source_label || "";
@@ -3053,11 +3954,40 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       document.getElementById("statToxicityAfterSub").textContent = `(과열 ${stats.toxicity_after.toFixed(1)})`;
       document.getElementById("statToxicityDelta").textContent = `${delta}pt`;
 
+      const modeTagEl = document.getElementById("stanceModeTag");
+      if (modeTagEl) modeTagEl.textContent = modeLabel;
       document.getElementById("stanceTotalLabel").textContent = `원본 댓글 여론 (${stats.total_comments}건)`;
-      document.getElementById("proRatioText").textContent = `${stats.pro_ratio}%`;
-      document.getElementById("conRatioText").textContent = `${stats.con_ratio}%`;
-      document.getElementById("proBarFill").style.width = `${stats.pro_ratio}%`;
-      document.getElementById("conBarFill").style.width = `${stats.con_ratio}%`;
+
+      const stackedEl = document.getElementById("analyticsStackedBar");
+      if (stackedEl) {
+        stackedEl.innerHTML = persps.map((p) => {
+          const pal = PALETTES[p.color] || PALETTES.blue;
+          return `<div class="h-full transition-all duration-300" style="width:${p.ratio}%;background:${pal.accent}"></div>`;
+        }).join("");
+      }
+      const legendEl = document.getElementById("analyticsPerspectivesLegend");
+      if (legendEl) {
+        legendEl.innerHTML = persps.map((p) => {
+          const pal = PALETTES[p.color] || PALETTES.blue;
+          const kws = (p.keywords && p.keywords.length) ? `<span class="text-[11px] text-[#71717A] ml-1">(${escapeHtml(p.keywords.slice(0, 2).join(", "))})</span>` : "";
+          return `
+            <div class="flex items-center justify-between text-[12px]">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${pal.accent}"></span>
+                <span class="font-semibold text-[#111317] truncate">${escapeHtml(p.label)}</span>
+                ${kws}
+              </div>
+              <span class="font-bold mono-num shrink-0" style="color:${pal.txt}">${p.ratio}%</span>
+            </div>
+          `;
+        }).join("");
+      }
+      const stanceDescEl = document.getElementById("analyticsStanceDesc");
+      if (stanceDescEl) {
+        stanceDescEl.textContent = persps.length >= 3
+          ? `찬반 이분법을 넘어 실제 댓글에서 도출된 ${persps.length}개 시각을 균형 있게 배분해 입체적인 쇼츠 대본을 생성합니다.`
+          : "편향된 원본 댓글 분포에서도 핵심 관점별 논거를 추출해 대본으로 균형을 맞춥니다.";
+      }
 
       document.getElementById("barToxBeforeLabel").textContent = `${stats.toxicity_before.toFixed(1)} / 100`;
       document.getElementById("barToxBeforeFill").style.width = `${stats.toxicity_before}%`;
@@ -3069,20 +3999,22 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const detoxContainer = document.getElementById("detoxSamplesList");
       detoxContainer.innerHTML = "";
       (data.detox_samples || []).forEach((item) => {
-        const isPro = item.side === "PRO";
+        const ck = (item.color && PALETTES[item.color]) ? item.color : (item.side === "CON" ? "red" : "blue");
+        const pal = PALETTES[ck] || PALETTES.blue;
+        const lbl = item.perspective_label || (item.side === "PRO" ? "핵심 공감" : "신중·비판");
         const box = document.createElement("div");
         box.className = "studio-subpanel p-3.5";
         const tokensHtml = (item.removed_tokens || [])
-          .map((t) => `<span class="px-1.5 py-0.5 rounded bg-[#FEF2F2] text-[#DC2626] text-[11px] font-medium line-through">${t}</span>`)
+          .map((t) => `<span class="px-1.5 py-0.5 rounded bg-[#FEF2F2] text-[#DC2626] text-[11px] font-medium line-through">${escapeHtml(t)}</span>`)
           .join(" ");
         box.innerHTML = `
           <div class="flex items-center justify-between mb-1.5">
-            <span class="text-[11.5px] font-bold ${isPro ? "text-[#2563EB]" : "text-[#DC2626]"}">${isPro ? "찬성 댓글" : "반대 댓글"}</span>
+            <span class="text-[11.5px] font-bold" style="color:${pal.txt}">${escapeHtml(lbl)}</span>
             <div class="flex flex-wrap gap-1">${tokensHtml}</div>
           </div>
-          <p class="text-[12px] text-[#71717A] line-through mb-2">${item.raw}</p>
+          <p class="text-[12px] text-[#71717A] line-through mb-2">${escapeHtml(item.raw)}</p>
           <div class="text-[12.5px] text-[#111317] font-medium bg-white border border-[#E4E4E7] rounded-lg p-2.5">
-            ${item.cleaned}
+            ${escapeHtml(item.cleaned)}
           </div>
         `;
         detoxContainer.appendChild(box);
@@ -3090,13 +4022,41 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
       document.getElementById("jsonSchemaPreview").textContent = JSON.stringify({
         issue_title: data.issue_title,
+        analysis_mode: data.analysis_mode || "multi",
+        mode_label: modeLabel,
+        perspectives: persps,
         raw_stats: data.raw_stats,
         debate_script: data.debate_script
       }, null, 2);
 
       document.getElementById("shortsIssueTitle").textContent = data.issue_title;
-      document.getElementById("shortsProShare").textContent = `찬성 ${stats.pro_ratio}%`;
-      document.getElementById("shortsConShare").textContent = `반대 ${stats.con_ratio}%`;
+      const legendRow = document.getElementById("shortsLegendRow");
+      const ratioBar = document.getElementById("shortsRatioBar");
+      const footLbl = document.getElementById("shortsModeFootLabel");
+      if (footLbl) footLbl.textContent = `한냥 Studio · ${modeLabel}`;
+
+      if (legendRow) {
+        if (persps.length <= 2) {
+          const p0 = persps[0];
+          const p1 = persps[1] || { short_label: "대안", ratio: Math.max(1, 100 - p0.ratio), color: "red" };
+          legendRow.innerHTML = `
+            <span class="mono-num truncate" style="color:${(PALETTES[p0.color] || PALETTES.blue).barTxt}">${escapeHtml(p0.short_label)} ${p0.ratio}%</span>
+            <span class="text-[#A1A1AA] shrink-0">${escapeHtml(modeLabel)}</span>
+            <span class="mono-num truncate" style="color:${(PALETTES[p1.color] || PALETTES.red).barTxt}">${escapeHtml(p1.short_label)} ${p1.ratio}%</span>
+          `;
+        } else {
+          legendRow.innerHTML = persps.map((p) => {
+            const pal = PALETTES[p.color] || PALETTES.blue;
+            return `<span class="mono-num truncate" style="color:${pal.barTxt}">${escapeHtml(p.short_label)} ${p.ratio}%</span>`;
+          }).join("");
+        }
+      }
+      if (ratioBar) {
+        ratioBar.innerHTML = persps.map((p) => {
+          const pal = PALETTES[p.color] || PALETTES.blue;
+          return `<div class="h-full rounded-full transition-all duration-300" style="width:${p.ratio}%;background:${pal.accent}"></div>`;
+        }).join("");
+      }
 
       const videoEl = document.getElementById("realMp4Player");
       if (videoEl) {
@@ -3107,38 +4067,105 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       updateShortsTurnVisual(0, false);
     }
 
+    function invalidateScriptMediaCache(turnIdx = null) {
+      currentData.video_mp4_url = null;
+      currentData.has_voice_track = false;
+      currentData.rendered_video_blob_url = null;
+      currentData._renderedHasVoice = false;
+      currentData._renderedPartialVoice = false;
+      if (turnIdx === null) {
+        currentData._ttsAudioCache = {};
+        currentData._turnAudioDur = {};
+        currentData._turnAudioMeta = {};
+      } else {
+        if (currentData._ttsAudioCache) delete currentData._ttsAudioCache[turnIdx];
+        if (currentData._turnAudioDur) delete currentData._turnAudioDur[turnIdx];
+        if (currentData._turnAudioMeta) delete currentData._turnAudioMeta[turnIdx];
+      }
+      const videoEl = document.getElementById("realMp4Player");
+      if (videoEl && videoEl.getAttribute("src")) {
+        videoEl.removeAttribute("src");
+        videoEl.load();
+      }
+    }
+
     function renderScriptList() {
       const scriptContainer = document.getElementById("debateScriptList");
+      const turns = currentData.debate_script || [];
+      const persps = resolvePerspectives(currentData);
+      const headingEl = document.getElementById("scriptEditorHeading");
+      const addBtn = document.getElementById("addTurnBtn");
+      if (headingEl) headingEl.textContent = `스튜디오 대본 (${turns.length}턴)`;
+      if (addBtn) {
+        addBtn.disabled = turns.length >= 8;
+        addBtn.classList.toggle("opacity-40", turns.length >= 8);
+      }
+
       scriptContainer.innerHTML = "";
       const { durs, starts } = getTurnTimeline();
 
-      currentData.debate_script.forEach((turn, idx) => {
+      turns.forEach((turn, idx) => {
         const isPro = turn.speaker === "PRO";
+        const cKey = getTurnColorKey(turn);
+        const pal = PALETTES[cKey] || PALETTES.blue;
         const sTime = starts[idx] || 0;
         const eTime = sTime + (durs[idx] || 6);
+        const curPid = turn.perspective_id || persps[0]?.id || "P1";
+
+        const optsList = persps.some((p) => p.id === curPid)
+          ? persps
+          : [...persps, { id: curPid, short_label: turn.perspective_label || "사용자 지정", color: cKey }];
+
+        const selectOpts = optsList.map((p) =>
+          `<option value="${escapeHtml(p.id)}" ${p.id === curPid ? "selected" : ""}>${escapeHtml(p.short_label)}</option>`
+        ).join("");
+
         const card = document.createElement("div");
         card.id = `scriptTurnItem_${idx}`;
-        card.className = `script-row ${idx === currentTurnIndex ? (isPro ? "active-pro" : "active-con") : ""}`;
+        card.className = `script-row ${idx === currentTurnIndex ? `active-${cKey}` : ""}`;
         card.onclick = () => {
           setPlayerMode("interactive");
           startShortsPlayback(idx);
         };
         card.innerHTML = `
-          <div class="flex items-center justify-between gap-2 mb-1">
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="px-1.5 py-0.5 text-[11px] font-bold rounded shrink-0 ${
-                isPro ? "bg-[#DBEAFE] text-[#1D4ED8]" : "bg-[#FEE2E2] text-[#B91C1C]"
-              }">${isPro ? "찬성" : "반대"} ${Math.floor(idx / 2) + 1}</span>
-              <span class="text-[13px] font-bold text-[#111317] truncate">${turn.core_point}</span>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+            <div class="flex items-center gap-1.5 min-w-0 flex-1">
+              <select
+                aria-label="관점 선택"
+                onclick="event.stopPropagation()"
+                onchange="changeTurnPerspective(${idx}, this.value)"
+                style="background:${pal.pillBg};color:${pal.txt}"
+                class="px-1.5 py-0.5 text-[11px] font-bold rounded outline-none cursor-pointer shrink-0 border border-transparent hover:border-black/15"
+              >${selectOpts}</select>
+              <button
+                type="button"
+                onclick="event.stopPropagation();toggleTurnSide(${idx})"
+                title="좌/우 진행자 좌석 전환"
+                class="px-1.5 py-0.5 text-[10.5px] font-semibold rounded bg-white border border-[#E4E4E7] text-[#52525B] hover:text-[#111317] shrink-0"
+              >${isPro ? "좌측 L" : "우측 R"}</button>
+              <span
+                contenteditable="true"
+                onclick="event.stopPropagation()"
+                oninput="updateTurnCorePoint(${idx}, this.textContent)"
+                onblur="renderScriptList()"
+                class="text-[13px] font-bold text-[#111317] truncate outline-none focus:bg-white rounded px-1 -mx-1"
+              >${escapeHtml(turn.core_point)}</span>
             </div>
-            <span class="text-[11px] text-[#71717A] mono-num shrink-0">${formatMinSec(sTime)}–${formatMinSec(eTime)}</span>
+            <div class="flex items-center gap-1 shrink-0" onclick="event.stopPropagation()">
+              <span id="scriptTurnTime_${idx}" class="text-[11px] text-[#71717A] mono-num mr-1">${formatMinSec(sTime)}–${formatMinSec(eTime)}</span>
+              <button type="button" onclick="setPlayerMode('interactive');startShortsPlayback(${idx})" title="이 턴부터 재생" class="w-6 h-6 rounded hover:bg-white text-[11px] text-[#3F3F46] hover:text-[#111317] flex items-center justify-center transition">▶</button>
+              <button type="button" onclick="moveScriptTurn(${idx}, -1)" ${idx === 0 ? "disabled" : ""} title="위로 이동" class="w-6 h-6 rounded hover:bg-white text-[11px] text-[#71717A] hover:text-[#111317] disabled:opacity-30 flex items-center justify-center transition">↑</button>
+              <button type="button" onclick="moveScriptTurn(${idx}, 1)" ${idx === turns.length - 1 ? "disabled" : ""} title="아래로 이동" class="w-6 h-6 rounded hover:bg-white text-[11px] text-[#71717A] hover:text-[#111317] disabled:opacity-30 flex items-center justify-center transition">↓</button>
+              <button type="button" onclick="deleteScriptTurn(${idx})" ${turns.length <= 2 ? "disabled" : ""} title="턴 삭제" class="w-6 h-6 rounded hover:bg-[#FEF2F2] text-[12px] font-bold text-[#A1A1AA] hover:text-[#DC2626] disabled:opacity-25 flex items-center justify-center transition">×</button>
+            </div>
           </div>
           <p
             contenteditable="true"
             onclick="event.stopPropagation()"
             oninput="updateTurnText(${idx}, this.textContent)"
+            onblur="renderScriptList()"
             class="text-[12.5px] text-[#3F3F46] leading-relaxed outline-none focus:text-[#111317] focus:bg-white rounded px-1.5 -mx-1.5 py-0.5"
-          >${turn.text}</p>
+          >${escapeHtml(turn.text)}</p>
         `;
         scriptContainer.appendChild(card);
       });
@@ -3148,11 +4175,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return (s || "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
     }
 
-    function renderKineticSubtitle(text, isPro, progressOrState = 1) {
+    function renderKineticSubtitle(text, speakerOrColorKey, progressOrState = 1) {
       const el = document.getElementById("shortsSubtitleText");
       const clBadge = document.getElementById("shortsClauseBadge");
       if (!el) return;
 
+      const cKey = (typeof speakerOrColorKey === "string" && PALETTES[speakerOrColorKey])
+        ? speakerOrColorKey
+        : (speakerOrColorKey ? "blue" : "red");
       const clauses = splitTurnIntoClauses(text);
       const clauseWordArrs = clauses.map((c) => c.trim().split(/\s+/).filter(Boolean));
 
@@ -3193,7 +4223,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         el.textContent = words.join(" ");
         return;
       }
-      const activeCls = isPro ? "kw-active-pro" : "kw-active-con";
+      const activeCls = `kw-active-${cKey}`;
       el.innerHTML = words.map((w, i) => {
         const safe = escapeHtml(w);
         if (i < localActiveIdx) return `<span class="kw-spoken">${safe}</span>`;
@@ -3202,78 +4232,201 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }).join(" ");
     }
 
-    function updateTurnText(idx, newText) {
-      if (currentData.debate_script[idx]) {
-        currentData.debate_script[idx].text = newText.trim();
-        currentData.video_mp4_url = null;
-        currentData.has_voice_track = false;
-        currentData.rendered_video_blob_url = null;
-        currentData._renderedHasVoice = false;
-        currentData._renderedPartialVoice = false;
-        if (currentData._ttsAudioCache) delete currentData._ttsAudioCache[idx];
-        if (currentData._turnAudioDur) delete currentData._turnAudioDur[idx];
-        if (currentData._turnAudioMeta) delete currentData._turnAudioMeta[idx];
-        const videoEl = document.getElementById("realMp4Player");
-        if (videoEl) { videoEl.removeAttribute("src"); videoEl.load(); }
-        renderScriptList();
-        updateIdleTimerDisplay();
-        if (idx === currentTurnIndex) {
-          renderKineticSubtitle(newText.trim(), currentData.debate_script[idx].speaker === "PRO", 1);
-        }
+    function updateTurnCorePoint(idx, newCore) {
+      const turns = currentData.debate_script || [];
+      if (!turns[idx]) return;
+      turns[idx].core_point = (newCore || "").trim();
+      invalidateScriptMediaCache(idx);
+      if (idx === currentTurnIndex) {
+        const cpEl = document.getElementById("shortsCorePoint");
+        if (cpEl) cpEl.textContent = turns[idx].core_point;
       }
+    }
+
+    function updateTurnText(idx, newText) {
+      const turns = currentData.debate_script || [];
+      if (!turns[idx]) return;
+      turns[idx].text = (newText || "").trim();
+      invalidateScriptMediaCache(idx);
+      const { durs, starts } = getTurnTimeline();
+      turns.forEach((_, ti) => {
+        const tEl = document.getElementById(`scriptTurnTime_${ti}`);
+        if (tEl) tEl.textContent = `${formatMinSec(starts[ti] || 0)}–${formatMinSec((starts[ti] || 0) + (durs[ti] || 6))}`;
+      });
+      updateIdleTimerDisplay();
+      if (idx === currentTurnIndex) {
+        renderKineticSubtitle(turns[idx].text, getTurnColorKey(turns[idx]), 1);
+      }
+    }
+
+    function changeTurnPerspective(idx, perspId) {
+      const turns = currentData.debate_script || [];
+      if (!turns[idx]) return;
+      const persps = resolvePerspectives(currentData);
+      const found = persps.find((p) => p.id === perspId);
+      if (!found) return;
+      turns[idx].perspective_id = found.id;
+      turns[idx].perspective_label = found.short_label;
+      turns[idx].color = found.color;
+      invalidateScriptMediaCache(null);
+      renderScriptList();
+      updateShortsTurnVisual(currentTurnIndex, isPlaying);
+      showToast(`턴 ${idx + 1} 관점: ${found.short_label}`);
+    }
+
+    function toggleTurnSide(idx) {
+      const turns = currentData.debate_script || [];
+      if (!turns[idx]) return;
+      turns[idx].speaker = turns[idx].speaker === "PRO" ? "CON" : "PRO";
+      invalidateScriptMediaCache(idx);
+      renderScriptList();
+      updateShortsTurnVisual(currentTurnIndex, isPlaying);
+      showToast(`턴 ${idx + 1} 화자: ${turns[idx].speaker === "PRO" ? "좌측 진행자" : "우측 진행자"}`);
+    }
+
+    function moveScriptTurn(idx, delta) {
+      const turns = currentData.debate_script || [];
+      const dst = idx + delta;
+      if (dst < 0 || dst >= turns.length) return;
+      if (isPlaying) stopShortsPlayback(false);
+      const tmp = turns[idx];
+      turns[idx] = turns[dst];
+      turns[dst] = tmp;
+      invalidateScriptMediaCache(null);
+      if (currentTurnIndex === idx) currentTurnIndex = dst;
+      else if (currentTurnIndex === dst) currentTurnIndex = idx;
+      renderScriptList();
+      updateIdleTimerDisplay();
+      updateShortsTurnVisual(currentTurnIndex, false);
+    }
+
+    function addScriptTurn() {
+      const turns = currentData.debate_script || [];
+      if (turns.length >= 8) {
+        showToast("최대 8턴까지만 추가할 수 있습니다.");
+        return;
+      }
+      if (isPlaying) stopShortsPlayback(false);
+      const persps = resolvePerspectives(currentData);
+      const last = turns[turns.length - 1];
+      const nextSpeaker = (last && last.speaker === "PRO") ? "CON" : "PRO";
+      const nextPersp = persps[turns.length % persps.length];
+      turns.push({
+        speaker: nextSpeaker,
+        perspective_id: nextPersp.id,
+        perspective_label: nextPersp.short_label,
+        color: nextPersp.color,
+        core_point: `${nextPersp.short_label} 보충 논점`,
+        text: `${nextPersp.label} 측면에서 추가로 살펴볼 핵심 사례를 정리해 말씀드립니다. 다양한 시청자 의견이 이어지고 있습니다.`
+      });
+      invalidateScriptMediaCache(null);
+      renderScriptList();
+      updateIdleTimerDisplay();
+      updateShortsTurnVisual(turns.length - 1, false);
+      showToast(`턴 ${turns.length} 추가됨`);
+    }
+
+    function deleteScriptTurn(idx) {
+      const turns = currentData.debate_script || [];
+      if (turns.length <= 2) {
+        showToast("최소 2턴 이상 유지해야 합니다.");
+        return;
+      }
+      if (isPlaying) stopShortsPlayback(false);
+      turns.splice(idx, 1);
+      invalidateScriptMediaCache(null);
+      const nextIdx = Math.max(0, Math.min(turns.length - 1, currentTurnIndex));
+      renderScriptList();
+      updateIdleTimerDisplay();
+      updateShortsTurnVisual(nextIdx, false);
+      showToast("선택한 턴 삭제됨");
+    }
+
+    function jumpToTurn(idx) {
+      const turns = currentData.debate_script || [];
+      if (!turns.length) return;
+      const target = Math.max(0, Math.min(turns.length - 1, idx));
+      if (playerMode === "video") setPlayerMode("interactive");
+      if (isPlaying) {
+        startShortsPlayback(target);
+      } else {
+        const { starts, total } = getTurnTimeline();
+        const progBar = document.getElementById("shortsProgressBar");
+        const timerEl = document.getElementById("shortsTimerDisplay");
+        if (progBar) progBar.style.width = `${((starts[target] || 0) / Math.max(total, 0.1) * 100).toFixed(1)}%`;
+        if (timerEl) timerEl.textContent = `${formatMinSec(starts[target] || 0)} / ${formatMinSec(total)}`;
+        updateShortsTurnVisual(target, false);
+      }
+    }
+
+    function stepTurn(delta) {
+      const turns = currentData.debate_script || [];
+      if (!turns.length) return;
+      const target = Math.max(0, Math.min(turns.length - 1, currentTurnIndex + delta));
+      jumpToTurn(target);
     }
 
     function updateShortsTurnVisual(turnIdx, speakingActive) {
       const turns = currentData.debate_script || [];
       if (!turns.length) return;
-      currentTurnIndex = turnIdx;
-      const turn = turns[turnIdx] || turns[0];
+      const safeIdx = Math.max(0, Math.min(turns.length - 1, turnIdx));
+      currentTurnIndex = safeIdx;
+      const turn = turns[safeIdx] || turns[0];
       const isPro = turn.speaker === "PRO";
+      const cKey = getTurnColorKey(turn);
+      const pal = PALETTES[cKey] || PALETTES.blue;
 
       const progBar = document.getElementById("shortsProgressBar");
-      if (progBar) progBar.style.backgroundColor = isPro ? "#2563EB" : "#DC2626";
+      if (progBar) progBar.style.backgroundColor = pal.accent;
 
       const spotlight = document.getElementById("stageSpotlight");
-      if (spotlight) spotlight.classList.toggle("con-mode", !isPro);
+      if (spotlight) {
+        spotlight.classList.toggle("con-mode", !isPro);
+        spotlight.style.background = `radial-gradient(circle at ${isPro ? "28%" : "72%"} 62%, ${pal.spotlight0}, ${pal.spotlight1} 40%, transparent 68%)`;
+      }
 
-      document.getElementById("shortsTurnCounter").textContent = `${turnIdx + 1} / ${turns.length}`;
+      document.getElementById("shortsTurnCounter").textContent = `${safeIdx + 1} / ${turns.length}`;
       document.getElementById("avatarCardPro").classList.toggle("speaking", isPro);
       document.getElementById("avatarCardCon").classList.toggle("speaking", !isPro);
 
       const bubble = document.getElementById("shortsSpeechBubble");
       bubble.classList.toggle("con-mode", !isPro);
+      bubble.style.borderTopColor = pal.accent;
 
       const eq = document.getElementById("shortsBubbleEq");
-      eq.classList.remove("eq-pro", "eq-con");
-      if (speakingActive) eq.classList.add(isPro ? "eq-pro" : "eq-con");
+      eq.classList.remove("eq-pro", "eq-con", "eq-blue", "eq-red", "eq-violet", "eq-emerald", "eq-amber");
+      if (speakingActive) eq.classList.add(`eq-${cKey}`);
 
       const badge = document.getElementById("shortsSpeakerBadge");
-      const sideNum = Math.floor(turnIdx / 2) + 1;
-      badge.className = isPro
-        ? "text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#DBEAFE] text-[#1D4ED8]"
-        : "text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-[#FEE2E2] text-[#B91C1C]";
-      badge.textContent = isPro ? `찬성 ${sideNum}` : `반대 ${sideNum}`;
-      document.getElementById("shortsCorePoint").className = isPro
-        ? "text-[11.5px] font-bold text-[#1D4ED8] mb-1 leading-snug"
-        : "text-[11.5px] font-bold text-[#B91C1C] mb-1 leading-snug";
+      const sideNum = Math.floor(safeIdx / 2) + 1;
+      const lblText = (turn.perspective_label || "").trim() || (isPro ? `좌측 ${sideNum}` : `우측 ${sideNum}`);
+      badge.className = "text-[10.5px] font-bold px-1.5 py-0.5 rounded truncate max-w-[140px]";
+      badge.style.backgroundColor = pal.pillBg;
+      badge.style.color = pal.txt;
+      badge.textContent = lblText;
 
-      document.getElementById("shortsCorePoint").textContent = turn.core_point;
-      renderKineticSubtitle(turn.text, isPro, speakingActive ? { clauseIdx: 0, wordIdx: 0 } : 1);
+      const coreEl = document.getElementById("shortsCorePoint");
+      coreEl.className = "text-[11.5px] font-bold mb-1 leading-snug";
+      coreEl.style.color = pal.txt;
+      coreEl.textContent = turn.core_point;
+
+      renderKineticSubtitle(turn.text, cKey, speakingActive ? { clauseIdx: 0, wordIdx: 0 } : 1);
 
       document.getElementById("shortsTurnDots").innerHTML = turns
         .map((t, i) => {
-          if (i === turnIdx) {
-            return `<span class="w-4 h-1 rounded-full ${t.speaker === "PRO" ? "bg-[#2563EB]" : "bg-[#DC2626]"}"></span>`;
-          }
-          return `<span class="w-1.5 h-1 rounded-full ${i < turnIdx ? "bg-[#A1A1AA]" : "bg-[#3F3F46]"}"></span>`;
+          const tPal = PALETTES[getTurnColorKey(t)] || PALETTES.blue;
+          const isCur = i === safeIdx;
+          const wCls = isCur ? "w-4" : "w-1.5";
+          const bgStyle = isCur ? tPal.accent : (i < safeIdx ? "#A1A1AA" : "#3F3F46");
+          return `<button type="button" onclick="jumpToTurn(${i})" title="턴 ${i + 1}" class="${wCls} h-1.5 rounded-full transition-all cursor-pointer" style="background:${bgStyle}"></button>`;
         })
         .join("");
 
       turns.forEach((t, i) => {
         const el = document.getElementById(`scriptTurnItem_${i}`);
         if (!el) return;
-        el.classList.remove("active-pro", "active-con");
-        if (i === turnIdx) el.classList.add(t.speaker === "PRO" ? "active-pro" : "active-con");
+        el.classList.remove("active-pro", "active-con", "active-blue", "active-red", "active-violet", "active-emerald", "active-amber");
+        if (i === safeIdx) el.classList.add(`active-${getTurnColorKey(t)}`);
       });
     }
 
@@ -3284,8 +4437,9 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         if (v.paused) v.play(); else v.pause();
         return;
       }
+      const restartFromZero = document.getElementById("playBtnLabel")?.textContent === "다시 재생";
       if (isPlaying) stopShortsPlayback(false);
-      else startShortsPlayback(0);
+      else startShortsPlayback(restartFromZero || currentTurnIndex >= (currentData.debate_script || []).length ? 0 : currentTurnIndex);
     }
 
     async function startShortsPlayback(startIdx = 0) {
@@ -3358,9 +4512,9 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
       currentTurnIndex = turnIdx;
       const turn = turns[turnIdx];
-      const isPro = turn.speaker === "PRO";
+      const cKey = getTurnColorKey(turn);
 
-      playTurnChime(turn.speaker);
+      playTurnChime(turn);
       updateShortsTurnVisual(turnIdx, true);
 
       // Tier 1 / 2: All-Turn Pre-Synthesized Cloud Neural2 or Gemini 3.8 Korean WAV (RMS Envelope Synced)
@@ -3391,7 +4545,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
               const lastCi = Math.max(0, clauses.length - 1);
               const lastWi = Math.max(0, (clauseWordTimelines[lastCi]?.length || 1) - 1);
-              renderKineticSubtitle(turn.text, isPro, { clauseIdx: lastCi, wordIdx: lastWi });
+              renderKineticSubtitle(turn.text, cKey, { clauseIdx: lastCi, wordIdx: lastWi });
               turnTimeout = setTimeout(() => {
                 if (turnIdx + 1 < turns.length) speakTurn(turnIdx + 1, mySession, resolvedEngine);
                 else stopShortsPlayback(true);
@@ -3438,7 +4592,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               const sig = `${syncPos.clauseIdx}:${syncPos.wordIdx}`;
               if (sig !== lastSig) {
                 lastSig = sig;
-                renderKineticSubtitle(turn.text, isPro, syncPos);
+                renderKineticSubtitle(turn.text, cKey, syncPos);
               }
             }, 55);
 
@@ -3471,6 +4625,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
 
       const isPro = turn.speaker === "PRO";
+      const cKey = getTurnColorKey(turn);
       const clauseRaw = clauses[clauseIdx];
       const visualWords = clauseRaw.trim().split(/\s+/).filter(Boolean);
       const wordTimeline = buildWeightedWordTimeline(visualWords);
@@ -3485,7 +4640,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
 
       // Hold subtitle on clause start word 0 until utter.onstart confirms audio has begun
-      renderKineticSubtitle(turn.text, isPro, { clauseIdx, wordIdx: 0 });
+      renderKineticSubtitle(turn.text, cKey, { clauseIdx, wordIdx: 0 });
 
       let audioStarted = false;
       let startPerf = performance.now();
@@ -3507,7 +4662,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         const wIdx = (boundaryWordHits >= 2 || boundaryWordIdx > 0) ? boundaryWordIdx : estWordIdx;
         if (wIdx !== lastRenderedWord) {
           lastRenderedWord = wIdx;
-          renderKineticSubtitle(turn.text, isPro, { clauseIdx, wordIdx: wIdx });
+          renderKineticSubtitle(turn.text, cKey, { clauseIdx, wordIdx: wIdx });
         }
       }, 55);
 
@@ -3523,7 +4678,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           calibratedCps = Math.max(5.2, Math.min(11.5, calibratedCps * 0.45 + observedCps * 0.55));
         }
 
-        renderKineticSubtitle(turn.text, isPro, { clauseIdx, wordIdx: Math.max(0, visualWords.length - 1) });
+        renderKineticSubtitle(turn.text, cKey, { clauseIdx, wordIdx: Math.max(0, visualWords.length - 1) });
         const isLastClause = clauseIdx + 1 >= clauses.length;
         const nextDelay = isLastClause ? 250 : 120;
         const nextPriorSec = priorClausesSec + (audioStarted ? realElapsedSec : estClauseSec);
@@ -3606,7 +4761,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if ("speechSynthesis" in window) {
         try { window.speechSynthesis.cancel(); } catch (e) {}
       }
-      document.getElementById("shortsBubbleEq").classList.remove("eq-pro", "eq-con");
+      document.getElementById("shortsBubbleEq").classList.remove("eq-pro", "eq-con", "eq-blue", "eq-red", "eq-violet", "eq-emerald", "eq-amber");
       document.getElementById("playBtnLabel").textContent = completed ? "다시 재생" : "재생";
 
       const tot = getTotalDurationSec();
@@ -3623,7 +4778,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         const turns = currentData.debate_script || [];
         const finalTurn = turns[currentTurnIndex] || turns[turns.length - 1];
         if (finalTurn) {
-          renderKineticSubtitle(finalTurn.text, finalTurn.speaker === "PRO", 1);
+          renderKineticSubtitle(finalTurn.text, getTurnColorKey(finalTurn), 1);
         }
       }
     }
@@ -3777,10 +4932,33 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     }
 
     window.addEventListener("DOMContentLoaded", () => {
+      loadUiPrefs();
       initBrowserVoices();
       selectPreset("preset_1");
       drawChart1KDE();
       drawChart2Clusters();
+
+      document.addEventListener("keydown", (e) => {
+        const tg = e.target;
+        const tag = tg && tg.tagName ? tg.tagName.toUpperCase() : "";
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (tg && tg.isContentEditable)) return;
+        const apiModalOpen = !document.getElementById("apiKeyModal")?.classList.contains("hidden");
+        const sqlModalOpen = !document.getElementById("sqlModal")?.classList.contains("hidden");
+        if (apiModalOpen || sqlModalOpen) return;
+
+        if (e.code === "Space") {
+          e.preventDefault();
+          toggleShortsPlayback();
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          if (playerMode === "video") setPlayerMode("interactive");
+          stepTurn(-1);
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          if (playerMode === "video") setPlayerMode("interactive");
+          stepTurn(1);
+        }
+      });
     });
   </script>
 </body>

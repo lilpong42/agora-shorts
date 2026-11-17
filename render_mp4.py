@@ -280,6 +280,51 @@ def _resolve_clause_and_word(
 
 _GEMINI_KO_VOICES_CACHE: Dict[str, Tuple[Optional[str], Optional[str]]] = {}
 
+PALETTE: Dict[str, Dict[str, Any]] = {
+    "blue": {
+        "accent": (37, 99, 235, 255),
+        "pill": (219, 234, 254, 255),
+        "txt": (29, 78, 216, 255),
+        "glow": (37, 99, 235),
+        "bar": (96, 165, 250, 255),
+    },
+    "red": {
+        "accent": (220, 38, 38, 255),
+        "pill": (254, 226, 226, 255),
+        "txt": (185, 28, 28, 255),
+        "glow": (220, 38, 38),
+        "bar": (248, 113, 113, 255),
+    },
+    "violet": {
+        "accent": (124, 58, 237, 255),
+        "pill": (237, 233, 254, 255),
+        "txt": (109, 40, 217, 255),
+        "glow": (124, 58, 237),
+        "bar": (167, 139, 250, 255),
+    },
+    "emerald": {
+        "accent": (5, 150, 105, 255),
+        "pill": (209, 250, 229, 255),
+        "txt": (4, 120, 87, 255),
+        "glow": (5, 150, 105),
+        "bar": (52, 211, 153, 255),
+    },
+    "amber": {
+        "accent": (217, 119, 6, 255),
+        "pill": (254, 243, 199, 255),
+        "txt": (180, 83, 9, 255),
+        "glow": (217, 119, 6),
+        "bar": (251, 191, 36, 255),
+    },
+}
+
+
+def _get_turn_color_key(turn: Dict[str, Any]) -> str:
+    ck = (turn.get("color") or "").strip().lower()
+    if ck in PALETTE:
+        return ck
+    return "blue" if turn.get("speaker") == "PRO" else "red"
+
 
 def _fetch_gemini_korean_voices(key: str) -> Tuple[Optional[str], Optional[str]]:
     if key in _GEMINI_KO_VOICES_CACHE:
@@ -557,9 +602,17 @@ def generate_broadcast_soundtrack(
         turn_starts.append(acc_t)
         acc_t += d
 
+    chime_map = {
+        "blue": [523.25, 659.25],
+        "red": [587.33, 493.88],
+        "violet": [554.37, 659.25],
+        "emerald": [493.88, 659.25],
+        "amber": [440.00, 587.33],
+    }
+
     for idx, turn in enumerate(turns):
         t0 = turn_starts[idx]
-        is_pro = turn["speaker"] == "PRO"
+        ckey = _get_turn_color_key(turn)
         ws0 = max(0, int((t0 - 0.06) * sample_rate))
         ws1 = min(n_samples, ws0 + int(0.22 * sample_rate))
         if ws1 > ws0:
@@ -570,7 +623,7 @@ def generate_broadcast_soundtrack(
             noise = np.convolve(noise, kernel, mode="same")
             bed[ws0:ws1] += 0.095 * w_env * noise
 
-        notes = [523.25, 659.25] if is_pro else [587.33, 493.88]
+        notes = chime_map.get(ckey, [523.25, 659.25])
         for ni, freq in enumerate(notes):
             cs0 = int((t0 + ni * 0.085) * sample_rate)
             cs1 = min(n_samples, cs0 + int(0.38 * sample_rate))
@@ -675,6 +728,11 @@ def _build_stage_assets() -> Dict[str, Any]:
         gd.ellipse([cx - 320, cy - 350, cx + 320, cy + 350], fill=(*color, 115))
         return g.filter(ImageFilter.GaussianBlur(95))
 
+    glows: Dict[Tuple[str, str], Image.Image] = {}
+    for ck, spec in PALETTE.items():
+        glows[("PRO", ck)] = make_glow(315, 960, spec["glow"])
+        glows[("CON", ck)] = make_glow(765, 960, spec["glow"])
+
     return {
         "studio_bg": studio_bg,
         "desk_fg": desk_fg,
@@ -684,8 +742,7 @@ def _build_stage_assets() -> Dict[str, Any]:
         "con_act": con_act,
         "con_act_blink": con_act_blink,
         "con_idle": con_idle,
-        "pro_glow": make_glow(315, 960, (37, 99, 235)),
-        "con_glow": make_glow(765, 960, (220, 38, 38)),
+        "glows": glows,
     }
 
 
@@ -695,7 +752,6 @@ def _pick_core_font_and_lines(text: str, max_width: int, fonts: Dict[str, ImageF
         f = fonts[key]
         if f.getlength(clean) <= max_width:
             return f, [clean]
-    # Wrap cleanly without dropping ending nouns
     wrapped = _wrap_words_by_width(clean, fonts["core_sm"], max_width, max_lines=2)
     return fonts["core_sm"], [" ".join(ln) for ln in wrapped]
 
@@ -712,9 +768,32 @@ def _pick_caption_font_and_lines(clause_text: str, max_width: int, fonts: Dict[s
     return bf, fonts["body_lg_dim"], _wrap_words_by_width(clause_text, bf, max_width, max_lines=4), 46
 
 
+def _resolve_perspectives(raw_stats: Dict[str, Any], perspectives: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+    if perspectives and isinstance(perspectives, list) and len(perspectives) >= 2:
+        out: List[Dict[str, Any]] = []
+        for idx, p in enumerate(perspectives[:4]):
+            ck = (p.get("color") or "").lower()
+            if ck not in PALETTE:
+                ck = ["blue", "red", "violet", "emerald"][idx % 4]
+            out.append({
+                "short_label": (p.get("short_label") or p.get("label") or f"관점 {idx + 1}")[:12],
+                "ratio": max(1, int(p.get("ratio", 25))),
+                "color": ck,
+            })
+        return out
+    pro_r = max(1, min(99, int(raw_stats.get("pro_ratio", 50))))
+    con_r = max(1, 100 - pro_r)
+    return [
+        {"short_label": "찬성", "ratio": pro_r, "color": "blue"},
+        {"short_label": "반대", "ratio": con_r, "color": "red"},
+    ]
+
+
 def _render_ui_hud_frame(
     issue_title: str,
     raw_stats: Dict[str, Any],
+    perspectives: List[Dict[str, Any]],
+    mode_label: str,
     turn_idx: int,
     total_turns: int,
     turn_data: Dict[str, Any],
@@ -727,29 +806,35 @@ def _render_ui_hud_frame(
     active_word_idx: int,
     fonts: Dict[str, ImageFont.FreeTypeFont],
 ) -> Image.Image:
-    """고대비 2절 분할 대형 카라오케 말풍선(39px Bold) + 잘림 없는 핵심 논거 라벨 + 하단 텔레메트리."""
+    """고대비 2절 분할 대형 카라오케 말풍선 + 동적 다관점 라벨 & 스택 비율 바 + 하단 텔레메트리."""
     overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(overlay, "RGBA")
 
-    is_pro = turn_data["speaker"] == "PRO"
-    accent = (37, 99, 235, 255) if is_pro else (220, 38, 38, 255)
-    accent_pill = (219, 234, 254, 255) if is_pro else (254, 226, 226, 255)
-    accent_badge_txt = (29, 78, 216, 255) if is_pro else (185, 28, 28, 255)
-    speaker_label = f"찬성 패널 {turn_idx // 2 + 1}" if is_pro else f"반대 패널 {turn_idx // 2 + 1}"
+    is_pro = turn_data.get("speaker") == "PRO"
+    ckey = _get_turn_color_key(turn_data)
+    pal = PALETTE[ckey]
+    accent = pal["accent"]
+    accent_pill = pal["pill"]
+    accent_badge_txt = pal["txt"]
+
+    default_lbl = f"찬성 패널 {turn_idx // 2 + 1}" if is_pro else f"반대 패널 {turn_idx // 2 + 1}"
+    speaker_label = (turn_data.get("perspective_label") or "").strip() or default_lbl
 
     # 1) Top Broadcast Header Card (y=104..234)
     d.rounded_rectangle([48, 104, W - 48, 234], radius=20, fill=(14, 17, 25, 240), outline=(255, 255, 255, 42), width=2)
-    d.rounded_rectangle([74, 118, 288, 150], radius=15, fill=(255, 255, 255, 22))
+    live_text = f"LIVE · {mode_label}" if mode_label else "LIVE AI 공론장 중재"
+    live_w = int(max(210, fonts["badge_sm"].getlength(live_text) + 56))
+    d.rounded_rectangle([74, 118, min(W - 300, 74 + live_w), 150], radius=15, fill=(255, 255, 255, 22))
     d.ellipse([90, 128, 102, 140], fill=accent)
-    d.text((112, 134), "LIVE AI 공론장 중재", font=fonts["badge_sm"], fill=(241, 245, 249, 255), anchor="lm")
-    d.text((W - 74, 134), f"실측 {raw_stats['total_comments']}건 데이터", font=fonts["badge_sm"], fill=(161, 161, 170, 255), anchor="rm")
+    d.text((112, 134), live_text, font=fonts["badge_sm"], fill=(241, 245, 249, 255), anchor="lm")
+    d.text((W - 74, 134), f"분석 {raw_stats.get('total_comments', 0)}건 데이터", font=fonts["badge_sm"], fill=(161, 161, 170, 255), anchor="rm")
 
     title_lines = _wrap_words_by_width(issue_title, fonts["title"], W - 168, max_lines=2)
     title_start_y = 175 if len(title_lines) > 1 else 192
     for ti, twords in enumerate(title_lines):
         d.text((W // 2, title_start_y + ti * 38), " ".join(twords), font=fonts["title"], fill=(255, 255, 255, 255), anchor="mm")
 
-    # 2) High-Contrast Editorial Speech Bubble (y=252..656, tail tip at 698, clears heads at y>=745!)
+    # 2) High-Contrast Editorial Speech Bubble (y=252..656, tail tip at 698, clears heads at y>=745)
     bx0, by0, bx1, by1 = 48, 252, W - 48, 656
     d.rounded_rectangle([bx0, by0 + 10, bx1, by1 + 10], radius=26, fill=(0, 0, 0, 115))
     d.rounded_rectangle([bx0, by0, bx1, by1], radius=26, fill=(255, 255, 255, 254), outline=(15, 23, 42, 34), width=2)
@@ -761,9 +846,11 @@ def _render_ui_hud_frame(
     else:
         d.polygon([(W - 342, by1 - 2), (W - 270, by1 - 2), (W - 300, by1 + 42)], fill=(255, 255, 255, 254))
 
-    # Row 1: Speaker Pill + Clause Step Badge
-    d.rounded_rectangle([88, by0 + 26, 260, by0 + 68], radius=11, fill=accent_pill)
-    d.text((174, by0 + 47), speaker_label, font=fonts["speaker"], fill=accent_badge_txt, anchor="mm")
+    # Row 1: Dynamic-width Perspective Pill + Clause Step Badge
+    sp_text_w = fonts["speaker"].getlength(speaker_label)
+    sp_pill_r = int(min(W - 240, 88 + max(150, sp_text_w + 46)))
+    d.rounded_rectangle([88, by0 + 26, sp_pill_r, by0 + 68], radius=11, fill=accent_pill)
+    d.text(((88 + sp_pill_r) // 2, by0 + 47), speaker_label, font=fonts["speaker"], fill=accent_badge_txt, anchor="mm")
 
     d.rounded_rectangle([W - 216, by0 + 28, W - 88, by0 + 66], radius=10, fill=(241, 245, 249, 255))
     d.text((W - 152, by0 + 47), f"논지 {clause_idx + 1} / {total_clauses}", font=fonts["meta"], fill=(71, 85, 105, 255), anchor="mm")
@@ -779,7 +866,7 @@ def _render_ui_hud_frame(
         div_y = by0 + 138
     d.line([(90, div_y), (W - 90, div_y)], fill=(226, 232, 240, 255), width=2)
 
-    # Row 3: Large 39px Kinetic Karaoke Captions with #334155 high-contrast upcoming words
+    # Row 3: Large 39px Kinetic Karaoke Captions
     space_w = caption_font.getlength(" ") + 3.0
     running_idx = 0
     block_h = len(caption_lines) * line_h
@@ -810,26 +897,54 @@ def _render_ui_hud_frame(
     lx0, ly0, lx1, ly1 = 48, 1652, W - 48, 1860
     d.rounded_rectangle([lx0, ly0, lx1, ly1], radius=26, fill=(14, 17, 25, 242), outline=(255, 255, 255, 38), width=2)
 
-    d.text((94, ly0 + 50), f"찬성 {raw_stats['pro_ratio']}%", font=fonts["stat"], fill=(96, 165, 250, 255), anchor="lm")
-    d.text((W - 94, ly0 + 50), f"반대 {raw_stats['con_ratio']}%", font=fonts["stat"], fill=(248, 113, 113, 255), anchor="rm")
+    if len(perspectives) <= 2:
+        p0 = perspectives[0]
+        p1 = perspectives[1] if len(perspectives) > 1 else {"short_label": "대안", "ratio": max(1, 100 - p0["ratio"]), "color": "red"}
+        c0 = PALETTE.get(p0["color"], PALETTE["blue"])
+        c1 = PALETTE.get(p1["color"], PALETTE["red"])
+        d.text((94, ly0 + 50), f"{p0['short_label']} {p0['ratio']}%", font=fonts["stat"], fill=c0["bar"], anchor="lm")
+        d.text((W - 94, ly0 + 50), f"{p1['short_label']} {p1['ratio']}%", font=fonts["stat"], fill=c1["bar"], anchor="rm")
+        bar_x0, bar_x1 = 316, W - 316
+        bar_w = bar_x1 - bar_x0
+        tot_r = max(1, p0["ratio"] + p1["ratio"])
+        w0 = max(24, int(bar_w * (p0["ratio"] / tot_r)))
+        d.rounded_rectangle([bar_x0, ly0 + 42, bar_x0 + w0 - 4, ly0 + 56], radius=7, fill=c0["accent"])
+        d.rounded_rectangle([bar_x0 + w0 + 4, ly0 + 42, bar_x1, ly0 + 56], radius=7, fill=c1["accent"])
+        d.text((W // 2, ly0 + 84), mode_label or "AI 공론장 중재", font=fonts["badge_sm"], fill=(161, 161, 170, 255), anchor="mm")
+    else:
+        n_p = len(perspectives)
+        tot_r = sum(max(1, p["ratio"]) for p in perspectives) or 100
+        inner_l, inner_r = 90, W - 90
+        span_w = inner_r - inner_l
+        col_w = span_w / n_p
+        for pi, p in enumerate(perspectives):
+            pc = PALETTE.get(p["color"], PALETTE["blue"])
+            cx_p = int(inner_l + col_w * (pi + 0.5))
+            lbl = f"{p['short_label']} {p['ratio']}%"
+            d.text((cx_p, ly0 + 40), lbl, font=fonts["stat_sm"], fill=pc["bar"], anchor="mm")
 
-    bar_x0, bar_x1 = 310, W - 310
-    bar_w = bar_x1 - bar_x0
-    pro_w = max(24, int(bar_w * (raw_stats["pro_ratio"] / 100.0)))
-    d.rounded_rectangle([bar_x0, ly0 + 42, bar_x0 + pro_w - 4, ly0 + 56], radius=7, fill=(37, 99, 235, 255))
-    d.rounded_rectangle([bar_x0 + pro_w + 4, ly0 + 42, bar_x1, ly0 + 56], radius=7, fill=(220, 38, 38, 255))
-    d.text((W // 2, ly0 + 82), "AI 50:50 공론장 중재", font=fonts["badge_sm"], fill=(161, 161, 170, 255), anchor="mm")
+        seg_gap = 6
+        avail_bar_w = span_w - seg_gap * (n_p - 1)
+        cur_x = float(inner_l)
+        for pi, p in enumerate(perspectives):
+            pc = PALETTE.get(p["color"], PALETTE["blue"])
+            seg_len = avail_bar_w * (max(1, p["ratio"]) / tot_r) if pi < n_p - 1 else (inner_r - cur_x)
+            seg_end = min(float(inner_r), cur_x + max(18.0, seg_len))
+            d.rounded_rectangle([int(cur_x), ly0 + 66, int(seg_end), ly0 + 80], radius=7, fill=pc["accent"])
+            cur_x = seg_end + seg_gap
+        d.text((W // 2, ly0 + 100), mode_label or f"{n_p}관점 여론 비교", font=fonts["badge_sm"], fill=(161, 161, 170, 255), anchor="mm")
 
-    d.line([(86, ly0 + 114), (W - 86, ly0 + 114)], fill=(255, 255, 255, 20), width=2)
+    d.line([(86, ly0 + 118), (W - 86, ly0 + 118)], fill=(255, 255, 255, 20), width=2)
 
+    dot_step = 30 if total_turns > 6 else 34
     for i in range(total_turns):
-        dx = 94 + i * 34
+        dx = 94 + i * dot_step
         if i == turn_idx:
-            d.rounded_rectangle([dx, ly0 + 150, dx + 26, ly0 + 160], radius=5, fill=accent)
+            d.rounded_rectangle([dx, ly0 + 150, dx + 24, ly0 + 160], radius=5, fill=accent)
         elif i < turn_idx:
-            d.rounded_rectangle([dx, ly0 + 150, dx + 18, ly0 + 160], radius=5, fill=(161, 161, 170, 255))
+            d.rounded_rectangle([dx, ly0 + 150, dx + 16, ly0 + 160], radius=5, fill=(161, 161, 170, 255))
         else:
-            d.rounded_rectangle([dx, ly0 + 150, dx + 18, ly0 + 160], radius=5, fill=(45, 49, 62, 255))
+            d.rounded_rectangle([dx, ly0 + 150, dx + 16, ly0 + 160], radius=5, fill=(45, 49, 62, 255))
 
     d.text((W - 94, ly0 + 155), "한냥 Studio", font=fonts["brand"], fill=(161, 161, 170, 255), anchor="rm")
     return overlay
@@ -844,10 +959,14 @@ def render_debate_mp4(
     turn_audio_b64_list: Optional[List[Optional[str]]] = None,
     try_gemini_tts: bool = True,
     meta_out: Optional[Dict[str, Any]] = None,
+    perspectives: Optional[List[Dict[str, Any]]] = None,
+    mode_label: str = "",
 ) -> Path:
-    """1080x1920 @ 30fps Full-HD 가변 길이 방송형 토론 쇼츠 MP4 렌더링."""
-    turns = debate_script[:6]
+    """1080x1920 @ 30fps Full-HD 가변 길이 방송형 다관점 쇼츠 MP4 렌더링."""
+    turns = debate_script[:8]
     total_turns = max(len(turns), 1)
+    resolved_persp = _resolve_perspectives(raw_stats, perspectives)
+    resolved_mode_lbl = (mode_label or "").strip() or (f"{len(resolved_persp)}관점 여론 비교" if len(resolved_persp) >= 3 else "AI 공론장 중재")
 
     # Step 1: Collect or synthesize voice audio FIRST so each turn fits speech length naturally
     turn_pcms: List[Optional[np.ndarray]] = []
@@ -878,7 +997,7 @@ def render_debate_mp4(
         turn_pcms = [None] * len(turns)
         voiced_pcms = 0
 
-    # Step 2: Natural adaptive per-turn durations (no forced 40s cutoff!)
+    # Step 2: Natural adaptive per-turn durations
     turn_durations: List[float] = []
     for idx, turn in enumerate(turns):
         pcm = turn_pcms[idx]
@@ -896,7 +1015,7 @@ def render_debate_mp4(
         "hud": _load_font(FONT_BOLD_PATH, 23),
         "badge_sm": _load_font(FONT_BOLD_PATH, 19),
         "title": _load_font(FONT_BOLD_PATH, 31),
-        "speaker": _load_font(FONT_BOLD_PATH, 23),
+        "speaker": _load_font(FONT_BOLD_PATH, 22),
         "meta": _load_font(FONT_BOLD_PATH, 20),
         "core_lg": _load_font(FONT_BOLD_PATH, 29),
         "core_md": _load_font(FONT_BOLD_PATH, 26),
@@ -905,7 +1024,8 @@ def render_debate_mp4(
         "body_xl_dim": _load_font(FONT_BOLD_PATH, 39),
         "body_lg": _load_font(FONT_BOLD_PATH, 34),
         "body_lg_dim": _load_font(FONT_BOLD_PATH, 34),
-        "stat": _load_font(FONT_BOLD_PATH, 24),
+        "stat": _load_font(FONT_BOLD_PATH, 23),
+        "stat_sm": _load_font(FONT_BOLD_PATH, 20),
         "brand": _load_font(FONT_BOLD_PATH, 23),
     }
 
@@ -952,8 +1072,9 @@ def render_debate_mp4(
 
         global_f = 0
         for idx, turn in enumerate(turns):
-            is_pro = turn["speaker"] == "PRO"
-            accent_rgb = (37, 99, 235, 255) if is_pro else (220, 38, 38, 255)
+            is_pro = turn.get("speaker") == "PRO"
+            ckey = _get_turn_color_key(turn)
+            accent_rgb = PALETTE[ckey]["accent"]
 
             clauses = _split_turn_into_clauses(turn["text"])
             clause_overlays: List[List[Image.Image]] = []
@@ -970,6 +1091,8 @@ def render_debate_mp4(
                         _render_ui_hud_frame(
                             issue_title=issue_title,
                             raw_stats=raw_stats,
+                            perspectives=resolved_persp,
+                            mode_label=resolved_mode_lbl,
                             turn_idx=idx,
                             total_turns=total_turns,
                             turn_data=turn,
@@ -994,7 +1117,8 @@ def render_debate_mp4(
             )
 
             turn_bg = assets["studio_bg"].copy()
-            turn_bg.alpha_composite(assets["pro_glow"] if is_pro else assets["con_glow"])
+            side_key = "PRO" if is_pro else "CON"
+            turn_bg.alpha_composite(assets["glows"][(side_key, ckey)])
 
             n_f = turn_frame_counts[idx]
             for f in range(n_f):
@@ -1043,13 +1167,11 @@ def render_debate_mp4(
                 y0 = max(0.0, min(H - ch, cy - ch * 0.5))
                 frame = stage.crop((int(x0), int(y0), int(x0 + cw), int(y0 + ch))).resize((W, H), Image.Resampling.BILINEAR)
 
-                # Pick active clause + word locked to acoustic RMS windows & weighted word durations
                 c_idx, local_w = _resolve_clause_and_word(local_t, clause_timelines, clause_windows)
                 ov_list = clause_overlays[min(c_idx, len(clause_overlays) - 1)]
                 chosen_ov = ov_list[min(local_w, len(ov_list) - 1)]
                 frame.paste(chosen_ov, (0, 0), chosen_ov)
 
-                # Top Segmented Bar + HUD Counter / Adaptive Timer + 24-Band Equalizer
                 draw = ImageDraw.Draw(frame, "RGBA")
                 seg_gap = 10
                 seg_total_w = W - 96
@@ -1059,14 +1181,14 @@ def render_debate_mp4(
                     sx1 = sx0 + seg_w
                     draw.rounded_rectangle([sx0, 38, sx1, 47], radius=4, fill=(45, 50, 65, 220))
                     if s_i < idx:
-                        s_col = (37, 99, 235, 255) if turns[s_i]["speaker"] == "PRO" else (220, 38, 38, 255)
+                        s_col = PALETTE[_get_turn_color_key(turns[s_i])]["accent"]
                         draw.rounded_rectangle([sx0, 38, sx1, 47], radius=4, fill=s_col)
                     elif s_i == idx:
                         fill_x = sx0 + max(10.0, (sx1 - sx0) * turn_prog)
                         draw.rounded_rectangle([sx0, 38, fill_x, 47], radius=4, fill=accent_rgb)
 
                 draw.rounded_rectangle([48, 58, 162, 92], radius=12, fill=(14, 17, 25, 215))
-                draw.text((105, 75), f"0{idx + 1} / 0{total_turns}", font=fonts["hud"], fill=(244, 244, 245, 255), anchor="mm")
+                draw.text((105, 75), f"{idx + 1:02d} / {total_turns:02d}", font=fonts["hud"], fill=(244, 244, 245, 255), anchor="mm")
                 draw.rounded_rectangle([W - 154, 58, W - 48, 92], radius=12, fill=(14, 17, 25, 215))
                 draw.text((W - 101, 75), f"{remaining_sec:.1f}s", font=fonts["hud"], fill=(228, 228, 231, 255), anchor="mm")
 
@@ -1097,9 +1219,12 @@ def main():
             debate_script=data["debate_script"],
             output_mp4=out_file,
             try_gemini_tts=False,
+            perspectives=data.get("perspectives"),
+            mode_label=data.get("mode_label", ""),
         )
         print(f"[MP4 RENDERED 1080p 30fps] {out_file} ({out_file.stat().st_size:,} bytes)")
 
 
 if __name__ == "__main__":
     main()
+
