@@ -95,78 +95,342 @@ def _split_turn_into_clauses(text: str) -> List[str]:
         return [" ".join(sents[:best_i]), " ".join(sents[best_i:])]
 
     words = s.split(" ")
-    if len(words) < 6 or len(s) < 38:
+    if len(words) < 6 or len(s) < 36:
         return [s]
     mid = len(words) // 2
     return [" ".join(words[:mid]), " ".join(words[mid:])]
 
 
+def normalize_korean_for_tts(text: str) -> str:
+    """TTS 발화 시 부호 오독·띄어쓰기 끊김을 방지하는 한국어 낭독 정규화."""
+    s = text or ""
+    s = re.sub(r"[·ㆍ]", " ", s)
+    s = re.sub(r"([가-힣0-9A-Za-z])/([가-힣0-9A-Za-z])", r"\1 \2", s)
+    s = re.sub(r'[“”"‘’\'「」『』\[\]]', "", s)
+    s = re.sub(r"\(([^)]+)\)", r", \1, ", s)
+    s = re.sub(r"\bPM\b", "피엠", s, flags=re.IGNORECASE)
+    s = re.sub(r"\bGPS\b", "지피에스", s, flags=re.IGNORECASE)
+    s = re.sub(r"\bAI\b", "에이아이", s, flags=re.IGNORECASE)
+    s = re.sub(r"\bSNS\b", "에스엔에스", s, flags=re.IGNORECASE)
+    s = re.sub(r"\bCCTV\b", "씨씨티비", s, flags=re.IGNORECASE)
+    s = re.sub(r"(\d+)\s*%", r"\1퍼센트", s)
+    s = re.sub(r"(\d+(?:\.\d+)?)\s*pt\b", r"\1포인트", s, flags=re.IGNORECASE)
+    s = re.sub(r"\.{2,}", ".", s)
+    s = re.sub(r"\s*,\s*,\s*", ", ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def _build_weighted_word_timeline(words: List[str]) -> List[Tuple[float, float]]:
+    if not words:
+        return [(0.0, 1.0)]
+    weights: List[float] = []
+    for w in words:
+        core_len = max(1, len(re.sub(r"[^가-힣A-Za-z0-9]", "", w or "")))
+        comma_pause = 1.5 if re.search(r"[,·]", w or "") else 0.0
+        end_pause = 2.6 if re.search(r"[.!?]$", w or "") else 0.0
+        weights.append(float(core_len) + comma_pause + end_pause)
+    tot = sum(weights) or 1.0
+    out: List[Tuple[float, float]] = []
+    acc = 0.0
+    for wt in weights:
+        s0 = acc / tot
+        acc += wt
+        out.append((s0, acc / tot))
+    return out
+
+
+def _word_idx_for_ratio(timeline: List[Tuple[float, float]], ratio01: float) -> int:
+    if not timeline:
+        return 0
+    clamped = max(0.0, min(0.9999, ratio01))
+    for i, (_, end_r) in enumerate(timeline):
+        if clamped < end_r or i == len(timeline) - 1:
+            return i
+    return 0
+
+
+def _estimate_clause_duration_sec(clause_text: str, speed_mult: float = 1.0) -> float:
+    spoken = normalize_korean_for_tts(clause_text)
+    chars_ns = len(re.sub(r"\s+", "", spoken))
+    pauses = len(re.findall(r"[,!?]", spoken)) * 0.16
+    base = max(1.8, (chars_ns / 7.4) + 0.30 + pauses)
+    return round(base / max(0.8, min(1.3, speed_mult)), 2)
+
+
 def estimate_turn_duration_sec(text: str, speed_mult: float = 1.0) -> float:
-    """한국어 표준 아나운서 호흡 기준 자연스러운 턴 길이 계산 (40초 제한 해제)."""
-    chars_ns = len("".join((text or "").split()))
-    raw = max(5.2, min(11.8, (chars_ns / 12.6) + 0.85))
-    return round(raw / max(0.8, min(1.3, speed_mult)), 2)
+    """한국어 표준 아나운서 호흡(약 7.4음절/초) 기준 자연스러운 턴 길이 계산."""
+    clauses = _split_turn_into_clauses(text)
+    tot = sum(_estimate_clause_duration_sec(c, speed_mult) for c in clauses) + 0.25
+    return round(max(3.6, tot), 2)
+
+
+def _analyze_pcm_clause_timing(
+    pcm: Optional[np.ndarray],
+    sample_rate: int,
+    clauses: List[str],
+    turn_dur_sec: float,
+    lead_in_sec: float = 0.14,
+) -> List[Tuple[float, float]]:
+    """실제 음성 PCM의 20ms RMS 포락선과 무음 휴지 구간을 분석해 절(clause)별 [start, end] 시각을 반환."""
+    safe_clauses = clauses or [""]
+    n_clauses = len(safe_clauses)
+
+    weights: List[float] = []
+    for c in safe_clauses:
+        sp = normalize_korean_for_tts(c)
+        chars_ns = max(1, len(re.sub(r"\s+", "", sp)))
+        pauses = len(re.findall(r"[,!?]", sp)) * 1.4
+        weights.append(float(chars_ns) + pauses)
+    tot_wt = sum(weights) or 1.0
+
+    if pcm is None or len(pcm) < int(sample_rate * 0.25):
+        usable_start = min(lead_in_sec, turn_dur_sec * 0.1)
+        usable_end = max(usable_start + 0.5, turn_dur_sec - 0.18)
+        span = usable_end - usable_start
+        win_out: List[Tuple[float, float]] = []
+        acc_w = 0.0
+        for wt in weights:
+            s0 = usable_start + (acc_w / tot_wt) * span
+            acc_w += wt
+            s1 = usable_start + (acc_w / tot_wt) * span
+            win_out.append((s0, s1))
+        return win_out
+
+    dur_audio = len(pcm) / float(sample_rate)
+    win_samples = max(1, int(sample_rate * 0.02))
+    n_win = len(pcm) // win_samples
+    if n_win < 12:
+        win_out = []
+        acc_w = 0.0
+        for wt in weights:
+            s0 = lead_in_sec + (acc_w / tot_wt) * dur_audio
+            acc_w += wt
+            s1 = lead_in_sec + (acc_w / tot_wt) * dur_audio
+            win_out.append((s0, s1))
+        return win_out
+
+    trimmed = pcm[: n_win * win_samples].reshape(n_win, win_samples)
+    rms = np.sqrt(np.mean(trimmed * trimmed, axis=1))
+    peak_rms = float(np.max(rms)) if len(rms) else 0.0
+    thr = max(peak_rms * 0.045, 0.004)
+
+    first_w = 0
+    while first_w < n_win - 1 and rms[first_w] < thr:
+        first_w += 1
+    last_w = n_win - 1
+    while last_w > first_w + 1 and rms[last_w] < thr:
+        last_w -= 1
+
+    active_start = max(0.0, first_w * 0.02 - 0.04)
+    active_end = min(dur_audio, max(active_start + 0.5, (last_w + 1) * 0.02 + 0.06))
+    active_span = active_end - active_start
+
+    if n_clauses == 1:
+        return [(lead_in_sec + active_start, lead_in_sec + active_end)]
+
+    boundaries = [active_start]
+    cum_w = 0.0
+    margin_sec = max(0.45, active_span * 0.16)
+    for i in range(n_clauses - 1):
+        cum_w += weights[i]
+        expected_sec = active_start + (cum_w / tot_wt) * active_span
+        lo_sec = max(boundaries[i] + 0.5, expected_sec - margin_sec)
+        hi_sec = min(active_end - 0.5 * (n_clauses - 1 - i), expected_sec + margin_sec)
+        w_lo = max(1, min(n_win - 2, int(math.floor(lo_sec / 0.02))))
+        w_hi = max(w_lo, min(n_win - 2, int(math.ceil(hi_sec / 0.02))))
+        exp_w = int(round(expected_sec / 0.02))
+
+        best_w = exp_w
+        best_sc = float("inf")
+        for w in range(w_lo, w_hi + 1):
+            local_mean = float(np.mean(rms[max(0, w - 2) : min(n_win, w + 3)]))
+            dist_pen = abs(w - exp_w) * (peak_rms * 0.002)
+            sc = local_mean + dist_pen
+            if sc < best_sc:
+                best_sc = sc
+                best_w = w
+        boundaries.append(max(boundaries[i] + 0.35, min(active_end - 0.35, best_w * 0.02)))
+    boundaries.append(active_end)
+
+    return [(lead_in_sec + boundaries[i], lead_in_sec + boundaries[i + 1]) for i in range(n_clauses)]
+
+
+def _resolve_clause_and_word(
+    local_t: float,
+    word_timelines: List[List[Tuple[float, float]]],
+    clause_windows: List[Tuple[float, float]],
+) -> Tuple[int, int]:
+    if not clause_windows:
+        return 0, 0
+    if local_t < clause_windows[0][0]:
+        return 0, 0
+    for ci, (s0, s1) in enumerate(clause_windows):
+        next_s0 = clause_windows[ci + 1][0] if ci + 1 < len(clause_windows) else float("inf")
+        tl = word_timelines[ci] if ci < len(word_timelines) else [(0.0, 1.0)]
+        if local_t <= s1:
+            r = (local_t - s0) / max(s1 - s0, 0.25)
+            return ci, _word_idx_for_ratio(tl, r)
+        if local_t < next_s0:
+            return ci, max(0, len(tl) - 1)
+    last_ci = len(clause_windows) - 1
+    last_tl = word_timelines[last_ci] if last_ci < len(word_timelines) else [(0.0, 1.0)]
+    return last_ci, max(0, len(last_tl) - 1)
+
+
+_GEMINI_KO_VOICES_CACHE: Dict[str, Tuple[Optional[str], Optional[str]]] = {}
+
+
+def _fetch_gemini_korean_voices(key: str) -> Tuple[Optional[str], Optional[str]]:
+    if key in _GEMINI_KO_VOICES_CACHE:
+        return _GEMINI_KO_VOICES_CACHE[key]
+    pro_id: Optional[str] = None
+    con_id: Optional[str] = None
+    for qs in ("language_code=ko-KR&type=prebuilt&page_size=50", "language_code=ko-KR&page_size=50"):
+        url = f"https://generativelanguage.googleapis.com/v1beta/voices?{qs}&key={key}"
+        try:
+            with urllib.request.urlopen(url, timeout=6) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            voices = data.get("voices") or []
+            ko_list = [
+                v for v in voices
+                if not (v.get("languageCodes") or v.get("languageCode"))
+                or any(str(l).lower().startswith("ko") for l in (v.get("languageCodes") or [v.get("languageCode")]))
+            ]
+            if ko_list:
+                def pick_id(v: Dict[str, Any]) -> Optional[str]:
+                    vid = v.get("voiceId") or re.sub(r"^voices/", "", v.get("name", ""))
+                    return vid or None
+
+                def is_male(v: Dict[str, Any]) -> bool:
+                    desc = f"{v.get('gender', '')} {v.get('ssmlGender', '')} {v.get('displayName', '')} {v.get('name', '')}"
+                    return bool(re.search(r"male|man|남", desc, re.I)) and not bool(re.search(r"female", desc, re.I))
+
+                def is_female(v: Dict[str, Any]) -> bool:
+                    desc = f"{v.get('gender', '')} {v.get('ssmlGender', '')} {v.get('displayName', '')} {v.get('name', '')}"
+                    return bool(re.search(r"female|woman|여", desc, re.I))
+
+                male_v = next((v for v in ko_list if is_male(v)), ko_list[0])
+                female_v = next((v for v in ko_list if is_female(v) and v is not male_v), None) or next((v for v in ko_list if v is not male_v), ko_list[0])
+                pro_id = pick_id(male_v)
+                con_id = pick_id(female_v)
+                break
+        except Exception:
+            continue
+    _GEMINI_KO_VOICES_CACHE[key] = (pro_id, con_id)
+    return pro_id, con_id
+
+
+def _try_edge_tts_bytes(spoken_text: str, is_pro: bool) -> Optional[bytes]:
+    """무료 Microsoft Edge Korean Neural 음성 (ko-KR-InJoonNeural / ko-KR-SunHiNeural) 폴백."""
+    try:
+        import asyncio
+        import concurrent.futures
+        import edge_tts  # type: ignore
+    except Exception:
+        return None
+
+    voice = "ko-KR-InJoonNeural" if is_pro else "ko-KR-SunHiNeural"
+
+    async def _run() -> bytes:
+        comm = edge_tts.Communicate(spoken_text, voice)
+        buf = bytearray()
+        async for chunk in comm.stream():
+            if chunk.get("type") == "audio" and chunk.get("data"):
+                buf.extend(chunk["data"])
+        return bytes(buf)
+
+    def _thread_entry() -> bytes:
+        return asyncio.run(_run())
+
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            data = pool.submit(_thread_entry).result(timeout=8)
+            return data if len(data) > 256 else None
+    except Exception:
+        return None
 
 
 def fetch_tts_audio_bytes(text: str, speaker: str, api_key: Optional[str] = None) -> Optional[bytes]:
     """
-    1) Google Cloud TTS (ko-KR-Neural2-C / ko-KR-Neural2-A) — 왜곡 없는 표준 한국어 아나운서 음색
-    2) Gemini 3.8 Flash TTS -> Gemini 2.5 Flash TTS 순차 폴백 (지시문 낭독 방지 순수 텍스트 전달)
+    1) Google Cloud TTS (ko-KR-Neural2-C / ko-KR-Neural2-A, speakingRate=1.0)
+    2) Edge TTS Korean Neural (ko-KR-InJoonNeural / ko-KR-SunHiNeural) — 무료 표준 한국어
+    3) Gemini 3.8 Flash TTS 한국어 보이스 조회 후 합성 (외국인 억양 방지)
     """
     key = (api_key or os.environ.get("GOOGLE_API_KEY") or _DEFAULT_GKEY).strip()
-    if not key or not (text or "").strip():
+    spoken_text = normalize_korean_for_tts(text)
+    if not spoken_text:
         return None
 
     is_pro = speaker == "PRO"
 
     # Tier 1: Google Cloud Korean Neural2
-    cloud_url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={key}"
-    for voice_name in (["ko-KR-Neural2-C", "ko-KR-Wavenet-C"] if is_pro else ["ko-KR-Neural2-A", "ko-KR-Wavenet-A"]):
-        cloud_payload = json.dumps({
-            "input": {"text": text},
-            "voice": {"languageCode": "ko-KR", "name": voice_name},
-            "audioConfig": {
-                "audioEncoding": "LINEAR16",
-                "sampleRateHertz": SAMPLE_RATE,
-                "speakingRate": 1.05,
-                "pitch": 0.0,
-            },
-        }).encode("utf-8")
-        try:
-            req = urllib.request.Request(cloud_url, data=cloud_payload, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-                ac = data.get("audioContent")
-                if ac:
-                    return base64.b64decode(ac)
-        except Exception:
-            break
+    if key:
+        cloud_url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={key}"
+        for voice_name in (["ko-KR-Neural2-C", "ko-KR-Wavenet-C"] if is_pro else ["ko-KR-Neural2-A", "ko-KR-Wavenet-A"]):
+            cloud_payload = json.dumps({
+                "input": {"text": spoken_text},
+                "voice": {"languageCode": "ko-KR", "name": voice_name},
+                "audioConfig": {
+                    "audioEncoding": "LINEAR16",
+                    "sampleRateHertz": SAMPLE_RATE,
+                    "speakingRate": 1.0,
+                    "pitch": 0.0,
+                },
+            }).encode("utf-8")
+            try:
+                req = urllib.request.Request(cloud_url, data=cloud_payload, headers={"Content-Type": "application/json"})
+                with urllib.request.urlopen(req, timeout=8) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    ac = data.get("audioContent")
+                    if ac:
+                        return base64.b64decode(ac)
+            except Exception:
+                break
 
-    # Tier 2: Gemini TTS (pass pure Korean text without meta-instructions so it never reads directions aloud)
-    gem_voice = "Orus" if is_pro else "Kore"
-    for model_id, use_meta in [
-        ("gemini-3.8-flash-tts", True),
-        ("gemini-3.8-flash-lite-tts", True),
-        ("gemini-2.5-flash-tts", False),
-        ("gemini-2.5-flash-preview-tts", False),
-    ]:
+    # Tier 2: Edge Korean Neural TTS
+    edge_bytes = _try_edge_tts_bytes(spoken_text, is_pro)
+    if edge_bytes:
+        return edge_bytes
+
+    # Tier 3: Gemini TTS (discover native Korean voices first, avoid Orus/Kore)
+    if not key:
+        return None
+    pro_ko, con_ko = _fetch_gemini_korean_voices(key)
+    ko_voice_id = pro_ko if is_pro else con_ko
+    tries: List[Tuple[str, bool, Dict[str, Any]]] = []
+    if ko_voice_id:
+        tries.extend([
+            ("gemini-3.8-flash-tts", True, {"voice": ko_voice_id}),
+            ("gemini-3.8-flash-lite-tts", True, {"voice": ko_voice_id}),
+        ])
+    else:
+        fallback_name = "Charon" if is_pro else "Sulafat"
+        tries.extend([
+            ("gemini-3.8-flash-tts", True, {"prebuiltVoiceConfig": {"voiceName": fallback_name}}),
+            ("gemini-2.5-flash-tts", False, {"prebuiltVoiceConfig": {"voiceName": fallback_name}}),
+        ])
+
+    for model_id, use_meta, v_cfg in tries:
         gem_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={key}"
-        part: Dict[str, Any] = {"text": text}
+        part: Dict[str, Any] = {"text": spoken_text}
         if use_meta:
             part["speechMetadata"] = {"style": "Calm, articulate standard Seoul Korean broadcast news panelist"}
         payload = json.dumps({
             "contents": [{"parts": [part]}],
             "generationConfig": {
                 "responseModalities": ["AUDIO"],
-                "speechConfig": {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": gem_voice}}},
+                "speechConfig": {"voiceConfig": v_cfg},
             },
         }).encode("utf-8")
         try:
             req = urllib.request.Request(gem_url, data=payload, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=12) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-                b64 = data["candidates"][0]["content"]["parts"][0]["inlineData"]["data"]
-                return base64.b64decode(b64)
+                parts = data["candidates"][0]["content"]["parts"]
+                b64 = next((p["inlineData"]["data"] for p in parts if p.get("inlineData", {}).get("data")), "")
+                if b64:
+                    return base64.b64decode(b64)
         except Exception:
             continue
 
@@ -174,22 +438,55 @@ def fetch_tts_audio_bytes(text: str, speaker: str, api_key: Optional[str] = None
 
 
 def _pcm16_resample_mono(raw_bytes: bytes, src_rate: int = SAMPLE_RATE, dst_rate: int = SAMPLE_RATE) -> np.ndarray:
+    if not raw_bytes:
+        return np.zeros(0, dtype=np.float32)
+
+    is_container = (
+        raw_bytes[:4] in (b"RIFF", b"OggS", b"fLaC")
+        or raw_bytes[:3] == b"ID3"
+        or (len(raw_bytes) >= 2 and raw_bytes[0] == 0xFF and (raw_bytes[1] & 0xE0) == 0xE0)
+        or (len(raw_bytes) >= 4 and raw_bytes[:4] == b"\x1a\x45\xdf\xa3")
+    )
+
     if raw_bytes[:4] == b"RIFF":
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tf:
             tf.write(raw_bytes)
             tpath = Path(tf.name)
         try:
             with wave.open(str(tpath), "rb") as wf:
-                src_rate = wf.getframerate()
-                n_ch = wf.getnchannels()
-                pcm = np.frombuffer(wf.readframes(wf.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0
-                if n_ch > 1:
-                    pcm = pcm.reshape(-1, n_ch).mean(axis=1)
+                if wf.getsampwidth() == 2:
+                    src_rate = wf.getframerate()
+                    n_ch = wf.getnchannels()
+                    pcm = np.frombuffer(wf.readframes(wf.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0
+                    if n_ch > 1:
+                        pcm = pcm.reshape(-1, n_ch).mean(axis=1)
+                    if src_rate != dst_rate and len(pcm) > 1:
+                        new_len = int(len(pcm) * dst_rate / src_rate)
+                        pcm = np.interp(np.linspace(0, len(pcm) - 1, new_len), np.arange(len(pcm)), pcm).astype(np.float32)
+                    return pcm
+        except Exception:
+            pass
         finally:
             tpath.unlink(missing_ok=True)
-    else:
-        pcm = np.frombuffer(raw_bytes, dtype=np.int16).astype(np.float32) / 32768.0
 
+    if is_container:
+        try:
+            proc = subprocess.run(
+                ["ffmpeg", "-v", "error", "-i", "pipe:0", "-f", "s16le", "-ac", "1", "-ar", str(dst_rate), "pipe:1"],
+                input=raw_bytes,
+                capture_output=True,
+                timeout=15,
+            )
+            if proc.returncode == 0 and len(proc.stdout) >= 2:
+                even = len(proc.stdout) - (len(proc.stdout) % 2)
+                return np.frombuffer(proc.stdout[:even], dtype=np.int16).astype(np.float32) / 32768.0
+        except Exception:
+            return np.zeros(0, dtype=np.float32)
+
+    even = len(raw_bytes) - (len(raw_bytes) % 2)
+    if even <= 0:
+        return np.zeros(0, dtype=np.float32)
+    pcm = np.frombuffer(raw_bytes[:even], dtype=np.int16).astype(np.float32) / 32768.0
     if src_rate != dst_rate and len(pcm) > 1:
         new_len = int(len(pcm) * dst_rate / src_rate)
         pcm = np.interp(np.linspace(0, len(pcm) - 1, new_len), np.arange(len(pcm)), pcm).astype(np.float32)
@@ -546,6 +843,7 @@ def render_debate_mp4(
     output_mp4: Path,
     turn_audio_b64_list: Optional[List[Optional[str]]] = None,
     try_gemini_tts: bool = True,
+    meta_out: Optional[Dict[str, Any]] = None,
 ) -> Path:
     """1080x1920 @ 30fps Full-HD 가변 길이 방송형 토론 쇼츠 MP4 렌더링."""
     turns = debate_script[:6]
@@ -553,6 +851,9 @@ def render_debate_mp4(
 
     # Step 1: Collect or synthesize voice audio FIRST so each turn fits speech length naturally
     turn_pcms: List[Optional[np.ndarray]] = []
+    client_supplied_any = bool(turn_audio_b64_list and any(turn_audio_b64_list))
+    server_tts_failed = False
+
     for idx, turn in enumerate(turns):
         raw_voice: Optional[bytes] = None
         if turn_audio_b64_list and idx < len(turn_audio_b64_list) and turn_audio_b64_list[idx]:
@@ -560,8 +861,10 @@ def render_debate_mp4(
                 raw_voice = base64.b64decode(turn_audio_b64_list[idx])
             except Exception:
                 raw_voice = None
-        elif try_gemini_tts:
+        elif try_gemini_tts and not client_supplied_any and not server_tts_failed:
             raw_voice = fetch_tts_audio_bytes(turn["text"], turn["speaker"])
+            if not raw_voice:
+                server_tts_failed = True
 
         if raw_voice:
             pcm = _pcm16_resample_mono(raw_voice, SAMPLE_RATE, SAMPLE_RATE)
@@ -569,12 +872,18 @@ def render_debate_mp4(
         else:
             turn_pcms.append(None)
 
+    # Prevent jarring mid-video flip when server TTS failed midway
+    voiced_pcms = sum(1 for p in turn_pcms if p is not None and len(p) > int(SAMPLE_RATE * 0.25))
+    if not client_supplied_any and 0 < voiced_pcms < len(turns):
+        turn_pcms = [None] * len(turns)
+        voiced_pcms = 0
+
     # Step 2: Natural adaptive per-turn durations (no forced 40s cutoff!)
     turn_durations: List[float] = []
     for idx, turn in enumerate(turns):
         pcm = turn_pcms[idx]
         if pcm is not None and len(pcm) > SAMPLE_RATE * 0.4:
-            turn_durations.append(round(max(4.0, len(pcm) / SAMPLE_RATE + 0.55), 2))
+            turn_durations.append(round(max(2.6, (len(pcm) / SAMPLE_RATE) + 0.45), 2))
         else:
             turn_durations.append(estimate_turn_duration_sec(turn["text"]))
 
@@ -609,6 +918,10 @@ def render_debate_mp4(
             turn_pcms=turn_pcms,
             turn_durations=turn_durations,
         )
+        if meta_out is not None:
+            meta_out["has_voice"] = bool(has_voice and voiced_pcms == len(turns) and len(turns) > 0)
+            meta_out["voiced_turns"] = voiced_pcms
+            meta_out["total_turns"] = len(turns)
 
         proc = subprocess.Popen(
             [
@@ -643,15 +956,14 @@ def render_debate_mp4(
             accent_rgb = (37, 99, 235, 255) if is_pro else (220, 38, 38, 255)
 
             clauses = _split_turn_into_clauses(turn["text"])
-            clause_entries: List[Tuple[List[Image.Image], int, int]] = []
-            total_turn_words = 0
-            clause_word_counts: List[int] = []
+            clause_overlays: List[List[Image.Image]] = []
+            clause_timelines: List[List[Tuple[float, float]]] = []
 
             for c_idx, c_text in enumerate(clauses):
                 c_font, c_dim_font, c_lines, lh = _pick_caption_font_and_lines(c_text, W - 180, fonts)
-                w_cnt = max(sum(len(ln) for ln in c_lines), 1)
-                clause_word_counts.append(w_cnt)
-                total_turn_words += w_cnt
+                flat_words = [w for ln in c_lines for w in ln]
+                w_cnt = max(len(flat_words), 1)
+                clause_timelines.append(_build_weighted_word_timeline(flat_words))
                 overlays_for_clause: List[Image.Image] = []
                 for w_idx in range(w_cnt):
                     overlays_for_clause.append(
@@ -671,7 +983,15 @@ def render_debate_mp4(
                             fonts=fonts,
                         )
                     )
-                clause_entries.append((overlays_for_clause, w_cnt, total_turn_words - w_cnt))
+                clause_overlays.append(overlays_for_clause)
+
+            clause_windows = _analyze_pcm_clause_timing(
+                turn_pcms[idx],
+                SAMPLE_RATE,
+                clauses,
+                turn_durations[idx],
+                lead_in_sec=0.14,
+            )
 
             turn_bg = assets["studio_bg"].copy()
             turn_bg.alpha_composite(assets["pro_glow"] if is_pro else assets["con_glow"])
@@ -723,14 +1043,10 @@ def render_debate_mp4(
                 y0 = max(0.0, min(H - ch, cy - ch * 0.5))
                 frame = stage.crop((int(x0), int(y0), int(x0 + cw), int(y0 + ch))).resize((W, H), Image.Resampling.BILINEAR)
 
-                # Pick active clause + word cleanly synced to turn progress
-                global_w = min(total_turn_words - 1, int(turn_prog * total_turn_words * 1.02))
-                chosen_ov = clause_entries[0][0][0]
-                for ov_list, w_cnt, w_offset in clause_entries:
-                    if global_w < w_offset + w_cnt:
-                        local_w = max(0, min(w_cnt - 1, global_w - w_offset))
-                        chosen_ov = ov_list[local_w]
-                        break
+                # Pick active clause + word locked to acoustic RMS windows & weighted word durations
+                c_idx, local_w = _resolve_clause_and_word(local_t, clause_timelines, clause_windows)
+                ov_list = clause_overlays[min(c_idx, len(clause_overlays) - 1)]
+                chosen_ov = ov_list[min(local_w, len(ov_list) - 1)]
                 frame.paste(chosen_ov, (0, 0), chosen_ov)
 
                 # Top Segmented Bar + HUD Counter / Adaptive Timer + 24-Band Equalizer

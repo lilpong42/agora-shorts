@@ -539,8 +539,9 @@
 
               <div class="flex items-center justify-between gap-2 pt-1 text-[11.5px] text-[#52525B]">
                 <select id="voiceEngineSelect" onchange="onVoiceModeChange()" class="bg-[#F4F4F5] border border-[#E4E4E7] rounded-md px-2 py-1 text-[11.5px] font-medium text-[#111317] outline-none">
-                  <option value="auto">음성: AI 아나운서 우선</option>
+                  <option value="auto">음성: 자동 (Cloud/표준)</option>
                   <option value="browser">음성: 표준 한국어 (즉시)</option>
+                  <option value="gemini">음성: Gemini 3.8 한국어</option>
                 </select>
                 <button id="speedToggleBtn" onclick="togglePlaybackSpeed()" class="px-2 py-1 rounded-md bg-[#F4F4F5] border border-[#E4E4E7] font-semibold text-[#111317] mono-num hover:bg-[#E4E4E7] transition">
                   1.0x
@@ -810,14 +811,28 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         <button onclick="toggleApiKeyModal()" class="btn-ghost px-3 py-1 text-[12px]">닫기</button>
       </div>
       <p class="text-[12.5px] text-[#52525B] leading-relaxed">
-        기본 키의 무료 할당량(RPM/RPD)이 소진되면 개인 Gemini / Google Cloud TTS API 키를 입력해 고품질 한국어 아나운서 음성을 즉시 이어갈 수 있습니다.
+        실시간 프리뷰는 왜곡 없는 표준 한국어 음성을 1:1 자막 동기화로 재생합니다. Google Cloud TTS 또는 유료 Gemini API 키가 있으면 AI 아나운서 음성과 MP4 더빙에도 바로 적용됩니다.
       </p>
       <div class="space-y-2">
         <label class="text-[12px] font-semibold text-[#3F3F46] block">Google AI / Cloud API Key (브라우저 로컬 저장)</label>
         <input id="customApiKeyInput" type="password" placeholder="새 Google AI / Cloud API 키 입력 (비워두면 기본 키 사용)" class="studio-input w-full h-10 px-3 text-[13px] mono-num" />
       </div>
-      <div id="voiceDiagStatus" class="text-[12px] text-[#52525B] bg-[#F4F4F5] border border-[#E4E4E7] rounded-lg px-3 py-2">
-        음성 엔진 대기 중 — 실시간 재생 또는 영상 다운로드 시 자동 최적화됩니다.
+      <div class="grid grid-cols-2 gap-2.5">
+        <div>
+          <label class="text-[11.5px] font-semibold text-[#3F3F46] block mb-1">찬성(PRO) 표준 음성</label>
+          <select id="proVoiceSelect" onchange="onBrowserVoicePick()" class="studio-input w-full h-9 px-2.5 text-[12px]">
+            <option value="auto">자동 최적 선택</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11.5px] font-semibold text-[#3F3F46] block mb-1">반대(CON) 표준 음성</label>
+          <select id="conVoiceSelect" onchange="onBrowserVoicePick()" class="studio-input w-full h-9 px-2.5 text-[12px]">
+            <option value="auto">자동 최적 선택</option>
+          </select>
+        </div>
+      </div>
+      <div id="voiceDiagStatus" class="text-[12px] text-[#52525B] bg-[#F4F4F5] border border-[#E4E4E7] rounded-lg px-3 py-2 leading-relaxed">
+        한국어 음성 탐색 중...
       </div>
       <div class="flex items-center justify-between gap-2 pt-1">
         <button onclick="clearCustomApiKey()" class="btn-outline px-3 py-2 text-[12.5px]">기본 키 복원</button>
@@ -921,31 +936,142 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     let turnTimeout = null;
     let audioCtx = null;
     let currentHtmlAudio = null;
+    let currentHtmlAudioUrl = null;
     let cloudTtsDisabled = false;
     let geminiTtsCooldownUntil = 0;
     let cachedBrowserKoVoices = [];
     let playSessionToken = 0;
+    let calibratedCps = 7.4;
+    let activeUtteranceRef = null;
+    let geminiKoVoicesCache = { key: "", pro: null, con: null, probed: false };
+    let selectedProVoiceURI = localStorage.getItem("hannyang_pro_voice_uri") || "auto";
+    let selectedConVoiceURI = localStorage.getItem("hannyang_con_voice_uri") || "auto";
+
+    function scoreKoreanVoice(v) {
+      const name = (v && v.name) || "";
+      let sc = 0;
+      if (/online.*natural|natural.*online|neural/i.test(name)) sc += 120;
+      if (/injoon|sunhi|hyunsu|sora|yuna|google/i.test(name)) sc += 50;
+      if (/enhanced|premium|프리미엄|향상/i.test(name)) sc += 25;
+      if (/heami/i.test(name)) sc += 12;
+      if (v && v.default) sc += 5;
+      return sc;
+    }
+
+    function getAvailableKoreanVoices() {
+      if (cachedBrowserKoVoices.length) return cachedBrowserKoVoices;
+      if (!("speechSynthesis" in window)) return [];
+      const list = window.speechSynthesis.getVoices() || [];
+      return list.filter((v) => (v.lang || "").toLowerCase().startsWith("ko"));
+    }
+
+    function populateVoiceSelectors() {
+      const list = [...getAvailableKoreanVoices()].sort((a, b) => scoreKoreanVoice(b) - scoreKoreanVoice(a));
+      const proSel = document.getElementById("proVoiceSelect");
+      const conSel = document.getElementById("conVoiceSelect");
+      const diagEl = document.getElementById("voiceDiagStatus");
+
+      const fillSel = (sel, savedVal) => {
+        if (!sel) return;
+        sel.innerHTML = `<option value="auto">자동 최적 선택</option>` + list.map((v) => {
+          const val = encodeURIComponent(v.voiceURI || v.name);
+          return `<option value="${val}">${escapeHtml(v.name)}</option>`;
+        }).join("");
+        const encodedSaved = encodeURIComponent(savedVal);
+        if (savedVal !== "auto" && list.some((v) => (v.voiceURI || v.name) === savedVal)) {
+          sel.value = encodedSaved;
+        } else {
+          sel.value = "auto";
+        }
+      };
+      fillSel(proSel, selectedProVoiceURI);
+      fillSel(conSel, selectedConVoiceURI);
+
+      if (diagEl) {
+        const picked = pickBestKoreanVoices();
+        if (list.length) {
+          diagEl.textContent = `감지된 브라우저 한국어 음성 ${list.length}개 · 적용 중: 찬성 [${picked.pro ? picked.pro.name : "기본"}] / 반대 [${picked.con ? picked.con.name : "기본"}]`;
+        } else {
+          diagEl.textContent = "브라우저 내장 한국어 음성이 감지되지 않았습니다 (타이머 자막 동기화 모드로 동작).";
+        }
+      }
+    }
 
     function initBrowserVoices() {
-      if (!("speechSynthesis" in window)) return;
+      if (!("speechSynthesis" in window)) {
+        populateVoiceSelectors();
+        return;
+      }
       const load = () => {
         const all = window.speechSynthesis.getVoices() || [];
         cachedBrowserKoVoices = all.filter((v) => (v.lang || "").toLowerCase().startsWith("ko"));
+        populateVoiceSelectors();
       };
       load();
-      window.speechSynthesis.onvoiceschanged = load;
+      if ("onvoiceschanged" in window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = load;
+      }
+    }
+
+    function onBrowserVoicePick() {
+      const p = document.getElementById("proVoiceSelect")?.value || "auto";
+      const c = document.getElementById("conVoiceSelect")?.value || "auto";
+      selectedProVoiceURI = p === "auto" ? "auto" : decodeURIComponent(p);
+      selectedConVoiceURI = c === "auto" ? "auto" : decodeURIComponent(c);
+      localStorage.setItem("hannyang_pro_voice_uri", selectedProVoiceURI);
+      localStorage.setItem("hannyang_con_voice_uri", selectedConVoiceURI);
+      populateVoiceSelectors();
     }
 
     function pickBestKoreanVoices() {
-      const list = cachedBrowserKoVoices.length
-        ? cachedBrowserKoVoices
-        : (("speechSynthesis" in window ? window.speechSynthesis.getVoices() : []).filter((v) => (v.lang || "").toLowerCase().startsWith("ko")));
-      if (!list.length) return { pro: null, con: null, distinct: false };
-      const male = list.find((v) => /injoon|hyunsu|bongjin|gookmin|male|남/i.test(v.name));
-      const female = list.find((v) => /sunhi|heami|yuna|seoyeon|jiyun|female|여/i.test(v.name) && v !== male);
-      if (male && female) return { pro: male, con: female, distinct: true };
-      if (list.length >= 2) return { pro: list[0], con: list[1], distinct: list[0].name !== list[1].name };
-      return { pro: list[0], con: list[0], distinct: false };
+      const rawList = getAvailableKoreanVoices();
+      if (!rawList.length) return { pro: null, con: null, label: "표준 한국어" };
+
+      const sorted = [...rawList].sort((a, b) => scoreKoreanVoice(b) - scoreKoreanVoice(a));
+      const best = sorted[0];
+      const bestTier = scoreKoreanVoice(best);
+
+      const isMale = (v) => /injoon|hyunsu|bongjin|gookmin|male|남/i.test(v.name || "");
+      const isFemale = (v) => /sunhi|heami|yuna|sora|seoyeon|jiyun|female|여/i.test(v.name || "");
+
+      const topPool = sorted.filter((v) => scoreKoreanVoice(v) >= Math.max(40, bestTier - 45));
+      const male = topPool.find((v) => isMale(v));
+      const female = topPool.find((v) => isFemale(v) && v !== male) || topPool.find((v) => v !== male);
+
+      let pro = male || (topPool.length >= 2 ? topPool[0] : best);
+      let con = female || (topPool.length >= 2 ? topPool[1] : best);
+
+      if (selectedProVoiceURI !== "auto") {
+        const foundPro = rawList.find((v) => (v.voiceURI || v.name) === selectedProVoiceURI);
+        if (foundPro) pro = foundPro;
+      }
+      if (selectedConVoiceURI !== "auto") {
+        const foundCon = rawList.find((v) => (v.voiceURI || v.name) === selectedConVoiceURI);
+        if (foundCon) con = foundCon;
+      }
+      const label = (pro && con && pro.name !== con.name)
+        ? `${pro.name.split(" ")[0]}·${con.name.split(" ")[0]}`
+        : (pro ? pro.name : "표준 한국어");
+      return { pro, con, label };
+    }
+
+    function normalizeKoreanForTts(text) {
+      return (text || "")
+        .replace(/[·ㆍ]/g, " ")
+        .replace(/([가-힣0-9A-Za-z])\/([가-힣0-9A-Za-z])/g, "$1 $2")
+        .replace(/[“”"‘’'「」『』\[\]]/g, "")
+        .replace(/\(([^)]+)\)/g, ", $1, ")
+        .replace(/\bPM\b/gi, "피엠")
+        .replace(/\bGPS\b/gi, "지피에스")
+        .replace(/\bAI\b/gi, "에이아이")
+        .replace(/\bSNS\b/gi, "에스엔에스")
+        .replace(/\bCCTV\b/gi, "씨씨티비")
+        .replace(/(\d+)\s*%/g, "$1퍼센트")
+        .replace(/(\d+(?:\.\d+)?)\s*pt\b/gi, "$1포인트")
+        .replace(/\.{2,}/g, ".")
+        .replace(/\s*,\s*,\s*/g, ", ")
+        .replace(/\s+/g, " ")
+        .trim();
     }
 
     function formatMinSec(sec) {
@@ -977,10 +1103,47 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
     }
 
+    function buildWeightedWordTimeline(words) {
+      if (!words || !words.length) return [{ start: 0, end: 1 }];
+      const weights = words.map((w) => {
+        const coreLen = Math.max(1, (w || "").replace(/[^가-힣A-Za-z0-9]/g, "").length);
+        const commaPause = /[,·]/.test(w) ? 1.5 : 0;
+        const endPause = /[.!?]$/.test(w) ? 2.6 : 0;
+        return coreLen + commaPause + endPause;
+      });
+      const sum = weights.reduce((a, b) => a + b, 0) || 1;
+      let acc = 0;
+      return weights.map((wt) => {
+        const start = acc / sum;
+        acc += wt;
+        return { start, end: acc / sum };
+      });
+    }
+
+    function wordIdxForRatio(timeline, r01) {
+      if (!timeline || !timeline.length) return 0;
+      const clamped = Math.max(0, Math.min(0.9999, r01));
+      for (let i = 0; i < timeline.length; i++) {
+        if (clamped < timeline[i].end || i === timeline.length - 1) return i;
+      }
+      return 0;
+    }
+
+    function estimateClauseDurationSec(clauseText, speedMult = playbackRate) {
+      const spoken = normalizeKoreanForTts(clauseText);
+      const chars = spoken.replace(/\s+/g, "").length;
+      const pauses = (spoken.match(/[,!?]/g) || []).length * 0.16;
+      const base = Math.max(1.8, (chars / calibratedCps) + 0.30 + pauses);
+      return +(base / Math.max(0.8, minSpeedBound(speedMult))).toFixed(2);
+    }
+
+    function minSpeedBound(speedMult) {
+      return Math.min(1.4, speedMult || 1.0);
+    }
+
     function estimateTurnDurationSec(text, speedMult = playbackRate) {
-      const charsNoSpace = (text || "").replace(/\s+/g, "").length;
-      const raw = Math.max(4.8, Math.min(12.2, (charsNoSpace / 12.6) + 0.85));
-      return +(raw / Math.max(0.85, Math.min(1.3, speedMult))).toFixed(2);
+      const clauses = splitTurnIntoClauses(text);
+      return +clauses.reduce((sum, c) => sum + estimateClauseDurationSec(c, speedMult), 0.25).toFixed(2);
     }
 
     function getTurnDurationSec(idx) {
@@ -1054,6 +1217,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const m = document.getElementById("apiKeyModal");
       const inp = document.getElementById("customApiKeyInput");
       if (inp) inp.value = localStorage.getItem("hannyang_google_api_key") || "";
+      populateVoiceSelectors();
       m.classList.toggle("hidden");
       m.classList.toggle("flex");
     }
@@ -1069,10 +1233,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
       cloudTtsDisabled = false;
       geminiTtsCooldownUntil = 0;
+      geminiKoVoicesCache = { key: "", pro: null, con: null, probed: false };
       currentData._ttsAudioCache = {};
       currentData._turnAudioDur = {};
+      currentData._turnAudioMeta = {};
       currentData.rendered_video_blob_url = null;
-      document.getElementById("voiceDiagStatus").textContent = "API 키 적용 완료! 캐시가 초기화되어 다음 재생 시 새 키를 사용합니다.";
+      renderScriptList();
+      updateIdleTimerDisplay();
+      document.getElementById("voiceDiagStatus").textContent = "API 키 적용 완료! 캐시가 초기화되어 다음 재생·렌더 시 새 키를 사용합니다.";
       setTimeout(() => toggleApiKeyModal(), 700);
     }
 
@@ -1082,7 +1250,12 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       document.getElementById("customApiKeyInput").value = "";
       cloudTtsDisabled = false;
       geminiTtsCooldownUntil = 0;
+      geminiKoVoicesCache = { key: "", pro: null, con: null, probed: false };
       currentData._ttsAudioCache = {};
+      currentData._turnAudioDur = {};
+      currentData._turnAudioMeta = {};
+      renderScriptList();
+      updateIdleTimerDisplay();
       document.getElementById("voiceDiagStatus").textContent = "기본 내장 키로 복원되었습니다.";
     }
 
@@ -1625,30 +1798,92 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return m ? (parseInt(m[1], 10) || fallback) : fallback;
     }
 
-    function decodeBase64AudioToBuffer(ctx, b64, mimeType = "audio/L16;rate=24000") {
+    function parseWavRiffBuffer(u8) {
+      if (!u8 || u8.length < 44) return null;
+      const magic = String.fromCharCode(u8[0], u8[1], u8[2], u8[3]);
+      const wave = String.fromCharCode(u8[8], u8[9], u8[10], u8[11]);
+      if (magic !== "RIFF" || wave !== "WAVE") return null;
+
+      const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+      let pos = 12;
+      let audioFormat = 1;
+      let numChannels = 1;
+      let sampleRate = 24000;
+      let bitsPerSample = 16;
+      let dataOffset = -1;
+      let dataSize = 0;
+
+      while (pos + 8 <= u8.length) {
+        const id = String.fromCharCode(u8[pos], u8[pos + 1], u8[pos + 2], u8[pos + 3]);
+        const chunkSize = dv.getUint32(pos + 4, true);
+        const body = pos + 8;
+        if (id === "fmt " && chunkSize >= 16 && body + 16 <= u8.length) {
+          audioFormat = dv.getUint16(body, true);
+          numChannels = Math.max(1, dv.getUint16(body + 2, true));
+          sampleRate = dv.getUint32(body + 4, true) || 24000;
+          bitsPerSample = dv.getUint16(body + 14, true) || 16;
+        } else if (id === "data") {
+          dataOffset = body;
+          dataSize = Math.min(chunkSize, Math.max(0, u8.length - body));
+          break;
+        }
+        pos = body + chunkSize + (chunkSize % 2);
+      }
+
+      if (dataOffset < 0 || dataSize <= 0) return null;
+      const isPcm16 = (audioFormat === 1 || audioFormat === 0xFFFE) && bitsPerSample === 16;
+      const isFloat32 = (audioFormat === 3 || audioFormat === 0xFFFE) && bitsPerSample === 32;
+      if (!isPcm16 && !isFloat32) return null;
+
+      const bytesPerSample = bitsPerSample / 8;
+      const frameSize = bytesPerSample * numChannels;
+      const frameCount = Math.floor(dataSize / frameSize);
+      if (frameCount <= 0) return null;
+
+      const mono = new Float32Array(frameCount);
+      for (let i = 0; i < frameCount; i++) {
+        let sum = 0;
+        const base = dataOffset + i * frameSize;
+        for (let ch = 0; ch < numChannels; ch++) {
+          const off = base + ch * bytesPerSample;
+          sum += isFloat32 ? dv.getFloat32(off, true) : (dv.getInt16(off, true) / 32768.0);
+        }
+        mono[i] = sum / numChannels;
+      }
+      return { samples: mono, sampleRate };
+    }
+
+    async function decodeBase64AudioToBuffer(ctx, b64, mimeType = "audio/L16;rate=24000") {
       if (!ctx || !b64) return null;
       const bin = atob(b64);
       const len = bin.length;
       const u8 = new Uint8Array(len);
       for (let i = 0; i < len; i++) u8[i] = bin.charCodeAt(i);
 
-      let pcmOffset = 0;
-      let sampleRate = parseSampleRateFromMime(mimeType, 24000);
-      if (len > 44 && bin.slice(0, 4) === "RIFF") {
-        const dv = new DataView(u8.buffer);
-        sampleRate = dv.getUint32(24, true) || sampleRate;
-        pcmOffset = 44;
+      const parsedWav = parseWavRiffBuffer(u8);
+      if (parsedWav && parsedWav.samples.length > 0) {
+        const audioBuf = ctx.createBuffer(1, parsedWav.samples.length, parsedWav.sampleRate);
+        audioBuf.getChannelData(0).set(parsedWav.samples);
+        return audioBuf;
       }
-      const sampleCount = Math.floor((len - pcmOffset) / 2);
-      if (sampleCount <= 0) return null;
 
-      const audioBuf = ctx.createBuffer(1, sampleCount, sampleRate);
-      const ch = audioBuf.getChannelData(0);
-      const dv = new DataView(u8.buffer, pcmOffset);
-      for (let i = 0; i < sampleCount; i++) {
-        ch[i] = dv.getInt16(i * 2, true) / 32768.0;
+      const isRawPcm = /L16|pcm/i.test(mimeType || "") && !(len > 12 && bin.slice(0, 4) === "RIFF");
+      if (isRawPcm) {
+        const sampleRate = parseSampleRateFromMime(mimeType, 24000);
+        const sampleCount = Math.floor(len / 2);
+        if (sampleCount <= 0) return null;
+        const audioBuf = ctx.createBuffer(1, sampleCount, sampleRate);
+        const ch = audioBuf.getChannelData(0);
+        const dv = new DataView(u8.buffer);
+        for (let i = 0; i < sampleCount; i++) ch[i] = dv.getInt16(i * 2, true) / 32768.0;
+        return audioBuf;
       }
-      return audioBuf;
+
+      try {
+        return await ctx.decodeAudioData(u8.buffer.slice(0));
+      } catch (e) {
+        return null;
+      }
     }
 
     function pcmBase64ToWavUrl(b64, mimeType = "audio/L16;rate=24000") {
@@ -1658,6 +1893,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         const raw = new Uint8Array(len);
         for (let i = 0; i < len; i++) raw[i] = bin.charCodeAt(i);
         return URL.createObjectURL(new Blob([raw], { type: "audio/wav" }));
+      }
+      if (/mp3|mpeg|ogg|webm|aac|wav/i.test(mimeType || "") && !/L16|pcm/i.test(mimeType || "")) {
+        const raw = new Uint8Array(len);
+        for (let i = 0; i < len; i++) raw[i] = bin.charCodeAt(i);
+        return URL.createObjectURL(new Blob([raw], { type: mimeType.split(";")[0] || "audio/mpeg" }));
       }
       const sampleRate = parseSampleRateFromMime(mimeType, 24000);
       const wavBuf = new ArrayBuffer(44 + len);
@@ -1681,19 +1921,161 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return URL.createObjectURL(new Blob([wavBuf], { type: "audio/wav" }));
     }
 
+    function analyzeTurnAudioEnvelope(audioBuf, clauses) {
+      if (!audioBuf || !audioBuf.duration) return null;
+      const dur = audioBuf.duration;
+      const sr = audioBuf.sampleRate || 24000;
+      const pcm = audioBuf.getChannelData(0);
+      const winSamples = Math.max(1, Math.floor(sr * 0.02));
+      const nWin = Math.floor(pcm.length / winSamples);
+      const safeClauses = (clauses && clauses.length) ? clauses : [""];
+
+      if (nWin < 12) {
+        return {
+          durationSec: dur,
+          activeStartSec: 0,
+          activeEndSec: dur,
+          clauseWindows: safeClauses.map((_, i) => ({
+            startSec: (i / safeClauses.length) * dur,
+            endSec: ((i + 1) / safeClauses.length) * dur
+          }))
+        };
+      }
+
+      const rms = new Float32Array(nWin);
+      let peakRms = 0;
+      for (let w = 0; w < nWin; w++) {
+        let sum = 0;
+        const off = w * winSamples;
+        for (let i = 0; i < winSamples; i++) {
+          const v = pcm[off + i];
+          sum += v * v;
+        }
+        const r = Math.sqrt(sum / winSamples);
+        rms[w] = r;
+        if (r > peakRms) peakRms = r;
+      }
+
+      const thr = Math.max(peakRms * 0.045, 0.004);
+      let firstWin = 0;
+      while (firstWin < nWin - 1 && rms[firstWin] < thr) firstWin++;
+      let lastWin = nWin - 1;
+      while (lastWin > firstWin + 1 && rms[lastWin] < thr) lastWin--;
+
+      const activeStartSec = Math.max(0, firstWin * 0.02 - 0.04);
+      const activeEndSec = Math.min(dur, Math.max(activeStartSec + 0.5, (lastWin + 1) * 0.02 + 0.06));
+      const activeSpan = activeEndSec - activeStartSec;
+
+      if (safeClauses.length <= 1) {
+        return {
+          durationSec: dur,
+          activeStartSec,
+          activeEndSec,
+          clauseWindows: [{ startSec: activeStartSec, endSec: activeEndSec }]
+        };
+      }
+
+      const weights = safeClauses.map((c) => {
+        const spoken = normalizeKoreanForTts(c);
+        const chars = Math.max(1, spoken.replace(/\s+/g, "").length);
+        const pauses = (spoken.match(/[,!?]/g) || []).length * 1.4;
+        return chars + pauses;
+      });
+      const totWt = weights.reduce((a, b) => a + b, 0) || 1;
+
+      const boundaries = [activeStartSec];
+      let cumWt = 0;
+      const searchMarginSec = Math.max(0.45, activeSpan * 0.16);
+
+      for (let i = 0; i < safeClauses.length - 1; i++) {
+        cumWt += weights[i];
+        const expectedSec = activeStartSec + (cumWt / totWt) * activeSpan;
+        const loSec = Math.max(boundaries[i] + 0.5, expectedSec - searchMarginSec);
+        const hiSec = Math.min(activeEndSec - 0.5 * (safeClauses.length - 1 - i), expectedSec + searchMarginSec);
+        const wLo = Math.max(1, Math.min(nWin - 2, Math.floor(loSec / 0.02)));
+        const wHi = Math.max(wLo, Math.min(nWin - 2, Math.ceil(hiSec / 0.02)));
+        const expWin = Math.round(expectedSec / 0.02);
+
+        let bestW = expWin;
+        let bestScore = Infinity;
+        for (let w = wLo; w <= wHi; w++) {
+          let localMean = 0;
+          for (let k = -2; k <= 2; k++) {
+            localMean += rms[Math.max(0, Math.min(nWin - 1, w + k))];
+          }
+          localMean /= 5;
+          const distPen = Math.abs(w - expWin) * (peakRms * 0.002);
+          const sc = localMean + distPen;
+          if (sc < bestScore) { bestScore = sc; bestW = w; }
+        }
+        boundaries.push(Math.max(boundaries[i] + 0.35, Math.min(activeEndSec - 0.35, bestW * 0.02)));
+      }
+      boundaries.push(activeEndSec);
+
+      const clauseWindows = [];
+      for (let i = 0; i < safeClauses.length; i++) {
+        clauseWindows.push({ startSec: boundaries[i], endSec: boundaries[i + 1] });
+      }
+      return { durationSec: dur, activeStartSec, activeEndSec, clauseWindows };
+    }
+
+    function resolveClauseAndWordFromAudioSec(audioSec, clauses, wordTimelines, audioMeta, fallbackProg01 = 0) {
+      const safeClauses = (clauses && clauses.length) ? clauses : [""];
+      const windows = audioMeta && audioMeta.clauseWindows && audioMeta.clauseWindows.length === safeClauses.length
+        ? audioMeta.clauseWindows
+        : null;
+
+      if (!windows) {
+        const clauseWeights = safeClauses.map((c) => Math.max(1, normalizeKoreanForTts(c).replace(/\s+/g, "").length));
+        const tot = clauseWeights.reduce((a, b) => a + b, 0) || 1;
+        let acc = 0;
+        for (let i = 0; i < safeClauses.length; i++) {
+          const slice = clauseWeights[i] / tot;
+          if (fallbackProg01 < acc + slice || i === safeClauses.length - 1) {
+            const localR = (fallbackProg01 - acc) / Math.max(slice, 0.05);
+            return { clauseIdx: i, wordIdx: wordIdxForRatio(wordTimelines[i], localR) };
+          }
+          acc += slice;
+        }
+        return { clauseIdx: 0, wordIdx: 0 };
+      }
+
+      if (audioSec < windows[0].startSec) {
+        return { clauseIdx: 0, wordIdx: 0 };
+      }
+      for (let i = 0; i < windows.length; i++) {
+        const w = windows[i];
+        const nextStart = i + 1 < windows.length ? windows[i + 1].startSec : Infinity;
+        if (audioSec <= w.endSec) {
+          const r = (audioSec - w.startSec) / Math.max(w.endSec - w.startSec, 0.25);
+          return { clauseIdx: i, wordIdx: wordIdxForRatio(wordTimelines[i], r) };
+        }
+        if (audioSec < nextStart) {
+          const wordsLen = wordTimelines[i] ? wordTimelines[i].length : 1;
+          return { clauseIdx: i, wordIdx: Math.max(0, wordsLen - 1) };
+        }
+      }
+      const lastCi = windows.length - 1;
+      const lastLen = wordTimelines[lastCi] ? wordTimelines[lastCi].length : 1;
+      return { clauseIdx: lastCi, wordIdx: Math.max(0, lastLen - 1) };
+    }
+
     async function fetchCloudTtsTurn(turn) {
       if (cloudTtsDisabled) return null;
       const isPro = turn.speaker === "PRO";
       const candidates = isPro ? ["ko-KR-Neural2-C", "ko-KR-Wavenet-C"] : ["ko-KR-Neural2-A", "ko-KR-Wavenet-A"];
+      const spokenText = normalizeKoreanForTts(turn.text);
+      if (!spokenText) return null;
+
       for (const name of candidates) {
         try {
           const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${CONFIG.GOOGLE_API_KEY}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              input: { text: turn.text },
+              input: { text: spokenText },
               voice: { languageCode: "ko-KR", name },
-              audioConfig: { audioEncoding: "LINEAR16", sampleRateHertz: 24000, speakingRate: 1.04, pitch: 0.0 }
+              audioConfig: { audioEncoding: "LINEAR16", sampleRateHertz: 24000, speakingRate: 1.0, pitch: 0.0 }
             })
           });
           if (res.ok) {
@@ -1710,22 +2092,80 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return null;
     }
 
-    async function fetchGeminiSingleTurn(turn) {
-      if (Date.now() < geminiTtsCooldownUntil) return null;
-      const voiceName = turn.speaker === "PRO" ? "Orus" : "Kore";
-      const tries = [
-        { model: "gemini-3.8-flash-tts", meta: true },
-        { model: "gemini-3.8-flash-lite-tts", meta: true },
-        { model: "gemini-2.5-flash-tts", meta: false },
-        { model: "gemini-2.5-flash-preview-tts", meta: false }
+    async function fetchGeminiKoreanVoices(apiKey) {
+      if (geminiKoVoicesCache.probed && geminiKoVoicesCache.key === apiKey) {
+        return geminiKoVoicesCache;
+      }
+      const result = { key: apiKey, pro: null, con: null, probed: true };
+      const endpoints = [
+        `https://generativelanguage.googleapis.com/v1beta/voices?language_code=ko-KR&type=prebuilt&page_size=50&key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/voices?language_code=ko-KR&page_size=50&key=${apiKey}`
       ];
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const json = await res.json();
+          const voices = json.voices || [];
+          const koList = voices.filter((v) => {
+            const langs = v.languageCodes || (v.languageCode ? [v.languageCode] : []);
+            return !langs.length || langs.some((l) => String(l).toLowerCase().startsWith("ko"));
+          });
+          if (koList.length) {
+            const pickId = (v) => v ? (v.voiceId || (v.name || "").replace(/^voices\//, "") || "") : "";
+            const isMale = (v) => /male|man|남/i.test(`${v.gender || ""} ${v.ssmlGender || ""} ${v.displayName || ""} ${v.name || ""}`) && !/female/i.test(`${v.gender || ""} ${v.ssmlGender || ""}`);
+            const isFemale = (v) => /female|woman|여/i.test(`${v.gender || ""} ${v.ssmlGender || ""} ${v.displayName || ""} ${v.name || ""}`);
+            const maleV = koList.find(isMale) || koList[0];
+            const femaleV = koList.find((v) => isFemale(v) && v !== maleV) || koList.find((v) => v !== maleV) || koList[0];
+            result.pro = pickId(maleV) || null;
+            result.con = pickId(femaleV) || null;
+            break;
+          }
+        } catch (e) {}
+      }
+      geminiKoVoicesCache = result;
+      return result;
+    }
+
+    let lastGeminiErrorStatus = 0;
+
+    async function fetchGeminiSingleTurn(turn, allowMultilingualFallback = false) {
+      if (Date.now() < geminiTtsCooldownUntil) {
+        lastGeminiErrorStatus = 429;
+        return null;
+      }
+      lastGeminiErrorStatus = 0;
+      const isPro = turn.speaker === "PRO";
+      const spokenText = normalizeKoreanForTts(turn.text);
+      if (!spokenText) return null;
+
+      const koVoices = await fetchGeminiKoreanVoices(CONFIG.GOOGLE_API_KEY);
+      const koVoiceId = isPro ? koVoices.pro : koVoices.con;
+
+      const tries = [];
+      if (koVoiceId) {
+        tries.push(
+          { model: "gemini-3.8-flash-tts", meta: true, voiceConfig: { voice: koVoiceId }, label: `Gemini 3.8 ko-KR (${koVoiceId.slice(0, 12)})` },
+          { model: "gemini-3.8-flash-lite-tts", meta: true, voiceConfig: { voice: koVoiceId }, label: `Gemini 3.8 Lite ko-KR` }
+        );
+      } else if (allowMultilingualFallback) {
+        const vName = isPro ? "Charon" : "Sulafat";
+        tries.push(
+          { model: "gemini-3.8-flash-tts", meta: true, voiceConfig: { prebuiltVoiceConfig: { voiceName: vName } }, label: `Gemini 3.8 ${vName}` },
+          { model: "gemini-3.8-flash-lite-tts", meta: true, voiceConfig: { prebuiltVoiceConfig: { voiceName: vName } }, label: `Gemini 3.8 Lite ${vName}` },
+          { model: "gemini-2.5-flash-tts", meta: false, voiceConfig: { prebuiltVoiceConfig: { voiceName: vName } }, label: `Gemini 2.5 ${vName}` }
+        );
+      } else {
+        return null;
+      }
+
       for (const item of tries) {
         const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
-        const to = ctrl ? setTimeout(() => ctrl.abort(), 11000) : null;
+        const to = ctrl ? setTimeout(() => ctrl.abort(), 14000) : null;
         try {
           const part = item.meta
-            ? { text: turn.text, speechMetadata: { style: "Calm, clear standard Seoul Korean broadcast news panelist" } }
-            : { text: turn.text };
+            ? { text: spokenText, speechMetadata: { style: "Calm, crisp standard Seoul Korean broadcast panelist" } }
+            : { text: spokenText };
           const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${item.model}:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1734,7 +2174,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               contents: [{ parts: [part] }],
               generationConfig: {
                 responseModalities: ["AUDIO"],
-                speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+                speechConfig: { voiceConfig: item.voiceConfig }
               }
             })
           });
@@ -1744,11 +2184,15 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
             const partsList = data.candidates?.[0]?.content?.parts || [];
             const inl = (partsList.find((p) => p && p.inlineData && p.inlineData.data) || {}).inlineData;
             if (inl && inl.data) {
-              return { b64: inl.data, mimeType: inl.mimeType || "audio/L16;rate=24000", engine: `Gemini ${voiceName}` };
+              return { b64: inl.data, mimeType: inl.mimeType || "audio/L16;rate=24000", engine: item.label };
             }
-          } else if (res.status === 429) {
-            geminiTtsCooldownUntil = Date.now() + 25000;
-            return null;
+          } else {
+            lastGeminiErrorStatus = res.status;
+            if (res.status === 429) {
+              geminiTtsCooldownUntil = Date.now() + 25000;
+              return null;
+            }
+            if (res.status === 401 || res.status === 403) return null;
           }
         } catch (e) {
           if (to) clearTimeout(to);
@@ -1757,251 +2201,120 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return null;
     }
 
-    function sliceMultiSpeakerAudioToTurns(rawPcm, sampleRate, turns) {
-      let startS = 0, endS = rawPcm.length;
-      const peak = rawPcm.reduce((m, v) => Math.max(m, Math.abs(v)), 0) || 1;
-      const silThr = peak * 0.015;
-      while (startS < endS - sampleRate && Math.abs(rawPcm[startS]) < silThr) startS++;
-      while (endS > startS + sampleRate && Math.abs(rawPcm[endS - 1]) < silThr) endS--;
-      startS = Math.max(0, startS - Math.floor(sampleRate * 0.08));
-      endS = Math.min(rawPcm.length, endS + Math.floor(sampleRate * 0.10));
-      const fullPcm = rawPcm.subarray(startS, endS);
+    async function cacheAndAnalyzeTurnVoice(turnIdx, turn, resObj) {
+      if (!resObj || !resObj.b64) return null;
+      if (!currentData._ttsAudioCache) currentData._ttsAudioCache = {};
+      if (!currentData._turnAudioDur) currentData._turnAudioDur = {};
+      if (!currentData._turnAudioMeta) currentData._turnAudioMeta = {};
 
-      const totalSamples = fullPcm.length;
-      if (totalSamples < sampleRate * turns.length * 1.2) return null;
-
-      // Compute 20ms RMS envelope
-      const win = Math.max(1, Math.floor(sampleRate * 0.02));
-      const nWin = Math.floor(totalSamples / win);
-      if (nWin < turns.length * 12) return null;
-
-      const rms = new Float32Array(nWin);
-      let maxRms = 0;
-      for (let w = 0; w < nWin; w++) {
-        let sum = 0;
-        const off = w * win;
-        for (let i = 0; i < win; i++) {
-          const v = fullPcm[off + i];
-          sum += v * v;
-        }
-        const r = Math.sqrt(sum / win);
-        rms[w] = r;
-        if (r > maxRms) maxRms = r;
-      }
-
-      // Compute expected proportional character boundaries & snap each boundary to lowest-energy pause
-      const charLens = turns.map((t) => Math.max(20, (t.text || "").replace(/\s+/g, "").length));
-      const totChars = charLens.reduce((a, b) => a + b, 0);
-      const cuts = [0];
-      let cumChars = 0;
-
-      for (let i = 0; i < turns.length - 1; i++) {
-        cumChars += charLens[i];
-        const expectedWin = Math.round((cumChars / totChars) * nWin);
-        const searchHalf = Math.max(18, Math.round(nWin * 0.14));
-        const minWin = cuts[i] + Math.max(18, Math.round((charLens[i] / totChars) * nWin * 0.42));
-        const maxWin = Math.min(nWin - (turns.length - 1 - i) * 18, expectedWin + searchHalf);
-        const wStart = Math.max(minWin, expectedWin - searchHalf);
-        const wEnd = Math.max(wStart + 2, maxWin);
-
-        let bestW = expectedWin;
-        let bestScore = Infinity;
-        for (let w = wStart; w <= wEnd; w++) {
-          let localSum = 0;
-          for (let k = -2; k <= 2; k++) {
-            const idx = Math.max(0, Math.min(nWin - 1, w + k));
-            localSum += rms[idx];
-          }
-          const distPenalty = Math.abs(w - expectedWin) * (maxRms * 0.0012);
-          const score = localSum + distPenalty;
-          if (score < bestScore) {
-            bestScore = score;
-            bestW = w;
-          }
-        }
-        cuts.push(bestW);
-      }
-      cuts.push(nWin);
-
-      const results = [];
-      for (let i = 0; i < turns.length; i++) {
-        const s0 = cuts[i] * win;
-        const s1 = cuts[i + 1] * win;
-        const dur = (s1 - s0) / sampleRate;
-        if (dur < 1.2) return null;
-        results.push(fullPcm.slice(s0, s1));
-      }
-      return results;
-    }
-
-    async function fetchBatchMultiSpeakerGeminiTts(turns) {
-      if (Date.now() < geminiTtsCooldownUntil || turns.length < 2) return false;
+      const cacheKey = `${turn.speaker}:${turn.text}`;
+      currentData._ttsAudioCache[turnIdx] = { key: cacheKey, ...resObj };
       const ctx = getOrResumeAudioContext();
-      if (!ctx) return false;
-
-      const attempts = [
-        {
-          model: "gemini-3.8-flash-tts",
-          parts: turns.map((t) => ({
-            text: t.text,
-            speechMetadata: { speaker: t.speaker }
-          }))
-        },
-        {
-          model: "gemini-3.8-flash-lite-tts",
-          parts: turns.map((t) => ({
-            text: t.text,
-            speechMetadata: { speaker: t.speaker }
-          }))
-        },
-        {
-          model: "gemini-2.5-flash-tts",
-          parts: [{ text: turns.map((t) => `${t.speaker}: ${t.text}`).join("\n\n") }]
-        },
-        {
-          model: "gemini-2.5-flash-preview-tts",
-          parts: [{ text: turns.map((t) => `${t.speaker}: ${t.text}`).join("\n\n") }]
-        }
-      ];
-
-      for (const att of attempts) {
-        const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
-        const to = ctrl ? setTimeout(() => ctrl.abort(), 24000) : null;
-        try {
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${att.model}:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            signal: ctrl ? ctrl.signal : undefined,
-            body: JSON.stringify({
-              contents: [{ parts: att.parts }],
-              generationConfig: {
-                responseModalities: ["AUDIO"],
-                speechConfig: {
-                  multiSpeakerVoiceConfig: {
-                    speakerVoiceConfigs: [
-                      { speaker: "PRO", voiceConfig: { prebuiltVoiceConfig: { voiceName: "Orus" } } },
-                      { speaker: "CON", voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } }
-                    ]
-                  }
-                }
-              }
-            })
-          });
-          if (to) clearTimeout(to);
-          if (res.ok) {
-            const data = await res.json();
-            const partsList = data.candidates?.[0]?.content?.parts || [];
-            const inl = (partsList.find((p) => p && p.inlineData && p.inlineData.data) || {}).inlineData;
-            if (inl && inl.data) {
-              const buf = decodeBase64AudioToBuffer(ctx, inl.data, inl.mimeType || "audio/L16;rate=24000");
-              if (buf) {
-                const sliced = sliceMultiSpeakerAudioToTurns(buf.getChannelData(0), buf.sampleRate, turns);
-                if (sliced && sliced.length === turns.length) {
-                  if (!currentData._ttsAudioCache) currentData._ttsAudioCache = {};
-                  if (!currentData._turnAudioDur) currentData._turnAudioDur = {};
-                  sliced.forEach((pcmFloat, idx) => {
-                    const key = `${turns[idx].speaker}:${turns[idx].text}`;
-                    const b64 = encodeFloat32MonoToWavB64(pcmFloat, buf.sampleRate);
-                    currentData._ttsAudioCache[idx] = { key, b64, mimeType: "audio/wav", engine: "Gemini 듀엣 AI" };
-                    currentData._turnAudioDur[idx] = pcmFloat.length / buf.sampleRate;
-                  });
-                  renderScriptList();
-                  return true;
-                }
-              }
-            }
-          } else if (res.status === 429) {
-            geminiTtsCooldownUntil = Date.now() + 25000;
-            return false;
-          }
-        } catch (e) {
-          if (to) clearTimeout(to);
+      if (ctx) {
+        const buf = await decodeBase64AudioToBuffer(ctx, resObj.b64, resObj.mimeType);
+        if (buf && buf.duration > 0.25) {
+          currentData._turnAudioDur[turnIdx] = buf.duration;
+          currentData._turnAudioMeta[turnIdx] = analyzeTurnAudioEnvelope(buf, splitTurnIntoClauses(turn.text));
         }
       }
-      return false;
+      return currentData._ttsAudioCache[turnIdx];
     }
 
-    async function fetchTurnVoice(turnIdx) {
+    async function fetchTurnVoice(turnIdx, opts = {}) {
       const turns = currentData.debate_script || [];
       const turn = turns[turnIdx];
       if (!turn || !turn.text) return null;
       if (!currentData._ttsAudioCache) currentData._ttsAudioCache = {};
       if (!currentData._turnAudioDur) currentData._turnAudioDur = {};
+      if (!currentData._turnAudioMeta) currentData._turnAudioMeta = {};
 
       const cacheKey = `${turn.speaker}:${turn.text}`;
       const cached = currentData._ttsAudioCache[turnIdx];
-      if (cached && cached.key === cacheKey && cached.b64) return cached;
-
-      let resObj = await fetchCloudTtsTurn(turn);
-      if (!resObj) resObj = await fetchGeminiSingleTurn(turn);
-
-      if (resObj && resObj.b64) {
-        currentData._ttsAudioCache[turnIdx] = { key: cacheKey, ...resObj };
-        const ctx = getOrResumeAudioContext();
-        if (ctx) {
-          const buf = decodeBase64AudioToBuffer(ctx, resObj.b64, resObj.mimeType);
-          if (buf && buf.duration > 0.2) {
-            currentData._turnAudioDur[turnIdx] = buf.duration;
-          }
+      if (cached && cached.key === cacheKey && cached.b64) {
+        if (!currentData._turnAudioMeta[turnIdx]) {
+          await cacheAndAnalyzeTurnVoice(turnIdx, turn, cached);
         }
         return currentData._ttsAudioCache[turnIdx];
       }
-      return null;
+
+      const engineMode = opts.engineMode || document.getElementById("voiceEngineSelect")?.value || "auto";
+      const allowMultilingualFallback = !!opts.allowMultilingualFallback;
+      let resObj = engineMode === "gemini" ? null : await fetchCloudTtsTurn(turn);
+      if (!resObj && (engineMode === "gemini" || allowMultilingualFallback)) {
+        resObj = await fetchGeminiSingleTurn(turn, allowMultilingualFallback);
+      }
+      return await cacheAndAnalyzeTurnVoice(turnIdx, turn, resObj);
     }
 
-    async function prepareAllVoices(onProgress = () => {}) {
+    async function prepareAllVoices(onProgress = () => {}, opts = {}) {
       const turns = (currentData.debate_script || []).slice(0, 6);
+      const engineMode = opts.engineMode || document.getElementById("voiceEngineSelect")?.value || "auto";
+      const forVideoExport = !!opts.forVideoExport;
+
       if (!currentData._ttsAudioCache) currentData._ttsAudioCache = {};
       if (!currentData._turnAudioDur) currentData._turnAudioDur = {};
+      if (!currentData._turnAudioMeta) currentData._turnAudioMeta = {};
+
+      if (engineMode === "browser" && !forVideoExport) {
+        return { ok: false, voicedCount: 0, totalTurns: turns.length, mode: "browser", reason: "" };
+      }
 
       const allCached = turns.every((t, i) => {
         const c = currentData._ttsAudioCache[i];
         return c && c.key === `${t.speaker}:${t.text}` && c.b64;
       });
-      if (allCached) return true;
+      if (allCached) {
+        for (let i = 0; i < turns.length; i++) {
+          if (!currentData._turnAudioMeta[i]) {
+            await cacheAndAnalyzeTurnVoice(i, turns[i], currentData._ttsAudioCache[i]);
+          }
+        }
+        return { ok: true, voicedCount: turns.length, totalTurns: turns.length, mode: "cached", reason: "" };
+      }
 
-      // 1) Try Cloud Neural2 first (supports clean fast parallel calls if enabled)
-      if (!cloudTtsDisabled) {
-        onProgress(8, "Google Cloud 한국어 아나운서 음성 합성 중...");
+      // 1) Cloud Neural2 한국어 아나운서 (빠른 병렬 처리)
+      if (!cloudTtsDisabled && engineMode !== "gemini") {
+        onProgress(8, "Google Cloud 한국어 아나운서 음성 확인 중...");
         const firstRes = await fetchCloudTtsTurn(turns[0]);
         if (firstRes && firstRes.b64) {
-          currentData._ttsAudioCache[0] = { key: `${turns[0].speaker}:${turns[0].text}`, ...firstRes };
-          const ctx = getOrResumeAudioContext();
-          if (ctx) {
-            const b = decodeBase64AudioToBuffer(ctx, firstRes.b64, firstRes.mimeType);
-            if (b) currentData._turnAudioDur[0] = b.duration;
-          }
+          await cacheAndAnalyzeTurnVoice(0, turns[0], firstRes);
           await Promise.all(turns.slice(1).map(async (t, offset) => {
             const idx = offset + 1;
             const r = await fetchCloudTtsTurn(t);
-            if (r && r.b64) {
-              currentData._ttsAudioCache[idx] = { key: `${t.speaker}:${t.text}`, ...r };
-              if (ctx) {
-                const b = decodeBase64AudioToBuffer(ctx, r.b64, r.mimeType);
-                if (b) currentData._turnAudioDur[idx] = b.duration;
-              }
-            }
+            if (r && r.b64) await cacheAndAnalyzeTurnVoice(idx, t, r);
           }));
           renderScriptList();
-          return true;
+          const cnt = turns.filter((t, i) => currentData._ttsAudioCache[i]?.b64).length;
+          return { ok: cnt > 0, voicedCount: cnt, totalTurns: turns.length, mode: "cloud", reason: "" };
         }
       }
 
-      // 2) Try 1-call Multi-Speaker Gemini TTS (avoids 3 RPM free-tier 429!)
-      onProgress(10, "Gemini 1회 통합 AI 보이스 합성 중 (할당량 절약)...");
-      const batchOk = await fetchBatchMultiSpeakerGeminiTts(turns);
-      if (batchOk) return true;
+      // 2) Live preview in "auto" mode: never degrade to mismatched English accents or 429 mid-video;
+      //    use crisp Per-Clause Event-Locked Browser Korean TTS consistently across all 6 turns!
+      if (!forVideoExport && engineMode === "auto") {
+        return { ok: false, voicedCount: 0, totalTurns: turns.length, mode: "browser", reason: "" };
+      }
 
-      // 3) Sequential per-turn fallback (skip cached turns)
-      let anyOk = false;
+      // 3) Dedicated single-turn Gemini Korean TTS (when user chose "gemini" or for Canvas video export)
+      let voicedCount = 0;
       for (let i = 0; i < turns.length; i++) {
-        onProgress(6 + Math.round(((i + 1) / turns.length) * 12), `턴 ${i + 1}/${turns.length} AI 음성 생성 중...`);
-        const got = await fetchTurnVoice(i);
-        if (got && got.b64) anyOk = true;
-        if (Date.now() < geminiTtsCooldownUntil) break;
+        onProgress(8 + Math.round(((i + 1) / turns.length) * 12), `턴 ${i + 1}/${turns.length} AI 음성 생성 중...`);
+        const cached = currentData._ttsAudioCache[i];
+        if (cached && cached.key === `${turns[i].speaker}:${turns[i].text}` && cached.b64) {
+          if (!currentData._turnAudioMeta[i]) await cacheAndAnalyzeTurnVoice(i, turns[i], cached);
+          voicedCount++;
+          continue;
+        }
+        const got = await fetchTurnVoice(i, {
+          engineMode: "gemini",
+          allowMultilingualFallback: (forVideoExport || engineMode === "gemini")
+        });
+        if (got && got.b64) voicedCount++;
+        if (lastGeminiErrorStatus === 429 || lastGeminiErrorStatus === 403 || Date.now() < geminiTtsCooldownUntil) break;
       }
       renderScriptList();
-      return anyOk;
+      const reason = lastGeminiErrorStatus === 429 ? "quota_429" : (lastGeminiErrorStatus ? `http_${lastGeminiErrorStatus}` : "");
+      return { ok: voicedCount === turns.length, partial: voicedCount > 0 && voicedCount < turns.length, voicedCount, totalTurns: turns.length, mode: "gemini", reason };
     }
 
     function wrapWordsByWidth(ctx, text, maxPx, maxLines = 4) {
@@ -2082,7 +2395,16 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
     async function generateDynamicVideoUrl(onProgress = () => {}) {
       if (currentData.rendered_video_blob_url) {
-        return { url: currentData.rendered_video_blob_url, hasVoice: !!currentData._renderedHasVoice, ext: currentData.rendered_video_ext || "webm" };
+        const totalTurns = Math.min((currentData.debate_script || []).length, 6);
+        return {
+          url: currentData.rendered_video_blob_url,
+          hasVoice: !!currentData._renderedHasVoice,
+          partialVoice: !!currentData._renderedPartialVoice,
+          voicedCount: currentData._renderedVoicedCount ?? (currentData._renderedHasVoice ? totalTurns : 0),
+          totalTurns,
+          reason: currentData._renderedReason || "",
+          ext: currentData.rendered_video_ext || "webm"
+        };
       }
 
       const audioCtxRec = getOrResumeAudioContext();
@@ -2090,7 +2412,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       onProgress(4, "한국어 AI 음성 트랙 합성 준비 중...");
 
       // 1) Synthesize voices BEFORE launching recorder/server render
-      const hasAnyVoiceReady = await prepareAllVoices(onProgress);
+      const voicePrep = await prepareAllVoices(onProgress, { forVideoExport: true });
       const turnAudioList = turns.map((_, i) => (currentData._ttsAudioCache && currentData._ttsAudioCache[i]) || null);
 
       onProgress(20, "1080×1920 스튜디오 영상 렌더링 준비 중...");
@@ -2113,11 +2435,27 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           if (res.ok) {
             const j = await res.json();
             if (j.video_mp4_url) {
+              const hasSrvVoice = typeof j.has_voice_track === "boolean"
+                ? j.has_voice_track
+                : !!(voicePrep && voicePrep.voicedCount === turns.length);
+              const srvVoicedCount = hasSrvVoice ? turns.length : (voicePrep ? voicePrep.voicedCount : 0);
+              const srvPartial = !hasSrvVoice && srvVoicedCount > 0;
               onProgress(100, "Full-HD MP4 생성 완료");
               currentData.rendered_video_blob_url = j.video_mp4_url;
               currentData.rendered_video_ext = "mp4";
-              currentData._renderedHasVoice = hasAnyVoiceReady;
-              return { url: j.video_mp4_url, hasVoice: hasAnyVoiceReady, ext: "mp4" };
+              currentData._renderedHasVoice = hasSrvVoice;
+              currentData._renderedPartialVoice = srvPartial;
+              currentData._renderedVoicedCount = srvVoicedCount;
+              currentData._renderedReason = (voicePrep && voicePrep.reason) || "";
+              return {
+                url: j.video_mp4_url,
+                hasVoice: hasSrvVoice,
+                partialVoice: srvPartial,
+                voicedCount: srvVoicedCount,
+                totalTurns: turns.length,
+                reason: currentData._renderedReason,
+                ext: "mp4"
+              };
             }
           }
         } catch (e) {}
@@ -2186,11 +2524,13 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         deskC.getContext("2d").drawImage(deskImg, 0, 0, W, H);
       }
 
-      // Decode audio buffers
+      // Decode audio buffers & compute acoustic RMS clause boundaries
       const ttsBuffers = audioCtxRec
-        ? turnAudioList.map((item) => (item && item.b64 ? decodeBase64AudioToBuffer(audioCtxRec, item.b64, item.mimeType) : null))
-        : [];
-      const hasRealVoices = ttsBuffers.some(Boolean);
+        ? await Promise.all(turnAudioList.map((item) => (item && item.b64 ? decodeBase64AudioToBuffer(audioCtxRec, item.b64, item.mimeType) : Promise.resolve(null))))
+        : turns.map(() => null);
+      const voicedCount = ttsBuffers.filter(Boolean).length;
+      const hasRealVoices = voicedCount === turns.length && turns.length > 0;
+      const hasPartialVoices = voicedCount > 0 && voicedCount < turns.length;
 
       // Compute natural duration per turn (NEVER clipped to 7.2s or compressed to 40s!)
       const turnDurationsSec = turns.map((t, i) => {
@@ -2218,7 +2558,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           lp.type = "lowpass";
           lp.frequency.setValueAtTime(580, audioCtxRec.currentTime);
           const padGain = audioCtxRec.createGain();
-          padGain.gain.setValueAtTime(hasRealVoices ? 0.022 : 0.075, audioCtxRec.currentTime);
+          padGain.gain.setValueAtTime(voicedCount > 0 ? 0.022 : 0.075, audioCtxRec.currentTime);
           lp.connect(padGain);
           padGain.connect(audioDest);
           [110.0, 164.81, 220.0, 261.63].forEach((freq) => {
@@ -2258,22 +2598,31 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           currentData.rendered_video_blob_url = url;
           currentData.rendered_video_ext = ext;
           currentData._renderedHasVoice = hasRealVoices;
+          currentData._renderedPartialVoice = hasPartialVoices;
+          currentData._renderedVoicedCount = voicedCount;
+          currentData._renderedReason = voicePrep?.reason || "";
           audioStopNodes.forEach((n) => { try { n.stop(); } catch (e) {} });
-          resolve({ url, hasVoice: hasRealVoices, ext });
+          resolve({ url, hasVoice: hasRealVoices, partialVoice: hasPartialVoices, voicedCount, totalTurns: turns.length, ext, reason: voicePrep?.reason || "" });
         };
       });
 
-      // Pre-prepare layout & 2-clause text wraps per turn
+      // Pre-prepare layout, weighted word timelines, and RMS clause metadata per turn
       ctx.font = "bold 31px Pretendard, sans-serif";
       const titleLines = wrapWordsByWidth(ctx, currentData.issue_title, W - 168, 2).map((ws) => ws.join(" "));
+
+      const turnAudioMeta = turns.map((turn, i) => {
+        const buf = ttsBuffers[i];
+        if (!buf) return null;
+        return (currentData._turnAudioMeta && currentData._turnAudioMeta[i]) || analyzeTurnAudioEnvelope(buf, splitTurnIntoClauses(turn.text));
+      });
 
       const turnLayouts = turns.map((turn) => {
         const clauses = splitTurnIntoClauses(turn.text);
         const coreSpec = fitCorePointCanvas(ctx, turn.core_point || "", W - 180);
         const clauseSpecs = clauses.map((cTxt) => fitCaptionClauseCanvas(ctx, cTxt, W - 196));
-        const clauseWordCounts = clauseSpecs.map((cs) => Math.max(cs.lines.reduce((a, b) => a + b.length, 0), 1));
-        const totalWords = Math.max(clauseWordCounts.reduce((a, b) => a + b, 0), 1);
-        return { coreSpec, clauseSpecs, clauseWordCounts, totalWords };
+        const clauseWordTimelines = clauseSpecs.map((cs) => buildWeightedWordTimeline(cs.lines.flat()));
+        const clauseWordCounts = clauseWordTimelines.map((tl) => Math.max(tl.length, 1));
+        return { clauses, coreSpec, clauseSpecs, clauseWordTimelines, clauseWordCounts };
       });
 
       recorder.start(250);
@@ -2292,7 +2641,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               const g = audioCtxRec.createGain();
               osc.type = "triangle";
               osc.frequency.setValueAtTime(f, tStart + fi * 0.055);
-              g.gain.setValueAtTime(hasRealVoices ? 0.065 : 0.11, tStart + fi * 0.055);
+              g.gain.setValueAtTime(voicedCount > 0 ? 0.065 : 0.11, tStart + fi * 0.055);
               g.gain.exponentialRampToValueAtTime(0.0008, tStart + fi * 0.055 + 0.28);
               osc.connect(g); g.connect(audioDest);
               osc.start(tStart + fi * 0.055);
@@ -2331,7 +2680,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         const badgeAccentTxt = isPro ? "#1D4ED8" : "#B91C1C";
         const tint = isPro ? "#DBEAFE" : "#FEE2E2";
 
-        onProgress(Math.min(99, Math.round(22 + globalProg * 77)), `${hasRealVoices ? "AI 음성 + " : ""}1080p 방송 영상 녹화 중 (${formatMinSec(nowSec)} / ${formatMinSec(totalRenderSec)})`);
+        onProgress(Math.min(99, Math.round(22 + globalProg * 77)), `${ttsBuffers[tIdx] ? "AI 음성 + " : ""}1080p 방송 영상 녹화 중 (${formatMinSec(nowSec)} / ${formatMinSec(totalRenderSec)})`);
 
         // 1) Camera Dolly Zoom Stage (fast blitting of pre-cached offscreen layers)
         const enter = Math.min(1, localSec / 0.35);
@@ -2433,20 +2782,17 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         ctx.textAlign = "center";
         ctx.fillText(`${isPro ? "찬성 패널" : "반대 패널"} ${Math.floor(tIdx / 2) + 1}`, 174, by0 + 55);
 
-        // Determine Active Clause & Word
-        const globalWord = Math.min(layout.totalWords - 1, Math.floor(turnProg * layout.totalWords * 1.02));
-        let activeClauseIdx = 0;
-        let localWordIdx = 0;
-        let accWords = 0;
-        for (let ci = 0; ci < layout.clauseSpecs.length; ci++) {
-          const cnt = layout.clauseWordCounts[ci];
-          if (globalWord < accWords + cnt || ci === layout.clauseSpecs.length - 1) {
-            activeClauseIdx = ci;
-            localWordIdx = Math.max(0, Math.min(cnt - 1, globalWord - accWords));
-            break;
-          }
-          accWords += cnt;
-        }
+        // Acoustic RMS Pause + Weighted Word Sync (accounting for +0.10s AudioContext voice onset)
+        const voiceAudioSec = Math.max(0, (localSec - 0.10) * playbackRate);
+        const syncPos = resolveClauseAndWordFromAudioSec(
+          voiceAudioSec,
+          layout.clauses,
+          layout.clauseWordTimelines,
+          turnAudioMeta[tIdx],
+          Math.min(1, Math.max(0, localSec - 0.10) / Math.max(turnDur - 0.35, 0.4))
+        );
+        const activeClauseIdx = syncPos.clauseIdx;
+        const localWordIdx = syncPos.wordIdx;
 
         ctx.fillStyle = "#F1F5F9";
         drawRoundRect(ctx, W - 216, by0 + 28, 128, 38, 10); ctx.fill();
@@ -2608,9 +2954,15 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           if (res.hasVoice) {
             statusEl.className = "text-center text-[11.5px] font-medium text-[#059669] min-h-[16px]";
             statusEl.textContent = `AI 음성 합본 1080×1920 영상(.${ext}) 저장 완료`;
+          } else if (res.partialVoice) {
+            statusEl.className = "text-center text-[11.5px] font-medium text-[#D97706] min-h-[16px]";
+            statusEl.textContent = `AI 음성 ${res.voicedCount || 0}/${res.totalTurns || 6}턴만 반영됨 (할당량 제한) — 전체 음성 원하시면 [API·음성 설정] 확인`;
           } else {
             statusEl.className = "text-center text-[11.5px] font-medium text-[#D97706] min-h-[16px]";
-            statusEl.textContent = `AI 음성 API 할당량 제한으로 BGM 버전(.${ext})이 저장됨 — 상단 [API·음성 설정]에서 키 변경 가능`;
+            const reasonPrefix = res.reason === "quota_429"
+              ? "AI 음성 할당량(429) 초과로 "
+              : "AI 음성 API 키·할당량 제한으로 ";
+            statusEl.textContent = `${reasonPrefix}BGM 버전(.${ext})이 저장됨 — 상단 [API·음성 설정]에서 키 변경 가능`;
           }
           if (playerMode === "video") {
             const videoEl = document.getElementById("realMp4Player");
@@ -2796,37 +3148,51 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return (s || "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
     }
 
-    function renderKineticSubtitle(text, isPro, progress01 = 1) {
+    function renderKineticSubtitle(text, isPro, progressOrState = 1) {
       const el = document.getElementById("shortsSubtitleText");
       const clBadge = document.getElementById("shortsClauseBadge");
       if (!el) return;
 
       const clauses = splitTurnIntoClauses(text);
       const clauseWordArrs = clauses.map((c) => c.trim().split(/\s+/).filter(Boolean));
-      const totalWords = Math.max(clauseWordArrs.reduce((a, b) => a + b.length, 0), 1);
 
-      if (progress01 >= 1) {
+      if (typeof progressOrState === "number" && progressOrState >= 1) {
         if (clBadge) clBadge.textContent = clauses.length > 1 ? `논지 1/${clauses.length}` : "핵심 논지";
         el.textContent = clauses[0] || text;
         return;
       }
 
-      const globalIdx = Math.min(totalWords - 1, Math.max(0, Math.floor(progress01 * totalWords * 1.02)));
       let activeClauseIdx = 0;
       let localActiveIdx = 0;
-      let acc = 0;
-      for (let i = 0; i < clauseWordArrs.length; i++) {
-        const cnt = clauseWordArrs[i].length;
-        if (globalIdx < acc + cnt || i === clauseWordArrs.length - 1) {
-          activeClauseIdx = i;
-          localActiveIdx = Math.max(0, Math.min(cnt - 1, globalIdx - acc));
-          break;
+      if (progressOrState && typeof progressOrState === "object") {
+        activeClauseIdx = Math.max(0, Math.min(clauses.length - 1, progressOrState.clauseIdx || 0));
+        const wLen = (clauseWordArrs[activeClauseIdx] || []).length;
+        localActiveIdx = progressOrState.wordIdx < 0
+          ? -1
+          : Math.max(0, Math.min(Math.max(wLen - 1, 0), progressOrState.wordIdx || 0));
+      } else {
+        const p01 = Math.max(0, Math.min(0.9999, Number(progressOrState) || 0));
+        const clauseWeights = clauses.map((c) => Math.max(1, normalizeKoreanForTts(c).replace(/\s+/g, "").length));
+        const totWt = clauseWeights.reduce((a, b) => a + b, 0) || 1;
+        let acc = 0;
+        for (let i = 0; i < clauses.length; i++) {
+          const slice = clauseWeights[i] / totWt;
+          if (p01 < acc + slice || i === clauses.length - 1) {
+            activeClauseIdx = i;
+            const tl = buildWeightedWordTimeline(clauseWordArrs[i]);
+            localActiveIdx = wordIdxForRatio(tl, (p01 - acc) / Math.max(slice, 0.05));
+            break;
+          }
+          acc += slice;
         }
-        acc += cnt;
       }
 
-      if (clBadge) clBadge.textContent = `논지 ${activeClauseIdx + 1}/${clauses.length}`;
+      if (clBadge) clBadge.textContent = clauses.length > 1 ? `논지 ${activeClauseIdx + 1}/${clauses.length}` : "핵심 논지";
       const words = clauseWordArrs[activeClauseIdx] || [""];
+      if (localActiveIdx < 0) {
+        el.textContent = words.join(" ");
+        return;
+      }
       const activeCls = isPro ? "kw-active-pro" : "kw-active-con";
       el.innerHTML = words.map((w, i) => {
         const safe = escapeHtml(w);
@@ -2842,10 +3208,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         currentData.video_mp4_url = null;
         currentData.has_voice_track = false;
         currentData.rendered_video_blob_url = null;
+        currentData._renderedHasVoice = false;
+        currentData._renderedPartialVoice = false;
         if (currentData._ttsAudioCache) delete currentData._ttsAudioCache[idx];
         if (currentData._turnAudioDur) delete currentData._turnAudioDur[idx];
+        if (currentData._turnAudioMeta) delete currentData._turnAudioMeta[idx];
         const videoEl = document.getElementById("realMp4Player");
         if (videoEl) { videoEl.removeAttribute("src"); videoEl.load(); }
+        renderScriptList();
         updateIdleTimerDisplay();
         if (idx === currentTurnIndex) {
           renderKineticSubtitle(newText.trim(), currentData.debate_script[idx].speaker === "PRO", 1);
@@ -2888,7 +3258,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         : "text-[11.5px] font-bold text-[#B91C1C] mb-1 leading-snug";
 
       document.getElementById("shortsCorePoint").textContent = turn.core_point;
-      renderKineticSubtitle(turn.text, isPro, speakingActive ? 0.02 : 1);
+      renderKineticSubtitle(turn.text, isPro, speakingActive ? { clauseIdx: 0, wordIdx: 0 } : 1);
 
       document.getElementById("shortsTurnDots").innerHTML = turns
         .map((t, i) => {
@@ -2919,6 +3289,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     }
 
     async function startShortsPlayback(startIdx = 0) {
+      const hadSpeech = ("speechSynthesis" in window) && (window.speechSynthesis.speaking || window.speechSynthesis.pending);
       stopShortsPlayback(false);
       const turns = currentData.debate_script || [];
       if (!turns.length) return;
@@ -2929,23 +3300,52 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
       document.getElementById("playBtnLabel").textContent = "일시정지";
       const engineMode = document.getElementById("voiceEngineSelect")?.value || "auto";
+      let resolvedEngine = engineMode;
 
-      // Prepare AI voices upfront via 1-call multi-speaker or Cloud Neural2 so turns stay consistent
-      if (engineMode === "auto") {
-        document.getElementById("ttsStatusLabel").textContent = "음성 준비 중...";
+      // Never mix voices mid-video: resolve consistent engine upfront across all turns
+      if (engineMode !== "browser") {
+        document.getElementById("ttsStatusLabel").textContent =
+          engineMode === "gemini" ? "Gemini 한국어 음성 생성 중..." : "고품질 음성 확인 중...";
         updateShortsTurnVisual(startIdx, false);
-        await prepareAllVoices((_, lbl) => {
+        const voicePrep = await prepareAllVoices((_, lbl) => {
           if (isPlaying && mySession === playSessionToken) {
-            document.getElementById("ttsStatusLabel").textContent = "음성 합성 중...";
+            document.getElementById("ttsStatusLabel").textContent = lbl || "음성 준비 중...";
           }
-        });
+        }, { engineMode });
         if (!isPlaying || mySession !== playSessionToken) return;
+
+        if (!voicePrep || !voicePrep.ok) {
+          resolvedEngine = "browser";
+          if (engineMode === "gemini") {
+            document.getElementById("ttsStatusLabel").textContent =
+              voicePrep && voicePrep.reason === "quota_429"
+                ? "Gemini 할당량 초과 → 표준 한국어 통일 재생"
+                : "Gemini 미응답 → 표준 한국어 통일 재생";
+          }
+        } else {
+          resolvedEngine = voicePrep.mode || engineMode;
+        }
       }
 
-      speakTurn(startIdx, mySession);
+      if (hadSpeech && resolvedEngine === "browser") {
+        turnTimeout = setTimeout(() => speakTurn(startIdx, mySession, resolvedEngine), 65);
+      } else {
+        speakTurn(startIdx, mySession, resolvedEngine);
+      }
     }
 
-    async function speakTurn(turnIdx, mySession) {
+    function releaseCurrentHtmlAudio() {
+      if (currentHtmlAudio) {
+        try { currentHtmlAudio.pause(); } catch (e) {}
+        currentHtmlAudio = null;
+      }
+      if (currentHtmlAudioUrl) {
+        try { URL.revokeObjectURL(currentHtmlAudioUrl); } catch (e) {}
+        currentHtmlAudioUrl = null;
+      }
+    }
+
+    async function speakTurn(turnIdx, mySession, resolvedEngine = "browser") {
       if (!isPlaying || mySession !== playSessionToken) return;
       const turns = currentData.debate_script || [];
       if (turnIdx >= turns.length) {
@@ -2954,65 +3354,55 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
       if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
-      if (currentHtmlAudio) { try { currentHtmlAudio.pause(); } catch (e) {} currentHtmlAudio = null; }
-      if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+      releaseCurrentHtmlAudio();
 
       currentTurnIndex = turnIdx;
       const turn = turns[turnIdx];
       const isPro = turn.speaker === "PRO";
-      const engineMode = document.getElementById("voiceEngineSelect")?.value || "auto";
 
       playTurnChime(turn.speaker);
       updateShortsTurnVisual(turnIdx, true);
 
-      const { durs, starts, total } = getTurnTimeline();
-      const baseOffsetSec = starts[turnIdx] || 0;
-
-      const startSyncedTicker = (getLocalInfo) => {
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-          if (!isPlaying || mySession !== playSessionToken) return;
-          const info = getLocalInfo();
-          const { durs: curDurs, starts: curStarts, total: curTotal } = getTurnTimeline();
-          const curOffset = curStarts[turnIdx] || baseOffsetSec;
-          const gSec = Math.min(curTotal, curOffset + info.localSec);
-          const pct = Math.min(100, (gSec / Math.max(curTotal, 0.1)) * 100);
-          document.getElementById("shortsProgressBar").style.width = `${pct.toFixed(1)}%`;
-          document.getElementById("shortsTimerDisplay").textContent = `${formatMinSec(gSec)} / ${formatMinSec(curTotal)}`;
-          renderKineticSubtitle(turn.text, isPro, Math.min(0.99, info.turnProg));
-        }, 65);
-      };
-
-      const goNext = () => {
-        if (!isPlaying || mySession !== playSessionToken) return;
-        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-        if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
-        if (turnIdx + 1 < turns.length) speakTurn(turnIdx + 1, mySession);
-        else stopShortsPlayback(true);
-      };
-
-      // Tier 1 / 2: Pre-synthesized Cloud or Gemini AI Voice
-      if (engineMode === "auto") {
+      // Tier 1 / 2: All-Turn Pre-Synthesized Cloud Neural2 or Gemini 3.8 Korean WAV (RMS Envelope Synced)
+      if (resolvedEngine !== "browser") {
         let voiceItem = currentData._ttsAudioCache && currentData._ttsAudioCache[turnIdx];
-        if (!voiceItem || !voiceItem.b64) {
-          voiceItem = await fetchTurnVoice(turnIdx);
-          if (!isPlaying || mySession !== playSessionToken) return;
-        }
-
-        if (voiceItem && voiceItem.b64) {
+        if (voiceItem && voiceItem.b64 && voiceItem.key === `${turn.speaker}:${turn.text}`) {
           try {
+            if (!currentData._turnAudioMeta || !currentData._turnAudioMeta[turnIdx]) {
+              await cacheAndAnalyzeTurnVoice(turnIdx, turn, voiceItem);
+              if (!isPlaying || mySession !== playSessionToken) return;
+            }
             const wavUrl = pcmBase64ToWavUrl(voiceItem.b64, voiceItem.mimeType);
+            currentHtmlAudioUrl = wavUrl;
             currentHtmlAudio = new Audio(wavUrl);
             currentHtmlAudio.playbackRate = playbackRate;
             document.getElementById("ttsStatusLabel").textContent = voiceItem.engine || "AI 보이스";
 
+            const clauses = splitTurnIntoClauses(turn.text);
+            const clauseWordTimelines = clauses.map((c) => buildWeightedWordTimeline(c.trim().split(/\s+/).filter(Boolean)));
+            const audioMeta = currentData._turnAudioMeta ? currentData._turnAudioMeta[turnIdx] : null;
+            let audioStarted = false;
             let advanced = false;
+
             const finishTurn = () => {
               if (advanced || !isPlaying || mySession !== playSessionToken) return;
               advanced = true;
-              setTimeout(goNext, 260);
+              if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+              if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
+              const lastCi = Math.max(0, clauses.length - 1);
+              const lastWi = Math.max(0, (clauseWordTimelines[lastCi]?.length || 1) - 1);
+              renderKineticSubtitle(turn.text, isPro, { clauseIdx: lastCi, wordIdx: lastWi });
+              turnTimeout = setTimeout(() => {
+                if (turnIdx + 1 < turns.length) speakTurn(turnIdx + 1, mySession, resolvedEngine);
+                else stopShortsPlayback(true);
+              }, 250);
+            };
+
+            currentHtmlAudio.onplaying = () => {
+              if (isPlaying && mySession === playSessionToken) audioStarted = true;
             };
             currentHtmlAudio.onended = finishTurn;
+            currentHtmlAudio.onerror = finishTurn;
             currentHtmlAudio.onloadedmetadata = () => {
               if (currentHtmlAudio && isFinite(currentHtmlAudio.duration) && currentHtmlAudio.duration > 0.3) {
                 if (!currentData._turnAudioDur) currentData._turnAudioDur = {};
@@ -3021,65 +3411,198 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
             };
 
             await currentHtmlAudio.play();
-            const expectedRealDur = (currentHtmlAudio.duration && isFinite(currentHtmlAudio.duration) ? currentHtmlAudio.duration : durs[turnIdx]) / playbackRate;
-            startSyncedTicker(() => {
+            const { durs, starts } = getTurnTimeline();
+            const expectedRealDur = (
+              (currentHtmlAudio.duration && isFinite(currentHtmlAudio.duration) ? currentHtmlAudio.duration : null)
+              || (currentData._turnAudioDur && currentData._turnAudioDur[turnIdx])
+              || durs[turnIdx]
+            ) / playbackRate;
+
+            let lastSig = "0:0";
+            timerInterval = setInterval(() => {
+              if (!isPlaying || mySession !== playSessionToken || !currentHtmlAudio) return;
               const ad = currentHtmlAudio;
-              const rawDur = (ad && isFinite(ad.duration) && ad.duration > 0.3) ? ad.duration : expectedRealDur * playbackRate;
-              const cur = ad ? ad.currentTime : 0;
-              return { localSec: cur / playbackRate, turnProg: cur / Math.max(rawDur, 0.2) };
-            });
-            turnTimeout = setTimeout(finishTurn, Math.max(expectedRealDur * 1000 + 3500, 18000));
+              if (!audioStarted && ad.currentTime > 0.01) audioStarted = true;
+              if (!audioStarted) return;
+
+              const rawDur = (isFinite(ad.duration) && ad.duration > 0.3) ? ad.duration : expectedRealDur * playbackRate;
+              const cur = ad.currentTime || 0;
+              const localSec = cur / playbackRate;
+              const { starts: curStarts, total: curTotal } = getTurnTimeline();
+              const gSec = Math.min(curTotal, (curStarts[turnIdx] ?? starts[turnIdx] ?? 0) + localSec);
+              const pct = Math.min(100, (gSec / Math.max(curTotal, 0.1)) * 100);
+              document.getElementById("shortsProgressBar").style.width = `${pct.toFixed(1)}%`;
+              document.getElementById("shortsTimerDisplay").textContent = `${formatMinSec(gSec)} / ${formatMinSec(curTotal)}`;
+
+              const syncPos = resolveClauseAndWordFromAudioSec(cur, clauses, clauseWordTimelines, audioMeta, cur / Math.max(rawDur, 0.2));
+              const sig = `${syncPos.clauseIdx}:${syncPos.wordIdx}`;
+              if (sig !== lastSig) {
+                lastSig = sig;
+                renderKineticSubtitle(turn.text, isPro, syncPos);
+              }
+            }, 55);
+
+            turnTimeout = setTimeout(finishTurn, Math.max(expectedRealDur * 1000 + 3800, 18000));
             return;
-          } catch (e) {}
+          } catch (e) {
+            releaseCurrentHtmlAudio();
+          }
         }
       }
 
-      // Tier 3: Clean Native Korean Web Speech API (Natural Pitch, Zero Distortion, Utterance-End Driven)
-      const estSec = estimateTurnDurationSec(turn.text, playbackRate);
-      document.getElementById("ttsStatusLabel").textContent = "표준 한국어 보이스";
-      const startPerf = performance.now();
-      startSyncedTicker(() => {
-        const localSec = (performance.now() - startPerf) / 1000;
-        return { localSec, turnProg: localSec / Math.max(estSec - 0.35, 0.5) };
-      });
+      // Tier 3: Per-Clause Event-Locked Standard Korean Web Speech API (Natural Pitch = 1.0, Exact Clause/Word Lock)
+      speakClause(turnIdx, 0, 0, mySession, "browser");
+    }
 
-      if ("speechSynthesis" in window) {
+    function speakClause(turnIdx, clauseIdx, priorClausesSec, mySession, resolvedEngine = "browser") {
+      if (!isPlaying || mySession !== playSessionToken) return;
+      const turns = currentData.debate_script || [];
+      const turn = turns[turnIdx];
+      if (!turn) { stopShortsPlayback(true); return; }
+
+      const clauses = splitTurnIntoClauses(turn.text);
+      if (clauseIdx >= clauses.length) {
+        if (turnIdx + 1 < turns.length) speakTurn(turnIdx + 1, mySession, resolvedEngine);
+        else stopShortsPlayback(true);
+        return;
+      }
+
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
+
+      const isPro = turn.speaker === "PRO";
+      const clauseRaw = clauses[clauseIdx];
+      const visualWords = clauseRaw.trim().split(/\s+/).filter(Boolean);
+      const wordTimeline = buildWeightedWordTimeline(visualWords);
+      const spokenText = normalizeKoreanForTts(clauseRaw);
+      const spokenChars = Math.max(1, spokenText.replace(/\s+/g, "").length);
+      const estClauseSec = estimateClauseDurationSec(clauseRaw, playbackRate);
+      const { pro, con, label } = pickBestKoreanVoices();
+      const chosenVoice = isPro ? pro : con;
+
+      if (!document.getElementById("ttsStatusLabel").textContent.includes("할당량") && !document.getElementById("ttsStatusLabel").textContent.includes("미응답")) {
+        document.getElementById("ttsStatusLabel").textContent = `표준 한국어 · ${label}`;
+      }
+
+      // Hold subtitle on clause start word 0 until utter.onstart confirms audio has begun
+      renderKineticSubtitle(turn.text, isPro, { clauseIdx, wordIdx: 0 });
+
+      let audioStarted = false;
+      let startPerf = performance.now();
+      let boundaryWordIdx = -1;
+      let boundaryWordHits = 0;
+      let lastRenderedWord = 0;
+
+      timerInterval = setInterval(() => {
+        if (!isPlaying || mySession !== playSessionToken) return;
+        if (!audioStarted) return;
+        const clauseLocalSec = Math.max(0, (performance.now() - startPerf) / 1000);
+        const { starts, total } = getTurnTimeline();
+        const gSec = Math.min(total, (starts[turnIdx] || 0) + priorClausesSec + clauseLocalSec);
+        const pct = Math.min(100, (gSec / Math.max(total, 0.1)) * 100);
+        document.getElementById("shortsProgressBar").style.width = `${pct.toFixed(1)}%`;
+        document.getElementById("shortsTimerDisplay").textContent = `${formatMinSec(gSec)} / ${formatMinSec(total)}`;
+
+        const estWordIdx = wordIdxForRatio(wordTimeline, clauseLocalSec / Math.max(estClauseSec - 0.12, 0.6));
+        const wIdx = (boundaryWordHits >= 2 || boundaryWordIdx > 0) ? boundaryWordIdx : estWordIdx;
+        if (wIdx !== lastRenderedWord) {
+          lastRenderedWord = wIdx;
+          renderKineticSubtitle(turn.text, isPro, { clauseIdx, wordIdx: wIdx });
+        }
+      }, 55);
+
+      const finishClause = (fromVoiceEnd = false) => {
+        if (!isPlaying || mySession !== playSessionToken) return;
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
+
+        const realElapsedSec = audioStarted ? (performance.now() - startPerf) / 1000 : estClauseSec;
+        if (fromVoiceEnd && audioStarted && realElapsedSec > 0.7 && realElapsedSec < 22) {
+          const baseRealSec = Math.max(realElapsedSec - 0.15, 0.45) * playbackRate;
+          const observedCps = spokenChars / baseRealSec;
+          calibratedCps = Math.max(5.2, Math.min(11.5, calibratedCps * 0.45 + observedCps * 0.55));
+        }
+
+        renderKineticSubtitle(turn.text, isPro, { clauseIdx, wordIdx: Math.max(0, visualWords.length - 1) });
+        const isLastClause = clauseIdx + 1 >= clauses.length;
+        const nextDelay = isLastClause ? 250 : 120;
+        const nextPriorSec = priorClausesSec + (audioStarted ? realElapsedSec : estClauseSec);
+
+        turnTimeout = setTimeout(() => {
+          if (!isPlaying || mySession !== playSessionToken) return;
+          if (!isLastClause) {
+            speakClause(turnIdx, clauseIdx + 1, nextPriorSec, mySession, resolvedEngine);
+          } else if (turnIdx + 1 < turns.length) {
+            speakTurn(turnIdx + 1, mySession, resolvedEngine);
+          } else {
+            stopShortsPlayback(true);
+          }
+        }, nextDelay);
+      };
+
+      if ("speechSynthesis" in window && spokenText) {
         try {
-          const utter = new SpeechSynthesisUtterance(turn.text);
-          const { pro, con, distinct } = pickBestKoreanVoices();
-          const chosenVoice = isPro ? pro : con;
+          const utter = new SpeechSynthesisUtterance(spokenText);
+          activeUtteranceRef = utter;
           if (chosenVoice) utter.voice = chosenVoice;
           utter.lang = "ko-KR";
-          utter.pitch = distinct ? 1.0 : (isPro ? 0.96 : 1.05);
-          utter.rate = 1.02 * playbackRate;
+          utter.pitch = 1.0;
+          utter.rate = 1.0 * playbackRate;
 
-          let advanced = false;
-          const onFinish = () => {
-            if (advanced || !isPlaying || mySession !== playSessionToken) return;
-            advanced = true;
-            setTimeout(goNext, 280);
+          let settled = false;
+          const settle = (fromEnd) => {
+            if (settled) return;
+            settled = true;
+            activeUtteranceRef = null;
+            finishClause(fromEnd);
           };
-          utter.onend = onFinish;
-          utter.onerror = onFinish;
-          turnTimeout = setTimeout(onFinish, Math.max(estSec * 1000 + 4200, 14000));
-          setTimeout(() => {
-            if (isPlaying && mySession === playSessionToken) {
-              window.speechSynthesis.speak(utter);
+
+          const startGuard = setTimeout(() => {
+            if (!audioStarted && isPlaying && mySession === playSessionToken) {
+              audioStarted = true;
+              startPerf = performance.now();
             }
-          }, 45);
+          }, 2400);
+
+          utter.onstart = () => {
+            clearTimeout(startGuard);
+            if (!isPlaying || mySession !== playSessionToken) return;
+            audioStarted = true;
+            startPerf = performance.now();
+          };
+
+          utter.onboundary = (ev) => {
+            if (!isPlaying || mySession !== playSessionToken) return;
+            if (ev.name && ev.name !== "word") return;
+            if (!audioStarted) { audioStarted = true; startPerf = performance.now(); }
+            if (typeof ev.charIndex === "number" && ev.charIndex >= 0) {
+              boundaryWordHits++;
+              const r = Math.max(0, Math.min(0.995, (ev.charIndex + 0.5) / Math.max(spokenText.length, 1)));
+              boundaryWordIdx = wordIdxForRatio(wordTimeline, r);
+            }
+          };
+
+          utter.onend = () => { clearTimeout(startGuard); settle(true); };
+          utter.onerror = () => { clearTimeout(startGuard); settle(false); };
+
+          turnTimeout = setTimeout(() => settle(false), Math.max((estClauseSec + 5.5) * 1000, 12000));
+          window.speechSynthesis.speak(utter);
           return;
         } catch (e) {}
       }
 
-      turnTimeout = setTimeout(goNext, estSec * 1000);
+      audioStarted = true;
+      startPerf = performance.now();
+      turnTimeout = setTimeout(() => finishClause(false), estClauseSec * 1000);
     }
 
     function stopShortsPlayback(completed = false) {
       playSessionToken++;
       isPlaying = false;
+      activeUtteranceRef = null;
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
       if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
-      if (currentHtmlAudio) { try { currentHtmlAudio.pause(); } catch (e) {} currentHtmlAudio = null; }
+      releaseCurrentHtmlAudio();
       if ("speechSynthesis" in window) {
         try { window.speechSynthesis.cancel(); } catch (e) {}
       }

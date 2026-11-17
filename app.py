@@ -537,6 +537,7 @@ async def api_render_mp4(req: RenderMp4Request):
     t0 = time.perf_counter()
     filename = f"hannyang_shorts_{int(time.time())}.mp4"
     out_path = VIDEOS_DIR / filename
+    render_meta: Dict[str, Any] = {}
     render_debate_mp4(
         issue_title=req.issue_title,
         category_badge=req.category_badge or "한냥 공론장 중재 쇼츠",
@@ -544,12 +545,16 @@ async def api_render_mp4(req: RenderMp4Request):
         debate_script=req.debate_script,
         output_mp4=out_path,
         turn_audio_b64_list=req.turn_audio_b64_list,
+        meta_out=render_meta,
     )
     elapsed_s = round(time.perf_counter() - t0, 2)
     return {
         "video_mp4_url": f"/static/videos/{filename}",
         "file_size_bytes": out_path.stat().st_size,
         "render_time_sec": elapsed_s,
+        "has_voice_track": bool(render_meta.get("has_voice")),
+        "voiced_turns": int(render_meta.get("voiced_turns", 0)),
+        "total_turns": int(render_meta.get("total_turns", len(req.debate_script[:6]))),
     }
 
 
