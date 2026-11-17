@@ -202,7 +202,7 @@ def generate_chart1_empirical_kde() -> Path:
 
   <rect x="{peak_med_x + 28:.1f}" y="{peak_med_y + 10:.1f}" width="370" height="62" rx="10" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
   <text x="{peak_med_x + 213:.1f}" y="{peak_med_y + 37:.1f}" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15.5" font-weight="700" fill="#1E40AF">
-    Agora-Shorts 중재 후 분포 (Blue, N=527)
+    한냥(Hannyang) 중재 후 분포 (Blue, N=527)
   </text>
   <text x="{peak_med_x + 213:.1f}" y="{peak_med_y + 60:.1f}" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="13.5" font-weight="500" fill="#1D4ED8">
     실측 평균 μ = {mean_med:.1f}점 (SD = {sd_med:.1f}) | 논리적 아나운서 대본화

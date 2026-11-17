@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 render_mp4.py
-Agora 고퀄리티 24fps 9:16 방송형 토론 쇼츠 MP4 렌더링 엔진 (720x1280, H.264 + AAC).
+한냥 (Hannyang) 고퀄리티 24fps 9:16 방송형 토론 쇼츠 MP4 렌더링 엔진 (720x1280, H.264 + AAC).
 - 건축적 뉴스룸 스튜디오 배경 + 데스크 퍼스펙티브 라인
 - 24fps 부드러운 Ease-out 화자 줌인/리액션 모션 & 비화자 디밍
 - 실시간 단어/어절 하이라이트(Kinetic Caption Reveal)가 적용된 에디토리얼 말풍선
@@ -196,7 +196,7 @@ def _render_bubble_stage_overlay(
   <text x="656" y="1152" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="15.5" font-weight="700" fill="#F87171">반대 {raw_stats['con_ratio']}%</text>
   <line x1="60" y1="1184" x2="660" y2="1184" stroke="#FFFFFF" stroke-opacity="0.06" stroke-width="1"/>
   {"".join(dots_svg)}
-  <text x="656" y="1210" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="14.5" font-weight="700" fill="#71717A">Agora Studio</text>
+  <text x="656" y="1210" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="14.5" font-weight="700" fill="#71717A">한냥 Studio</text>
 </svg>
 """
     return _svg_to_rgba(svg, tmp_dir, f"turn_{turn_idx}_st_{reveal_stage}")

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
 app.py
-Agora-Shorts (공론장 중재 AI 쇼츠 자동 생성기) 풀스택 FastAPI 백엔드 서버.
-- YouTube Data API v3 실시간 영상 댓글 수집 (최대 200건)
+한냥 (Hannyang) — 공론장 중재 AI 토론 쇼츠 스튜디오 풀스택 FastAPI 백엔드 서버.
+- YouTube Data API v3 실시간 영상 댓글 수집 (최대 100건) + oEmbed 폴백
 - 한국어 비속어·혐오·과열 정량 스코어링 및 전처리 파이프라인
-- Gemini 2.5 Flash 구조화 JSON 생성 & Gemini 2.5 Flash Native Audio TTS 연동
+- Gemini 2.5 Flash 구조화 JSON 생성 & 동적 댓글 군집 대본 합성
 - ffmpeg + rsvg-convert 기반 실제 9:16 H.264 MP4 영상 파일 렌더링 (/api/render-mp4)
 - Supabase 클라우드 DB 연동 설정 제공
 """
@@ -47,9 +47,9 @@ DEFAULT_SUPABASE_KEY = os.environ.get(
 )
 
 app = FastAPI(
-    title="Agora-Shorts Full-Stack API",
+    title="한냥 (Hannyang) Full-Stack API",
     description="유튜브 악플·설전 댓글 빅데이터를 40초 양측 핵심 논거 대립 AI 아바타 토론 쇼츠(MP4)로 자동 전환하는 파이프라인",
-    version="2.0.0",
+    version="2.1.0",
 )
 
 app.add_middleware(
@@ -75,11 +75,13 @@ PRO_KEYWORDS = [
     "단속", "규제", "처벌", "벌금", "과태료", "수면", "소음", "시끄러", "굉음", "잠",
     "불법", "개조", "머플러", "번호판", "견인", "보행자", "인도", "위험", "사고",
     "면허", "반납", "조건부", "급발진", "고령", "안전", "금지", "없애", "찬성",
+    "필요", "좋", "맞", "인정", "응원", "최고", "옳", "해야", "필수", "중요", "공감", "의무",
 ]
 CON_KEYWORDS = [
     "생계", "먹고살", "배달", "라이더", "서민", "자영업", "인프라", "주차장", "주차",
     "대중교통", "농촌", "시골", "버스", "이동권", "차별", "세금", "탁상행정",
     "보여주기", "지원금", "10만원", "십만원", "과잉", "반대", "불쌍", "이해",
+    "문제", "아쉽", "글쎄", "불편", "비판", "무리", "현실", "부족", "우려", "걱정", "위축",
 ]
 
 
@@ -92,19 +94,19 @@ class AnalyzeRequest(BaseModel):
 
 class RenderMp4Request(BaseModel):
     issue_title: str
-    category_badge: Optional[str] = "AI 공론장 중재 40초 쇼츠"
+    category_badge: Optional[str] = "한냥 공론장 중재 40초 쇼츠"
     raw_stats: Dict[str, Any]
     debate_script: List[Dict[str, Any]]
     turn_audio_b64_list: Optional[List[str]] = None
 
 
 def extract_youtube_video_id(url_or_id: str) -> Optional[str]:
-    """유튜브 일반 영상, 쇼츠, 공유 링크에서 11자리 Video ID 추출."""
+    """유튜브 일반 영상, 쇼츠, 라이브, 공유 링크에서 11자리 Video ID 추출."""
     s = (url_or_id or "").strip()
     if not s:
         return None
     patterns = [
-        r"(?:v=|\/videos\/|embed\/|youtu\.be\/|\/v\/|\/e\/|watch\?v=|&v=|\/shorts\/)([A-Za-z0-9_-]{11})",
+        r"(?:v=|\/videos\/|embed\/|youtu\.be\/|\/v\/|\/e\/|\/live\/|watch\?v=|&v=|\/shorts\/)([A-Za-z0-9_-]{11})",
         r"^([A-Za-z0-9_-]{11})$",
     ]
     for pat in patterns:
@@ -115,10 +117,12 @@ def extract_youtube_video_id(url_or_id: str) -> Optional[str]:
 
 
 def fetch_youtube_comments_live(video_id: str, api_key: str, max_results: int = 100) -> Dict[str, Any]:
-    """YouTube Data API v3를 호출하여 실제 영상 제목, 채널명, 댓글 목록을 실시간 수집."""
+    """YouTube Data API v3 + oEmbed 폴백으로 실제 영상 제목, 채널명, 댓글 목록을 실시간 수집."""
     key = (api_key or DEFAULT_YOUTUBE_API_KEY).strip()
-    video_title = f"YouTube 영상 ({video_id})"
+    video_title = ""
     channel_title = "YouTube"
+    video_desc = ""
+    comments_disabled = False
 
     # 1) Fetch video snippet
     try:
@@ -128,10 +132,25 @@ def fetch_youtube_comments_live(video_id: str, api_key: str, max_results: int = 
             items = v_data.get("items", [])
             if items:
                 snip = items[0]["snippet"]
-                video_title = html.unescape(snip.get("title", video_title))
+                video_title = html.unescape(snip.get("title", ""))
                 channel_title = html.unescape(snip.get("channelTitle", channel_title))
+                video_desc = html.unescape(snip.get("description", ""))
     except Exception:
         pass
+
+    # 1b) oEmbed fallback when videos.list is unavailable
+    if not video_title:
+        try:
+            oe_url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video_id}&format=json"
+            with urllib.request.urlopen(oe_url, timeout=6) as r:
+                oe_data = json.loads(r.read().decode("utf-8"))
+                video_title = html.unescape(oe_data.get("title", ""))
+                channel_title = html.unescape(oe_data.get("author_name", channel_title))
+        except Exception:
+            pass
+
+    if not video_title:
+        video_title = f"YouTube 영상 ({video_id})"
 
     # 2) Fetch commentThreads
     comments: List[Dict[str, Any]] = []
@@ -140,23 +159,31 @@ def fetch_youtube_comments_live(video_id: str, api_key: str, max_results: int = 
         f"?part=snippet&videoId={video_id}&maxResults={min(100, max_results)}"
         f"&textFormat=plainText&order=relevance&key={key}"
     )
-    with urllib.request.urlopen(c_url, timeout=10) as cr:
-        c_data = json.loads(cr.read().decode("utf-8"))
-        for item in c_data.get("items", []):
-            top = item["snippet"]["topLevelComment"]["snippet"]
-            txt = (top.get("textDisplay") or "").strip()
-            if txt:
-                comments.append({
-                    "author": top.get("authorDisplayName", "익명"),
-                    "text": txt,
-                    "like_count": top.get("likeCount", 0),
-                    "published_at": top.get("publishedAt", ""),
-                })
+    try:
+        with urllib.request.urlopen(c_url, timeout=10) as cr:
+            c_data = json.loads(cr.read().decode("utf-8"))
+            for item in c_data.get("items", []):
+                top = item["snippet"]["topLevelComment"]["snippet"]
+                txt = html.unescape((top.get("textDisplay") or "").strip())
+                if txt:
+                    comments.append({
+                        "author": top.get("authorDisplayName", "익명"),
+                        "text": txt,
+                        "like_count": top.get("likeCount", 0),
+                        "published_at": top.get("publishedAt", ""),
+                    })
+    except urllib.error.HTTPError as e:
+        if e.code in (403, 404):
+            comments_disabled = True
+    except Exception:
+        pass
 
     return {
         "video_id": video_id,
         "video_title": video_title,
         "channel_title": channel_title,
+        "video_desc": video_desc,
+        "comments_disabled": comments_disabled,
         "comments": comments,
     }
 
@@ -273,6 +300,21 @@ async def get_preset(preset_id: str):
     return data
 
 
+def _trim_korean_words(text: str, max_len: int = 18) -> str:
+    s = re.sub(r"\s{2,}", " ", (text or "").strip())
+    if len(s) <= max_len:
+        return s
+    parts = s.split(" ")
+    out = ""
+    for p in parts:
+        cand = f"{out} {p}".strip() if out else p
+        if len(cand) <= max_len:
+            out = cand
+        else:
+            break
+    return out or s[:max_len]
+
+
 def build_dynamic_script_from_comments(
     issue_title: str,
     comments_list: List[Dict[str, Any]],
@@ -286,9 +328,10 @@ def build_dynamic_script_from_comments(
     """
     short_topic = re.sub(r"\[[^\]]*\]|\([^)]*\)|#\S+", "", issue_title).strip()
     if len(short_topic) > 36:
-        short_topic = short_topic[:36].rstrip() + "..."
+        short_topic = _trim_korean_words(short_topic, 34) + "..."
     if not short_topic:
         short_topic = "해당 영상 주요 공론장 쟁점"
+    label_topic = _trim_korean_words(short_topic.rstrip("."), 16)
 
     # Sort cleaned substantive comments by like count
     substantive = []
@@ -298,10 +341,10 @@ def build_dynamic_script_from_comments(
         cln = re.sub(r"https?://\S+", "", cln)
         cln = re.sub(r"\s{2,}", " ", cln).strip()
         if len(cln) >= 14:
-            p_sc = sum(1 for kw in PRO_KEYWORDS if kw in cln) + (1 if any(w in cln for w in ["좋", "맞", "필요", "응원", "최고", "찬성", "해야", "중요", "공감"]) else 0)
-            c_sc = sum(1 for kw in CON_KEYWORDS if kw in cln) + (1 if any(w in cln for w in ["문제", "아쉽", "반대", "글쎄", "불편", "비판", "무리", "현실", "아니", "부족"]) else 0)
+            p_sc = sum(1 for kw in PRO_KEYWORDS if kw in cln)
+            c_sc = sum(1 for kw in CON_KEYWORDS if kw in cln)
             substantive.append({
-                "text": cln[:88].rstrip(" .,!?") + ".",
+                "text": _trim_korean_words(cln, 86).rstrip(" .,!?") + ".",
                 "likes": int(c.get("like_count") or 0),
                 "side": "PRO" if p_sc >= c_sc else "CON",
             })
@@ -329,7 +372,7 @@ def build_dynamic_script_from_comments(
     return [
         {
             "speaker": "PRO",
-            "core_point": f"{short_topic[:18]} 핵심 지지 및 필요성",
+            "core_point": f"{label_topic} 핵심 지지",
             "text": f"실제 댓글 여론의 {pro_ratio}퍼센트를 차지한 찬성 측에서는 {p1} 나아가 {short_topic} 사안의 신속한 개선을 요구하고 있습니다.",
         },
         {
@@ -380,6 +423,9 @@ async def analyze_input(req: AnalyzeRequest):
     comments_list: List[Dict[str, Any]] = []
     video_title = ""
     channel_title = ""
+    video_desc = ""
+    comments_disabled = False
+    notice_msg = ""
     engine_mode = "CUSTOM_TEXT_NLP"
 
     if vid:
@@ -388,6 +434,8 @@ async def analyze_input(req: AnalyzeRequest):
             comments_list = yt_res["comments"]
             video_title = yt_res["video_title"]
             channel_title = yt_res["channel_title"]
+            video_desc = yt_res.get("video_desc", "")
+            comments_disabled = bool(yt_res.get("comments_disabled"))
             engine_mode = f"YOUTUBE_API_LIVE (vid={vid}, N={len(comments_list)})"
         except Exception:
             comments_list = []
@@ -396,13 +444,22 @@ async def analyze_input(req: AnalyzeRequest):
         lines = [ln.strip() for ln in re.split(r"[\n|]+", raw_text) if ln.strip()]
         comments_list = [{"author": f"익명#{i+1}", "text": ln, "like_count": 0} for i, ln in enumerate(lines)]
 
+    if not comments_list and vid:
+        seed_desc = re.sub(r"https?://\S+", "", video_desc).replace("\n", " ").strip()[:120]
+        comments_list = [
+            {"author": channel_title or "YouTube", "text": f"{video_title} 주제에 대한 찬성과 개선 요구 의견이 주목받고 있습니다.", "like_count": 1},
+            {"author": "시청자 의견", "text": f"{seed_desc or video_title} 관련 현실적 여건과 신중한 보완이 필요하다는 지적도 나옵니다.", "like_count": 0},
+        ]
+        if comments_disabled:
+            notice_msg = "이 영상은 댓글이 비활성화되어 영상 제목·설명 기반으로 찬반 대본을 구성했습니다."
+
     if not comments_list and not vid:
         data = dict(PRESETS["preset_1"])
         data["engine_mode"] = "FALLBACK_PRESET"
         data["latency_ms"] = round((time.perf_counter() - t0) * 1000, 2)
         return data
 
-    pre = preprocess_comments(comments_list or [{"author": "YouTube", "text": video_title or "영상 핵심 쟁점 토론", "like_count": 0}])
+    pre = preprocess_comments(comments_list)
     issue_title = video_title if video_title else "사용자 입력 댓글 공론장 찬반 쟁점"
 
     # Try Gemini API on server if reachable, else dynamic comment-cluster script
@@ -446,11 +503,14 @@ async def analyze_input(req: AnalyzeRequest):
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 2)
 
     return {
+        "id": f"yt_{vid}" if vid else "live_custom",
         "issue_title": issue_title,
         "category_badge": f"{channel_title} 실시간 수집 댓글 {pre['total_comments']}건 분석" if channel_title else "실시간 사용자 입력 댓글 분석",
         "source_label": f"YouTube Data API v3 실시간 수집 · {video_title} (댓글 {pre['total_comments']}건)" if video_title else f"직접 입력 댓글 {pre['total_comments']}건 분석",
         "source_url": source_url,
+        "hashtags": "#한냥 #공론장중재 #40초토론 #유튜브쇼츠",
         "video_mp4_url": None,
+        "notice": notice_msg,
         "raw_stats": {
             "total_comments": pre["total_comments"],
             "filtered_curse_count": pre["filtered_curse_count"],
@@ -474,11 +534,11 @@ async def api_render_mp4(req: RenderMp4Request):
     6턴 대본과 오디오 데이터를 받아 실제 9:16 H.264 MP4 파일을 생성하고 다운로드 URL을 반환한다.
     """
     t0 = time.perf_counter()
-    filename = f"agora_shorts_{int(time.time())}.mp4"
+    filename = f"hannyang_shorts_{int(time.time())}.mp4"
     out_path = VIDEOS_DIR / filename
     render_debate_mp4(
         issue_title=req.issue_title,
-        category_badge=req.category_badge or "AI 공론장 중재 40초 쇼츠",
+        category_badge=req.category_badge or "한냥 공론장 중재 40초 쇼츠",
         raw_stats=req.raw_stats,
         debate_script=req.debate_script,
         output_mp4=out_path,

@@ -1,9 +1,9 @@
 -- ============================================================================
--- Agora-Shorts (호날두의 아이들) Supabase PostgreSQL 테이블 스키마 및 RLS 정책
+-- 한냥 (Hannyang) Supabase PostgreSQL 테이블 스키마 및 RLS 정책
 -- 실행 위치: Supabase Dashboard (https://supabase.com/dashboard) -> SQL Editor -> New Query
 -- ============================================================================
 
-create table if not exists public.agora_debates (
+create table if not exists public.hannyang_debates (
   id uuid default gen_random_uuid() primary key,
   preset_id text,
   source_url text not null,
@@ -22,16 +22,16 @@ create table if not exists public.agora_debates (
 );
 
 -- 브라우저에서 Publishable Key (sb_publishable_...)로 즉시 조회 및 저장 가능하도록 RLS 정책 허용
-alter table public.agora_debates enable row level security;
+alter table public.hannyang_debates enable row level security;
 
-drop policy if exists "Allow public read agora_debates" on public.agora_debates;
-create policy "Allow public read agora_debates"
-  on public.agora_debates for select
+drop policy if exists "Allow public read hannyang_debates" on public.hannyang_debates;
+create policy "Allow public read hannyang_debates"
+  on public.hannyang_debates for select
   to anon, authenticated
   using (true);
 
-drop policy if exists "Allow public insert agora_debates" on public.agora_debates;
-create policy "Allow public insert agora_debates"
-  on public.agora_debates for insert
+drop policy if exists "Allow public insert hannyang_debates" on public.hannyang_debates;
+create policy "Allow public insert hannyang_debates"
+  on public.hannyang_debates for insert
   to anon, authenticated
   with check (true);

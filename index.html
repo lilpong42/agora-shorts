@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agora — 공론장 토론 쇼츠 스튜디오</title>
+  <title>한냥 — 공론장 토론 쇼츠 스튜디오</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
   <style>
@@ -303,7 +303,7 @@
             <span class="w-1 h-3 rounded-xs bg-[#60A5FA]"></span>
             <span class="w-1 h-3 rounded-xs bg-[#F87171]"></span>
           </div>
-          <span class="font-bold text-[15.5px] text-[#111317] tracking-tight">Agora</span>
+          <span class="font-bold text-[15.5px] text-[#111317] tracking-tight">한냥</span>
           <span class="hidden sm:inline text-[12px] text-[#A1A1AA] font-medium">/ 공론장 쇼츠 스튜디오</span>
         </div>
 
@@ -373,8 +373,10 @@
               고령 운전자 면허 (147건)
             </button>
           </div>
-          <span class="text-[12px] text-[#71717A]" id="miniSummaryStats">댓글 200건 중 과열 58건 정제</span>
+          <span class="text-[12px] text-[#71717A]" id="miniSummaryStats">댓글 200건 중 과열 58건(29.0%) 정제</span>
         </div>
+
+        <div id="commandNotice" class="hidden mt-3 px-3 py-2 rounded-lg text-[12px] font-medium bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]"></div>
 
         <div id="customTextWrapper" class="hidden mt-3 pt-3 border-t border-[#F4F4F5]">
           <textarea
@@ -470,7 +472,7 @@
                     </div>
                     <div class="flex items-center justify-between pt-1 border-t border-white/[0.06]">
                       <div class="flex items-center gap-1" id="shortsTurnDots"></div>
-                      <span class="text-[9.5px] text-[#71717A] font-medium">Agora Studio</span>
+                      <span class="text-[9.5px] text-[#71717A] font-medium">한냥 Studio</span>
                     </div>
                   </div>
                 </div>
@@ -734,7 +736,7 @@
       <p class="text-[12.5px] text-[#71717A]">
         Supabase 대시보드 SQL Editor에서 아래 DDL을 한 번 실행하면 클라우드 저장이 활성화됩니다.
       </p>
-      <pre id="sqlCodeBlock" class="text-[11.5px] text-[#111317] bg-[#F4F4F5] border border-[#E4E4E7] rounded-lg p-3.5 overflow-auto max-h-60 mono-num">create table if not exists public.agora_debates (
+      <pre id="sqlCodeBlock" class="text-[11.5px] text-[#111317] bg-[#F4F4F5] border border-[#E4E4E7] rounded-lg p-3.5 overflow-auto max-h-60 mono-num">create table if not exists public.hannyang_debates (
   id uuid default gen_random_uuid() primary key,
   preset_id text,
   source_url text not null,
@@ -750,9 +752,9 @@
   engine_mode text default 'YOUTUBE_GEMINI_LIVE',
   created_at timestamptz default now()
 );
-alter table public.agora_debates enable row level security;
-create policy "Allow public read" on public.agora_debates for select to anon using (true);
-create policy "Allow public insert" on public.agora_debates for insert to anon with check (true);</pre>
+alter table public.hannyang_debates enable row level security;
+create policy "Allow public read" on public.hannyang_debates for select to anon using (true);
+create policy "Allow public insert" on public.hannyang_debates for insert to anon with check (true);</pre>
       <div class="flex justify-end">
         <button onclick="navigator.clipboard.writeText(document.getElementById('sqlCodeBlock').textContent)" class="btn-ink px-4 py-2 text-[12.5px]">
           SQL 복사
@@ -970,17 +972,46 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(input.trim()) ? input.trim() : null);
     }
 
+    function setCommandNotice(msg = "", isWarn = true) {
+      const el = document.getElementById("commandNotice");
+      if (!el) return;
+      if (!msg) {
+        el.classList.add("hidden");
+        el.textContent = "";
+        return;
+      }
+      el.className = isWarn
+        ? "mt-3 px-3 py-2 rounded-lg text-[12px] font-medium bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]"
+        : "mt-3 px-3 py-2 rounded-lg text-[12px] font-medium bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE]";
+      el.textContent = msg;
+      el.classList.remove("hidden");
+    }
+
+    function trimKoreanWords(text, maxLen = 18) {
+      const s = (text || "").replace(/\s{2,}/g, " ").trim();
+      if (s.length <= maxLen) return s;
+      const parts = s.split(" ");
+      let out = "";
+      for (const p of parts) {
+        const cand = out ? `${out} ${p}` : p;
+        if (cand.length <= maxLen) out = cand;
+        else break;
+      }
+      return out || s.slice(0, maxLen);
+    }
+
     function parseGeminiJson(text) {
       const cleaned = (text || "").replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
       return JSON.parse(cleaned);
     }
 
     function buildDynamicScriptFromComments(issueTitle, comments, proRatio, conRatio, toxicRe, proRe, conRe) {
-      const shortTopic = (issueTitle || "영상 공론장 핵심 쟁점")
+      const cleanRawTopic = (issueTitle || "영상 공론장 핵심 쟁점")
         .replace(/\[[^\]]*\]|\([^)]*\)|#\S+/g, "")
         .replace(/\s{2,}/g, " ")
-        .trim()
-        .slice(0, 34);
+        .trim();
+      const shortTopic = trimKoreanWords(cleanRawTopic, 34) || "영상 공론장 핵심 쟁점";
+      const labelTopic = trimKoreanWords(shortTopic, 16);
 
       const substantive = [];
       comments.forEach((c) => {
@@ -994,7 +1025,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
           const isPro = proRe.test(cln) && !conRe.test(cln);
           const isCon = conRe.test(cln) && !proRe.test(cln);
           const side = isCon ? "CON" : (isPro ? "PRO" : (substantive.length % 2 === 0 ? "PRO" : "CON"));
-          const quote = cln.slice(0, 82).replace(/[.,!?]+$/, "");
+          const quote = trimKoreanWords(cln, 82).replace(/[.,!?]+$/, "");
           substantive.push({ quote, likes: c.like_count || 0, side });
         }
       });
@@ -1020,7 +1051,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       return [
         {
           speaker: "PRO",
-          core_point: `${shortTopic.slice(0, 18)} 핵심 지지 의견`,
+          core_point: `${labelTopic} 핵심 지지`,
           text: `이번 영상 댓글 여론의 ${proRatio}퍼센트를 차지한 찬성 측에서는 "${p1}"라며 ${shortTopic} 사안의 적극적인 변화를 요구했습니다.`
         },
         {
@@ -1053,6 +1084,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
     async function runLiveYouTubeOrCustomAnalysis() {
       stopShortsPlayback(false);
+      setCommandNotice("");
       const sourceUrl = document.getElementById("sourceUrlInput").value.trim();
       const rawText = document.getElementById("rawCommentsInput").value.trim();
       const btn = document.getElementById("runPipelineBtn");
@@ -1062,44 +1094,108 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
       try {
         const vid = extractVideoId(sourceUrl) || extractVideoId(rawText);
+
+        if (!vid && !rawText) {
+          setCommandNotice("유튜브 영상 URL을 입력하거나 [텍스트 입력]으로 댓글을 넣어 주세요.");
+          return;
+        }
+        if (sourceUrl && !vid && !rawText) {
+          setCommandNotice("올바른 유튜브 영상 링크 형식이 아닙니다. (watch?v=, shorts/, youtu.be/ 등 지원)");
+          return;
+        }
+
+        // If running on FastAPI backend, try /api/analyze first for unified server collection + NLP + Gemini
+        if (window.location.protocol.startsWith("http") && !window.location.hostname.includes("github.io")) {
+          try {
+            const apiRes = await fetch("/api/analyze", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ source_url: sourceUrl, raw_text: rawText })
+            });
+            if (apiRes.ok) {
+              const apiData = await apiRes.json();
+              if (apiData && apiData.debate_script && apiData.debate_script.length) {
+                ["preset_1", "preset_2", "preset_3"].forEach((id) => {
+                  const pb = document.getElementById(`presetBtn_${id}`);
+                  if (pb) pb.classList.remove("active");
+                });
+                if (apiData.notice) setCommandNotice(apiData.notice, false);
+                const wasVideoMode = playerMode === "video";
+                renderAll(apiData, apiData.engine_mode || `실시간 (${apiData.raw_stats.total_comments}건)`);
+                if (wasVideoMode) setPlayerMode("video");
+                else setPlayerMode("interactive");
+                return;
+              }
+            }
+          } catch (e) {}
+        }
+
         let comments = [];
         let videoTitle = "";
         let channelTitle = "";
         let videoDesc = "";
+        let ytErrorReason = "";
 
         if (vid) {
-          const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${vid}&key=${CONFIG.GOOGLE_API_KEY}`);
-          if (vRes.ok) {
-            const vJson = await vRes.json();
-            if (vJson.items && vJson.items.length) {
-              videoTitle = vJson.items[0].snippet.title;
-              channelTitle = vJson.items[0].snippet.channelTitle;
-              videoDesc = vJson.items[0].snippet.description || "";
+          try {
+            const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${vid}&key=${CONFIG.GOOGLE_API_KEY}`);
+            if (vRes.ok) {
+              const vJson = await vRes.json();
+              if (vJson.items && vJson.items.length) {
+                videoTitle = vJson.items[0].snippet.title;
+                channelTitle = vJson.items[0].snippet.channelTitle;
+                videoDesc = vJson.items[0].snippet.description || "";
+              }
+            } else {
+              const errJson = await vRes.json().catch(() => ({}));
+              ytErrorReason = errJson?.error?.errors?.[0]?.reason || `HTTP ${vRes.status}`;
             }
+          } catch (e) {}
+
+          if (!videoTitle) {
+            try {
+              const oeRes = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`);
+              if (oeRes.ok) {
+                const oeJson = await oeRes.json();
+                videoTitle = oeJson.title || "";
+                channelTitle = oeJson.author_name || "";
+              }
+            } catch (e) {}
           }
-          const cRes = await fetch(`https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${vid}&maxResults=100&textFormat=plainText&order=relevance&key=${CONFIG.GOOGLE_API_KEY}`);
-          if (cRes.ok) {
-            const cJson = await cRes.json();
-            comments = (cJson.items || []).map((it) => {
-              const s = it.snippet.topLevelComment.snippet;
-              return { author: s.authorDisplayName, text: s.textDisplay, like_count: s.likeCount || 0 };
-            });
-          }
+
+          try {
+            const cRes = await fetch(`https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${vid}&maxResults=100&textFormat=plainText&order=relevance&key=${CONFIG.GOOGLE_API_KEY}`);
+            if (cRes.ok) {
+              const cJson = await cRes.json();
+              comments = (cJson.items || []).map((it) => {
+                const s = it.snippet.topLevelComment.snippet;
+                return { author: s.authorDisplayName, text: s.textDisplay, like_count: s.likeCount || 0 };
+              });
+            } else {
+              const errJson = await cRes.json().catch(() => ({}));
+              ytErrorReason = errJson?.error?.errors?.[0]?.reason || ytErrorReason || `HTTP ${cRes.status}`;
+            }
+          } catch (e) {}
         }
 
         if (!comments.length && rawText) {
           comments = rawText.split(/[\n|]+/).filter(Boolean).map((t, i) => ({ author: `@user_${i+1}`, text: t.trim(), like_count: 0 }));
         }
 
-        if (!comments.length && vid && videoTitle) {
+        if (!comments.length && vid) {
+          const fallbackTitle = videoTitle || `YouTube 영상 (${vid})`;
           comments = [
-            { author: channelTitle || "YouTube", text: `${videoTitle} 영상 주제에 대한 찬성과 기대 의견이 이어지고 있습니다.`, like_count: 1 },
-            { author: "시청자 의견", text: `${videoDesc.slice(0, 120) || videoTitle} 관련 현실적 과제와 신중한 검토가 필요하다는 반응도 있습니다.`, like_count: 0 }
+            { author: channelTitle || "YouTube", text: `${fallbackTitle} 주제에 대한 찬성과 개선 요구 의견이 주목받고 있습니다.`, like_count: 1 },
+            { author: "시청자 의견", text: `${(videoDesc || fallbackTitle).slice(0, 120)} 관련 현실적 과제와 신중한 검토가 필요하다는 반응도 있습니다.`, like_count: 0 }
           ];
+          const reasonHint = ytErrorReason === "commentsDisabled"
+            ? "해당 영상은 댓글이 비활성화되어 영상 제목·설명 기반으로 찬반 대본을 생성했습니다."
+            : `댓글을 불러오지 못해(${ytErrorReason || "API 제한 또는 댓글 없음"}) 영상 제목 기반으로 대본을 구성했습니다.`;
+          setCommandNotice(reasonHint, false);
         }
 
         if (!comments.length) {
-          selectPreset("preset_1");
+          setCommandNotice("분석할 댓글을 찾지 못했습니다. [텍스트 입력]으로 댓글 내용을 넣어 주세요.");
           return;
         }
 
@@ -1109,8 +1205,8 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         });
 
         const toxicRe = /ㅅㅂ|시발|씨발|ㅂㅅ|병신|ㅈㄹ|지랄|ㅈ같|존나|새끼|미친|개소리|ㄱ\s*ㅐ소리|개판|딸배|킥라니|틀딱|쓰레기|양아치|살인|감옥|폐차|개법|덤터기|코미디|ㅉㅉ|ㅋㅋ+|ㅎㅎ+|ㅠ+|ㅜ+|!!+|\?\?+/gi;
-        const proRe = /단속|규제|처벌|벌금|과태료|수면|소음|불법|개조|견인|보행자|면허|반납|안전|금지|찬성|필요|좋|맞|인정|응원|최고|옳|해야|필수|중요|공감/;
-        const conRe = /생계|먹고살|배달|라이더|인프라|주차|대중교통|농촌|버스|이동권|차별|탁상행정|지원금|과잉|반대|문제|아쉽|글쎄|불편|비판|무리|현실|부족|우려|걱정|아니/;
+        const proRe = /단속|규제|처벌|벌금|과태료|수면|소음|불법|개조|견인|보행자|면허|반납|안전|금지|찬성|필요|좋|맞|인정|응원|최고|옳|해야|필수|중요|공감|의무/;
+        const conRe = /생계|먹고살|배달|라이더|인프라|주차|대중교통|농촌|버스|이동권|차별|탁상행정|지원금|과잉|반대|문제|아쉽|글쎄|불편|비판|무리|현실|부족|우려|걱정|아니|위축/;
 
         let toxicCnt = 0, proCnt = 0, conCnt = 0;
         let toxScores = [];
@@ -1199,7 +1295,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
           video_mp4_url: null,
           rendered_video_blob_url: null,
           issue_title: issueTitle,
-          hashtags: "#공론장중재 #40초토론 #이슈핵심정리 #유튜브쇼츠",
+          hashtags: "#한냥 #공론장중재 #40초토론 #유튜브쇼츠",
           raw_stats: {
             total_comments: total,
             filtered_curse_count: toxicCnt,
@@ -1225,30 +1321,35 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       const btn = document.getElementById("saveSupabaseBtn");
       const orig = btn.textContent;
       btn.textContent = "저장 중...";
+      const payload = JSON.stringify({
+        preset_id: currentData.id || "custom",
+        source_url: currentData.source_url || "",
+        issue_title: currentData.issue_title,
+        total_comments: currentData.raw_stats.total_comments,
+        filtered_curse_count: currentData.raw_stats.filtered_curse_count,
+        pro_ratio: currentData.raw_stats.pro_ratio,
+        con_ratio: currentData.raw_stats.con_ratio,
+        toxicity_before: currentData.raw_stats.toxicity_before,
+        toxicity_after: currentData.raw_stats.toxicity_after,
+        debate_script: currentData.debate_script,
+        detox_samples: currentData.detox_samples || []
+      });
       try {
-        const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/agora_debates`, {
-          method: "POST",
-          headers: {
-            "apikey": CONFIG.SUPABASE_KEY,
-            "Authorization": `Bearer ${CONFIG.SUPABASE_KEY}`,
-            "Content-Type": "application/json",
-            "Prefer": "return=representation"
-          },
-          body: JSON.stringify({
-            preset_id: currentData.id || "custom",
-            source_url: currentData.source_url || "",
-            issue_title: currentData.issue_title,
-            total_comments: currentData.raw_stats.total_comments,
-            filtered_curse_count: currentData.raw_stats.filtered_curse_count,
-            pro_ratio: currentData.raw_stats.pro_ratio,
-            con_ratio: currentData.raw_stats.con_ratio,
-            toxicity_before: currentData.raw_stats.toxicity_before,
-            toxicity_after: currentData.raw_stats.toxicity_after,
-            debate_script: currentData.debate_script,
-            detox_samples: currentData.detox_samples || []
-          })
-        });
-        if (res.ok) {
+        let saved = false;
+        for (const table of ["hannyang_debates", "agora_debates"]) {
+          const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/${table}`, {
+            method: "POST",
+            headers: {
+              "apikey": CONFIG.SUPABASE_KEY,
+              "Authorization": `Bearer ${CONFIG.SUPABASE_KEY}`,
+              "Content-Type": "application/json",
+              "Prefer": "return=representation"
+            },
+            body: payload
+          });
+          if (res.ok) { saved = true; break; }
+        }
+        if (saved) {
           btn.textContent = "저장됨";
           loadSupabaseArchive();
         } else {
@@ -1264,21 +1365,24 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
     async function loadSupabaseArchive() {
       const listEl = document.getElementById("supabaseArchiveList");
       try {
-        const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/agora_debates?select=id,issue_title,total_comments,filtered_curse_count,created_at&order=created_at.desc&limit=5`, {
-          headers: { "apikey": CONFIG.SUPABASE_KEY, "Authorization": `Bearer ${CONFIG.SUPABASE_KEY}` }
-        });
-        if (res.ok) {
-          const rows = await res.json();
-          if (rows && rows.length) {
-            listEl.innerHTML = rows.map((r) => `
-              <div class="studio-subpanel p-3 flex items-center justify-between gap-2">
-                <div class="truncate">
-                  <div class="font-semibold text-[#111317] truncate">${r.issue_title}</div>
-                  <div class="text-[11.5px] text-[#71717A]">댓글 ${r.total_comments}건 · 정화 ${r.filtered_curse_count}건</div>
+        for (const table of ["hannyang_debates", "agora_debates"]) {
+          const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/${table}?select=id,issue_title,total_comments,filtered_curse_count,created_at&order=created_at.desc&limit=5`, {
+            headers: { "apikey": CONFIG.SUPABASE_KEY, "Authorization": `Bearer ${CONFIG.SUPABASE_KEY}` }
+          });
+          if (res.ok) {
+            const rows = await res.json();
+            if (rows && rows.length) {
+              listEl.innerHTML = rows.map((r) => `
+                <div class="studio-subpanel p-3 flex items-center justify-between gap-2">
+                  <div class="truncate">
+                    <div class="font-semibold text-[#111317] truncate">${escapeHtml(r.issue_title)}</div>
+                    <div class="text-[11.5px] text-[#71717A]">댓글 ${r.total_comments}건 · 정화 ${r.filtered_curse_count}건</div>
+                  </div>
+                  <span class="text-[11.5px] font-semibold text-[#059669] shrink-0">저장됨</span>
                 </div>
-                <span class="text-[11.5px] font-semibold text-[#059669] shrink-0">저장됨</span>
-              </div>
-            `).join("");
+              `).join("");
+            }
+            return;
           }
         }
       } catch (e) {}
@@ -1365,6 +1469,21 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       return lines.slice(0, 6);
     }
 
+    function drawRoundRect(c, x, y, w, h, r) {
+      c.beginPath();
+      if (typeof c.roundRect === "function") {
+        c.roundRect(x, y, w, h, r);
+      } else {
+        const rr = Math.min(r, w / 2, h / 2);
+        c.moveTo(x + rr, y);
+        c.arcTo(x + w, y, x + w, y + h, rr);
+        c.arcTo(x + w, y + h, x, y + h, rr);
+        c.arcTo(x, y + h, x, y, rr);
+        c.arcTo(x, y, x + w, y, rr);
+        c.closePath();
+      }
+    }
+
     async function generateDynamicVideoUrl(onProgress = () => {}) {
       if (currentData.rendered_video_blob_url) return currentData.rendered_video_blob_url;
 
@@ -1377,7 +1496,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               issue_title: currentData.issue_title,
-              category_badge: currentData.source_label || "Agora Studio",
+              category_badge: currentData.source_label || "한냥 Studio",
               raw_stats: currentData.raw_stats,
               debate_script: currentData.debate_script
             })
@@ -1394,46 +1513,65 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         } catch (e) {}
       }
 
+      if (typeof MediaRecorder === "undefined") {
+        throw new Error("이 브라우저에서는 동적 MP4/WebM 녹화를 지원하지 않습니다.");
+      }
+
       // 2) Client-side Broadcast 9:16 Canvas + Web Audio Renderer (works on GitHub Pages & static preview)
       const canvas = document.getElementById("hiddenShortsRecorderCanvas");
       const ctx = canvas.getContext("2d");
       const videoStream = canvas.captureStream(30);
 
       let audioCtxRec = null;
+      let keepAliveOsc = null;
       let combinedStream = videoStream;
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (AudioCtx) {
           audioCtxRec = new AudioCtx();
           if (audioCtxRec.state === "suspended") await audioCtxRec.resume();
-          const dest = audioCtxRec.createMediaStreamDestination();
-          combinedStream = new MediaStream([...videoStream.getVideoTracks(), ...dest.stream.getAudioTracks()]);
-          videoStream._audioDest = dest;
+          if (audioCtxRec.state === "running") {
+            const dest = audioCtxRec.createMediaStreamDestination();
+            keepAliveOsc = audioCtxRec.createOscillator();
+            const silentGain = audioCtxRec.createGain();
+            silentGain.gain.setValueAtTime(0.0001, audioCtxRec.currentTime);
+            keepAliveOsc.connect(silentGain);
+            silentGain.connect(dest);
+            keepAliveOsc.start();
+            combinedStream = new MediaStream([...videoStream.getVideoTracks(), ...dest.stream.getAudioTracks()]);
+            videoStream._audioDest = dest;
+          }
         }
       } catch (e) {}
 
       const mimeType = MediaRecorder.isTypeSupported("video/mp4;codecs=avc1")
         ? "video/mp4;codecs=avc1"
-        : (MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus") ? "video/webm;codecs=vp9,opus" : "video/webm");
+        : (MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
+          ? "video/webm;codecs=vp9,opus"
+          : (MediaRecorder.isTypeSupported("video/webm") ? "video/webm" : ""));
 
-      const recorder = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 4200000 });
+      const recorder = mimeType
+        ? new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 4200000 })
+        : new MediaRecorder(combinedStream, { videoBitsPerSecond: 4200000 });
+      const actualMime = recorder.mimeType || mimeType || "video/webm";
       const chunks = [];
       recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
 
       const donePromise = new Promise((resolve) => {
         recorder.onstop = () => {
-          const ext = mimeType.includes("mp4") ? "mp4" : "webm";
-          const blob = new Blob(chunks, { type: mimeType });
+          const ext = actualMime.includes("mp4") ? "mp4" : "webm";
+          const blob = new Blob(chunks, { type: actualMime });
           const url = URL.createObjectURL(blob);
           currentData.rendered_video_blob_url = url;
           currentData.rendered_video_ext = ext;
+          if (keepAliveOsc) { try { keepAliveOsc.stop(); } catch (e) {} }
           if (audioCtxRec) { try { audioCtxRec.close(); } catch (e) {} }
           resolve(url);
         };
       });
 
       const playRecNote = (freq, dur = 0.25, gainVal = 0.08) => {
-        if (!audioCtxRec || !videoStream._audioDest) return;
+        if (!audioCtxRec || audioCtxRec.state !== "running" || !videoStream._audioDest) return;
         try {
           const now = audioCtxRec.currentTime;
           const osc = audioCtxRec.createOscillator();
@@ -1487,9 +1625,9 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
           // Top Progress Bar & Status
           ctx.fillStyle = "#272A34";
-          ctx.beginPath(); ctx.roundRect(38, 34, 644, 8, 4); ctx.fill();
+          drawRoundRect(ctx, 38, 34, 644, 8, 4); ctx.fill();
           ctx.fillStyle = accent;
-          ctx.beginPath(); ctx.roundRect(38, 34, Math.max(16, 644 * progress), 8, 4); ctx.fill();
+          drawRoundRect(ctx, 38, 34, Math.max(16, 644 * progress), 8, 4); ctx.fill();
 
           ctx.fillStyle = "#E4E4E7";
           ctx.font = "bold 20px Pretendard, sans-serif";
@@ -1503,26 +1641,27 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
           ctx.fillStyle = "rgba(24, 27, 36, 0.94)";
           ctx.strokeStyle = "rgba(255,255,255,0.08)";
           ctx.lineWidth = 1.5;
-          ctx.beginPath(); ctx.roundRect(38, 100, 644, 96, 14); ctx.fill(); ctx.stroke();
+          drawRoundRect(ctx, 38, 100, 644, 96, 14); ctx.fill(); ctx.stroke();
           ctx.fillStyle = "#F4F4F5";
           ctx.font = "bold 22px Pretendard, sans-serif";
           ctx.textAlign = "center";
           titleLines.forEach((tl, ti) => ctx.fillText(tl, 360, 142 + ti * 30));
           ctx.textAlign = "left";
 
-          // Characters (draw listener first, active speaker front with ease-out)
+          // Characters (draw listener first, active speaker front with ease-out, normalized height)
           const enter = Math.min(1, localSec / 0.35);
           const ease = 1 - Math.pow(1 - enter, 3);
           const bob = Math.sin(localSec * 10) * 3.5 + Math.sin(localSec * 4) * 2;
           const breath = Math.sin(localSec * 2.1) * 1.5;
 
           const drawSpeaker = (img, isActive, baseX, bobOff, slidePx) => {
-            if (!img || !img.complete || img.naturalWidth <= 0) return;
+            if (!img || !img.complete || img.naturalWidth <= 0 || img.naturalHeight <= 0) return;
             ctx.save();
             ctx.globalAlpha = isActive ? 1.0 : 0.48;
-            const scale = isActive ? 0.92 : 0.78;
+            const targetH = isActive ? 495 : 415;
+            const scale = targetH / img.naturalHeight;
             const dw = img.naturalWidth * scale;
-            const dh = img.naturalHeight * scale;
+            const dh = targetH;
             ctx.drawImage(img, baseX - dw / 2 + slidePx, 1146 - dh + bobOff, dw, dh);
             ctx.restore();
           };
@@ -1537,9 +1676,9 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
           // Editorial Speech Bubble + Top Stance Bar
           ctx.fillStyle = "#FFFFFF";
-          ctx.beginPath(); ctx.roundRect(38, 220, 644, 356, 20); ctx.fill();
+          drawRoundRect(ctx, 38, 220, 644, 356, 20); ctx.fill();
           ctx.fillStyle = accent;
-          ctx.beginPath(); ctx.roundRect(38, 220, 644, 6, 3); ctx.fill();
+          drawRoundRect(ctx, 38, 220, 644, 6, 3); ctx.fill();
 
           ctx.fillStyle = "#FFFFFF";
           ctx.beginPath();
@@ -1548,7 +1687,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
           ctx.fill();
 
           ctx.fillStyle = tint;
-          ctx.beginPath(); ctx.roundRect(74, 248, 96, 32, 8); ctx.fill();
+          drawRoundRect(ctx, 74, 248, 96, 32, 8); ctx.fill();
           ctx.fillStyle = accent;
           ctx.font = "bold 16px Pretendard, sans-serif";
           ctx.textAlign = "center";
@@ -1561,7 +1700,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
           ctx.fillStyle = accent;
           ctx.font = "bold 22px Pretendard, sans-serif";
-          ctx.fillText((turn.core_point || "").slice(0, 26), 76, 322);
+          ctx.fillText(trimKoreanWords(turn.core_point || "", 26), 76, 322);
           ctx.fillStyle = "#F4F4F5";
           ctx.fillRect(76, 338, 568, 2);
 
@@ -1575,7 +1714,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
             } else if (li < activeLineFloat) {
               ctx.fillStyle = tint;
               const estW = Math.min(560, Math.max(160, ln.length * 16.5));
-              ctx.beginPath(); ctx.roundRect(70, ly - 22, estW, 28, 6); ctx.fill();
+              drawRoundRect(ctx, 70, ly - 22, estW, 28, 6); ctx.fill();
               ctx.fillStyle = accent;
               ctx.font = "bold 20.5px Pretendard, sans-serif";
             } else {
@@ -1588,7 +1727,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
           // Lower-Third Broadcast Desk + 12-Band Spectrum
           ctx.fillStyle = "rgba(21, 24, 33, 0.96)";
           ctx.strokeStyle = "rgba(255,255,255,0.09)";
-          ctx.beginPath(); ctx.roundRect(30, 1116, 660, 130, 18); ctx.fill(); ctx.stroke();
+          drawRoundRect(ctx, 30, 1116, 660, 130, 18); ctx.fill(); ctx.stroke();
 
           ctx.fillStyle = "#60A5FA";
           ctx.font = "bold 16px Pretendard, sans-serif";
@@ -1604,21 +1743,21 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
           const proW = Math.max(14, Math.round(220 * (currentData.raw_stats.pro_ratio / 100)));
           ctx.fillStyle = "#2563EB";
-          ctx.beginPath(); ctx.roundRect(250, 1142, proW, 8, 4); ctx.fill();
+          drawRoundRect(ctx, 250, 1142, proW, 8, 4); ctx.fill();
           ctx.fillStyle = "#DC2626";
-          ctx.beginPath(); ctx.roundRect(254 + proW, 1142, Math.max(6, 216 - proW), 8, 4); ctx.fill();
+          drawRoundRect(ctx, 254 + proW, 1142, Math.max(6, 216 - proW), 8, 4); ctx.fill();
 
           for (let bi = 0; bi < 12; bi++) {
             const bx = 294 + bi * 11;
             const bh = Math.round(6 + 16 * (0.5 + 0.5 * Math.sin(localSec * 14 + bi * 0.75)));
             ctx.fillStyle = accent;
-            ctx.beginPath(); ctx.roundRect(bx, 1205 - bh / 2, 5, bh, 2); ctx.fill();
+            drawRoundRect(ctx, bx, 1205 - bh / 2, 5, bh, 2); ctx.fill();
           }
 
           ctx.fillStyle = "#71717A";
           ctx.font = "bold 14px Pretendard, sans-serif";
           ctx.textAlign = "right";
-          ctx.fillText("Agora Studio", 656, 1210);
+          ctx.fillText("한냥 Studio", 656, 1210);
           ctx.textAlign = "left";
 
           await new Promise((r) => setTimeout(r, 33));
@@ -1632,44 +1771,48 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
     async function exportReal916Video() {
       const statusEl = document.getElementById("mp4ExportStatus");
-      if (window.location.protocol.startsWith("http") && currentData.video_mp4_url) {
-        try {
-          const headRes = await fetch(currentData.video_mp4_url, { method: "HEAD" });
-          if (headRes.ok) {
-            const a = document.createElement("a");
-            a.href = currentData.video_mp4_url;
-            a.download = `${currentData.id || "agora_shorts"}_9x16.mp4`;
-            a.click();
-            statusEl.textContent = "9:16 MP4 다운로드 완료";
-            return;
-          }
-        } catch (e) {}
-      }
-
-      statusEl.textContent = "9:16 브로드캐스트 영상 생성 중 (약 9초)...";
-      const url = await generateDynamicVideoUrl((pct) => {
-        statusEl.textContent = `9:16 영상 렌더링 중 (${pct}%)...`;
-      });
-      if (url) {
-        const ext = currentData.rendered_video_ext || "webm";
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `agora_${currentData.id || "custom"}_9x16.${ext}`;
-        a.click();
-        statusEl.textContent = `9:16 영상(.${ext}) 저장 완료`;
-        if (playerMode === "video") {
-          const videoEl = document.getElementById("realMp4Player");
-          const srcEl = document.getElementById("realMp4Source");
-          if (srcEl) srcEl.setAttribute("src", url);
-          videoEl.setAttribute("src", url);
-          videoEl.load();
+      try {
+        if (window.location.protocol.startsWith("http") && currentData.video_mp4_url) {
+          try {
+            const headRes = await fetch(currentData.video_mp4_url, { method: "HEAD" });
+            if (headRes.ok) {
+              const a = document.createElement("a");
+              a.href = currentData.video_mp4_url;
+              a.download = `${currentData.id || "hannyang_shorts"}_9x16.mp4`;
+              a.click();
+              statusEl.textContent = "9:16 MP4 다운로드 완료";
+              return;
+            }
+          } catch (e) {}
         }
+
+        statusEl.textContent = "9:16 브로드캐스트 영상 생성 중 (약 9초)...";
+        const url = await generateDynamicVideoUrl((pct) => {
+          statusEl.textContent = `9:16 영상 렌더링 중 (${pct}%)...`;
+        });
+        if (url) {
+          const ext = currentData.rendered_video_ext || "webm";
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `hannyang_${currentData.id || "custom"}_9x16.${ext}`;
+          a.click();
+          statusEl.textContent = `9:16 영상(.${ext}) 저장 완료`;
+          if (playerMode === "video") {
+            const videoEl = document.getElementById("realMp4Player");
+            const srcEl = document.getElementById("realMp4Source");
+            if (srcEl) srcEl.setAttribute("src", url);
+            videoEl.setAttribute("src", url);
+            videoEl.load();
+          }
+        }
+      } catch (err) {
+        statusEl.textContent = `영상 생성 오류: ${err && err.message ? err.message : "렌더링 실패"}`;
       }
     }
 
     function copyVideoAiPrompt(btn) {
       const promptText = [
-        `[9:16 Vertical YouTube Shorts Video Prompt]`,
+        `[한냥 9:16 40s YouTube Shorts Video Prompt]`,
         `Topic: ${currentData.issue_title}`,
         `2 hosts debating face-to-face behind a minimalist dark podium.`,
         ...currentData.debate_script.map((t, i) => `Turn ${i + 1} (${t.speaker}): ${t.text}`)
@@ -1708,6 +1851,9 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
     function selectPreset(presetId) {
       stopShortsPlayback(false);
+      setCommandNotice("");
+      const statusEl = document.getElementById("mp4ExportStatus");
+      if (statusEl) statusEl.textContent = "";
       ["preset_1", "preset_2", "preset_3"].forEach((id) => {
         const btn = document.getElementById(`presetBtn_${id}`);
         if (btn) btn.classList.toggle("active", id === presetId);
@@ -1730,7 +1876,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
 
       document.getElementById("publishTitleInput").value = `[40초 토론] ${data.issue_title.slice(0, 52)} #쇼츠`;
       document.getElementById("publishDescInput").value =
-        `유튜브 실제 댓글 ${stats.total_comments}건을 분석해 비속어를 제거하고 찬반 핵심 논거만 50:50으로 정리한 40초 토론 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#공론장중재 #찬반토론 #40초쇼츠"}`;
+        `유튜브 실제 댓글 ${stats.total_comments}건을 분석해 비속어를 제거하고 찬반 핵심 논거만 50:50으로 정리한 40초 토론 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#한냥 #공론장중재 #40초토론 #쇼츠"}`;
       document.getElementById("miniSummaryStats").textContent =
         `댓글 ${stats.total_comments}건 중 과열 ${stats.filtered_curse_count}건(${filterRate}%) 정제`;
 
@@ -1882,6 +2028,9 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       const turn = turns[turnIdx] || turns[0];
       const isPro = turn.speaker === "PRO";
 
+      const progBar = document.getElementById("shortsProgressBar");
+      if (progBar) progBar.style.backgroundColor = isPro ? "#2563EB" : "#DC2626";
+
       document.getElementById("shortsTurnCounter").textContent = `${turnIdx + 1} / ${turns.length}`;
       document.getElementById("avatarCardPro").classList.toggle("speaking", isPro);
       document.getElementById("avatarCardCon").classList.toggle("speaking", !isPro);
@@ -2019,6 +2168,11 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       } else {
         document.getElementById("shortsProgressBar").style.width = "100%";
         document.getElementById("shortsTimerDisplay").textContent = "0.0s";
+        const turns = currentData.debate_script || [];
+        const finalTurn = turns[currentTurnIndex] || turns[turns.length - 1];
+        if (finalTurn) {
+          renderKineticSubtitle(finalTurn.text, finalTurn.speaker === "PRO", 1);
+        }
       }
     }
 
@@ -2083,6 +2237,19 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
       ctx.fillStyle = "rgba(37, 99, 235, 0.24)"; ctx.fill();
       ctx.strokeStyle = "#2563EB"; ctx.lineWidth = 3.5; ctx.stroke();
 
+      // Chart legend (Top-Right)
+      ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
+      ctx.strokeStyle = "#E4E4E7";
+      ctx.lineWidth = 1.5;
+      drawRoundRect(ctx, right - 295, top + 16, 275, 72, 10);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#DC2626"; ctx.fillRect(right - 275, top + 34, 18, 4);
+      ctx.fillStyle = "#111317"; ctx.font = "bold 13px Pretendard, sans-serif";
+      ctx.fillText("정화 전 과열 분포 (평균 62.8pt)", right - 248, top + 40);
+      ctx.fillStyle = "#2563EB"; ctx.fillRect(right - 275, top + 62, 18, 4);
+      ctx.fillStyle = "#111317";
+      ctx.fillText("한냥 중재 후 분포 (평균 14.4pt)", right - 248, top + 68);
+
       ctx.strokeStyle = "#3F3F46"; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, bottom); ctx.lineTo(right, bottom); ctx.stroke();
       for (let x = 0; x <= 100; x += 10) {
@@ -2116,7 +2283,7 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         ["주차 인프라 선행", 195], ["생계형 라이더 생존권", 109], ["현실적 교통비 보상", 75],
         ["농어촌·고령층 이동권", 64], ["탁상행정·실효성 비판", 45], ["일부 일탈 일반화 경계", 22]
       ];
-      const centerX = 600, maxBarW = 350, startY = 155, rowGap = 78;
+      const centerX = 600, maxBarW = 305, startY = 155, rowGap = 78;
       ctx.fillStyle = "#EFF6FF"; ctx.fillRect(60, 95, 455, 38);
       ctx.fillStyle = "#1D4ED8"; ctx.font = "bold 14.5px sans-serif";
       ctx.fillText("찬성·규제 군집 — 총 877회 (63.2%)", 84, 119);
@@ -2131,15 +2298,20 @@ create policy "Allow public insert" on public.agora_debates for insert to anon w
         const cw = Math.max(20, (cItem[1] / 280) * maxBarW);
         ctx.fillStyle = "#F4F4F5"; ctx.fillRect(centerX - 54, y, 108, 36);
         ctx.fillStyle = "#27272A"; ctx.font = "bold 13px sans-serif";
-        ctx.fillText(`쟁점 ${idx + 1}`, centerX - 20, y + 23);
+        ctx.textAlign = "center";
+        ctx.fillText(`쟁점 ${idx + 1}`, centerX, y + 23);
 
         const px = centerX - 64 - pw;
         ctx.fillStyle = "#2563EB"; ctx.fillRect(px, y + 2, pw, 32);
-        ctx.fillStyle = "#111317"; ctx.fillText(`${pItem[0]} (${pItem[1]})`, Math.max(24, px - 175), y + 23);
+        ctx.fillStyle = "#111317";
+        ctx.textAlign = "right";
+        ctx.fillText(`${pItem[0]} (${pItem[1]})`, px - 12, y + 23);
 
         const cx = centerX + 64;
         ctx.fillStyle = "#DC2626"; ctx.fillRect(cx, y + 2, cw, 32);
-        ctx.fillStyle = "#111317"; ctx.fillText(`${cItem[0]} (${cItem[1]})`, cx + cw + 12, y + 23);
+        ctx.fillStyle = "#111317";
+        ctx.textAlign = "left";
+        ctx.fillText(`${cItem[0]} (${cItem[1]})`, cx + cw + 12, y + 23);
       });
     }
 
