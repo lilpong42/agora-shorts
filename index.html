@@ -592,21 +592,27 @@
           </div>
         </div>
 
-        <!-- Clean Preset & Sample Strip -->
+        <!-- Clean Unified Preset & Example Strip -->
         <div class="pt-2.5 border-t border-slate-900/[0.06] flex flex-wrap items-center justify-between gap-2">
           <div class="flex flex-wrap items-center gap-1.5">
-            <button id="presetBtn_preset_1" onclick="selectPreset('preset_1')" class="topic-pill active">
+            <button type="button" id="presetBtn_preset_1" onclick="selectPreset('preset_1')" class="topic-pill active">
               배달 소음
             </button>
-            <button id="presetBtn_preset_2" onclick="selectPreset('preset_2')" class="topic-pill">
+            <button type="button" id="presetBtn_preset_2" onclick="selectPreset('preset_2')" class="topic-pill">
               전동킥보드
             </button>
-            <button id="presetBtn_preset_3" onclick="selectPreset('preset_3')" class="topic-pill">
+            <button type="button" id="presetBtn_preset_3" onclick="selectPreset('preset_3')" class="topic-pill">
               고령 운전자
             </button>
-            <button type="button" onclick="applySamplePack('it_review')" class="sample-chip">IT 리뷰</button>
-            <button type="button" onclick="applySamplePack('game_patch')" class="sample-chip">게임 패치</button>
-            <button type="button" onclick="applySamplePack('four_day')" class="sample-chip">주4일제</button>
+            <button type="button" id="sampleBtn_it_review" onclick="applySamplePack('it_review')" class="topic-pill">
+              IT 리뷰
+            </button>
+            <button type="button" id="sampleBtn_game_patch" onclick="applySamplePack('game_patch')" class="topic-pill">
+              게임 패치
+            </button>
+            <button type="button" id="sampleBtn_four_day" onclick="applySamplePack('four_day')" class="topic-pill">
+              주4일제
+            </button>
           </div>
           <span id="pipelineStepBadge" class="hidden px-2 py-0.5 rounded-md bg-sky-50 border border-sky-200 text-[11px] font-bold text-sky-700 mono-num"></span>
         </div>
@@ -616,13 +622,10 @@
         <!-- Expandable Custom Comment Input Drawer -->
         <div id="customTextWrapper" class="hidden pt-2.5 border-t border-slate-900/[0.06] space-y-2">
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <button type="button" onclick="applySamplePack('it_review')" class="sample-chip">IT 리뷰</button>
-              <button type="button" onclick="applySamplePack('game_patch')" class="sample-chip">게임 패치</button>
-              <button type="button" onclick="applySamplePack('four_day')" class="sample-chip">주4일제</button>
-              <button type="button" onclick="applySamplePack('noise_debate')" class="sample-chip">심야 소음</button>
-            </div>
-            <span id="customLineCountLabel" class="text-[11.5px] font-semibold text-slate-500 mono-num">0줄</span>
+            <span class="text-[12px] font-semibold text-slate-600">
+              댓글 직접 입력 <span class="font-normal text-slate-400">· 줄바꿈으로 구분</span>
+            </span>
+            <span id="customLineCountLabel" class="text-[11.5px] font-semibold text-slate-500 mono-num">0줄 입력됨</span>
           </div>
           <textarea
             id="rawCommentsInput"
@@ -1160,15 +1163,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           "중소기업이나 현장 제조·서비스 업종은 인건비와 납기 부담 때문에 당장 도입이 어렵습니다",
           "임금 삭감 없는 일괄 4일제보다 격주 4일제나 유연근무·코어타임부터 단계적으로 도입하는 게 현실적 대안이죠",
           "업종별 특성과 교대 근무 체계를 고려한 맞춤형 보완 정책과 세제 지원이 병행되어야 합니다"
-        ].join("\n")
-      },
-      noise_debate: {
-        mode: "battle",
-        comments: [
-          "새벽 주택가 오토바이 배기 소음 단속과 처벌 규제를 즉각 강화해야 시민이 잠을 잡니다",
-          "전면 번호판 의무화와 불법 소음기 개조 업체에 대한 강력한 과태료 부과가 필수입니다",
-          "생계형 야간 배달 라이더 전체를 범죄자 취급하면 안 되며 플랫폼 속도 경쟁부터 고쳐야 합니다",
-          "무작정 통행 금지하기 전에 전기 이륜차 전환 보조금과 배달 인프라 보완이 먼저입니다"
         ].join("\n")
       }
     };
@@ -1794,20 +1788,36 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       showToast("입력이 초기화되었습니다.");
     }
 
+    const EXAMPLE_BTN_IDS = [
+      "presetBtn_preset_1",
+      "presetBtn_preset_2",
+      "presetBtn_preset_3",
+      "sampleBtn_it_review",
+      "sampleBtn_game_patch",
+      "sampleBtn_four_day"
+    ];
+
+    function setActiveExampleButton(activeId = null) {
+      EXAMPLE_BTN_IDS.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle("active", id === activeId);
+      });
+    }
+
     function applySamplePack(key) {
       const pack = SAMPLE_PACKS[key];
       if (!pack) return;
       const modeSel = document.getElementById("analysisModeSelect");
       const urlEl = document.getElementById("sourceUrlInput");
-      const wrap = document.getElementById("customTextWrapper");
       const rawEl = document.getElementById("rawCommentsInput");
+      const activeBtnId = `sampleBtn_${key}`;
+      setActiveExampleButton(activeBtnId);
       if (modeSel) modeSel.value = pack.mode || "multi";
       if (urlEl) urlEl.value = "";
-      if (wrap) wrap.classList.remove("hidden");
       if (rawEl) rawEl.value = pack.comments;
       updateCustomLineCount();
       saveUiPrefs();
-      runLiveYouTubeOrCustomAnalysis();
+      runLiveYouTubeOrCustomAnalysis(activeBtnId);
     }
 
     function copyFullMetadata(btn) {
@@ -2450,7 +2460,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       };
     }
 
-    async function runLiveYouTubeOrCustomAnalysis() {
+    async function runLiveYouTubeOrCustomAnalysis(keepActiveBtnId = null) {
       stopShortsPlayback(false);
       setCommandNotice("");
       const sourceUrl = document.getElementById("sourceUrlInput").value.trim();
@@ -2484,10 +2494,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
             if (apiRes.ok) {
               const apiData = await apiRes.json();
               if (apiData && apiData.debate_script && apiData.debate_script.length) {
-                ["preset_1", "preset_2", "preset_3"].forEach((id) => {
-                  const pb = document.getElementById(`presetBtn_${id}`);
-                  if (pb) pb.classList.remove("active");
-                });
+                setActiveExampleButton(typeof keepActiveBtnId === "string" ? keepActiveBtnId : null);
                 if (apiData.notice) setCommandNotice(apiData.notice, false);
                 setPipelineStep("완료");
                 const wasVideoMode = playerMode === "video";
@@ -2571,10 +2578,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           return;
         }
 
-        ["preset_1", "preset_2", "preset_3"].forEach((id) => {
-          const pb = document.getElementById(`presetBtn_${id}`);
-          if (pb) pb.classList.remove("active");
-        });
+        setActiveExampleButton(typeof keepActiveBtnId === "string" ? keepActiveBtnId : null);
 
         setPipelineStep("2/4 비속어 정제·진영 추출");
         let issueTitle = videoTitle || "실시간 입력 댓글 진영 배틀";
@@ -4039,10 +4043,10 @@ ${sampleText}`;
       if (typeof setPipelineStep === "function") setPipelineStep("");
       const statusEl = document.getElementById("mp4ExportStatus");
       if (statusEl) statusEl.textContent = "";
-      ["preset_1", "preset_2", "preset_3"].forEach((id) => {
-        const btn = document.getElementById(`presetBtn_${id}`);
-        if (btn) btn.classList.toggle("active", id === presetId);
-      });
+      setActiveExampleButton(`presetBtn_${presetId}`);
+      const rawEl = document.getElementById("rawCommentsInput");
+      if (rawEl) rawEl.value = "";
+      updateCustomLineCount();
       const localCopy = JSON.parse(JSON.stringify(OFFLINE_PRESETS[presetId]));
       if (localCopy) {
         document.getElementById("sourceUrlInput").value = localCopy.source_url || "";
