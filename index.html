@@ -249,11 +249,11 @@
       inset: 0;
       z-index: 5;
       pointer-events: none;
-      background: radial-gradient(circle at 25% 66%, rgba(37, 99, 235, 0.24), rgba(37, 99, 235, 0.05) 42%, transparent 66%);
+      background: radial-gradient(circle at 20.4% 74%, rgba(37, 99, 235, 0.24), rgba(37, 99, 235, 0.05) 42%, transparent 66%);
       transition: background 0.35s ease;
     }
     .stage-spotlight.con-mode {
-      background: radial-gradient(circle at 75% 66%, rgba(220, 38, 38, 0.24), rgba(220, 38, 38, 0.05) 42%, transparent 66%);
+      background: radial-gradient(circle at 79.6% 74%, rgba(220, 38, 38, 0.24), rgba(220, 38, 38, 0.05) 42%, transparent 66%);
     }
 
     /* Sleek Dark Statement Card (No cartoon speech bubble / tail) */
@@ -279,23 +279,23 @@
     .kw-active-amber { color: #FFFFFF; background: #D97706; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
     .kw-upcoming { color: #94A3B8; font-weight: 600; }
 
-    /* Anime Arena Fighter Motion */
+    /* Anime Arena Fighter Motion (Waist-Up 64% Crop Locked Flush to Bottom) */
     .char-actor {
       transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), filter 0.28s ease, opacity 0.28s ease;
-      transform-origin: bottom center;
+      transform-origin: 50% 64%;
       filter: brightness(0.72) saturate(0.84) drop-shadow(0 8px 14px rgba(0, 0, 0, 0.6));
       opacity: 0.92;
-      transform: scale(0.95);
+      transform: scale(0.935);
     }
     .char-actor.speaking {
       filter: brightness(1.06) saturate(1.08) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.65));
       opacity: 1;
-      transform: scale(1.04);
+      transform: scale(1.0);
       animation: talkCadence 1.3s infinite ease-in-out alternate;
     }
     @keyframes talkCadence {
-      0% { transform: scale(1.04) translateY(0px); }
-      100% { transform: scale(1.055) translateY(-3px); }
+      0% { transform: scale(1.0) translateY(0px); }
+      100% { transform: scale(1.015) translateY(-2px); }
     }
 
     /* Clean HP Battle Animations */
@@ -315,9 +315,9 @@
     }
     .hit-flash-overlay {
       position: absolute;
-      inset: -6px -10px 18px -10px;
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(239, 68, 68, 0.55) 0%, rgba(220, 38, 38, 0.18) 55%, transparent 75%);
+      inset: -4px 4px 0 4px;
+      border-radius: 36px 36px 0 0;
+      background: radial-gradient(circle at 50% 45%, rgba(239, 68, 68, 0.55) 0%, rgba(220, 38, 38, 0.20) 55%, transparent 78%);
       opacity: 0;
       pointer-events: none;
       z-index: 22;
@@ -326,9 +326,9 @@
       animation: hitFlashRed 0.40s ease-out forwards;
     }
     @keyframes hitFlashRed {
-      0% { opacity: 0.9; transform: scale(0.94); }
-      45% { opacity: 0.55; transform: scale(1.05); }
-      100% { opacity: 0; transform: scale(1.1); }
+      0% { opacity: 0.9; transform: scale(0.95); }
+      45% { opacity: 0.55; transform: scale(1.03); }
+      100% { opacity: 0; transform: scale(1.06); }
     }
     .dmg-float-pop {
       position: absolute;
@@ -637,8 +637,8 @@
             <!-- Anodized Obsidian 9:16 Monitor Frame -->
             <div class="phone-chassis">
               <div id="interactiveViewport" class="phone-screen">
-                <!-- Minimal Dark Studio Floor -->
-                <div class="absolute inset-x-0 bottom-0 h-[17%] bg-[#070A11]/90 border-t border-white/10 pointer-events-none z-0"></div>
+                <!-- Subtle Bottom Vignette (No mid-torso floor line) -->
+                <div class="absolute inset-x-0 bottom-0 h-[18%] bg-gradient-to-t from-[#070A11]/75 via-[#070A11]/20 to-transparent pointer-events-none z-0"></div>
                 <div id="stageSpotlight" class="stage-spotlight"></div>
 
                 <!-- TOP: Dynamic Faction HP Gauge + Bold Issue Title + Clean Caption Card -->
@@ -698,29 +698,35 @@
                   </div>
                 </div>
 
-                <!-- Dynamic Faction Anime Fighters (Clean Silhouette on Minimal Stage) -->
-                <div id="fighterSlotA" class="absolute -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center justify-end" style="left: 25%; bottom: 15%; height: 37%;">
+                <!-- Dynamic Faction Anime Fighters (Enlarged Waist-Up Crop Anchored Flush to Bottom Edge) -->
+                <div id="fighterSlotA" class="absolute -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center justify-end" style="left: 20.4%; bottom: -2px; height: 44.5%; aspect-ratio: 1.22 / 1;">
                   <div id="dmgPopA" class="dmg-float-pop">-24 HP</div>
                   <div id="hitFlashA" class="hit-flash-overlay"></div>
-                  <img
-                    id="avatarCardPro"
-                    src="static/assets/pro_avatar.png"
-                    onerror="this.onerror=null;this.src='pro_avatar.png'"
-                    alt="A 진영"
-                    class="char-actor speaking h-full w-auto max-w-none select-none pointer-events-none"
-                  />
+                  <div class="w-full h-full overflow-hidden flex items-start justify-center">
+                    <img
+                      id="avatarCardPro"
+                      src="static/assets/pro_avatar.png"
+                      onerror="this.onerror=null;this.src='pro_avatar.png'"
+                      alt="A 진영"
+                      class="char-actor speaking w-auto max-w-none select-none pointer-events-none"
+                      style="height: 156.25%;"
+                    />
+                  </div>
                 </div>
 
-                <div id="fighterSlotB" class="absolute -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center justify-end" style="left: 75%; bottom: 15%; height: 37%;">
+                <div id="fighterSlotB" class="absolute -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center justify-end" style="left: 79.6%; bottom: -2px; height: 44.5%; aspect-ratio: 1.22 / 1;">
                   <div id="dmgPopB" class="dmg-float-pop">-24 HP</div>
                   <div id="hitFlashB" class="hit-flash-overlay"></div>
-                  <img
-                    id="avatarCardCon"
-                    src="static/assets/con_avatar.png"
-                    onerror="this.onerror=null;this.src='con_avatar.png'"
-                    alt="B 진영"
-                    class="char-actor h-full w-auto max-w-none select-none pointer-events-none"
-                  />
+                  <div class="w-full h-full overflow-hidden flex items-start justify-center">
+                    <img
+                      id="avatarCardCon"
+                      src="static/assets/con_avatar.png"
+                      onerror="this.onerror=null;this.src='con_avatar.png'"
+                      alt="B 진영"
+                      class="char-actor w-auto max-w-none select-none pointer-events-none"
+                      style="height: 156.25%;"
+                    />
+                  </div>
                 </div>
 
                 <!-- Final K.O. Victory Overlay -->
@@ -740,7 +746,7 @@
                 </div>
 
                 <!-- Clean Centered Turn Progress Pills -->
-                <div id="shortsTurnDots" class="relative z-30 mt-auto pb-1 flex items-center justify-center gap-1.5"></div>
+                <div id="shortsTurnDots" class="relative z-30 mt-auto mx-auto px-2.5 py-1.5 rounded-full bg-[#090D16]/75 border border-white/15 backdrop-blur-sm flex items-center justify-center gap-1.5"></div>
               </div>
 
               <!-- Real Broadcast Video Player -->
@@ -3436,7 +3442,8 @@ ${sampleText}`;
 
       const bakeHost = (img, targetH, active) => {
         if (!img || !img.complete || img.naturalWidth <= 0) return null;
-        const sc = targetH / img.naturalHeight;
+        const srcCropH = Math.round(img.naturalHeight * 0.64);
+        const sc = targetH / srcCropH;
         const dw = Math.round(img.naturalWidth * sc);
         const c = createOffscreenCanvas(dw + 16, targetH + 16);
         const cx = c.getContext("2d");
@@ -3444,13 +3451,13 @@ ${sampleText}`;
         if ("filter" in cx) {
           cx.filter = active ? "brightness(1.06) saturate(1.10)" : "brightness(0.70) saturate(0.84)";
         }
-        cx.drawImage(img, 8, 8, dw, targetH);
+        cx.drawImage(img, 0, 0, img.naturalWidth, srcCropH, 8, 8, dw, targetH);
         return { canvas: c, dw, dh: targetH };
       };
-      const proActH = bakeHost(proImg, 680, true);
-      const proIdleH = bakeHost(proImg, 646, false);
-      const conActH = bakeHost(conImg, 680, true);
-      const conIdleH = bakeHost(conImg, 646, false);
+      const proActH = bakeHost(proImg, 850, true);
+      const proIdleH = bakeHost(proImg, 795, false);
+      const conActH = bakeHost(conImg, 850, true);
+      const conIdleH = bakeHost(conImg, 795, false);
 
       const stageCache = {};
       const getStageCanvas = (isA, colorKey) => {
@@ -3465,16 +3472,14 @@ ${sampleText}`;
         cx.fillStyle = g;
         cx.fillRect(0, 0, W, H);
 
-        // Minimal clean studio floor
-        cx.fillStyle = "rgba(7, 10, 17, 0.92)";
-        cx.fillRect(0, 1595, W, H - 1595);
-        cx.fillStyle = "rgba(255, 255, 255, 0.08)";
-        cx.fillRect(0, 1595, W, 2);
+        // Subtle bottom vignette (no floor divider line across waist-up torsos)
+        cx.fillStyle = "rgba(7, 10, 17, 0.48)";
+        cx.fillRect(0, 1780, W, H - 1780);
 
-        const sx = isA ? 265 : 815;
-        const sy = 1230;
-        const rad = cx.createRadialGradient(sx, sy, 20, sx, sy, 420);
-        rad.addColorStop(0, isA ? "rgba(37, 99, 235, 0.24)" : "rgba(220, 38, 38, 0.24)");
+        const sx = isA ? 220 : 860;
+        const sy = 1460;
+        const rad = cx.createRadialGradient(sx, sy, 20, sx, sy, 460);
+        rad.addColorStop(0, isA ? "rgba(37, 99, 235, 0.25)" : "rgba(220, 38, 38, 0.25)");
         rad.addColorStop(0.55, isA ? "rgba(37, 99, 235, 0.08)" : "rgba(220, 38, 38, 0.08)");
         rad.addColorStop(1, "rgba(0,0,0,0)");
         cx.fillStyle = rad;
@@ -3743,26 +3748,26 @@ ${sampleText}`;
         };
 
         if (isA) {
-          blitHost(conIdleH, 815, 1600, idleBreath, hitShake);
-          blitHost(proActH, 265, 1600, talkCadence, 0);
+          blitHost(conIdleH, 860, H + 8, idleBreath, hitShake);
+          blitHost(proActH, 220, H + 8, talkCadence, 0);
         } else {
-          blitHost(proIdleH, 265, 1600, idleBreath, hitShake);
-          blitHost(conActH, 815, 1600, talkCadence, 0);
+          blitHost(proIdleH, 220, H + 8, idleBreath, hitShake);
+          blitHost(conActH, 860, H + 8, talkCadence, 0);
         }
 
         if (!isOutro && localSec < 0.42) {
           const flashA = 0.40 * (1 - localSec / 0.42);
-          const rx = isA ? 815 : 265;
-          const rg = ctx.createRadialGradient(rx, 1260, 20, rx, 1260, 240);
+          const rx = isA ? 860 : 220;
+          const rg = ctx.createRadialGradient(rx, 1480, 20, rx, 1480, 320);
           rg.addColorStop(0, `rgba(239, 68, 68, ${flashA.toFixed(3)})`);
           rg.addColorStop(1, "rgba(239, 68, 68, 0)");
           ctx.fillStyle = rg;
-          ctx.fillRect(rx - 240, 940, 480, 640);
+          ctx.fillRect(rx - 320, 1080, 640, H - 1080);
         }
 
         if (!isOutro && localSec < 0.85) {
-          const popX = (isA ? 815 : 265) + hitShake;
-          const popY = Math.round(920 - (localSec / 0.85) * 60);
+          const popX = (isA ? 860 : 220) + hitShake;
+          const popY = Math.round(1030 - (localSec / 0.85) * 60);
           const popTxt = `-${dmg} HP`;
           ctx.font = "bold 32px Pretendard, sans-serif";
           const pw = Math.round(ctx.measureText(popTxt).width + 44);
@@ -3886,15 +3891,20 @@ ${sampleText}`;
           });
         });
 
-        // 5) Clean Centered Turn Progress Pills
+        // 5) Clean Centered Turn Progress Pills on Translucent Backdrop
         const nTurns = Math.max(1, turns.length);
-        const pillW = 54, pillGap = 16;
+        const pillW = 52, pillGap = 12;
         const totalBarW = nTurns * pillW + (nTurns - 1) * pillGap;
         const startX = Math.round((W - totalBarW) / 2);
+        const pillBarY = 1858;
+        ctx.fillStyle = "rgba(9, 13, 22, 0.76)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.14)";
+        ctx.lineWidth = 2;
+        drawRoundRect(ctx, startX - 24, pillBarY - 14, totalBarW + 48, 38, 19); ctx.fill(); ctx.stroke();
         for (let di = 0; di < nTurns; di++) {
           const dx = startX + di * (pillW + pillGap);
-          ctx.fillStyle = di === tIdx ? accent : (di < tIdx ? "#94A3B8" : "rgba(255, 255, 255, 0.16)");
-          drawRoundRect(ctx, dx, 1812, pillW, 12, 6); ctx.fill();
+          ctx.fillStyle = di === tIdx ? accent : (di < tIdx ? "#94A3B8" : "rgba(71, 85, 105, 0.78)");
+          drawRoundRect(ctx, dx, pillBarY, pillW, 10, 5); ctx.fill();
         }
 
 
@@ -4590,7 +4600,7 @@ ${sampleText}`;
       const spotlight = document.getElementById("stageSpotlight");
       if (spotlight) {
         spotlight.classList.toggle("con-mode", !isA);
-        spotlight.style.background = `radial-gradient(circle at ${isA ? "24%" : "76%"} 62%, ${isA ? "rgba(37, 99, 235, 0.20)" : "rgba(220, 38, 38, 0.20)"}, transparent 62%)`;
+        spotlight.style.background = `radial-gradient(circle at ${isA ? "20.4%" : "79.6%"} 74%, ${isA ? "rgba(37, 99, 235, 0.24)" : "rgba(220, 38, 38, 0.24)"}, transparent 64%)`;
       }
 
       document.getElementById("avatarCardPro")?.classList.toggle("speaking", isA);

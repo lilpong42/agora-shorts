@@ -743,13 +743,15 @@ def _get_stage_assets() -> Dict[str, Any]:
     bg_arr = np.repeat(row_rgba[:, None, :], W, axis=1)
     studio_bg = Image.fromarray(bg_arr, mode="RGBA")
 
-    # 은은한 무대 바닥선 및 중앙 하단 비네트
+    # 은은한 하단 바닥 비네트 (상반신 캐릭터가 하단 끝까지 꽉 차므로 중간 분할선 제거)
     sd = ImageDraw.Draw(studio_bg, "RGBA")
-    sd.rectangle([0, 1595, W, H], fill=(7, 10, 17, 255))
-    sd.line([(72, 1595), (W - 72, 1595)], fill=(255, 255, 255, 28), width=2)
+    sd.rectangle([0, 1780, W, H], fill=(7, 10, 17, 120))
 
-    pro_orig = Image.open(PRO_AVATAR_PATH).convert("RGBA")
-    con_orig = Image.open(CON_AVATAR_PATH).convert("RGBA")
+    pro_raw = Image.open(PRO_AVATAR_PATH).convert("RGBA")
+    con_raw = Image.open(CON_AVATAR_PATH).convert("RGBA")
+    # 애매한 다리/발 컷 대신 상반신(허리 라인 64%)까지 과감하게 크롭해 몰입감 극대화
+    pro_orig = pro_raw.crop((0, 0, pro_raw.width, int(round(pro_raw.height * 0.64))))
+    con_orig = con_raw.crop((0, 0, con_raw.width, int(round(con_raw.height * 0.64))))
 
     pro_active_grade = ImageEnhance.Color(ImageEnhance.Brightness(pro_orig).enhance(1.06)).enhance(1.08)
     con_active_grade = ImageEnhance.Color(ImageEnhance.Brightness(con_orig).enhance(1.06)).enhance(1.08)
@@ -758,35 +760,26 @@ def _get_stage_assets() -> Dict[str, Any]:
         sc = target_h / im.height
         return im.resize((int(round(im.width * sc)), target_h), Image.Resampling.LANCZOS)
 
-    pro_act = fit_h(pro_active_grade, 680)
+    pro_act = fit_h(pro_active_grade, 850)
     pro_idle = ImageEnhance.Color(
-        ImageEnhance.Brightness(fit_h(pro_orig, 646)).enhance(0.70)
+        ImageEnhance.Brightness(fit_h(pro_orig, 795)).enhance(0.70)
     ).enhance(0.84)
 
-    con_act = fit_h(con_active_grade, 680)
+    con_act = fit_h(con_active_grade, 850)
     con_idle = ImageEnhance.Color(
-        ImageEnhance.Brightness(fit_h(con_orig, 646)).enhance(0.70)
+        ImageEnhance.Brightness(fit_h(con_orig, 795)).enhance(0.70)
     ).enhance(0.84)
-
-    def add_fighter_shadow(base: Image.Image, cx: int, by: int) -> None:
-        pad = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        pd = ImageDraw.Draw(pad)
-        pd.ellipse([cx - 190, by - 26, cx + 190, by + 24], fill=(0, 0, 0, 165))
-        base.alpha_composite(pad.filter(ImageFilter.GaussianBlur(20)))
-
-    add_fighter_shadow(studio_bg, 265, 1600)
-    add_fighter_shadow(studio_bg, 815, 1600)
 
     def make_glow(cx: int, cy: int, color: Tuple[int, int, int]) -> Image.Image:
         g = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         gd = ImageDraw.Draw(g)
-        gd.ellipse([cx - 320, cy - 350, cx + 320, cy + 350], fill=(*color, 72))
-        return g.filter(ImageFilter.GaussianBlur(115))
+        gd.ellipse([cx - 340, cy - 360, cx + 340, cy + 360], fill=(*color, 78))
+        return g.filter(ImageFilter.GaussianBlur(120))
 
     glows: Dict[Tuple[str, str], Image.Image] = {}
     for ck, spec in PALETTE.items():
-        glows[("PRO", ck)] = make_glow(265, 1230, spec["glow"])
-        glows[("CON", ck)] = make_glow(815, 1230, spec["glow"])
+        glows[("PRO", ck)] = make_glow(220, 1460, spec["glow"])
+        glows[("CON", ck)] = make_glow(860, 1460, spec["glow"])
 
     _STAGE_ASSETS_CACHE = {
         "studio_bg": studio_bg,
@@ -958,22 +951,29 @@ def _render_ui_hud_strips(
             cx += ww + space_w
             running_idx += 1
 
-    # 3) MINIMAL BOTTOM PROGRESS DOTS (y=1770..1860) — 하단 중복 카드·이퀄라이저 제거
-    step_w = 56
-    gap_w = 14
+    # 3) MINIMAL BOTTOM PROGRESS DOTS (y=1828..1900) — 반투명 다크 필 위에 배치해 하단 캐릭터 위에서도 또렷하게 유지
+    step_w = 52
+    gap_w = 12
     total_w = total_turns * step_w + max(0, total_turns - 1) * gap_w
     px0 = (W - total_w) // 2
-    py = 1812
+    py = 1858
+    d.rounded_rectangle(
+        [px0 - 24, py - 14, px0 + total_w + 24, py + 24],
+        radius=19,
+        fill=(9, 13, 22, 195),
+        outline=(255, 255, 255, 36),
+        width=2,
+    )
     for i in range(total_turns):
         bx = px0 + i * (step_w + gap_w)
         if i == turn_idx:
             d.rounded_rectangle([bx, py, bx + step_w, py + 10], radius=5, fill=accent)
         elif i < turn_idx:
-            d.rounded_rectangle([bx, py, bx + step_w, py + 10], radius=5, fill=(148, 163, 184, 210))
+            d.rounded_rectangle([bx, py, bx + step_w, py + 10], radius=5, fill=(148, 163, 184, 220))
         else:
-            d.rounded_rectangle([bx, py, bx + step_w, py + 10], radius=5, fill=(51, 65, 85, 190))
+            d.rounded_rectangle([bx, py, bx + step_w, py + 10], radius=5, fill=(71, 85, 105, 195))
 
-    return overlay.crop((0, 136, W, 670)), overlay.crop((0, 1770, W, 1860))
+    return overlay.crop((0, 136, W, 670)), overlay.crop((0, 1828, W, 1900))
 
 
 def _draw_top_hp_hud(
@@ -1160,34 +1160,35 @@ def render_debate_mp4(
                 if key in stage_cache:
                     return stage_cache[key]
                 st = turn_bg.copy()
+                # 상반신 캐릭터가 하단 끝(H=1920)까지 꽉 차도록 배치 (+8px 여유로 숨쉬기 동작 중에도 하단 틈새 방지)
                 if is_a:
                     p_spr = assets["pro_act"]
                     c_spr = assets["con_idle"]
-                    st.paste(c_spr, (815 - c_spr.width // 2 + dx_hit, 1600 - c_spr.height), c_spr)
-                    st.paste(p_spr, (265 - p_spr.width // 2, 1600 - p_spr.height + dy_talk), p_spr)
+                    st.paste(c_spr, (860 - c_spr.width // 2 + dx_hit, H + 8 - c_spr.height), c_spr)
+                    st.paste(p_spr, (220 - p_spr.width // 2, H + 8 - p_spr.height + dy_talk), p_spr)
                 else:
                     p_spr = assets["pro_idle"]
                     c_spr = assets["con_act"]
-                    st.paste(p_spr, (265 - p_spr.width // 2 + dx_hit, 1600 - p_spr.height), p_spr)
-                    st.paste(c_spr, (815 - c_spr.width // 2, 1600 - c_spr.height + dy_talk), c_spr)
+                    st.paste(p_spr, (220 - p_spr.width // 2 + dx_hit, H + 8 - p_spr.height), p_spr)
+                    st.paste(c_spr, (860 - c_spr.width // 2, H + 8 - c_spr.height + dy_talk), c_spr)
                 rgb = st.convert("RGB")
                 stage_cache[key] = rgb
                 return rgb
 
             base_stage_rgb = get_stage_rgb(0, 0)
             top_bg_crop = base_stage_rgb.crop((0, 136, W, 670))
-            bot_bg_crop = base_stage_rgb.crop((0, 1770, W, 1860))
 
             clauses = _split_turn_into_clauses(turn["text"])
-            clause_strips: List[List[Tuple[Image.Image, Image.Image]]] = []
+            clause_strips: List[List[Image.Image]] = []
             clause_timelines: List[List[Tuple[float, float]]] = []
+            bot_pill_rgba: Optional[Image.Image] = None
 
             for c_idx, c_text in enumerate(clauses):
                 c_font, c_lines, lh = _pick_caption_font_and_lines(c_text, W - 180, fonts)
                 flat_words = [w for ln in c_lines for w in ln]
                 w_cnt = max(len(flat_words), 1)
                 clause_timelines.append(_build_weighted_word_timeline(flat_words))
-                strips_for_clause: List[Tuple[Image.Image, Image.Image]] = []
+                strips_for_clause: List[Image.Image] = []
                 for w_idx in range(w_cnt):
                     top_rgba, bot_rgba = _render_ui_hud_strips(
                         issue_title=issue_title,
@@ -1207,11 +1208,11 @@ def render_debate_mp4(
                         active_word_idx=w_idx,
                         fonts=fonts,
                     )
+                    if bot_pill_rgba is None:
+                        bot_pill_rgba = bot_rgba
                     top_rgb = top_bg_crop.copy()
                     top_rgb.paste(top_rgba, (0, 0), top_rgba)
-                    bot_rgb = bot_bg_crop.copy()
-                    bot_rgb.paste(bot_rgba, (0, 0), bot_rgba)
-                    strips_for_clause.append((top_rgb, bot_rgb))
+                    strips_for_clause.append(top_rgb)
                 clause_strips.append(strips_for_clause)
 
             clause_windows = _analyze_pcm_clause_timing(
@@ -1243,9 +1244,10 @@ def render_debate_mp4(
 
                 c_idx, local_w = _resolve_clause_and_word(local_t, clause_timelines, clause_windows)
                 ov_list = clause_strips[min(c_idx, len(clause_strips) - 1)]
-                top_rgb, bot_rgb = ov_list[min(local_w, len(ov_list) - 1)]
+                top_rgb = ov_list[min(local_w, len(ov_list) - 1)]
                 frame.paste(top_rgb, (0, 136))
-                frame.paste(bot_rgb, (0, 1770))
+                if bot_pill_rgba is not None:
+                    frame.paste(bot_pill_rgba, (0, 1828), bot_pill_rgba)
 
                 # Red hit flash & clean -HP popup over defender side
                 if local_t < 0.72:
@@ -1253,11 +1255,11 @@ def render_debate_mp4(
                     if local_t < 0.34:
                         alpha_flash = int(95 * (1.0 - local_t / 0.34))
                         fx_x0, fx_x1 = (540, W) if is_a else (0, 540)
-                        d_fx.rectangle([fx_x0, 880, fx_x1, 1610], fill=(220, 38, 38, alpha_flash))
+                        d_fx.rectangle([fx_x0, 1080, fx_x1, H], fill=(220, 38, 38, alpha_flash))
                     pop_prog = local_t / 0.72
                     pop_alpha = int(255 * min(1.0, (1.0 - pop_prog) * 1.4))
-                    pop_cx = 815 if is_a else 265
-                    pop_cy = int(890 - pop_prog * 55)
+                    pop_cx = 860 if is_a else 220
+                    pop_cy = int(1030 - pop_prog * 55)
                     pop_txt = f"-{dmg} HP"
                     pw_pop = int(fonts["dmg_pop"].getlength(pop_txt) + 36)
                     d_fx.rounded_rectangle(
