@@ -202,10 +202,10 @@ def generate_chart1_empirical_kde() -> Path:
 
   <rect x="{peak_med_x + 28:.1f}" y="{peak_med_y + 10:.1f}" width="370" height="62" rx="10" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
   <text x="{peak_med_x + 213:.1f}" y="{peak_med_y + 37:.1f}" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15.5" font-weight="700" fill="#1E40AF">
-    한냥(Hannyang) 중재 후 분포 (Blue, N=527)
+    한냥(Hannyang) 정제 후 분포 (Blue, N=527)
   </text>
   <text x="{peak_med_x + 213:.1f}" y="{peak_med_y + 60:.1f}" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="13.5" font-weight="500" fill="#1D4ED8">
-    실측 평균 μ = {mean_med:.1f}점 (SD = {sd_med:.1f}) | 논리적 아나운서 대본화
+    실측 평균 μ = {mean_med:.1f}점 (SD = {sd_med:.1f}) | 핵심 팩트 대본화
   </text>
 
   <line x1="{mean_raw_x - 18:.1f}" y1="410" x2="{mean_med_x + 26:.1f}" y2="410" stroke="#0F172A" stroke-width="3.5" stroke-dasharray="10,6" marker-end="url(#shiftArrow)"/>
@@ -234,7 +234,7 @@ def generate_chart1_empirical_kde() -> Path:
   </text>
   <rect x="830" y="915" width="28" height="18" rx="4" fill="#2563EB" opacity="0.85"/>
   <text x="868" y="930" font-family="Noto Sans CJK KR, sans-serif" font-size="15.5" font-weight="700" fill="#1E293B">
-    AI 공론장 중재 후 핵심 논거 분포 (YouTube 실측 N=527, Blue)
+    AI 정제·팩트 배틀 후 핵심 논거 분포 (YouTube 실측 N=527, Blue)
   </text>
 </svg>
 """
@@ -247,25 +247,25 @@ def generate_chart1_empirical_kde() -> Path:
 
 def generate_chart2_empirical_clusters() -> Path:
     """
-    차트 2: YouTube Data API v3로 수집한 실제 527개 뉴스 댓글에서 측정한
-    찬성(PRO, 총 877회 키워드 매칭) vs 반대(CON, 총 510회 키워드 매칭) 6대 핵심 키워드 군집 빈도 비교
+    차트 2: YouTube Data API v3로 수집한 실제 527개 뉴스 댓글에서 동적 추출한
+    A 진영(주류 여론 1, 총 877회 키워드 매칭) vs B 진영(대립 여론 2, 총 510회 키워드 매칭) 6대 핵심 키워드 군집 빈도 비교
     """
-    pro_clusters = [
-        ("면허 반납·조건부 면허·적성검사", "고령층 운전 능력 재검증 및 조건부 제한 요구", 260, 123),
-        ("강력 단속·과태료·형사 처벌 강화", "솜방망이 처벌 비판 및 상시 단속 법제화 요구", 194, 125),
-        ("소음·굉음·수면권 피해 호소", "야간 배기음·머플러 불법 개조로 인한 고통 호소", 192, 103),
-        ("즉시 견인·전면 금지·퇴출 요구", "인도 무단 방치 기기 강제 수거 및 퇴출 주장", 82, 69),
-        ("보행자 안전·사고·위험 예방", "인도 주행·페달 오조작으로 인한 인명피해 우려", 75, 51),
-        ("번호판·실명제·업체 책임 부과", "이륜차 전면 번호판 및 대여 업체 관리 책임 부과", 74, 55),
+    faction_a_clusters = [
+        ("면허 반납·조건부 면허·적성검사", "즉각 면허반납파 — 운전 능력 재검증 요구", 260, 123),
+        ("강력 단속·과태료·형사 처벌 강화", "주민 수면권·강경파 — 상시 단속 법제화 요구", 194, 125),
+        ("소음·굉음·수면권 피해 호소", "주민 수면권 수호파 — 야간 배기음 고통 호소", 192, 103),
+        ("즉시 견인·전면 금지·퇴출 요구", "전면 견인 강경파 — 무단 방치 강제 수거 주장", 82, 69),
+        ("보행자 안전·사고·위험 예방", "전면 견인·안전파 — 인도 주행 인명피해 우려", 75, 51),
+        ("번호판·실명제·업체 책임 부과", "수면권·견인 진영 — 전면 번호판 및 업체 책임", 74, 55),
     ]
 
-    con_clusters = [
-        ("주차 인프라·전용 구역 선행 구축", "무조건 단속보다 전용 거치대·주차장 확충 요구", 195, 118),
-        ("생계형 운전자·라이더 생존권", "배달 기사·고령 생계형 운전자 소득 단절 우려", 109, 77),
-        ("현실적 보상·교통비 지원금 확대", "일회성 10만원 카드 대신 실질적 교통 복지 요구", 75, 55),
-        ("농어촌·고령층 이동권·교통 부재", "시골·대중교통 사각지대의 병원·생필품 이동권", 64, 42),
-        ("보여주기식 탁상행정·법 실효성 비판", "현장 현실 무시한 단발성 단속·행정 편의주의 비판", 45, 39),
-        ("일부 일탈의 일반화·세대 갈등 경계", "법규 준수 운전자까지 싸잡아 비난하는 여론 경계", 22, 21),
+    faction_b_clusters = [
+        ("주차 인프라·전용 구역 선행 구축", "인프라 확충 현실파 — 전용 거치대·주차존 요구", 195, 118),
+        ("생계형 운전자·라이더 생존권", "라이더 생계 우선파 — 야간 생계·소득 단절 우려", 109, 77),
+        ("현실적 보상·교통비 지원금 확대", "이동권 보장 대안파 — 실질적 교통 복지 요구", 75, 55),
+        ("농어촌·고령층 이동권·교통 부재", "이동권 보장 대안파 — 대중교통 사각지대 이동권", 64, 42),
+        ("보여주기식 탁상행정·법 실효성 비판", "현실 대안 진영 — 현장 무시한 단발성 단속 비판", 45, 39),
+        ("일부 일탈의 일반화·세대 갈등 경계", "생계·대안 진영 — 법규 준수자까지 일괄 매도 경계", 22, 21),
     ]
 
     W, H = 1600, 980
@@ -291,36 +291,36 @@ def generate_chart2_empirical_clusters() -> Path:
                 f'<text x="{rx:.1f}" y="852" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="14.5" font-weight="600" fill="#475569">{tick}회</text>'
             )
 
-    for idx, (pro, con) in enumerate(zip(pro_clusters, con_clusters)):
-        p_title, p_sub, p_freq, p_docs = pro
-        c_title, c_sub, c_freq, c_docs = con
+    for idx, (fa, fb) in enumerate(zip(faction_a_clusters, faction_b_clusters)):
+        a_title, a_sub, a_freq, a_docs = fa
+        b_title, b_sub, b_freq, b_docs = fb
 
         cy = row_start_y + idx * row_gap
-        p_w = max(24.0, (p_freq / max_freq) * half_bar_max)
-        c_w = max(24.0, (c_freq / max_freq) * half_bar_max)
+        a_w = max(24.0, (a_freq / max_freq) * half_bar_max)
+        b_w = max(24.0, (b_freq / max_freq) * half_bar_max)
 
-        p_x = (center_x - 95) - p_w
-        c_x = center_x + 95
+        a_x = (center_x - 95) - a_w
+        b_x = center_x + 95
 
         if idx % 2 == 0:
             rows_svg.append(f'<rect x="55" y="{cy - 34}" width="{W - 110}" height="82" rx="10" fill="#F8FAFC" opacity="0.85"/>')
 
         rows_svg.append(
             f'<rect x="{center_x - 76}" y="{cy - 22}" width="152" height="56" rx="28" fill="#0F172A"/>'
-            f'<text x="{center_x}" y="{cy + 2}" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="700" fill="#F8FAFC">실측 쟁점 #{idx + 1}</text>'
-            f'<text x="{center_x}" y="{cy + 22}" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="12" font-weight="500" fill="#94A3B8">양측 핵심 대립축</text>'
+            f'<text x="{center_x}" y="{cy + 2}" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="700" fill="#F8FAFC">쟁점 대립 #{idx + 1}</text>'
+            f'<text x="{center_x}" y="{cy + 22}" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="12" font-weight="500" fill="#94A3B8">A vs B 진영축</text>'
         )
 
         rows_svg.append(
-            f'<rect x="{p_x:.1f}" y="{cy - 20}" width="{p_w:.1f}" height="32" rx="6" fill="url(#proBarGrad)"/>'
-            f'<text x="{p_x - 10:.1f}" y="{cy + 2}" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="700" fill="#1D4ED8">{p_freq}회 ({p_docs}건)</text>'
-            f'<text x="{center_x - 105}" y="{cy + 34}" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="14" font-weight="700" fill="#1E3A8A">[{p_title}] <tspan font-weight="500" fill="#475569">{p_sub}</tspan></text>'
+            f'<rect x="{a_x:.1f}" y="{cy - 20}" width="{a_w:.1f}" height="32" rx="6" fill="url(#proBarGrad)"/>'
+            f'<text x="{a_x - 10:.1f}" y="{cy + 2}" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="700" fill="#1D4ED8">{a_freq}회 ({a_docs}건)</text>'
+            f'<text x="{center_x - 105}" y="{cy + 34}" text-anchor="end" font-family="Noto Sans CJK KR, sans-serif" font-size="14" font-weight="700" fill="#1E3A8A">[{a_title}] <tspan font-weight="500" fill="#475569">{a_sub}</tspan></text>'
         )
 
         rows_svg.append(
-            f'<rect x="{c_x:.1f}" y="{cy - 20}" width="{c_w:.1f}" height="32" rx="6" fill="url(#conBarGrad)"/>'
-            f'<text x="{c_x + c_w + 10:.1f}" y="{cy + 2}" text-anchor="start" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="700" fill="#BE123C">{c_freq}회 ({c_docs}건)</text>'
-            f'<text x="{center_x + 105}" y="{cy + 34}" text-anchor="start" font-family="Noto Sans CJK KR, sans-serif" font-size="14" font-weight="700" fill="#881337">[{c_title}] <tspan font-weight="500" fill="#475569">{c_sub}</tspan></text>'
+            f'<rect x="{b_x:.1f}" y="{cy - 20}" width="{b_w:.1f}" height="32" rx="6" fill="url(#conBarGrad)"/>'
+            f'<text x="{b_x + b_w + 10:.1f}" y="{cy + 2}" text-anchor="start" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="700" fill="#BE123C">{b_freq}회 ({b_docs}건)</text>'
+            f'<text x="{center_x + 105}" y="{cy + 34}" text-anchor="start" font-family="Noto Sans CJK KR, sans-serif" font-size="14" font-weight="700" fill="#881337">[{b_title}] <tspan font-weight="500" fill="#475569">{b_sub}</tspan></text>'
         )
 
     svg_content = f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -344,23 +344,23 @@ def generate_chart2_empirical_clusters() -> Path:
   <rect x="16" y="16" width="{W - 32}" height="{H - 32}" fill="none" stroke="#CBD5E1" stroke-width="1.5" rx="12"/>
 
   <rect x="48" y="38" width="12" height="62" rx="4" fill="#0F172A"/>
-  <text x="74" y="67" font-family="Noto Sans CJK KR, sans-serif" font-size="26.5" font-weight="700" fill="#0F172A">
-    [실측 통계 2] 유튜브 뉴스 댓글(N=527) 찬성(PRO) vs 반대(CON) 핵심 키워드 군집 빈도
+  <text x="74" y="67" font-family="Noto Sans CJK KR, sans-serif" font-size="25.5" font-weight="700" fill="#0F172A">
+    [실측 통계 2] 유튜브 댓글(N=527) A 진영(주류 여론 1) vs B 진영(대립 여론 2) 키워드 군집
   </text>
   <text x="74" y="97" font-family="Noto Sans CJK KR, sans-serif" font-size="16" font-weight="400" fill="#475569">
-    실제 댓글창의 여론 비대칭성(규제 찬성 877회 vs 대안·생존권 510회) 실증 및 50:50 동등 발언권 쇼츠 중재의 근거
+    이슈별 동적 진영 라벨링(수면권·전면견인·면허반납 vs 생계권·인프라·이동권) 및 HP 타격치 산정 근거
   </text>
 
   <rect x="95" y="128" width="600" height="52" rx="10" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
   <circle cx="128" cy="154" r="10" fill="#2563EB"/>
-  <text x="148" y="161" font-family="Noto Sans CJK KR, sans-serif" font-size="18" font-weight="700" fill="#1E3A8A">
-    찬성·규제 촉구 군집 (PRO) — 실측 총 877회 출현 (63.2%)
+  <text x="148" y="161" font-family="Noto Sans CJK KR, sans-serif" font-size="17.5" font-weight="700" fill="#1E3A8A">
+    A 진영 (핵심 주류 여론 1: 규제·안전) — 실측 총 877회 (63.2%)
   </text>
 
   <rect x="905" y="128" width="600" height="52" rx="10" fill="#FFF1F2" stroke="#E11D48" stroke-width="2"/>
   <circle cx="938" cy="154" r="10" fill="#E11D48"/>
-  <text x="958" y="161" font-family="Noto Sans CJK KR, sans-serif" font-size="18" font-weight="700" fill="#881337">
-    반대·생존권·인프라 선행 군집 (CON) — 실측 총 510회 출현 (36.8%)
+  <text x="958" y="161" font-family="Noto Sans CJK KR, sans-serif" font-size="17.5" font-weight="700" fill="#881337">
+    B 진영 (핵심 대립 여론 2: 생계·대안) — 실측 총 510회 (36.8%)
   </text>
 
   {"".join(grid_svg)}
@@ -372,15 +372,15 @@ def generate_chart2_empirical_clusters() -> Path:
 
   <line x1="95" y1="825" x2="1505" y2="825" stroke="#64748B" stroke-width="2"/>
   <text x="400" y="888" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="17.5" font-weight="700" fill="#1E3A8A">
-    ← 찬성(PRO) 키워드 실측 출현 빈도 (키워드 출현 횟수 및 매칭 댓글 수)
+    ← A 진영(주류 여론 1) 키워드 실측 출현 빈도 (공감 비례 HP 데미지 산출)
   </text>
   <text x="1200" y="888" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="17.5" font-weight="700" fill="#9F1239">
-    반대(CON) 키워드 실측 출현 빈도 (키워드 출현 횟수 및 매칭 댓글 수) →
+    B 진영(대립 여론 2) 키워드 실측 출현 빈도 (공감 비례 HP 데미지 산출) →
   </text>
 
   <rect x="110" y="908" width="1380" height="44" rx="8" fill="#0F172A"/>
   <text x="800" y="936" text-anchor="middle" font-family="Noto Sans CJK KR, sans-serif" font-size="15" font-weight="600" fill="#F8FAFC">
-    [실증 발견] 실제 댓글창은 분노 기반 규제 여론이 63.2%~88.0%로 과대 대표되나, AI 클러스터링 시 생존권·인프라 등 반대 측 6대 논거가 명확히 추출됨
+    [실증 발견] 고정 찬반 대신 이슈별 상위 2대 대립 진영(A vs B)을 추출하고, 댓글 공감 비중에 비례한 HP 타격치(15~35)로 여론 판세를 직관화
   </text>
 </svg>
 """

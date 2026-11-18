@@ -49,8 +49,8 @@ _GEMINI_COOLDOWN_UNTIL = 0.0
 
 app = FastAPI(
     title="한냥 (Hannyang) Full-Stack API",
-    description="유튜브 악플·설전 댓글 빅데이터를 양측 핵심 논거 대립 AI 아바타 토론 쇼츠(MP4)로 자동 전환하는 파이프라인",
-    version="2.2.0",
+    description="유튜브 악플·설전 댓글 빅데이터에서 상위 2대 대립 진영(Side A vs B)을 동적 추출해 HP 팩트 배틀 쇼츠(MP4)로 전환하는 파이프라인",
+    version="3.0.0",
 )
 
 app.add_middleware(
@@ -76,12 +76,12 @@ TOXIC_REGEX = re.compile("|".join(TOXIC_PATTERNS), re.IGNORECASE)
 
 POS_CUES = [
     "좋", "최고", "만족", "장점", "추천", "깔끔", "선명", "기대", "감동", "유용",
-    "혁신", "쾌적", "빠르", "편하", "필수", "인정", "응원", "옳", "찬성", "동의",
+    "혁신", "쾌적", "빠르", "편하", "필수", "인정", "응원", "옳", "동의",
     "공감", "훌륭", "대박", "잘", "이득", "재밌", "갓", "혜자", "필요", "의무",
 ]
 CRIT_CUES = [
     "아쉽", "불편", "비싸", "부담", "문제", "부족", "실망", "우려", "걱정", "최악",
-    "느리", "과잉", "탁상행정", "차별", "위축", "피로", "한계", "반대", "무겁", "무거",
+    "느리", "과잉", "탁상행정", "차별", "위축", "피로", "한계", "무겁", "무거",
     "단점", "창렬", "과금", "버그", "발열", "글쎄", "무리", "비판", "불쌍", "피해",
 ]
 ALT_CUES = [
@@ -89,9 +89,7 @@ ALT_CUES = [
     "균형", "해결", "제안", "방법", "도입", "병행", "인프라", "지원", "대안", "가성비",
     "할인", "업데이트", "절충", "단계", "어떨까", "나을",
 ]
-DEBATE_CUES = [
-    "찬성", "반대", "규제", "금지", "의무", "법안", "처벌", "폐지", "논란", "도입", "권리", "생존권",
-]
+DEBATE_CUES = ["규제", "금지", "의무", "법안", "처벌", "폐지", "논란", "도입", "권리", "생존권", "책임", "원인"]
 REVIEW_CUES = [
     "가격", "가성비", "스펙", "성능", "배터리", "카메라", "디자인", "화질", "무게",
     "발열", "장점", "단점", "후기", "리뷰", "전작", "추천", "실사용",
@@ -126,10 +124,10 @@ PREDICATE_ENDING_RE = re.compile(
 )
 
 MODE_LABELS = {
-    "debate": "찬반 공론장 중재",
-    "multi": "다관점 여론 비교",
-    "proscons": "장단점·체감 분석",
-    "summary": "핵심 반응 브리핑",
+    "faction_battle": "동적 진영 HP 팩트 배틀",
+    "multi": "동적 진영 HP 팩트 배틀",
+    "proscons": "장단점 격돌 HP 배틀",
+    "summary": "핵심 쟁점 HP 배틀",
 }
 
 
@@ -143,7 +141,9 @@ class AnalyzeRequest(BaseModel):
 
 class RenderMp4Request(BaseModel):
     issue_title: str
-    category_badge: Optional[str] = "한냥 공론장 중재 쇼츠"
+    category_badge: Optional[str] = "한냥 팩트 배틀 쇼츠"
+    side_a_label: Optional[str] = "A 진영"
+    side_b_label: Optional[str] = "B 진영"
     raw_stats: Dict[str, Any]
     debate_script: List[Dict[str, Any]]
     turn_audio_b64_list: Optional[List[Optional[str]]] = None
@@ -272,17 +272,14 @@ def _score_comment_tones(text: str) -> Dict[str, int]:
 
 def _resolve_analysis_mode(req_mode: Optional[str], comments_list: List[Dict[str, Any]], issue_title: str) -> str:
     mode = (req_mode or "auto").strip().lower()
-    if mode in ("debate", "multi", "proscons", "summary"):
+    if mode in ("faction_battle", "proscons", "summary", "multi"):
         return mode
     joined = (issue_title or "") + " " + " ".join((c.get("text") or "")[:140] for c in comments_list[:40])
-    deb_hits = sum(1 for k in DEBATE_CUES if k in joined)
     rev_hits = sum(1 for k in REVIEW_CUES if k in joined)
-    alt_hits = sum(1 for k in ALT_CUES if k in joined)
+    deb_hits = sum(1 for k in DEBATE_CUES if k in joined)
     if rev_hits >= 3 and deb_hits < 3:
         return "proscons"
-    if deb_hits >= 3 and alt_hits < 2 and rev_hits == 0:
-        return "debate"
-    return "multi"
+    return "faction_battle"
 
 
 def _normalize_ratios(raw_counts: List[int]) -> List[int]:
@@ -310,17 +307,89 @@ def _trim_korean_words(text: str, max_len: int = 18) -> str:
     return out or s[:max_len]
 
 
-def cluster_comments_multiperspective(
+def _clamp_damage(val: Any, ratio_hint: int = 50, rank: int = 0) -> int:
+    try:
+        num = int(round(float(val)))
+        if 15 <= num <= 35:
+            return num
+    except Exception:
+        pass
+    # Map comment cluster support ratio [5..95] -> [15..35], with slight decay per round
+    base = 15 + int(round((max(5, min(95, ratio_hint)) / 100.0) * 19.0))
+    return max(15, min(35, base - (rank % 3)))
+
+
+def _to_banmal_one_sentence(raw_clause: str, faction_label: str, is_a: bool) -> str:
+    """욕설이 제거된 댓글 핵심 문장을 매운맛 반말/단언형 1문장 팩트 공격 대사로 정제."""
+    s = re.sub(r"\s+", " ", (raw_clause or "").strip()).rstrip(" .,!?")
+    if len(s) < 8:
+        return (
+            f"이 사안 핵심은 결국 {faction_label} 쪽 현실 논리가 훨씬 설득력 있다는 거야!"
+            if is_a
+            else f"현실 여건 따져보면 {faction_label} 관점을 빼놓고 말할 수 없지!"
+        )
+    # Trim overly long clauses at 64 chars cleanly
+    if len(s) > 64:
+        s = _trim_korean_words(s, 64).rstrip(" .,!?")
+    # Replace formal polite endings with crisp banmal assertion
+    replacements = [
+        (r"(?:해야 합니다|해야됩니다|해야해요|해야 돼요)$", "해야 해!"),
+        (r"(?:있습니다|있어요)$", "있어!"),
+        (r"(?:없습니다|없어요)$", "없어!"),
+        (r"(?:아닙니다|아니에요|아닌가요)$", "아니냐!"),
+        (r"(?:입니다|이에요|예요)$", "이지!"),
+        (r"(?:됩니다|돼요)$", "돼!"),
+        (r"(?:합니다|해요)$", "해!"),
+        (r"(?:습니다|ㅂ니다|네요|군요|거든요|잖아요|어요|아요)$", "지!"),
+    ]
+    converted = s
+    changed = False
+    for pat, rep in replacements:
+        if re.search(pat, converted):
+            converted = re.sub(pat, rep, converted)
+            changed = True
+            break
+    if not changed:
+        converted = f"{converted}라는 게 팩트야!" if len(converted) < 42 else f"{converted} 아니냐!"
+    return converted
+
+
+def _infer_dynamic_faction_label(kw: str, items: List[Dict[str, Any]], is_first: bool, issue_title: str) -> str:
+    """실제 댓글 키워드와 논조를 조합해 진영 이름(Side A / B)을 동적 명명."""
+    sum_pos = sum(x["tones"]["pos"] for x in items)
+    sum_crit = sum(x["tones"]["crit"] for x in items)
+    sum_alt = sum(x["tones"]["alt"] for x in items)
+    joined_kw = kw or ""
+    if not joined_kw:
+        if "소음" in issue_title or "오토바이" in issue_title:
+            return "라이더 생계 우선파" if is_first else "주민 수면권 수호파"
+        if "킥보드" in issue_title:
+            return "전면 견인 강경파" if is_first else "인프라 확충 현실파"
+        if "면허" in issue_title or "고령" in issue_title:
+            return "즉각 면허반납파" if is_first else "이동권 보장 대안파"
+        return "핵심 강경 개혁파" if is_first else "현실 대안 신중파"
+
+    if sum_crit > sum_pos and sum_crit >= sum_alt:
+        suf = "강경 지적파" if is_first else "현실 비판파"
+    elif sum_alt >= sum_pos and sum_alt > 0:
+        suf = "인프라 대안파" if is_first else "제도 보완파"
+    elif sum_pos > sum_crit:
+        suf = "핵심 우선파" if is_first else "가치 수호파"
+    else:
+        suf = "원칙 강조파" if is_first else "현장 대안파"
+    return f"{joined_kw[:6]} {suf}".strip()
+
+
+def cluster_comments_faction_battle(
     comments_list: List[Dict[str, Any]],
     issue_title: str,
     analysis_mode: str = "auto",
 ) -> Dict[str, Any]:
     """
-    주제 불문(리뷰·게임패치·일상반응·다자쟁점·찬반토론) 2~4개 동적 관점 군집 추출 + 비속어 정제.
+    주제 불문(토론·리뷰·패치·일상반응) 댓글에서 가장 대립하는 상위 2개 동적 진영(Side A vs B) 추출 + 비속어 정제.
     """
     resolved_mode = _resolve_analysis_mode(analysis_mode, comments_list, issue_title)
 
-    # 1) Token DF analysis across substantive cleaned comments
     doc_freq: Dict[str, int] = {}
     parsed_items: List[Dict[str, Any]] = []
     toxic_scores: List[float] = []
@@ -367,7 +436,6 @@ def cluster_comments_multiperspective(
             "is_toxic": is_toxic,
         })
 
-    # Prefer higher frequency first, then compact 2-4 char domain nouns over long phrases
     sorted_kws = sorted(
         [(k, v) for k, v in doc_freq.items() if v >= 1],
         key=lambda kv: (kv[1], 1 if 2 <= len(kv[0]) <= 4 else 0, -len(kv[0])),
@@ -375,154 +443,88 @@ def cluster_comments_multiperspective(
     )
     top_kws = [k for k, _ in sorted_kws[:16]]
 
-    # 2) Define 2-4 perspective buckets based on mode + real comment keywords
-    clusters: List[Dict[str, Any]] = []
-    if resolved_mode == "debate":
-        clusters = [
-            {"id": "P1", "label": "핵심 지지·필요론", "short_label": "찬성·필요", "color": "blue", "kws": top_kws[:3], "items": []},
-            {"id": "P2", "label": "신중·현실 보완론", "short_label": "반대·보완", "color": "red", "kws": top_kws[3:6] or top_kws[:2], "items": []},
-        ]
-        for it in parsed_items:
-            p_sc = it["tones"]["pos"]
-            c_sc = it["tones"]["crit"] + it["tones"]["alt"]
-            target = 0 if p_sc > c_sc else (1 if c_sc > p_sc else (it["idx"] % 2))
-            clusters[target]["items"].append(it)
-    elif resolved_mode == "proscons":
-        pos_kw = _pick_facet_kw(parsed_items, lambda it: it["tones"]["pos"] > it["tones"]["crit"])
-        crit_kw = _pick_facet_kw(parsed_items, lambda it: it["tones"]["crit"] > it["tones"]["pos"], exclude={pos_kw})
-        alt_kw = _pick_facet_kw(parsed_items, lambda it: it["tones"]["alt"] > 0, exclude={pos_kw, crit_kw})
-        clusters = [
-            {"id": "P1", "label": f"{pos_kw} 긍정 호평" if pos_kw else "핵심 강점·호평", "short_label": f"{pos_kw[:6]} 호평" if pos_kw else "장점 호평", "color": "blue", "kws": [pos_kw] if pos_kw else top_kws[:2], "items": []},
-            {"id": "P2", "label": f"{crit_kw} 아쉬움 지적" if crit_kw else "단점·부담 지적", "short_label": f"{crit_kw[:6]} 지적" if crit_kw else "아쉬움 지적", "color": "red", "kws": [crit_kw] if crit_kw else top_kws[2:4], "items": []},
-            {"id": "P3", "label": f"{alt_kw} 비교·대안" if alt_kw else "가성비·비교 대안", "short_label": f"{alt_kw[:6]} 대안" if alt_kw else "비교·대안", "color": "violet", "kws": [alt_kw] if alt_kw else top_kws[4:6], "items": []},
-        ]
-        for it in parsed_items:
-            t = it["tones"]
-            if t["alt"] > 0 and t["alt"] >= t["pos"]:
-                clusters[2]["items"].append(it)
-            elif t["crit"] > t["pos"]:
-                clusters[1]["items"].append(it)
-            elif t["pos"] > 0:
-                clusters[0]["items"].append(it)
-            else:
-                clusters[2 if len(parsed_items) >= 3 else (it["idx"] % 3)]["items"].append(it)
-    else:
-        # Multi or Summary mode: extract 3 or 4 genuinely distinct topic+tone clusters
-        want_k = 4 if (len(parsed_items) >= 8 and len(top_kws) >= 4) else 3
-        chosen_anchors: List[str] = []
-        for kw in top_kws:
-            if not any(kw in a or a in kw for a in chosen_anchors):
-                chosen_anchors.append(kw)
-            if len(chosen_anchors) >= want_k:
-                break
+    # Partition into top 2 colliding opinion clusters (Side A vs Side B)
+    bucket_a: List[Dict[str, Any]] = []
+    bucket_b: List[Dict[str, Any]] = []
+    kw_a = _pick_facet_kw(parsed_items, lambda it: it["tones"]["pos"] > it["tones"]["crit"])
+    kw_b = _pick_facet_kw(parsed_items, lambda it: (it["tones"]["crit"] + it["tones"]["alt"]) > it["tones"]["pos"], exclude={kw_a})
 
-        if len(chosen_anchors) >= 3:
-            bucket_items: List[List[Dict[str, Any]]] = [[] for _ in chosen_anchors]
-            for it in parsed_items:
-                best_k = None
-                for ki, ak in enumerate(chosen_anchors):
-                    if ak in it["tokens"] or ak in it["cleaned"]:
-                        if best_k is None or len(bucket_items[ki]) < len(bucket_items[best_k]):
-                            best_k = ki
-                if best_k is None:
-                    best_k = min(range(len(chosen_anchors)), key=lambda i: len(bucket_items[i]))
-                bucket_items[best_k].append(it)
-
-            for ki, ak in enumerate(chosen_anchors):
-                b_items = bucket_items[ki]
-                sum_pos = sum(x["tones"]["pos"] for x in b_items)
-                sum_crit = sum(x["tones"]["crit"] for x in b_items)
-                sum_alt = sum(x["tones"]["alt"] for x in b_items)
-                if sum_crit > sum_pos and sum_crit >= sum_alt:
-                    suf, short_suf, color_hint = "아쉬움·지적", "지적", "red"
-                elif sum_alt > sum_pos and sum_alt >= sum_crit:
-                    suf, short_suf, color_hint = "개선·대안", "대안", "violet"
-                elif sum_pos > sum_crit:
-                    suf, short_suf, color_hint = "공감·호평", "호평", ("emerald" if ki >= 2 else "blue")
-                else:
-                    suf, short_suf, color_hint = ("핵심 시각", "시각", "blue") if ki == 0 else ("현실 시선", "의견", "violet")
-
-                used_colors = {c["color"] for c in clusters}
-                col = color_hint if color_hint not in used_colors else next((pc for pc in PALETTE_ORDER if pc not in used_colors), PALETTE_ORDER[ki % 4])
-                lbl = f"{ak} {suf}"
-                short_lbl = f"{ak[:6]} {short_suf}"
-                clusters.append({
-                    "id": f"P{ki+1}",
-                    "label": lbl,
-                    "short_label": short_lbl[:11],
-                    "color": col,
-                    "kws": [ak],
-                    "items": b_items,
-                })
-        else:
-            clusters = [
-                {"id": "P1", "label": "핵심 공감·강점", "short_label": "공감·강점", "color": "blue", "kws": top_kws[:2], "items": []},
-                {"id": "P2", "label": "우려·현실 지적", "short_label": "현실 지적", "color": "red", "kws": top_kws[2:4], "items": []},
-                {"id": "P3", "label": "보완·대안 시각", "short_label": "대안 시각", "color": "violet", "kws": top_kws[4:6], "items": []},
-            ]
-            for it in parsed_items:
-                t = it["tones"]
-                if t["alt"] > 0 and t["alt"] >= t["pos"]:
-                    clusters[2]["items"].append(it)
-                elif t["crit"] > t["pos"]:
-                    clusters[1]["items"].append(it)
-                elif t["pos"] > 0:
-                    clusters[0]["items"].append(it)
-                else:
-                    clusters[it["idx"] % 3]["items"].append(it)
-
-    # Guarantee non-empty items in every bucket if overall comments exist, and normalize percentages
-    non_empty = [c for c in clusters if c["items"]]
-    if len(non_empty) >= 2:
-        clusters = non_empty
-    ratios = _normalize_ratios([len(c["items"]) for c in clusters])
-    perspectives: List[Dict[str, Any]] = []
-    detox_samples: List[Dict[str, Any]] = []
-
-    for ci, cl in enumerate(clusters):
-        perspectives.append({
-            "id": cl["id"],
-            "label": cl["label"],
-            "short_label": cl["short_label"],
-            "ratio": ratios[ci],
-            "color": cl["color"],
-            "keywords": [k for k in cl["kws"] if k][:3],
-        })
-
-    # Pick representative detox samples tagging each item's assigned cluster
-    item_to_cl: Dict[int, Dict[str, Any]] = {}
-    for cl in clusters:
-        for it in cl["items"]:
-            item_to_cl[it["idx"]] = cl
+    if not kw_a and top_kws:
+        kw_a = top_kws[0]
+    if not kw_b:
+        kw_b = next((k for k in top_kws if k != kw_a and k not in kw_a and kw_a not in k), top_kws[1] if len(top_kws) > 1 else "")
 
     for it in parsed_items:
-        cl = item_to_cl.get(it["idx"], clusters[0])
-        is_left = cl["color"] in ("blue", "emerald")
-        if it["is_toxic"] and len(detox_samples) < 4 and len(it["raw"]) > 12:
+        p_sc = it["tones"]["pos"] + (1.5 if kw_a and kw_a in it["tokens"] else 0.0)
+        b_sc = it["tones"]["crit"] + it["tones"]["alt"] + (1.5 if kw_b and kw_b in it["tokens"] else 0.0)
+        if p_sc > b_sc:
+            bucket_a.append(it)
+        elif b_sc > p_sc:
+            bucket_b.append(it)
+        else:
+            (bucket_a if len(bucket_a) <= len(bucket_b) else bucket_b).append(it)
+
+    if not bucket_a and len(bucket_b) > 1:
+        bucket_a.append(bucket_b.pop())
+    if not bucket_b and len(bucket_a) > 1:
+        bucket_b.append(bucket_a.pop())
+
+    if resolved_mode == "proscons":
+        side_a_label = f"{kw_a[:6]} 호평파" if kw_a else "핵심 성능 호평파"
+        side_b_label = f"{kw_b[:6]} 지적파" if kw_b else "가격·부담 지적파"
+    else:
+        side_a_label = _infer_dynamic_faction_label(kw_a, bucket_a, True, issue_title)
+        side_b_label = _infer_dynamic_faction_label(kw_b, bucket_b, False, issue_title)
+        if side_a_label == side_b_label:
+            side_b_label = f"{kw_b[:6]} 대안파" if kw_b else "현실 대안 신중파"
+
+    ratios = _normalize_ratios([len(bucket_a), len(bucket_b)])
+    side_a_ratio, side_b_ratio = ratios[0], ratios[1]
+
+    kws_a = [k for k in [kw_a, *top_kws[:3]] if k][:3]
+    kws_b = [k for k in [kw_b, *top_kws[2:5]] if k and k not in kws_a][:3] or top_kws[:2]
+
+    clusters = [
+        {"id": "A", "label": side_a_label, "short_label": side_a_label[:12], "color": "blue", "kws": kws_a, "items": bucket_a},
+        {"id": "B", "label": side_b_label, "short_label": side_b_label[:12], "color": "red", "kws": kws_b, "items": bucket_b},
+    ]
+    perspectives = [
+        {"id": "A", "label": side_a_label, "short_label": side_a_label[:12], "ratio": side_a_ratio, "color": "blue", "keywords": kws_a},
+        {"id": "B", "label": side_b_label, "short_label": side_b_label[:12], "ratio": side_b_ratio, "color": "red", "keywords": kws_b},
+    ]
+
+    detox_samples: List[Dict[str, Any]] = []
+    item_to_faction: Dict[int, Dict[str, Any]] = {}
+    for cl in clusters:
+        for it in cl["items"]:
+            item_to_faction[it["idx"]] = cl
+
+    for it in parsed_items:
+        cl = item_to_faction.get(it["idx"], clusters[0])
+        if it["is_toxic"] and len(detox_samples) < 4 and len(it["raw"]) > 10:
             detox_samples.append({
-                "side": "PRO" if is_left else "CON",
-                "perspective_label": cl["short_label"],
+                "faction": cl["id"],
+                "faction_label": cl["label"],
                 "color": cl["color"],
                 "raw": f"[{it['author']}] {it['raw'].replace(chr(10), ' ')[:125]}",
                 "cleaned": (
-                    f"{it['cleaned'][:95]} (과열 표현을 덜어내고 핵심 관점으로 정제)"
-                    if len(it["cleaned"]) > 12
-                    else "과열된 감정 표현을 배제하고 핵심 취지만 남긴 정제 의견입니다."
+                    _to_banmal_one_sentence(it["cleaned"][:80], cl["label"], cl["id"] == "A")
+                    if len(it["cleaned"]) > 10
+                    else f"욕설 빼고 핵심만 말하면 {cl['label']} 주장이 근거 있다는 거야!"
                 ),
                 "removed_tokens": it["matches"][:4] if it["matches"] else ["과열표현"],
             })
 
     if not detox_samples:
         for it in parsed_items[:4]:
-            if len(it["raw"]) > 10:
-                cl = item_to_cl.get(it["idx"], clusters[0])
-                is_left = cl["color"] in ("blue", "emerald")
+            if len(it["raw"]) > 8:
+                cl = item_to_faction.get(it["idx"], clusters[0])
                 detox_samples.append({
-                    "side": "PRO" if is_left else "CON",
-                    "perspective_label": cl["short_label"],
+                    "faction": cl["id"],
+                    "faction_label": cl["label"],
                     "color": cl["color"],
                     "raw": f"[{it['author']}] {it['raw'].replace(chr(10), ' ')[:125]}",
-                    "cleaned": it["cleaned"][:100] or it["raw"][:100],
+                    "cleaned": it["cleaned"][:96] or it["raw"][:96],
                     "removed_tokens": [],
                 })
 
@@ -532,32 +534,19 @@ def cluster_comments_multiperspective(
     )
     avg_tox_after = round(sum(after_scores) / max(len(after_scores), 1), 1) if after_scores else 14.2
 
-    if resolved_mode == "debate":
-        mode_lbl = MODE_LABELS["debate"]
-    elif resolved_mode == "proscons":
-        mode_lbl = MODE_LABELS["proscons"]
-    elif resolved_mode == "summary":
-        mode_lbl = MODE_LABELS["summary"]
-    else:
-        mode_lbl = f"{len(perspectives)}관점 여론 비교"
-
-    pro_r = perspectives[0]["ratio"] if perspectives else 50
-    con_r = sum(p["ratio"] for p in perspectives[1:]) if len(perspectives) > 1 else (100 - pro_r)
-    if resolved_mode != "debate":
-        # Maintain pro/con summary fields as positive/non-negative vs critical for analytics compat
-        pos_sum = sum(p["ratio"] for p in perspectives if p["color"] in ("blue", "emerald"))
-        pro_r = max(1, min(99, pos_sum)) if pos_sum else pro_r
-        con_r = 100 - pro_r
-
     return {
-        "analysis_mode": resolved_mode,
-        "mode_label": mode_lbl,
+        "analysis_mode": "faction_battle",
+        "mode_label": MODE_LABELS.get(resolved_mode, "동적 진영 HP 팩트 배틀"),
+        "side_a_label": side_a_label,
+        "side_b_label": side_b_label,
+        "side_a_ratio": side_a_ratio,
+        "side_b_ratio": side_b_ratio,
         "perspectives": perspectives,
         "clusters": clusters,
         "total_comments": len(comments_list),
         "filtered_curse_count": toxic_count,
-        "pro_ratio": pro_r,
-        "con_ratio": con_r,
+        "pro_ratio": side_a_ratio,
+        "con_ratio": side_b_ratio,
         "toxicity_before": avg_tox_before,
         "toxicity_after": avg_tox_after,
         "cleaned_comments": [it["cleaned"] for it in parsed_items if it["cleaned"]],
@@ -578,73 +567,50 @@ def _pick_facet_kw(items: List[Dict[str, Any]], pred, exclude: Optional[set] = N
     return max(df.items(), key=lambda kv: (kv[1], 1 if 2 <= len(kv[0]) <= 4 else 0, -len(kv[0])))[0]
 
 
-def build_dynamic_script_from_clusters(
+def build_faction_battle_script(
     issue_title: str,
     cluster_res: Dict[str, Any],
 ) -> List[Dict[str, Any]]:
-    """추출된 2~4개 다관점 군집과 실제 댓글 인용문을 바탕으로 6턴 큐레이터 브리핑/토론 대본을 생성."""
+    """추출된 2대 대립 진영(A vs B)과 실제 댓글 공감도를 바탕으로 6턴 반말 팩트 배틀 대본 생성."""
     short_topic = re.sub(r"\[[^\]]*\]|\([^)]*\)|#\S+", "", issue_title).strip()
-    if len(short_topic) > 36:
-        short_topic = _trim_korean_words(short_topic, 34) + "..."
+    if len(short_topic) > 28:
+        short_topic = _trim_korean_words(short_topic, 26)
     if not short_topic:
-        short_topic = "이번 주제 댓글 여론"
+        short_topic = "이번 이슈"
 
-    perspectives = cluster_res["perspectives"]
     clusters = cluster_res["clusters"]
-    mode = cluster_res["analysis_mode"]
+    side_a_label = cluster_res["side_a_label"]
+    side_b_label = cluster_res["side_b_label"]
+    side_a_ratio = cluster_res["side_a_ratio"]
+    side_b_ratio = cluster_res["side_b_ratio"]
 
-    # Sort each cluster's substantive quotes by likes
-    quotes_by_cluster: List[List[str]] = []
+    quotes_by_faction: Dict[str, List[str]] = {"A": [], "B": []}
     all_substantive: List[str] = []
     for cl in clusters:
+        fid = "A" if cl["id"] == "A" else "B"
         sorted_items = sorted(cl["items"], key=lambda x: x["likes"], reverse=True)
-        qs: List[str] = []
         for it in sorted_items:
-            q = _trim_korean_words(it["cleaned"], 84).rstrip(" .,!?")
-            if len(q) >= 10 and q not in qs:
-                qs.append(q)
+            q = _trim_korean_words(it["cleaned"], 68).rstrip(" .,!?")
+            if len(q) >= 8 and q not in quotes_by_faction[fid]:
+                quotes_by_faction[fid].append(q)
                 if q not in all_substantive:
                     all_substantive.append(q)
-        quotes_by_cluster.append(qs)
-
-    # Distribute 6 turns naturally across 2, 3, or 4 perspectives
-    n_p = len(perspectives)
-    if n_p >= 4:
-        p_seq = [0, 1, 2, 3, 0, 2]
-    elif n_p == 3:
-        p_seq = [0, 1, 2, 1, 0, 2]
-    else:
-        p_seq = [0, 1, 0, 1, 0, 1]
 
     used_quotes = set()
-    used_idx = [0] * n_p
+    idx_map = {"A": 0, "B": 0}
     script: List[Dict[str, Any]] = []
 
-    openers_multi = [
-        "먼저 전체 반응의 {ratio}퍼센트를 차지한 {lbl} 시각을 살펴보겠습니다.",
-        "반면 {ratio}퍼센트 비중의 {lbl} 의견에서는 다른 지점을 짚습니다.",
-        "세 번째 시선인 {lbl} 측에서는 {ratio}퍼센트의 시청자가 색다른 관점을 보탰습니다.",
-        "이어서 {lbl} 반응을 보면, 댓글창의 현실적인 고민이 드러납니다.",
-        "{lbl} 입장에서는 앞선 논점에 더해 구체적인 체감 사례도 덧붙였습니다.",
-        "결국 {lbl} 시각까지 함께 짚어보면 이번 사안의 입체적인 흐름이 한눈에 보입니다.",
-    ]
-    openers_debate = [
-        "실제 댓글의 {ratio}퍼센트를 차지한 {lbl} 측에서는 뚜렷한 원칙을 내세웠습니다.",
-        "반면 {ratio}퍼센트 비중의 {lbl} 측에서는 현실적인 우려를 제기합니다.",
-        "{lbl} 측은 한 걸음 더 나아가 실질적인 기준과 실행력을 강조하고 있습니다.",
-        "이에 대해 {lbl} 측은 성급한 접근보다 부작용 보완이 먼저라고 맞섭니다.",
-        "또한 {lbl} 측에서는 장기적인 공익과 신뢰 회복을 핵심 과제로 꼽았습니다.",
-        "종합하면 {lbl} 측의 문제의식까지 균형 있게 반영해야 합리적 해법이 나옵니다.",
-    ]
-
     for turn_i in range(6):
-        pi = p_seq[turn_i]
-        persp = perspectives[pi]
-        pool = quotes_by_cluster[pi]
+        fid = "A" if turn_i % 2 == 0 else "B"
+        is_a = fid == "A"
+        lbl = side_a_label if is_a else side_b_label
+        ratio = side_a_ratio if is_a else side_b_ratio
+        pool = quotes_by_faction[fid]
+
         chosen_q = ""
-        while used_idx[pi] < len(pool):
-            cand = pool[used_idx[pi]]
-            used_idx[pi] += 1
+        while idx_map[fid] < len(pool):
+            cand = pool[idx_map[fid]]
+            idx_map[fid] += 1
             if cand not in used_quotes:
                 chosen_q = cand
                 used_quotes.add(cand)
@@ -655,19 +621,30 @@ def build_dynamic_script_from_clusters(
                     chosen_q = q
                     used_quotes.add(q)
                     break
-        if not chosen_q:
-            chosen_q = f"{short_topic} 사안에서 {persp['label']} 측면을 비중 있게 다뤄야 합니다"
 
-        template = (openers_debate if mode == "debate" else openers_multi)[turn_i]
-        intro = template.format(ratio=persp["ratio"], lbl=persp["short_label"])
-        core_pt = _trim_korean_words(chosen_q, 32) if len(chosen_q) > 10 else persp["label"]
+        if chosen_q:
+            attack_text = _to_banmal_one_sentence(chosen_q, lbl, is_a)
+            core_pt = _trim_korean_words(chosen_q, 24)
+        else:
+            fallback_attacks_a = [
+                f"{short_topic} 핵심만 보면 결국 {lbl} 쪽 기준부터 세우는 게 맞아!",
+                f"현장 체감 데이터로 따져봐도 {lbl} 주장을 무시할 수 없잖아!",
+                f"미적대지 말고 {lbl} 방향으로 확실하게 매듭짓는 게 답이야!",
+            ]
+            fallback_attacks_b = [
+                f"앞뒤 다 자르고 밀어붙이면 결국 {lbl} 쪽 역풍부터 터진다고!",
+                f"현실 대안도 없이 규제만 외치는 건 {lbl} 입장에서 탁상행정이지!",
+                f"부작용 줄이려면 {lbl} 요구사항부터 먼저 깔아주는 게 순서야!",
+            ]
+            attack_text = (fallback_attacks_a if is_a else fallback_attacks_b)[turn_i // 2]
+            core_pt = f"{lbl} 핵심 논거 #{turn_i // 2 + 1}"
+
+        dmg = _clamp_damage(None, ratio_hint=ratio, rank=turn_i // 2)
         script.append({
-            "speaker": "PRO" if turn_i % 2 == 0 else "CON",
-            "perspective_id": persp["id"],
-            "perspective_label": persp["short_label"],
-            "color": persp["color"],
-            "core_point": core_pt,
-            "text": f"{intro} \"{chosen_q}.\" 이처럼 댓글창의 다양한 목소리가 모이고 있습니다.",
+            "faction": fid,
+            "core_point": core_pt or f"{lbl} 팩트",
+            "text": attack_text,
+            "damage": dmg,
         })
 
     return script
@@ -678,60 +655,68 @@ def normalize_gemini_analysis(parsed: Dict[str, Any], cluster_res: Dict[str, Any
     if not isinstance(raw_script, list) or len(raw_script) < 4:
         return None
 
-    raw_persps = parsed.get("perspectives")
-    perspectives: List[Dict[str, Any]] = []
-    if isinstance(raw_persps, list) and len(raw_persps) >= 2:
-        ratios = _normalize_ratios([int(p.get("ratio", 25) or 25) for p in raw_persps[:4]])
-        used_colors = set()
-        for idx, p in enumerate(raw_persps[:4]):
-            ck = (p.get("color") or "").lower()
-            if ck not in PALETTE_ORDER or ck in used_colors:
-                ck = next((c for c in PALETTE_ORDER if c not in used_colors), PALETTE_ORDER[idx % 4])
-            used_colors.add(ck)
-            lbl = str(p.get("label") or p.get("short_label") or f"관점 {idx + 1}").strip()
-            short_lbl = str(p.get("short_label") or _trim_korean_words(lbl, 11)).strip()
-            perspectives.append({
-                "id": str(p.get("id") or f"P{idx + 1}"),
-                "label": lbl,
-                "short_label": short_lbl[:12],
-                "ratio": ratios[idx],
-                "color": ck,
-                "keywords": p.get("keywords") if isinstance(p.get("keywords"), list) else [],
-            })
-    else:
-        perspectives = cluster_res["perspectives"]
+    side_a_label = str(parsed.get("side_a_label") or cluster_res.get("side_a_label") or "A 진영").strip()[:16]
+    side_b_label = str(parsed.get("side_b_label") or cluster_res.get("side_b_label") or "B 진영").strip()[:16]
 
-    p_by_id = {p["id"]: p for p in perspectives}
+    a_ratio = cluster_res.get("side_a_ratio", 50)
+    b_ratio = cluster_res.get("side_b_ratio", 50)
+    try:
+        pa = int(parsed.get("side_a_ratio", a_ratio))
+        pb = int(parsed.get("side_b_ratio", b_ratio))
+        if pa > 0 and pb > 0:
+            norm_r = _normalize_ratios([pa, pb])
+            a_ratio, b_ratio = norm_r[0], norm_r[1]
+    except Exception:
+        pass
+
     norm_script: List[Dict[str, Any]] = []
-    for idx, t in enumerate(raw_script[:8]):
-        pid = str(t.get("perspective_id") or "")
-        matched_p = p_by_id.get(pid) or perspectives[idx % len(perspectives)]
-        ck = (t.get("color") or "").lower()
-        if ck not in PALETTE_ORDER:
-            ck = matched_p["color"]
-        p_lbl = str(t.get("perspective_label") or matched_p["short_label"]).strip()[:12]
-        spk = t.get("speaker") if t.get("speaker") in ("PRO", "CON") else ("PRO" if idx % 2 == 0 else "CON")
+    for idx, t in enumerate(raw_script[:6]):
+        raw_f = str(t.get("faction") or ("A" if idx % 2 == 0 else "B")).strip().upper()
+        faction = "A" if raw_f in ("A", "PRO", "SIDE_A") else ("B" if raw_f in ("B", "CON", "SIDE_B") else ("A" if idx % 2 == 0 else "B"))
+        r_hint = a_ratio if faction == "A" else b_ratio
+        dmg = _clamp_damage(t.get("damage"), ratio_hint=r_hint, rank=idx // 2)
+        lbl = side_a_label if faction == "A" else side_b_label
+        txt = str(t.get("text") or "").strip()
+        if not txt:
+            continue
         norm_script.append({
-            "speaker": spk,
-            "perspective_id": matched_p["id"],
-            "perspective_label": p_lbl,
-            "color": ck,
-            "core_point": str(t.get("core_point") or matched_p["label"]).strip(),
-            "text": str(t.get("text") or "").strip(),
+            "faction": faction,
+            "core_point": str(t.get("core_point") or lbl).strip()[:32],
+            "text": txt,
+            "damage": dmg,
         })
 
-    if any(not x["text"] for x in norm_script):
+    if len(norm_script) < 4:
         return None
 
-    mode_lbl = str(parsed.get("mode_label") or "").strip() or (
-        f"{len(perspectives)}관점 여론 비교" if len(perspectives) >= 3 else cluster_res["mode_label"]
-    )
+    # Ensure strictly 6 turns (3 A, 3 B) if Gemini returned 4 or 5
+    while len(norm_script) < 6:
+        idx = len(norm_script)
+        faction = "A" if idx % 2 == 0 else "B"
+        lbl = side_a_label if faction == "A" else side_b_label
+        r_hint = a_ratio if faction == "A" else b_ratio
+        norm_script.append({
+            "faction": faction,
+            "core_point": f"{lbl} 쐐기 팩트",
+            "text": f"결국 실수요자 댓글 반응까지 따지면 {lbl} 쪽 근거가 훨씬 뚜렷해!",
+            "damage": _clamp_damage(None, ratio_hint=r_hint, rank=idx // 2),
+        })
+
+    perspectives = [
+        {"id": "A", "label": side_a_label, "short_label": side_a_label[:12], "ratio": a_ratio, "color": "blue", "keywords": cluster_res["perspectives"][0].get("keywords", [])},
+        {"id": "B", "label": side_b_label, "short_label": side_b_label[:12], "ratio": b_ratio, "color": "red", "keywords": cluster_res["perspectives"][1].get("keywords", [])},
+    ]
+
     return {
         "issue_title": str(parsed.get("issue_title") or fallback_title).strip(),
-        "analysis_mode": str(parsed.get("detected_mode") or cluster_res["analysis_mode"]).strip(),
-        "mode_label": mode_lbl,
+        "analysis_mode": "faction_battle",
+        "mode_label": "동적 진영 HP 팩트 배틀",
+        "side_a_label": side_a_label,
+        "side_b_label": side_b_label,
+        "side_a_ratio": a_ratio,
+        "side_b_ratio": b_ratio,
         "perspectives": perspectives,
-        "debate_script": norm_script,
+        "debate_script": norm_script[:6],
     }
 
 
@@ -770,8 +755,8 @@ async def get_preset(preset_id: str):
 @app.post("/api/analyze")
 async def analyze_input(req: AnalyzeRequest):
     """
-    1) 유튜브 영상 URL 입력 시 YouTube Data API v3로 실제 댓글 최대 100건 수집 + 다관점(2~4축) 클러스터링
-    2) 댓글 텍스트 직접 입력 시 주제에 맞는 2~4관점 대본/요약/리뷰 쇼츠 JSON 동적 생성
+    1) 유튜브 영상 URL 입력 시 YouTube Data API v3로 실제 댓글 최대 100건 수집 + 상위 2대 대립 진영(Side A vs B) 동적 추출
+    2) 댓글 텍스트 직접 입력 시 6턴 HP 팩트 배틀 JSON 생성
     """
     t0 = time.perf_counter()
     if req.preset_id and req.preset_id in PRESETS:
@@ -790,7 +775,7 @@ async def analyze_input(req: AnalyzeRequest):
     video_desc = ""
     comments_disabled = False
     notice_msg = ""
-    engine_mode = "CUSTOM_MULTI_NLP"
+    engine_mode = "CUSTOM_FACTION_BATTLE_NLP"
 
     if vid:
         try:
@@ -811,12 +796,12 @@ async def analyze_input(req: AnalyzeRequest):
     if not comments_list and vid:
         seed_desc = re.sub(r"https?://\S+", "", video_desc).replace("\n", " ").strip()[:120]
         comments_list = [
-            {"author": channel_title or "YouTube", "text": f"{video_title} 주제의 핵심 강점과 기대 포인트가 주목받고 있습니다.", "like_count": 1},
-            {"author": "시청자 의견", "text": f"{seed_desc or video_title} 관련 현실적인 부담이나 아쉬운 지점을 짚는 시선도 많습니다.", "like_count": 0},
-            {"author": "대안 의견", "text": f"{video_title} 관련 보완책이나 비교 대안을 함께 따져봐야 한다는 제안도 나옵니다.", "like_count": 0},
+            {"author": channel_title or "YouTube", "text": f"{video_title} 주제의 핵심 강점과 필요성이 분명하다는 의견이 많습니다.", "like_count": 1},
+            {"author": "시청자 의견", "text": f"{seed_desc or video_title} 관련 현실적인 부담과 부작용을 지적하는 목소리도 큽니다.", "like_count": 0},
+            {"author": "대안 의견", "text": f"{video_title} 관련 보완 대책과 인프라부터 먼저 챙겨야 한다는 지적이 나옵니다.", "like_count": 0},
         ]
         if comments_disabled:
-            notice_msg = "이 영상은 댓글이 비활성화되어 영상 제목·설명 기반으로 다관점 대본을 구성했습니다."
+            notice_msg = "이 영상은 댓글이 비활성화되어 영상 제목·설명 기반으로 진영 배틀 대본을 구성했습니다."
 
     if not comments_list and not vid:
         data = dict(PRESETS["preset_1"])
@@ -824,41 +809,42 @@ async def analyze_input(req: AnalyzeRequest):
         data["latency_ms"] = round((time.perf_counter() - t0) * 1000, 2)
         return data
 
-    issue_title = video_title if video_title else "사용자 입력 댓글 다관점 분석"
-    cluster_res = cluster_comments_multiperspective(comments_list, issue_title, req.analysis_mode or "auto")
+    issue_title = video_title if video_title else "실시간 댓글 동적 진영 팩트 배틀"
+    cluster_res = cluster_comments_faction_battle(comments_list, issue_title, req.analysis_mode or "auto")
+    side_a_label = cluster_res["side_a_label"]
+    side_b_label = cluster_res["side_b_label"]
+    side_a_ratio = cluster_res["side_a_ratio"]
+    side_b_ratio = cluster_res["side_b_ratio"]
     perspectives = cluster_res["perspectives"]
     mode_label = cluster_res["mode_label"]
     resolved_mode = cluster_res["analysis_mode"]
-    debate_script = build_dynamic_script_from_clusters(issue_title, cluster_res)
+    debate_script = build_faction_battle_script(issue_title, cluster_res)
 
     global _GEMINI_COOLDOWN_UNTIL
     if time.time() >= _GEMINI_COOLDOWN_UNTIL:
         try:
             sample_lines = "\n".join(c["text"][:160] for c in comments_list[:35])
-            mode_guidance = {
-                "debate": "찬성과 반대 양측 핵심 논거로 2관점 균형 토론을 구성해라.",
-                "multi": "반드시 찬성/반대 이분법에 가두지 말고, 댓글에서 드러나는 3~4개의 실제 관점/이해관계/감상 축(blue, red, violet, emerald)을 추출해 큐레이터 대본을 구성해라.",
-                "proscons": "장점·호평 / 아쉬움·단점 / 비교·구매·개선 대안 3관점(blue, red, violet)으로 균형 있게 구성해라.",
-                "summary": "시청자·유저의 핵심 반응 3~4축(blue, red, violet, emerald)을 뉴스룸 브리핑처럼 정리해라.",
-            }.get(resolved_mode, "찬반 토론 주제면 2~3관점, 리뷰/반응/다자간 의견이면 3~4관점으로 실제 댓글에 맞는 분류를 자유롭게 추출해라.")
-
             gem_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={DEFAULT_GOOGLE_API_KEY}"
             payload = json.dumps({
                 "contents": [{
                     "parts": [{
                         "text": (
-                            f"다음 콘텐츠({issue_title})의 실제 댓글 {len(comments_list)}건을 분석해 6턴 아나운서 쇼츠 대본 JSON을 작성해라.\n"
-                            f"규칙: {mode_guidance}\n"
-                            f"2명의 스튜디오 아나운서(speaker는 좌/우 발화 교차를 위해 PRO, CON 번갈아 배치)가 각 관점(perspective_id, perspective_label, color)을 번갈아 명쾌하게 소개한다.\n"
-                            f'스펙: {{"issue_title":"주제 한 줄 요약","detected_mode":"multi","mode_label":"예: 3관점 여론 비교","perspectives":[{{"id":"P1","label":"핵심 관점명","short_label":"짧은라벨(8자이내)","ratio":45,"color":"blue|red|violet|emerald"}}],"debate_script":[{{"speaker":"PRO","perspective_id":"P1","perspective_label":"짧은라벨","color":"blue","core_point":"핵심 요약","text":"비속어를 제거한 2문장 표준 한국어 아나운서 대사"}}]}}\n\n'
+                            f"다음 콘텐츠({issue_title})의 실제 댓글 {len(comments_list)}건을 분석해 고정된 찬성/반대 프레임을 버리고, "
+                            f"가장 첨예하게 대립·대비되는 상위 2개 여론 진영(side_a_label, side_b_label)을 이슈에 맞게 동적 명명하여 6턴 HP 팩트 배틀 JSON을 작성해라.\n"
+                            f"규칙:\n"
+                            f"1. side_a_label, side_b_label은 이슈 맞춤형 직관적 진영명 (예: '라이더 생계 우선파' vs '주민 수면권 수호파', '배터리·성능 호평파' vs '출고가·발열 지적파'). 절대 '찬성/반대'라고 쓰지 마라.\n"
+                            f"2. debate_script는 정확히 6턴 배열(A 진영 3턴, B 진영 3턴 번갈아 배치).\n"
+                            f"3. 각 턴의 text는 욕설·비속어를 완전히 제거하되 타격감 있는 매운맛 반말/단언형 공격 대사 딱 1문장으로 작성해라.\n"
+                            f"4. 각 턴의 damage는 해당 주장의 댓글 공감 비율에 비례하는 15~35 사이의 정수로 설정해라.\n"
+                            f'스펙: {{"issue_title":"주제 한 줄 요약","side_a_label":"첫번째 진영명","side_b_label":"두번째 진영명","side_a_ratio":45,"side_b_ratio":55,"debate_script":[{{"faction":"A","core_point":"핵심 팩트 라벨","text":"욕설 뺀 매운맛 반말 공격 대사 1문장","damage":24}},{{"faction":"B","core_point":"핵심 팩트 라벨","text":"욕설 뺀 매운맛 반말 반격 대사 1문장","damage":28}}]}}\n\n'
                             f"댓글 샘플:\n{sample_lines}"
                         )
                     }]
                 }],
-                "generationConfig": {"responseMimeType": "application/json", "temperature": 0.3},
+                "generationConfig": {"responseMimeType": "application/json", "temperature": 0.35},
             }).encode("utf-8")
             req_gem = urllib.request.Request(gem_url, data=payload, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req_gem, timeout=3.5) as resp:
+            with urllib.request.urlopen(req_gem, timeout=4.0) as resp:
                 g_data = json.loads(resp.read().decode("utf-8"))
                 parsed = json.loads(g_data["candidates"][0]["content"]["parts"][0]["text"])
                 norm = normalize_gemini_analysis(parsed, cluster_res, issue_title)
@@ -866,33 +852,44 @@ async def analyze_input(req: AnalyzeRequest):
                     issue_title = norm["issue_title"]
                     resolved_mode = norm["analysis_mode"]
                     mode_label = norm["mode_label"]
+                    side_a_label = norm["side_a_label"]
+                    side_b_label = norm["side_b_label"]
+                    side_a_ratio = norm["side_a_ratio"]
+                    side_b_ratio = norm["side_b_ratio"]
                     perspectives = norm["perspectives"]
                     debate_script = norm["debate_script"]
-                    engine_mode = f"YOUTUBE_GEMINI_MULTI (N={cluster_res['total_comments']})"
+                    engine_mode = f"YOUTUBE_GEMINI_FACTION_BATTLE (N={cluster_res['total_comments']})"
         except Exception:
             _GEMINI_COOLDOWN_UNTIL = time.time() + 60.0
 
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 2)
-    kw_tags = " ".join(f"#{k}" for k in [p.get("short_label", "").replace("·", "").replace(" ", "") for p in perspectives] if k)
+    tag_a = side_a_label.replace(" ", "")
+    tag_b = side_b_label.replace(" ", "")
 
     return {
         "id": f"yt_{vid}" if vid else "live_custom",
         "analysis_mode": resolved_mode,
         "mode_label": mode_label,
+        "side_a_label": side_a_label,
+        "side_b_label": side_b_label,
+        "side_a_ratio": side_a_ratio,
+        "side_b_ratio": side_b_ratio,
         "perspectives": perspectives,
         "issue_title": issue_title,
-        "category_badge": f"{channel_title} 실시간 수집 {cluster_res['total_comments']}건 · {mode_label}" if channel_title else f"실시간 {mode_label}",
-        "source_label": f"YouTube Data API v3 실시간 수집 · {video_title} (댓글 {cluster_res['total_comments']}건)" if video_title else f"직접 입력 댓글 {cluster_res['total_comments']}건 ({mode_label})",
+        "category_badge": f"{channel_title} 실시간 {cluster_res['total_comments']}건 | {side_a_label} vs {side_b_label}" if channel_title else f"{side_a_label} vs {side_b_label}",
+        "source_label": f"YouTube Data API v3 실시간 수집 · {video_title} (댓글 {cluster_res['total_comments']}건)" if video_title else f"직접 입력 댓글 {cluster_res['total_comments']}건 ({side_a_label} vs {side_b_label})",
         "source_url": source_url,
-        "hashtags": f"#한냥 #다관점쇼츠 {kw_tags} #유튜브쇼츠".strip(),
+        "hashtags": f"#한냥 #팩트배틀 #{tag_a} #{tag_b} #유튜브쇼츠".strip(),
         "video_mp4_url": None,
         "has_voice_track": False,
         "notice": notice_msg,
         "raw_stats": {
             "total_comments": cluster_res["total_comments"],
             "filtered_curse_count": cluster_res["filtered_curse_count"],
-            "pro_ratio": cluster_res["pro_ratio"],
-            "con_ratio": cluster_res["con_ratio"],
+            "pro_ratio": side_a_ratio,
+            "con_ratio": side_b_ratio,
+            "side_a_ratio": side_a_ratio,
+            "side_b_ratio": side_b_ratio,
             "toxicity_before": cluster_res["toxicity_before"],
             "toxicity_after": cluster_res["toxicity_after"],
         },
@@ -907,7 +904,7 @@ async def analyze_input(req: AnalyzeRequest):
 @app.post("/api/render-mp4")
 async def api_render_mp4(req: RenderMp4Request):
     """
-    프론트엔드에서 전달한 대본(2~8턴), 다관점 메타, 오디오 데이터를 받아
+    프론트엔드에서 전달한 동적 진영 배틀 대본(2~8턴), 진영 라벨, 오디오 데이터를 받아
     실제 9:16 H.264 MP4 파일을 생성하고 다운로드 URL을 반환한다.
     """
     t0 = time.perf_counter()
@@ -916,14 +913,16 @@ async def api_render_mp4(req: RenderMp4Request):
     render_meta: Dict[str, Any] = {}
     render_debate_mp4(
         issue_title=req.issue_title,
-        category_badge=req.category_badge or "한냥 공론장 중재 쇼츠",
+        category_badge=req.category_badge or "한냥 팩트 배틀 쇼츠",
         raw_stats=req.raw_stats,
         debate_script=req.debate_script,
         output_mp4=out_path,
         turn_audio_b64_list=req.turn_audio_b64_list,
         meta_out=render_meta,
         perspectives=req.perspectives,
-        mode_label=req.mode_label or "",
+        mode_label=req.mode_label or "동적 진영 HP 팩트 배틀",
+        side_a_label=req.side_a_label or "",
+        side_b_label=req.side_b_label or "",
     )
     elapsed_s = round(time.perf_counter() - t0, 2)
     return {

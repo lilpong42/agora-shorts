@@ -313,6 +313,73 @@
       100% { transform: scale(1.012) translateY(-1.5px); }
     }
 
+    /* Fighting-Game HP Battle Animations */
+    .hp-bar-fill {
+      transition: width 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes shake {
+      0%, 100% { transform: translate(-50%, 0) rotate(0deg); }
+      15% { transform: translate(calc(-50% - 7px), -3px) rotate(-2.2deg); }
+      30% { transform: translate(calc(-50% + 7px), 2px) rotate(2.2deg); }
+      45% { transform: translate(calc(-50% - 6px), 2px) rotate(-1.6deg); }
+      60% { transform: translate(calc(-50% + 5px), -2px) rotate(1.4deg); }
+      75% { transform: translate(calc(-50% - 3px), 1px) rotate(-0.8deg); }
+    }
+    .fighter-hit-shake {
+      animation: shake 0.44s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+    .hit-flash-overlay {
+      position: absolute;
+      inset: -6px -10px 18px -10px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.68) 0%, rgba(220, 38, 38, 0.25) 55%, transparent 75%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 22;
+    }
+    .hit-flash-overlay.active {
+      animation: hitFlashRed 0.42s ease-out forwards;
+    }
+    @keyframes hitFlashRed {
+      0% { opacity: 0.95; transform: scale(0.92); }
+      45% { opacity: 0.65; transform: scale(1.06); }
+      100% { opacity: 0; transform: scale(1.12); }
+    }
+    .dmg-float-pop {
+      position: absolute;
+      left: 50%;
+      top: -18px;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      padding: 2px 7px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, #DC2626, #991B1B);
+      color: #FEF08A;
+      border: 1px solid rgba(254, 240, 138, 0.8);
+      font-size: 9.5px;
+      font-weight: 900;
+      box-shadow: 0 6px 14px rgba(220, 38, 38, 0.55);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 35;
+    }
+    .dmg-float-pop.active {
+      animation: dmgFloatUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes dmgFloatUp {
+      0% { opacity: 0; transform: translate(-50%, 10px) scale(0.75); }
+      20% { opacity: 1; transform: translate(-50%, -6px) scale(1.08); }
+      75% { opacity: 1; transform: translate(-50%, -22px) scale(1.0); }
+      100% { opacity: 0; transform: translate(-50%, -32px) scale(0.95); }
+    }
+    .ko-card-anim {
+      animation: koPopIn 0.36s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes koPopIn {
+      0% { opacity: 0; transform: scale(0.82); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
     /* 10-Band Equalizer Bars */
     .eq-bars { display: flex; align-items: center; gap: 2px; height: 14px; }
     .eq-bar { width: 2px; height: 4px; border-radius: 99px; background: #D4D4D8; }
@@ -519,14 +586,13 @@
             <select
               id="analysisModeSelect"
               onchange="onAnalysisModeChange()"
-              title="분석 관점 형식 선택"
+              title="진영 배틀 추출 방식"
               class="studio-input h-10 px-2.5 text-[12.5px] font-semibold text-slate-800"
             >
-              <option value="auto">형식: 자동 감지</option>
-              <option value="multi">다관점 비교 (2~4축)</option>
-              <option value="proscons">장단점·체감 리뷰</option>
-              <option value="debate">찬반 공론장 토론</option>
-              <option value="summary">핵심 반응 요약</option>
+              <option value="auto">배틀: 동적 진영 자동</option>
+              <option value="battle">상위 2대 진영 팩폭</option>
+              <option value="proscons">장단점·체감 정면충돌</option>
+              <option value="summary">핵심 갈등 2축 대결</option>
             </select>
             <button
               id="toggleCustomBtn"
@@ -540,7 +606,7 @@
               onclick="runLiveYouTubeOrCustomAnalysis()"
               class="btn-ink h-10 px-4 text-[13px] inline-flex items-center gap-1.5"
             >
-              <span>쇼츠 생성</span>
+              <span>배틀 생성</span>
             </button>
           </div>
         </div>
@@ -550,13 +616,13 @@
           <div class="flex flex-wrap items-center gap-1.5">
             <span class="text-[11px] font-bold text-slate-400 mono-num mr-0.5">실측 527</span>
             <button id="presetBtn_preset_1" onclick="selectPreset('preset_1')" class="topic-pill active">
-              오토바이 소음
+              배달 소음 대결
             </button>
             <button id="presetBtn_preset_2" onclick="selectPreset('preset_2')" class="topic-pill">
-              전동킥보드
+              전동킥보드 충돌
             </button>
             <button id="presetBtn_preset_3" onclick="selectPreset('preset_3')" class="topic-pill">
-              고령 운전자 3관점
+              고령 운전자 면허
             </button>
             <span class="hidden sm:inline text-slate-300 mx-0.5">|</span>
             <span class="text-[11px] font-bold text-slate-400 mono-num">샘플</span>
@@ -577,10 +643,10 @@
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex flex-wrap items-center gap-1.5">
               <span class="text-[11.5px] font-semibold text-slate-500">샘플 채우기:</span>
-              <button type="button" onclick="applySamplePack('it_review')" class="sample-chip">IT 신제품 리뷰 (4관점)</button>
+              <button type="button" onclick="applySamplePack('it_review')" class="sample-chip">IT 신제품 반응 대결</button>
               <button type="button" onclick="applySamplePack('game_patch')" class="sample-chip">게임 밸런스 패치</button>
-              <button type="button" onclick="applySamplePack('four_day')" class="sample-chip">주 4일제 다자 시각</button>
-              <button type="button" onclick="applySamplePack('noise_debate')" class="sample-chip">소음 규제 찬반</button>
+              <button type="button" onclick="applySamplePack('four_day')" class="sample-chip">주 4일제 여론 대결</button>
+              <button type="button" onclick="applySamplePack('noise_debate')" class="sample-chip">심야 소음 충돌</button>
             </div>
             <span id="customLineCountLabel" class="text-[11.5px] font-semibold text-slate-500 mono-num">0줄 입력됨</span>
           </div>
@@ -589,12 +655,12 @@
             rows="3"
             oninput="updateCustomLineCount()"
             onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();runLiveYouTubeOrCustomAnalysis();}"
-            placeholder="댓글·후기를 줄바꿈으로 구분해 붙여넣으세요 (주제 제한 없음 · Ctrl+Enter 실행)"
+            placeholder="댓글·후기를 줄바꿈으로 구분해 붙여넣으면 상위 2대 대립 진영으로 6턴 팩트 배틀을 구성합니다 (Ctrl+Enter 실행)"
             class="studio-input w-full p-3 text-[13px] leading-relaxed"
           ></textarea>
           <div class="flex items-center justify-between gap-2">
             <button type="button" onclick="document.getElementById('rawCommentsInput').value='';updateCustomLineCount();" class="btn-ghost px-3 py-1.5 text-[12px]">비우기</button>
-            <button type="button" onclick="runLiveYouTubeOrCustomAnalysis()" class="btn-ink px-4 py-1.5 text-[12.5px]">이 댓글로 분석 실행</button>
+            <button type="button" onclick="runLiveYouTubeOrCustomAnalysis()" class="btn-ink px-4 py-1.5 text-[12.5px]">이 댓글로 배틀 생성</button>
           </div>
         </div>
       </div>
@@ -602,20 +668,20 @@
       <!-- 2-Column Precision Studio Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
 
-        <!-- LEFT (5 cols, Sticky on Desktop): OBSIDIAN 9:16 MONITOR & TRANSPORT -->
+        <!-- LEFT (5 cols, Sticky on Desktop): OBSIDIAN 9:16 HP BATTLE MONITOR & TRANSPORT -->
         <div class="lg:col-span-5 lg:sticky lg:top-20">
           <div class="studio-panel p-4 sm:p-5 flex flex-col items-center">
             <!-- Monitor Mode Bar -->
             <div class="w-full flex items-center justify-between mb-3.5">
               <div class="seg-track">
                 <button id="modeInteractiveBtn" onclick="setPlayerMode('interactive')" class="seg-btn active">
-                  실시간 프리뷰
+                  실시간 배틀
                 </button>
                 <button id="modeVideoBtn" onclick="setPlayerMode('video')" class="seg-btn">
                   MP4 렌더
                 </button>
               </div>
-              <span id="ttsStatusLabel" class="text-[11.5px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md mono-num">총 56.2s</span>
+              <span id="ttsStatusLabel" class="text-[11.5px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md mono-num">6턴 HP 팩트 배틀</span>
             </div>
 
             <!-- Anodized Obsidian 9:16 Monitor Frame -->
@@ -634,38 +700,64 @@
                   src="static/assets/studio_desk_fg.png"
                   onerror="this.onerror=null;this.src='studio_desk_fg.png'"
                   alt=""
-                  class="absolute inset-0 w-full h-full object-cover pointer-events-none z-20"
+                  class="hidden"
                 />
 
-                <!-- Top HUD + High-Contrast 2-Clause Bubble (clears anchor crowns cleanly) -->
-                <div class="relative z-30 space-y-1">
-                  <div>
-                    <div class="w-full h-1 rounded-full bg-white/15 overflow-hidden mb-1">
-                      <div id="shortsProgressBar" class="h-full bg-[#2563EB] transition-all duration-100" style="width: 0%"></div>
-                    </div>
-                    <div class="flex items-center justify-between text-[9px] text-[#E4E4E7] mono-num mb-1">
-                      <span class="px-1.5 py-[1px] rounded bg-[#0E1015]/90 font-semibold" id="shortsTurnCounter">1 / 6</span>
-                      <span class="px-1.5 py-[1px] rounded bg-[#0E1015]/90 text-[#D4D4D8]" id="shortsTimerDisplay">0:00 / 0:56</span>
-                    </div>
-                    <div class="rounded-lg bg-[#090D16]/95 border border-[#FACC15]/55 border-t-[2.5px] border-t-[#FACC15] px-2 py-1 shadow-lg">
-                      <div class="flex items-center justify-between gap-1 mb-0.5">
-                        <div class="flex items-center gap-1 min-w-0">
-                          <span class="px-1.5 py-[1px] rounded bg-[#FACC15] text-[#090D16] text-[8.5px] font-extrabold leading-none shrink-0">영상 주제</span>
-                          <span id="shortsTopicModeTag" class="px-1 py-[1px] rounded bg-white/10 text-slate-200 text-[8px] font-semibold leading-none truncate">찬반 공론장 중재</span>
+                <!-- TOP: Dynamic Faction A (Blue) vs B (Red) HP Gauge Bar + Topic + Fact Attack Bubble -->
+                <div class="relative z-30 space-y-1.5">
+                  <!-- Fighting Game HP Gauge Bar -->
+                  <div class="rounded-xl bg-[#090D16]/95 border border-white/15 px-2 py-1.5 shadow-lg">
+                    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1.5">
+                      <!-- Faction A (Blue) -->
+                      <div class="min-w-0">
+                        <div class="flex items-center justify-between gap-1 mb-0.5">
+                          <span id="hpLabelA" class="text-[8.5px] font-extrabold text-[#93C5FD] truncate">라이더 생계 우선파</span>
+                          <span id="hpValA" class="text-[8.5px] font-black text-white mono-num shrink-0">100</span>
                         </div>
-                        <span id="shortsCommentCountTag" class="text-[8px] text-slate-400 mono-num shrink-0">200건 분석</span>
+                        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden border border-blue-500/30">
+                          <div id="hpBarA" class="hp-bar-fill h-full bg-gradient-to-r from-[#1D4ED8] to-[#3B82F6] rounded-full" style="width: 100%"></div>
+                        </div>
                       </div>
-                      <h3 id="shortsIssueTitle" class="text-[11.5px] font-extrabold text-white text-center leading-[1.24] line-clamp-2">
-                        심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
-                      </h3>
+
+                      <!-- Center VS + ROUND -->
+                      <div class="flex flex-col items-center justify-center px-1 shrink-0">
+                        <span class="text-[10px] font-black text-[#FACC15] leading-none tracking-tight">VS</span>
+                        <span id="shortsRoundBadge" class="mt-0.5 px-1.5 py-[1px] rounded bg-white/10 border border-white/15 text-[7.5px] font-extrabold text-white mono-num leading-tight">ROUND 1/6</span>
+                      </div>
+
+                      <!-- Faction B (Red) -->
+                      <div class="min-w-0">
+                        <div class="flex items-center justify-between gap-1 mb-0.5">
+                          <span id="hpValB" class="text-[8.5px] font-black text-white mono-num shrink-0">100</span>
+                          <span id="hpLabelB" class="text-[8.5px] font-extrabold text-[#FCA5A5] truncate text-right">주민 수면권 수호파</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden border border-red-500/30 flex justify-end">
+                          <div id="hpBarB" class="hp-bar-fill h-full bg-gradient-to-l from-[#B91C1C] to-[#EF4444] rounded-full" style="width: 100%"></div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
+                  <!-- Battle Topic Banner -->
+                  <div class="rounded-lg bg-[#090D16]/95 border border-[#FACC15]/55 border-t-[2.5px] border-t-[#FACC15] px-2 py-1 shadow-lg">
+                    <div class="flex items-center justify-between gap-1 mb-0.5">
+                      <div class="flex items-center gap-1 min-w-0">
+                        <span class="px-1.5 py-[1px] rounded bg-[#FACC15] text-[#090D16] text-[8.5px] font-extrabold leading-none shrink-0">배틀 이슈</span>
+                        <span id="shortsTopicModeTag" class="px-1 py-[1px] rounded bg-white/10 text-slate-200 text-[8px] font-semibold leading-none truncate">동적 진영 HP 팩트 배틀</span>
+                      </div>
+                      <span id="shortsCommentCountTag" class="text-[8px] text-slate-400 mono-num shrink-0">200건 분석</span>
+                    </div>
+                    <h3 id="shortsIssueTitle" class="text-[11px] font-extrabold text-white text-center leading-[1.22] line-clamp-2">
+                      심야 배달 오토바이 배기 소음 규제 논란
+                    </h3>
+                  </div>
+
+                  <!-- Battle Fact Attack Bubble -->
                   <div id="shortsSpeechBubble" class="speech-bubble">
-                    <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center justify-between mb-1 gap-1">
                       <div class="flex items-center gap-1.5 min-w-0">
-                        <span id="shortsSpeakerBadge" class="text-[9.5px] font-extrabold px-2 py-[2px] rounded bg-[#2563EB] text-white truncate max-w-[140px]">◀ 규제 강화</span>
-                        <span id="shortsClauseBadge" class="text-[8.5px] font-semibold px-1.5 py-[1px] rounded bg-[#F1F5F9] text-[#475569] border border-slate-200/80 mono-num shrink-0">논지 1/2</span>
+                        <span id="shortsSpeakerBadge" class="text-[9.5px] font-extrabold px-2 py-[2px] rounded bg-[#2563EB] text-white truncate max-w-[155px]">⚡ 라이더 생계 우선파</span>
+                        <span id="shortsDamageBadge" class="text-[8.5px] font-extrabold px-1.5 py-[1px] rounded bg-[#FEE2E2] text-[#B91C1C] border border-red-300 mono-num shrink-0">-16 DMG</span>
                       </div>
                       <div id="shortsBubbleEq" class="eq-bars shrink-0">
                         <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
@@ -673,57 +765,75 @@
                       </div>
                     </div>
                     <div id="shortsCoreBox" class="flex items-center gap-1.5 px-1.5 py-[3px] rounded-md mb-1 border-l-[3px]" style="background:#DBEAFE;border-left-color:#2563EB;">
-                      <span id="shortsCoreTag" class="px-1 py-[1px] rounded text-[8px] font-extrabold text-white shrink-0 leading-none" style="background:#2563EB;">핵심</span>
+                      <span id="shortsCoreTag" class="px-1 py-[1px] rounded text-[8px] font-extrabold text-white shrink-0 leading-none" style="background:#2563EB;">팩폭</span>
                       <div id="shortsCorePoint" class="text-[10px] font-bold text-[#1D4ED8] leading-[1.22] line-clamp-1">
-                        헌법상 주거 평온권 및 심야 수면권 침해 심각
+                        소수 불법 개조 vs 다수 생계형 라이더
                       </div>
                     </div>
-                    <p id="shortsSubtitleText" class="text-[11px] font-bold text-[#0F172A] leading-[1.34] min-h-[30px]">
-                      새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다.
+                    <p id="shortsSubtitleText" class="text-[11px] font-bold text-[#0F172A] leading-[1.34] min-h-[28px]">
+                      일부 불법 튜닝 잡는다고 밤새 뛰는 생계형 라이더 전체 통행 막는 건 생존권 침해야!
                     </p>
                     <div class="speech-tail"></div>
                   </div>
                 </div>
 
-                <!-- Two Studio Anchors Seated Behind Curved Broadcast Stand -->
-                <div class="absolute -translate-x-1/2 pointer-events-none z-10" style="left: 20.83%; bottom: 31.35%; height: 29.48%;">
+                <!-- Dynamic Faction Fighter Slots with Shake + Red Flash + Damage Popups -->
+                <div id="fighterSlotA" class="absolute -translate-x-1/2 pointer-events-none z-10" style="left: 23%; bottom: 18%; height: 34%;">
+                  <div id="dmgPopA" class="dmg-float-pop">-24 HP (공감 팩폭!)</div>
+                  <div id="hitFlashA" class="hit-flash-overlay"></div>
                   <img
                     id="avatarCardPro"
                     src="static/assets/pro_avatar.png"
                     onerror="this.onerror=null;this.src='pro_avatar.png'"
-                    alt="좌측 진행자"
+                    alt="A 진영"
                     class="char-actor speaking h-full w-auto max-w-none select-none pointer-events-none"
                   />
+                  <div id="fighterTagA" class="mt-0.5 px-2 py-[2px] rounded-md bg-[#0A0E16]/90 border border-[#3B82F6] text-[8.5px] font-bold text-[#93C5FD] text-center truncate max-w-[125px] mx-auto shadow">
+                    라이더 생계 우선파
+                  </div>
                 </div>
-                <div class="absolute -translate-x-1/2 pointer-events-none z-10" style="left: 79.17%; bottom: 31.46%; height: 29.06%;">
+
+                <div id="fighterSlotB" class="absolute -translate-x-1/2 pointer-events-none z-10" style="left: 77%; bottom: 18%; height: 34%;">
+                  <div id="dmgPopB" class="dmg-float-pop">-24 HP (공감 팩폭!)</div>
+                  <div id="hitFlashB" class="hit-flash-overlay"></div>
                   <img
                     id="avatarCardCon"
                     src="static/assets/con_avatar.png"
                     onerror="this.onerror=null;this.src='con_avatar.png'"
-                    alt="우측 진행자"
+                    alt="B 진영"
                     class="char-actor h-full w-auto max-w-none select-none pointer-events-none"
                   />
+                  <div id="fighterTagB" class="mt-0.5 px-2 py-[2px] rounded-md bg-[#0A0E16]/90 border border-[#EF4444] text-[8.5px] font-bold text-[#FCA5A5] text-center truncate max-w-[125px] mx-auto shadow">
+                    주민 수면권 수호파
+                  </div>
                 </div>
 
-                <!-- Seated Podium Desk Stance Nameplates -->
-                <div id="deskPlatePro" class="absolute -translate-x-1/2 pointer-events-none z-[25] inline-flex items-center gap-1 px-1.5 py-[2px] rounded-md bg-[#0A0E16]/95 border border-[#2563EB] shadow-md max-w-[116px]" style="left: 22.4%; bottom: 25.0%;">
-                  <span class="px-1 py-[1px] rounded bg-[#2563EB] text-white text-[7.5px] font-extrabold leading-none shrink-0">발언</span>
-                  <span class="text-[8.5px] font-bold text-white truncate">규제 강화</span>
-                </div>
-                <div id="deskPlateCon" class="absolute -translate-x-1/2 pointer-events-none z-[25] inline-flex items-center gap-1 px-2 py-[2px] rounded-md bg-[#0C1019]/85 border border-white/15 max-w-[108px]" style="left: 77.6%; bottom: 25.0%;">
-                  <span class="text-[8.5px] font-semibold text-slate-300 truncate">신중·보완</span>
+                <!-- Final K.O. Victory Overlay -->
+                <div id="koOverlay" class="hidden absolute inset-0 z-40 bg-[#060910]/85 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center">
+                  <div class="ko-card-anim w-full rounded-2xl bg-[#0F172A]/95 border-2 border-[#FACC15] p-4 shadow-2xl space-y-2.5">
+                    <div class="inline-block px-3.5 py-1 rounded-xl bg-[#DC2626] text-white text-[18px] font-black tracking-wider shadow-md">K.O.</div>
+                    <div id="koWinnerText" class="text-[13.5px] font-extrabold text-[#FACC15] leading-snug">
+                      K.O. - [주민 수면권 수호파] 여론 우세!
+                    </div>
+                    <div id="koScoreLine" class="text-[10.5px] font-bold text-slate-200 bg-white/10 rounded-lg py-1.5 px-2.5 mono-num">
+                      라이더 생계 우선파 6 HP vs 주민 수면권 수호파 52 HP
+                    </div>
+                    <button type="button" onclick="startShortsPlayback(0)" class="px-3.5 py-1.5 rounded-lg bg-[#FACC15] hover:bg-[#EAB308] text-[#090D16] text-[11px] font-extrabold shadow transition">
+                      다시 배틀 재생
+                    </button>
+                  </div>
                 </div>
 
-                <!-- Dynamic Multi-Perspective Telemetry Footer -->
-                <div id="shortsTelemetryArea" class="relative z-30 rounded-xl bg-[#0E1119]/90 px-2.5 py-1.5 border border-white/10 mt-auto">
+                <!-- Dynamic Faction Ratio Telemetry Footer -->
+                <div id="shortsTelemetryArea" class="relative z-30 rounded-xl bg-[#0E1119]/92 px-2.5 py-1.5 border border-white/10 mt-auto">
                   <div id="shortsLegendRow" class="flex items-center justify-between gap-1 text-[9.5px] font-semibold mb-1 truncate">
-                    <span class="text-[#60A5FA] mono-num">규제 강화 88%</span>
-                    <span class="text-[#A1A1AA]">찬반 공론장 중재</span>
-                    <span class="text-[#F87171] mono-num">신중·보완 12%</span>
+                    <span class="text-[#60A5FA] mono-num">라이더 생계 12%</span>
+                    <span class="text-[#A1A1AA]">공감 비중</span>
+                    <span class="text-[#F87171] mono-num">주민 수면권 88%</span>
                   </div>
                   <div id="shortsRatioBar" class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden flex gap-0.5 mb-1">
-                    <div class="h-full bg-[#2563EB] rounded-full" style="width: 88%"></div>
-                    <div class="h-full bg-[#DC2626] rounded-full" style="width: 12%"></div>
+                    <div class="h-full bg-[#2563EB] rounded-full" style="width: 12%"></div>
+                    <div class="h-full bg-[#DC2626] rounded-full" style="width: 88%"></div>
                   </div>
                   <div class="flex items-center justify-between pt-1 border-t border-white/[0.08]">
                     <div class="flex items-center gap-1" id="shortsTurnDots"></div>
@@ -737,8 +847,8 @@
                 <video id="realMp4Player" class="w-full h-full object-contain" controls playsinline preload="metadata"></video>
                 <div id="mp4RenderOverlay" class="hidden absolute inset-0 bg-[#0B0F17]/95 flex flex-col items-center justify-center p-6 text-center z-20">
                   <div class="w-8 h-8 rounded-full border-2 border-white/20 border-t-sky-400 animate-spin mb-3"></div>
-                  <div id="mp4RenderOverlayText" class="text-[13px] font-semibold text-white">AI 음성 + 9:16 방송 영상 생성 중...</div>
-                  <div id="mp4RenderOverlaySub" class="text-[11px] text-slate-400 mt-1">입력된 대본 길이에 맞춰 음성과 자막을 동기화하고 있습니다.</div>
+                  <div id="mp4RenderOverlayText" class="text-[13px] font-semibold text-white">AI 음성 + 9:16 HP 배틀 영상 생성 중...</div>
+                  <div id="mp4RenderOverlaySub" class="text-[11px] text-slate-400 mt-1">6턴 진영 공격과 8비트 타격음을 동기화하고 있습니다.</div>
                 </div>
               </div>
             </div>
@@ -746,28 +856,28 @@
             <!-- Tactile Transport & Acoustic Dock -->
             <div class="w-full max-w-[320px] mt-3.5 space-y-2.5">
               <div class="flex items-center gap-1.5">
-                <button type="button" onclick="stepTurn(-1)" title="이전 턴 (←)" class="btn-outline w-10 h-10 flex items-center justify-center text-[12px] shrink-0">◀</button>
+                <button type="button" onclick="stepTurn(-1)" title="이전 라운드 (←)" class="btn-outline w-10 h-10 flex items-center justify-center text-[12px] shrink-0">◀</button>
                 <button id="playShortsBtn" onclick="toggleShortsPlayback()" class="btn-outline flex-1 h-10 text-[13px]">
-                  <span id="playBtnLabel">재생</span>
+                  <span id="playBtnLabel">배틀 재생</span>
                 </button>
-                <button type="button" onclick="stepTurn(1)" title="다음 턴 (→)" class="btn-outline w-10 h-10 flex items-center justify-center text-[12px] shrink-0">▶</button>
+                <button type="button" onclick="stepTurn(1)" title="다음 라운드 (→)" class="btn-outline w-10 h-10 flex items-center justify-center text-[12px] shrink-0">▶</button>
                 <button id="exportMp4Btn" onclick="exportReal916Video()" class="btn-ink px-3.5 h-10 text-[12.5px] shrink-0">
                   MP4 저장
                 </button>
               </div>
 
-              <!-- Unified Slim Acoustic Dock -->
+              <!-- Unified Slim Acoustic Dock (Rapid-Fire 1.3x Browser TTS + 8-bit Web Audio SFX) -->
               <div class="studio-subpanel px-2.5 py-1.5 flex items-center justify-between gap-2 text-[11.5px] text-slate-600">
                 <select id="voiceEngineSelect" onchange="onVoiceModeChange()" class="bg-transparent font-semibold text-slate-800 outline-none cursor-pointer text-[11.5px]">
-                  <option value="auto">음성: 자동 (Cloud/표준)</option>
-                  <option value="browser">음성: 표준 한국어</option>
+                  <option value="browser">음성: 속사포 한국어 (1.3x)</option>
+                  <option value="auto">음성: 자동 (Cloud/속사포)</option>
                 </select>
                 <div class="flex items-center gap-2 shrink-0">
                   <button id="speedToggleBtn" onclick="togglePlaybackSpeed()" class="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-semibold text-slate-800 mono-num hover:bg-slate-50 transition">
-                    1.0x
+                    1.3x
                   </button>
                   <label class="flex items-center gap-1 cursor-pointer select-none">
-                    <span class="text-[11px] font-medium">효과음</span>
+                    <span class="text-[11px] font-medium">8비트 타격음</span>
                     <span class="min-switch">
                       <input id="chimeToggle" type="checkbox" checked onchange="saveUiPrefs()" />
                       <span class="min-slider"></span>
@@ -776,7 +886,7 @@
                 </div>
               </div>
               <div class="flex items-center justify-between text-[10.5px] text-slate-400 px-0.5">
-                <span class="mono-num">Space 재생 · ←/→ 턴 이동</span>
+                <span class="mono-num">Space 배틀 재생 · ←/→ 라운드 이동</span>
                 <span id="mp4ExportStatus" class="font-medium text-emerald-600 truncate max-w-[170px]"></span>
               </div>
             </div>
@@ -786,16 +896,16 @@
         <!-- RIGHT (7 cols): FOCUSED CONTEXT RADAR + TABBED INSPECTOR (SCRIPT FIRST!) -->
         <div class="lg:col-span-7 space-y-4">
 
-          <!-- Active Perspective Radar & One-Click Quick Copy -->
+          <!-- Active Faction Collision Radar & One-Click Quick Copy -->
           <div class="studio-panel p-4 sm:p-5 space-y-3">
             <div class="flex flex-wrap items-start justify-between gap-2">
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 mb-1">
-                  <span id="studioTopicModeBadge" class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10.5px] font-bold">찬반 공론장 중재</span>
-                  <span class="text-[11px] font-semibold text-slate-400 mono-num">PERSPECTIVE RADAR</span>
+                  <span id="studioTopicModeBadge" class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10.5px] font-bold">동적 진영 HP 팩트 배틀</span>
+                  <span class="text-[11px] font-semibold text-slate-400 mono-num">DYNAMIC FACTION BATTLE</span>
                 </div>
                 <h1 id="studioIssueHeadline" class="text-[15.5px] font-bold text-slate-900 leading-snug line-clamp-2">
-                  심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
+                  심야 배달 오토바이 배기 소음 규제 논란
                 </h1>
               </div>
               <button type="button" onclick="copyFullMetadata(this)" class="btn-outline h-8 px-2.5 text-[11.5px] shrink-0">
@@ -803,8 +913,8 @@
               </button>
             </div>
             <div id="studioOverviewBar" class="w-full h-2 rounded-full bg-slate-100 overflow-hidden flex gap-0.5">
-              <div class="h-full bg-[#2563EB]" style="width:88%"></div>
-              <div class="h-full bg-[#DC2626]" style="width:12%"></div>
+              <div class="h-full bg-[#2563EB]" style="width:12%"></div>
+              <div class="h-full bg-[#DC2626]" style="width:88%"></div>
             </div>
             <div id="studioOverviewLegend" class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] font-semibold"></div>
           </div>
@@ -814,7 +924,7 @@
             <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-900/[0.06]">
               <div class="seg-track">
                 <button id="studioTabScript" type="button" onclick="switchStudioInspector('script')" class="seg-btn active">
-                  <span id="scriptEditorHeading">스튜디오 대본 (6턴)</span>
+                  <span id="scriptEditorHeading">팩트 배틀 대본 (6턴)</span>
                 </button>
                 <button id="studioTabPublish" type="button" onclick="switchStudioInspector('publish')" class="seg-btn">
                   업로드 메타 · 내보내기
@@ -828,10 +938,10 @@
               </div>
             </div>
 
-            <!-- SUB-PANEL 1 (DEFAULT): FLEXIBLE 2-8 TURN SCRIPT TIMELINE -->
+            <!-- SUB-PANEL 1 (DEFAULT): FLEXIBLE 2-8 TURN BATTLE SCRIPT TIMELINE -->
             <div id="panelScriptTab" class="space-y-2.5">
               <div class="flex items-center justify-between text-[11.5px] text-slate-400 px-0.5">
-                <span>소제목·대사 클릭해 직접 수정 · 관점 변경 시 9:16 영상 색상이 자동 동기화됩니다</span>
+                <span>핵심 라벨·공격 대사·데미지(15~35)를 직접 수정하면 상단 HP 게이지와 배틀 영상에 즉시 반영됩니다</span>
               </div>
               <div id="debateScriptList" class="space-y-2"></div>
             </div>
@@ -890,7 +1000,7 @@
           <div>
             <span class="text-[11px] font-bold text-slate-400 mono-num">YOUTUBE DATA API V3 · TELEMETRY REPORT</span>
             <h2 id="reportIssueTitle" class="text-[17.5px] font-bold text-slate-900 mt-0.5">
-              심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란
+              심야 배달 오토바이 배기 소음 규제 논란
             </h2>
             <p id="activeSourceLabel" class="text-[12px] text-slate-500 mt-1"></p>
           </div>
@@ -930,20 +1040,20 @@
           </div>
         </div>
 
-        <!-- Dynamic Multi-Perspective Stance & Detox Bars -->
+        <!-- Dynamic Faction A vs B & Detox Bars -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mt-3.5">
           <div class="studio-subpanel p-4">
             <div id="analyticsStanceHeader" class="flex justify-between items-center text-[12px] font-semibold mb-2">
-              <span id="stanceModeTag" class="text-slate-900">찬반 공론장 중재</span>
-              <span class="text-slate-500" id="stanceTotalLabel">원본 댓글 여론</span>
+              <span id="stanceModeTag" class="text-slate-900">동적 진영 HP 팩트 배틀</span>
+              <span class="text-slate-500" id="stanceTotalLabel">A 진영 vs B 진영 여론 비중</span>
             </div>
             <div id="analyticsStackedBar" class="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden flex gap-0.5">
-              <div class="h-full bg-[#2563EB]" style="width: 88%"></div>
-              <div class="h-full bg-[#DC2626]" style="width: 12%"></div>
+              <div class="h-full bg-[#2563EB]" style="width: 12%"></div>
+              <div class="h-full bg-[#DC2626]" style="width: 88%"></div>
             </div>
             <div id="analyticsPerspectivesLegend" class="mt-2.5 space-y-1.5"></div>
             <p id="analyticsStanceDesc" class="text-[11.5px] text-slate-500 mt-2.5">
-              편향된 원본 댓글 분포에서도 핵심 관점별 논거를 추출해 대본으로 균형을 맞춥니다.
+              댓글창의 다양한 관점 중 가장 첨예하게 충돌하는 상위 2개 여론 진영(A 진영 vs B 진영)을 동적 명명해 공감 비율 비례 HP 팩트 배틀로 구성합니다.
             </p>
           </div>
 
@@ -982,7 +1092,7 @@
               KDE 분포 저장
             </button>
             <button onclick="downloadCanvasAsPng('clusterCanvas', 'chart2_topic_clusters.png')" class="btn-outline px-3 py-1.5 text-[12px]">
-              키워드 군집 저장
+              진영 군집 저장
             </button>
           </div>
         </div>
@@ -1065,11 +1175,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
   <div id="apiKeyModal" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="studio-panel max-w-md w-full p-6 space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-[16px] font-bold text-slate-900">API · 음성 합성 설정</h3>
+        <h3 class="text-[16px] font-bold text-slate-900">API · 속사포 음성 설정</h3>
         <button onclick="toggleApiKeyModal()" class="btn-ghost px-3 py-1 text-[12px]">닫기</button>
       </div>
       <p class="text-[12.5px] text-slate-600 leading-relaxed">
-        실시간 프리뷰는 왜곡 없는 표준 한국어 음성을 1:1 자막 동기화로 재생합니다. Google Cloud TTS 또는 유료 Gemini API 키가 있으면 AI 아나운서 음성과 MP4 더빙에도 바로 적용됩니다.
+        실시간 배틀은 내장 한국어 속사포 TTS(1.3x)와 Web Audio 8비트 타격음을 동기화해 즉시 재생합니다. Google AI 키가 있으면 유튜브 댓글에서 동적 진영(Side A vs B)을 실시간 추출합니다.
       </p>
       <div class="space-y-2">
         <label class="text-[12px] font-semibold text-slate-700 block">Google AI / Cloud API Key (브라우저 로컬 저장)</label>
@@ -1077,13 +1187,13 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       </div>
       <div class="grid grid-cols-2 gap-2.5">
         <div>
-          <label class="text-[11.5px] font-semibold text-slate-700 block mb-1">좌측 진행자 (L) 표준 음성</label>
+          <label class="text-[11.5px] font-semibold text-slate-700 block mb-1">A 진영 (블루) 음성</label>
           <select id="proVoiceSelect" onchange="onBrowserVoicePick()" class="studio-input w-full h-9 px-2.5 text-[12px]">
             <option value="auto">자동 최적 선택</option>
           </select>
         </div>
         <div>
-          <label class="text-[11.5px] font-semibold text-slate-700 block mb-1">우측 진행자 (R) 표준 음성</label>
+          <label class="text-[11.5px] font-semibold text-slate-700 block mb-1">B 진영 (레드) 음성</label>
           <select id="conVoiceSelect" onchange="onBrowserVoicePick()" class="studio-input w-full h-9 px-2.5 text-[12px]">
             <option value="auto">자동 최적 선택</option>
           </select>
@@ -1146,7 +1256,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
     const SAMPLE_PACKS = {
       it_review: {
-        mode: "multi",
+        mode: "proscons",
         comments: [
           "배터리 타임이랑 저전력 효율은 진짜 역대급으로 오래 가네요 하루 종일 씁니다",
           "배터리 오래 가는 게 가장 만족스럽고 외근할 때 든든해요",
@@ -1159,7 +1269,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         ].join("\n")
       },
       game_patch: {
-        mode: "multi",
+        mode: "battle",
         comments: [
           "이번 신규 스토리랑 BGM 퀄리티는 진짜 최고다 몰입감 미쳤음 기대 이상이네요",
           "상위 던전 보상 개편 방향은 좋은데 신규 유저 진입 장벽이 여전히 너무 높은 게 문제",
@@ -1169,7 +1279,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         ].join("\n")
       },
       four_day: {
-        mode: "multi",
+        mode: "battle",
         comments: [
           "생산성 집중도가 높아지고 워라밸이 좋아져서 번아웃 예방에 정말 도움이 됩니다",
           "중소기업이나 현장 제조·서비스 업종은 인건비와 납기 부담 때문에 당장 도입이 어렵습니다",
@@ -1178,7 +1288,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         ].join("\n")
       },
       noise_debate: {
-        mode: "debate",
+        mode: "battle",
         comments: [
           "새벽 주택가 오토바이 배기 소음 단속과 처벌 규제를 즉각 강화해야 시민이 잠을 잡니다",
           "전면 번호판 의무화와 불법 소음기 개조 업체에 대한 강력한 과태료 부과가 필수입니다",
@@ -1188,31 +1298,92 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
     };
 
-    function getTurnColorKey(turn) {
-      const ck = (turn && turn.color ? String(turn.color) : "").trim().toLowerCase();
-      if (PALETTES[ck]) return ck;
-      return (turn && turn.speaker === "CON") ? "red" : "blue";
+    function getTurnFaction(turn, fallbackIdx = 0) {
+      if (turn) {
+        const f = String(turn.faction || "").trim().toUpperCase();
+        if (f === "A" || f === "B") return f;
+        const s = String(turn.speaker || "").trim().toUpperCase();
+        if (s === "PRO" || s === "A") return "A";
+        if (s === "CON" || s === "B") return "B";
+      }
+      return fallbackIdx % 2 === 0 ? "A" : "B";
+    }
+
+    function getTurnDamage(turn) {
+      const n = Number(turn && turn.damage);
+      if (Number.isFinite(n) && n >= 15 && n <= 35) return Math.round(n);
+      return 22;
+    }
+
+    function getFactionLabels(data = currentData) {
+      const persps = resolvePerspectives(data);
+      const labelA = ((data && data.side_a_label) || (persps[0] && persps[0].label) || "A 진영").trim();
+      const labelB = ((data && data.side_b_label) || (persps[1] && persps[1].label) || "B 진영").trim();
+      return { labelA, labelB };
+    }
+
+    function getTurnColorKey(turn, idx = 0) {
+      return getTurnFaction(turn, idx) === "A" ? "blue" : "red";
+    }
+
+    function computeHpStateUpTo(turns, inclusiveTurnIdx = -1) {
+      let hpA = 100;
+      let hpB = 100;
+      const limit = Math.min((turns || []).length - 1, inclusiveTurnIdx);
+      for (let i = 0; i <= limit; i++) {
+        const dmg = getTurnDamage(turns[i]);
+        if (getTurnFaction(turns[i], i) === "A") {
+          hpB = Math.max(0, hpB - dmg);
+        } else {
+          hpA = Math.max(0, hpA - dmg);
+        }
+      }
+      return { hpA, hpB };
     }
 
     function resolvePerspectives(data) {
+      if (data && data.side_a_label && data.side_b_label) {
+        const stats = data.raw_stats || {};
+        const rA = Math.max(5, Math.min(95, Number(data.side_a_ratio ?? stats.side_a_ratio ?? stats.pro_ratio ?? 50)));
+        const rB = Math.max(5, Math.min(95, Number(data.side_b_ratio ?? stats.side_b_ratio ?? stats.con_ratio ?? (100 - rA))));
+        const normA = Math.max(5, Math.min(95, Math.round((rA / Math.max(1, rA + rB)) * 100)));
+        const normB = Math.max(5, 100 - normA);
+        const origP = Array.isArray(data.perspectives) ? data.perspectives : [];
+        return [
+          {
+            id: "A",
+            label: data.side_a_label,
+            short_label: String(data.side_a_label).slice(0, 14),
+            ratio: normA,
+            color: "blue",
+            keywords: (origP[0] && Array.isArray(origP[0].keywords)) ? origP[0].keywords : []
+          },
+          {
+            id: "B",
+            label: data.side_b_label,
+            short_label: String(data.side_b_label).slice(0, 14),
+            ratio: normB,
+            color: "red",
+            keywords: (origP[1] && Array.isArray(origP[1].keywords)) ? origP[1].keywords : []
+          }
+        ];
+      }
       if (data && Array.isArray(data.perspectives) && data.perspectives.length >= 2) {
-        return data.perspectives.slice(0, 4).map((p, i) => {
-          const ck = PALETTES[(p.color || "").toLowerCase()] ? p.color.toLowerCase() : PALETTE_ORDER[i % 4];
-          return {
-            id: p.id || `P${i + 1}`,
-            label: p.label || p.short_label || `관점 ${i + 1}`,
-            short_label: (p.short_label || p.label || `관점 ${i + 1}`).slice(0, 12),
-            ratio: Math.max(1, Number(p.ratio) || 25),
-            color: ck,
-            keywords: Array.isArray(p.keywords) ? p.keywords : []
-          };
-        });
+        const p0 = data.perspectives[0];
+        const p1 = data.perspectives[1];
+        const r0 = Math.max(5, Number(p0.ratio) || 50);
+        const r1 = Math.max(5, Number(p1.ratio) || 50);
+        const norm0 = Math.max(5, Math.min(95, Math.round((r0 / (r0 + r1)) * 100)));
+        return [
+          { id: "A", label: p0.label || "A 진영", short_label: String(p0.short_label || p0.label || "A 진영").slice(0, 14), ratio: norm0, color: "blue", keywords: Array.isArray(p0.keywords) ? p0.keywords : [] },
+          { id: "B", label: p1.label || "B 진영", short_label: String(p1.short_label || p1.label || "B 진영").slice(0, 14), ratio: Math.max(5, 100 - norm0), color: "red", keywords: Array.isArray(p1.keywords) ? p1.keywords : [] }
+        ];
       }
       const stats = (data && data.raw_stats) || {};
-      const proR = Math.max(1, Math.min(99, Number(stats.pro_ratio) || 50));
+      const rA = Math.max(5, Math.min(95, Number(stats.side_a_ratio ?? stats.pro_ratio) || 50));
       return [
-        { id: "P1", label: "찬성·지지", short_label: "찬성", ratio: proR, color: "blue", keywords: [] },
-        { id: "P2", label: "반대·보완", short_label: "반대", ratio: Math.max(1, 100 - proR), color: "red", keywords: [] }
+        { id: "A", label: "A 진영 (핵심 주류 여론 1)", short_label: "A 진영", ratio: rA, color: "blue", keywords: [] },
+        { id: "B", label: "B 진영 (핵심 대립 여론 2)", short_label: "B 진영", ratio: Math.max(5, 100 - rA), color: "red", keywords: [] }
       ];
     }
 
@@ -1229,93 +1400,104 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     const OFFLINE_PRESETS = {
       preset_1: {
         id: "preset_1",
-        analysis_mode: "debate",
-        mode_label: "찬반 공론장 중재",
+        analysis_mode: "faction_battle",
+        mode_label: "동적 진영 HP 팩트 배틀",
         source_label: "YouTube Data API v3 실측 · YTN(vNIXiWyXs90), MBC(lt7knjTuuOM), 연합뉴스TV(Cs_A2EcMsto) 200건",
         source_url: "https://www.youtube.com/watch?v=vNIXiWyXs90",
         video_mp4_url: "static/videos/preset_1.mp4",
         has_voice_track: true,
-        issue_title: "심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란",
-        hashtags: "#심야오토바이소음 #배달라이더 #공론장중재 #핵심토론 #쇼츠",
+        issue_title: "심야 배달 오토바이 배기 소음 규제 논란",
+        hashtags: "#심야오토바이소음 #라이더생계vs주민수면권 #팩트배틀 #쇼츠",
+        side_a_label: "라이더 생계 우선파",
+        side_b_label: "주민 수면권 수호파",
+        side_a_ratio: 12,
+        side_b_ratio: 88,
         perspectives: [
-          { id: "P1", label: "단속·소음 규제 강화", short_label: "규제 강화", ratio: 88, color: "blue", keywords: ["배기소음", "단속강화", "번호판"] },
-          { id: "P2", label: "라이더 생존권·인프라", short_label: "신중·보완", ratio: 12, color: "red", keywords: ["생계형", "전기이륜차", "핀셋단속"] }
+          { id: "A", label: "라이더 생계 우선파", short_label: "라이더 생계 우선파", ratio: 12, color: "blue", keywords: ["생계형", "플랫폼속도", "전기이륜차"] },
+          { id: "B", label: "주민 수면권 수호파", short_label: "주민 수면권 수호파", ratio: 88, color: "red", keywords: ["배기소음", "단속강화", "전면번호판"] }
         ],
-        raw_stats: { total_comments: 200, filtered_curse_count: 58, pro_ratio: 88, con_ratio: 12, toxicity_before: 64.2, toxicity_after: 14.5 },
+        raw_stats: { total_comments: 200, filtered_curse_count: 58, pro_ratio: 12, con_ratio: 88, side_a_ratio: 12, side_b_ratio: 88, toxicity_before: 64.2, toxicity_after: 14.5 },
         debate_script: [
-          { speaker: "PRO", perspective_id: "P1", perspective_label: "규제 강화", color: "blue", core_point: "헌법상 주거 평온권 및 심야 수면권 침해 심각", text: "새벽 시간대 주택가를 관통하는 불법 개조 오토바이의 폭발적인 배기음은 시민들의 수면 건강과 일상을 심각하게 파괴하고 있습니다. 유명무실한 현행 소음 기준을 대폭 낮추고 상시 음향 단속 카메라와 즉각적인 처벌 법안을 도입해야 합니다." },
-          { speaker: "CON", perspective_id: "P2", perspective_label: "신중·보완", color: "red", core_point: "생계형 배달 라이더 생존권 및 플랫폼 속도 경쟁 구조", text: "일부 불법 개조 운전자의 일탈을 이유로 야간 생계형 라이더 전체의 운행을 제한하는 것은 과도한 생존권 침해입니다. 배달 시간 단축을 강요하는 플랫폼 알고리즘과 야간 할증 구조를 개선하는 것이 근본적인 해결책입니다." },
-          { speaker: "PRO", perspective_id: "P1", perspective_label: "규제 강화", color: "blue", core_point: "전면 번호판 의무화 및 불법 소음기 개조 원천 차단", text: "단속 경찰 앞에서도 보란 듯이 굉음을 내며 도주할 수 있는 이유는 후면 번호판 중심의 허술한 식별 체계 때문입니다. 전면 번호판 부착을 의무화하고 불법 머플러 개조 업체와 운전자에게 징벌적 과태료를 부과해야 합니다." },
-          { speaker: "CON", perspective_id: "P2", perspective_label: "신중·보완", color: "red", core_point: "전기 이륜차 보급 인프라 및 배터리 교환소 선행 확충", text: "단속과 처벌만으로는 반복되는 소음 갈등을 근본적으로 해결할 수 없습니다. 영세 배달 종사자들이 무소음 전기 이륜차로 부담 없이 전환할 수 있도록 구매 보조금과 배터리 교환 인프라를 먼저 확충해야 합니다." },
-          { speaker: "PRO", perspective_id: "P1", perspective_label: "규제 강화", color: "blue", core_point: "주거 밀집 지역 심야 내연기관 이륜차 통행 제한 구역 지정", text: "아파트 단지와 주택가 골목에서는 밤 열한 시 이후 고소음 내연기관 이륜차 진입을 제한하는 심야 정온 구역 지정이 시급합니다. 다수 시민의 건강권과 환경권 보호는 더 이상 미룰 수 없는 공공의 책무입니다." },
-          { speaker: "CON", perspective_id: "P2", perspective_label: "신중·보완", color: "red", core_point: "야간 자영업 생태계 보호 및 핀셋 단속 기반 상생 거버넌스", text: "심야 배달을 일괄 차단하면 야간 매출에 의존하는 영세 소상공인과 교대 근무 소비자들까지 연쇄적인 피해를 입게 됩니다. 획일적 통행 금지 대신 소음 기준 초과 차량만 정밀 타격하는 스마트 단속과 친환경 인센티브를 병행해야 합니다." }
+          { faction: "A", core_point: "소수 불법 개조 vs 다수 생계형 라이더", text: "일부 불법 튜닝 잡는다고 밤새 뛰는 생계형 라이더 전체 통행 막는 건 생존권 침해야!", damage: 16 },
+          { faction: "B", core_point: "새벽 주택가 굉음·수면권 파괴", text: "새벽 두 시에 아파트 울리는 굉음은 소음이 아니라 주민 수면권을 부수는 일상 테러지!", damage: 33 },
+          { faction: "A", core_point: "배달 시간 쪼개는 플랫폼 구조 문제", text: "배달 지연 패널티로 속도 경쟁 시키는 플랫폼 알고리즘부터 뜯어고치는 게 순서 아니냐!", damage: 15 },
+          { faction: "B", core_point: "후면 번호판 맹점·단속 도주 방치", text: "뒤에만 번호판 달아놓고 경찰 앞에서 굉음 내며 도망가는데 전면 번호판 의무화가 답이야!", damage: 31 },
+          { faction: "A", core_point: "무소음 전기 이륜차·교환소 인프라", text: "무조건 과태료만 때릴 게 아니라 전기 오토바이 전환 보조금과 충전 인프라부터 깔아줘야지!", damage: 17 },
+          { faction: "B", core_point: "밤 11시 주거지 정온 구역 지정", text: "생계 핑계로 남의 건강 망치는 건 선 넘었으니 밤 열한 시 이후 고소음 차량 진입을 막아야 해!", damage: 30 }
         ],
         detox_samples: [
-          { side: "PRO", perspective_label: "규제 강화", color: "blue", raw: "[YTN] 단속 의지도 없으면서 ㄱ ㅐ소리!!! 파출소 배달가는 딸배도 붕붕 거리더라", cleaned: "일선 단속의 실효성이 부족하여 공공기관 인근에서도 이륜차 소음이 방치되고 있으므로 상시 단속 체계를 강화해야 합니다.", removed_tokens: ["ㄱ ㅐ소리!!!", "딸배도"] },
-          { side: "PRO", perspective_label: "규제 강화", color: "blue", raw: "[좋아요 53] 강력처벌 해야 합니다..오토바이 자동차 배기음 폭발하는 소리 진짜 살인을 부릅니다.", cleaned: "심야 시간대 기준치를 초과하는 배기 소음은 극심한 정신적 고통을 유발하므로 처벌 수위를 대폭 강화해야 합니다.", removed_tokens: ["살인을 부릅니다"] },
-          { side: "PRO", perspective_label: "규제 강화", color: "blue", raw: "[MBC] 오토바이 소음 단속 백날해봐라 없어지는가....처벌법이 개법인데 그때뿐이지.", cleaned: "일회성 합동 단속만으로는 소음 근절이 어려우므로 관련 처벌 법규와 배기음 허용 기준 자체를 실효성 있게 개정해야 합니다.", removed_tokens: ["백날해봐라", "개법인데"] },
-          { side: "CON", perspective_label: "신중·보완", color: "red", raw: "[연합뉴스TV] 먹고살려고 밤잠 줄여가며 배달 뛰는 기사들까지 싸잡아서 범죄자 취급하네 법 지키는 사람이 더 많다", cleaned: "법규를 준수하는 다수의 생계형 배달 종사자까지 일괄 규제의 대상으로 삼기보다 불법 개조 차량에 한정한 핀셋 단속이 필요합니다.", removed_tokens: ["싸잡아서", "범죄자 취급"] }
+          { faction: "B", faction_label: "주민 수면권 수호파", color: "red", raw: "[YTN] 단속 의지도 없으면서 ㄱ ㅐ소리!!! 파출소 배달가는 딸배도 붕붕 거리더라", cleaned: "일선 단속이 겉돌면서 공공기관 근처까지 이륜차 소음이 방치되니 상시 단속부터 강화해야 해.", removed_tokens: ["ㄱ ㅐ소리!!!", "딸배도"] },
+          { faction: "B", faction_label: "주민 수면권 수호파", color: "red", raw: "[좋아요 53] 강력처벌 해야 합니다..오토바이 자동차 배기음 폭발하는 소리 진짜 살인을 부릅니다.", cleaned: "심야에 기준치를 넘는 폭발적인 배기음은 주민 정신 건강을 해치니까 처벌 수위를 대폭 올려야 해.", removed_tokens: ["살인을 부릅니다"] },
+          { faction: "B", faction_label: "주민 수면권 수호파", color: "red", raw: "[MBC] 오토바이 소음 단속 백날해봐라 없어지는가....처벌법이 개법인데 그때뿐이지.", cleaned: "일회성 합동 단속만으로는 소음이 안 사라지니까 허용 기준과 처벌 법규 자체를 뜯어고쳐야 해.", removed_tokens: ["백날해봐라", "개법인데"] },
+          { faction: "A", faction_label: "라이더 생계 우선파", color: "blue", raw: "[연합뉴스TV] 먹고살려고 밤잠 줄여가며 배달 뛰는 기사들까지 싸잡아서 범죄자 취급하네 법 지키는 사람이 더 많다", cleaned: "법 지키는 생계형 배달 기사까지 싸잡아 규제하지 말고 불법 개조 차량만 핀셋으로 잡아내야지.", removed_tokens: ["싸잡아서", "범죄자 취급"] }
         ]
       },
       preset_2: {
         id: "preset_2",
-        analysis_mode: "debate",
-        mode_label: "찬반 공론장 중재",
+        analysis_mode: "faction_battle",
+        mode_label: "동적 진영 HP 팩트 배틀",
         source_label: "YouTube Data API v3 실측 · MBC(Xt8TRqMuZRc), SBS(aI0awk0NBfc), TBS(D2hNIe74HEQ) 180건",
         source_url: "https://www.youtube.com/watch?v=Xt8TRqMuZRc",
         video_mp4_url: "static/videos/preset_2.mp4",
         has_voice_track: true,
-        issue_title: "대학가·도심 공유 전동킥보드 즉시 견인 및 통행 금지 논란",
-        hashtags: "#전동킥보드 #킥보드견인 #보행안전 #공론장중재 #쇼츠",
+        issue_title: "도심 공유 전동킥보드 즉시 견인·금지 논란",
+        hashtags: "#전동킥보드 #전면견인vs인프라확충 #팩트배틀 #쇼츠",
+        side_a_label: "전면 견인 강경파",
+        side_b_label: "인프라 확충 현실파",
+        side_a_ratio: 87,
+        side_b_ratio: 13,
         perspectives: [
-          { id: "P1", label: "보행 안전·즉시 견인", short_label: "견인·규제", ratio: 87, color: "blue", keywords: ["보행안전", "무단방치", "허가제"] },
-          { id: "P2", label: "전용 주차·이동권 공존", short_label: "인프라·공존", ratio: 13, color: "red", keywords: ["주차존", "GPS감속", "라스트마일"] }
+          { id: "A", label: "전면 견인 강경파", short_label: "전면 견인 강경파", ratio: 87, color: "blue", keywords: ["보행안전", "무단방치", "즉시견인"] },
+          { id: "B", label: "인프라 확충 현실파", short_label: "인프라 확충 현실파", ratio: 13, color: "red", keywords: ["주차존", "GPS감속", "라스트마일"] }
         ],
-        raw_stats: { total_comments: 180, filtered_curse_count: 32, pro_ratio: 87, con_ratio: 13, toxicity_before: 61.5, toxicity_after: 14.2 },
+        raw_stats: { total_comments: 180, filtered_curse_count: 32, pro_ratio: 87, con_ratio: 13, side_a_ratio: 87, side_b_ratio: 13, toxicity_before: 61.5, toxicity_after: 14.2 },
         debate_script: [
-          { speaker: "PRO", perspective_id: "P1", perspective_label: "견인·규제", color: "blue", core_point: "보행자 안전 위협 및 인도 무단 방치 기기 즉시 견인", text: "인도와 골목길 한가운데 아무렇게나 방치된 공유 전동킥보드는 보행자의 통행을 가로막고 심각한 안전사고를 유발하고 있습니다. 유예 시간 없는 즉시 강제 견인을 전국 지자체로 확대하고 무단 방치 이용자에게 과태료를 직접 부과해야 합니다." },
-          { speaker: "CON", perspective_id: "P2", perspective_label: "인프라·공존", color: "red", core_point: "전용 주차 구역(PM 파킹존) 인프라 확충 선행 필요", text: "반납할 수 있는 전용 주차 구역조차 마련하지 않은 채 무조건 견인부터 시행하는 것은 앞뒤가 바뀐 행정입니다. 지자체와 대여 업체가 협력하여 보도 위 지정 거치대와 표준 주차 인프라를 먼저 구축해야 합니다." },
-          { speaker: "PRO", perspective_id: "P1", perspective_label: "견인·규제", color: "blue", core_point: "민간 공유 킥보드 대여 업체의 관리 책임 및 허가제 도입", text: "수익은 민간 대여 업체가 거두면서 무면허 주행과 기기 방치로 인한 사회적 비용은 시민과 지자체가 떠안고 있습니다. 공유 모빌리티 사업을 등록제에서 허가제로 전환하고 안전 관리 의무를 위반한 업체의 영업을 제한해야 합니다." },
-          { speaker: "CON", perspective_id: "P2", perspective_label: "인프라·공존", color: "red", core_point: "억울한 견인료 부과 피해 방지 및 GPS 기술적 규제 대안", text: "정상적으로 반납한 이용자에게까지 며칠 뒤 수만 원의 견인료를 일방 청구하는 등 무분별한 견인 행정의 부작용이 속출하고 있습니다. 전면 퇴출이나 과잉 견인 대신 지피에스 기반 지정 구역 외 반납 차단 기술을 의무화해야 합니다." },
-          { speaker: "PRO", perspective_id: "P1", perspective_label: "견인·규제", color: "blue", core_point: "교통약자 보행권 수호 및 보행 밀집 구역 통행 금지", text: "점자블록과 횡단보도 앞에 쓰러진 킥보드는 시각장애인과 유모차, 노약자에게 도로 위 흉기와 다름없습니다. 대학가와 어린이 보호구역 등 보행 밀집 지역에서는 전동킥보드 통행을 전면 금지해야 합니다." },
-          { speaker: "CON", perspective_id: "P2", perspective_label: "인프라·공존", color: "red", core_point: "단거리 대중교통 보완재로서의 편익 및 합리적 제도화", text: "전동킥보드는 대중교통 사각지대를 연결하는 친환경 라스트마일 이동수단으로서 분명한 수요와 편익이 존재합니다. 일괄적인 퇴출보다는 속도 제한과 번호판 부착, 전용 주차존 확충을 통해 제도권 안에서 안전하게 공존해야 합니다." }
+          { faction: "A", core_point: "인도 무단 방치·유예 없는 즉시 견인", text: "점자블록과 횡단보도에 나뒹구는 킥보드는 보행자 흉기니까 유예 없이 즉시 강제 견인해야 해!", damage: 33 },
+          { faction: "B", core_point: "전용 주차존 없는 앞뒤 바뀐 단속", text: "반납할 전용 거치대 하나 안 만들어 놓고 무조건 견인료부터 뜯어가는 건 탁상행정 아니냐!", damage: 16 },
+          { faction: "A", core_point: "업체 수익 독식·사회적 비용 전가", text: "수익은 대여 업체가 챙기고 무면허 사고랑 방치 비용은 시민 세금으로 떠안는 게 말이 되냐!", damage: 31 },
+          { faction: "B", core_point: "제3자 이동 억울한 견인료·GPS 제어", text: "정상 반납했는데 남이 옮겨놔서 4만 원 덤터기 쓰는 피해 막으려면 지피에스 반납 제한이 먼저야!", damage: 17 },
+          { faction: "A", core_point: "등록제 폐지·안전 관리 허가제 전환", text: "등록제 틈타서 난립한 업체들 허가제로 싹 조이고 방치 기기 누적되면 영업 정지 때려야 해!", damage: 29 },
+          { faction: "B", core_point: "단거리 대중교통 공백 메우는 편익", text: "막차 끊긴 대학가나 골목길에선 엄연히 필요한 이동수단이니까 주차존 확충해서 제도권에 둬야지!", damage: 15 }
         ],
         detox_samples: [
-          { side: "PRO", perspective_label: "견인·규제", color: "blue", raw: "[MBC] 제발 그냥 전동킥보드든 전기자전거든 다 없애라.... 사용자들이 저렇게 개판치고 서로 불편해지는데 왜 있어야 되냐???", cleaned: "무단 방치와 안전수칙 미준수로 인한 사회적 불편이 크므로 공유 모빌리티에 대한 강력한 통행 및 영업 규제가 필요합니다.", removed_tokens: ["다 없애라", "개판치고"] },
-          { side: "PRO", perspective_label: "견인·규제", color: "blue", raw: "[좋아요 29] 도대체 킥보드는 안전문제에 불법주차등 문제투성인데 왜 채택하는거죠? 불법주차하는 사용자에게 책임을 물으세요!!!", cleaned: "보행 안전과 보도 질서 확립을 위해 불법 주차 및 무단 방치 이용자에게 명확한 법적·경제적 책임을 부과해야 합니다.", removed_tokens: ["문제투성인데", "!!!"] },
-          { side: "CON", perspective_label: "인프라·공존", color: "red", raw: "[좋아요 19] 킥보드 업체가 주차장소를 만들고 영업을 해야지... 아무 길이나 방치되어 있는 킥보드는 주차 인프라부터 강제해야 한다", cleaned: "무단 방치 문제를 근본적으로 해결하기 위해 대여 업체와 지자체가 전용 주차 공간을 의무적으로 확보하도록 제도화해야 합니다.", removed_tokens: ["아무 길이나"] },
-          { side: "CON", perspective_label: "인프라·공존", color: "red", raw: "[SBS] 킥보드 타지도 않았는데 번호판도 없으니 누가 옮겨놔도 사용자한테 4만원 덤터기 씌우는 게 말이 되냐 황당하네", cleaned: "제3자의 기기 이동 등으로 인한 억울한 견인료 부과 피해를 막기 위해 명확한 반납 인증 및 과징금 분쟁 조정 절차가 필요합니다.", removed_tokens: ["덤터기 씌우는", "황당하네"] }
+          { faction: "A", faction_label: "전면 견인 강경파", color: "blue", raw: "[MBC] 제발 그냥 전동킥보드든 전기자전거든 다 없애라.... 사용자들이 저렇게 개판치고 서로 불편해지는데 왜 있어야 되냐???", cleaned: "무단 방치랑 안전수칙 위반으로 보행 불편이 크니까 공유 킥보드 통행이랑 영업을 강하게 규제해야 해.", removed_tokens: ["다 없애라", "개판치고"] },
+          { faction: "A", faction_label: "전면 견인 강경파", color: "blue", raw: "[좋아요 29] 도대체 킥보드는 안전문제에 불법주차등 문제투성인데 왜 채택하는거죠? 불법주차하는 사용자에게 책임을 물으세요!!!", cleaned: "보행 안전이랑 보도 질서를 지키려면 불법 주차하고 방치한 이용자에게 직접 과태료를 물려야 해.", removed_tokens: ["문제투성인데", "!!!"] },
+          { faction: "B", faction_label: "인프라 확충 현실파", color: "red", raw: "[좋아요 19] 킥보드 업체가 주차장소를 만들고 영업을 해야지... 아무 길이나 방치되어 있는 킥보드는 주차 인프라부터 강제해야 한다", cleaned: "무단 방치를 없애려면 대여 업체와 지자체가 전용 주차 공간부터 의무로 확보하게 만들어야지.", removed_tokens: ["아무 길이나"] },
+          { faction: "B", faction_label: "인프라 확충 현실파", color: "red", raw: "[SBS] 킥보드 타지도 않았는데 번호판도 없으니 누가 옮겨놔도 사용자한테 4만원 덤터기 씌우는 게 말이 되냐 황당하네", cleaned: "남이 기기를 옮겨서 억울하게 견인료 물지 않게 명확한 반납 인증이랑 이의 절차가 먼저 필요해.", removed_tokens: ["덤터기 씌우는", "황당하네"] }
         ]
       },
       preset_3: {
         id: "preset_3",
-        analysis_mode: "multi",
-        mode_label: "3관점 여론 비교",
+        analysis_mode: "faction_battle",
+        mode_label: "동적 진영 HP 팩트 배틀",
         source_label: "YouTube Data API v3 실측 · MBC(NKIvNrtdiGA), KBS(x3J5hpBci98 외 2건), YTN(yfAshZpECCo) 147건",
         source_url: "https://www.youtube.com/watch?v=NKIvNrtdiGA",
         video_mp4_url: "static/videos/preset_3.mp4",
         has_voice_track: true,
-        issue_title: "고령 운전자 면허 논쟁, 실기검증·이동권·안전기술 3대 시각",
-        hashtags: "#고령운전자 #다관점여론 #실기시험 #이동권 #페달오조작방지 #쇼츠",
+        issue_title: "고령 운전자 면허 반납 및 실기 검증 논란",
+        hashtags: "#고령운전자 #면허반납vs이동권대안 #팩트배틀 #쇼츠",
+        side_a_label: "즉각 면허반납파",
+        side_b_label: "이동권 보장 대안파",
+        side_a_ratio: 67,
+        side_b_ratio: 33,
         perspectives: [
-          { id: "P1", label: "실기·정기 검증 강화", short_label: "안전 검증", ratio: 47, color: "blue", keywords: ["실기시험", "면허갱신", "정년"] },
-          { id: "P2", label: "농촌·생계 이동권 보장", short_label: "이동권 보장", ratio: 33, color: "red", keywords: ["대중교통", "농어촌", "생계운전"] },
-          { id: "P3", label: "오조작 장치·기술 대안", short_label: "기술 대안", ratio: 20, color: "violet", keywords: ["오조작방지", "자율주행", "복지택시"] }
+          { id: "A", label: "즉각 면허반납파", short_label: "즉각 면허반납파", ratio: 67, color: "blue", keywords: ["페달오조작", "면허반납", "실기시험"] },
+          { id: "B", label: "이동권 보장 대안파", short_label: "이동권 보장 대안파", ratio: 33, color: "red", keywords: ["농어촌이동권", "10만원한계", "오조작방지"] }
         ],
-        raw_stats: { total_comments: 147, filtered_curse_count: 36, pro_ratio: 78, con_ratio: 22, toxicity_before: 62.4, toxicity_after: 14.5 },
+        raw_stats: { total_comments: 147, filtered_curse_count: 36, pro_ratio: 67, con_ratio: 33, side_a_ratio: 67, side_b_ratio: 33, toxicity_before: 62.4, toxicity_after: 14.5 },
         debate_script: [
-          { speaker: "PRO", perspective_id: "P1", perspective_label: "안전 검증", color: "blue", core_point: "페달 오조작 및 인지 저하 예방을 위한 정기 실기 평가", text: "전체 댓글의 47퍼센트를 차지한 안전 검증 측에서는 고령 운전자의 판단 지연과 페달 오조작 사고를 막기 위해 정기 실주행 시험과 인지 적성검사를 대폭 강화해야 한다고 강조합니다." },
-          { speaker: "CON", perspective_id: "P2", perspective_label: "이동권 보장", color: "red", core_point: "일회성 10만 원 지원의 한계와 농어촌 대중교통 공백", text: "반면 33퍼센트 비중의 이동권 보장 측에서는 버스조차 드문 지방과 농어촌에서 단발성 십만 원 교통카드만 주고 면허를 반납하라는 것은 일상생활을 포기하라는 탁상행정이라고 지적합니다." },
-          { speaker: "PRO", perspective_id: "P3", perspective_label: "기술 대안", color: "violet", core_point: "페달 오조작 방지 장치 및 자율주행 보조 기술 의무화", text: "여기에 제3의 시각인 20퍼센트의 기술 대안 측에서는 나이로 면허를 일괄 회수하기보다 페달 오조작 방지 센서와 긴급 자동 제동 장치를 국가 보조금으로 보급하는 것이 현실적이라고 제안합니다." },
-          { speaker: "CON", perspective_id: "P2", perspective_label: "이동권 보장", color: "red", core_point: "생계형 운전자 차별 경계 및 연령 중심 획일 규제 반대", text: "또한 택시나 화물로 생계를 이어가는 고령층에게 연령만을 잣대로 운전을 막는 것은 공정하지 않으며, 실제 건강 상태와 주행 데이터로 역량을 따져야 한다는 목소리도 높습니다." },
-          { speaker: "PRO", perspective_id: "P1", perspective_label: "안전 검증", color: "blue", core_point: "면허 갱신 주기 단축과 사고 치사율 구간 단계적 제한", text: "안전 검증 측 역시 형식적인 서류 갱신을 폐지하고 야간과 고속도로 주행을 제한하는 조건부 면허를 단계적으로 적용해 공공 도로 안전을 먼저 확보하자고 거듭 촉구합니다." },
-          { speaker: "CON", perspective_id: "P3", perspective_label: "기술 대안", color: "violet", core_point: "수요응답형 복지 택시 확충과 안전장치 기반 상생 해법", text: "결국 댓글창의 다각도 의견을 종합하면 정기 검증으로 위험 운전을 거르되, 호출형 복지 택시와 안전 보조장치를 함께 지원해야 실효성 있는 제도 정착이 가능합니다." }
+          { faction: "A", core_point: "급발진 주장·페달 오조작 인명피해", text: "돌발 상황 반응속도 떨어져서 대형 사고 잇따르는데 형식적인 적성검사 치우고 면허부터 거둬야 해!", damage: 30 },
+          { faction: "B", core_point: "버스 없는 시골·일회성 10만 원 카드", text: "버스도 없는 농어촌에 10만 원짜리 카드 한 장 쥐여주고 면허 내놓으라는 건 발 묶으란 소리야!", damage: 21 },
+          { faction: "A", core_point: "정기 실주행 시험·조건부 야간 제한", text: "고속도로랑 야간 주행만이라도 바로 제한하고 실제 도로 실기시험 통과 못 하면 자격을 회수해야지!", damage: 28 },
+          { faction: "B", core_point: "연령 차별 대신 오조작 방지 보조장치", text: "나이로 딱 잘라 뺏지 말고 페달 오조작 방지 센서랑 긴급 제동 장치 보조금부터 다는 게 현실적이지!", damage: 19 },
+          { faction: "A", core_point: "타인의 생명권·생계보다 앞서는 공익", text: "본인 생계랑 편의를 위해 도로 위 불특정 다수 목숨을 담보로 잡는 건 어떤 이유로도 정당화 못 해!", damage: 29 },
+          { faction: "B", core_point: "수요응답형 복지택시·개인 역량 평가", text: "호출형 복지 택시 먼저 깔아주고 나이가 아니라 실제 주행 데이터와 건강 상태로 판단하는 게 맞아!", damage: 18 }
         ],
         detox_samples: [
-          { side: "PRO", perspective_label: "안전 검증", color: "blue", raw: "[MBC] 오늘 운전하다가 미친각으로 끼어드는 차 있어서 욕하고 넘어갔는데 70대 할머니더라 본인이 민폐라 생각하면 면허 반납 좀 해라", cleaned: "고령에 따른 인지능력 및 시야 저하로 위험 주행이 발생할 경우 공공 안전을 위해 자발적 면허 반납과 적성검사 강화가 필요합니다.", removed_tokens: ["미친각으로", "욕하고", "민폐라"] },
-          { side: "PRO", perspective_label: "안전 검증", color: "blue", raw: "[KBS] 솔직히 도로에 나가보면 말도안되게 운전하는 사람들 나이 많으신분들이 대다수 본인 먹고 살겠다고 남한테 피해주면 안되지 정기 시험 봐라!!", cleaned: "생계 목적의 운전이더라도 도로 위 타인의 안전을 위협하지 않도록 고령 운전자 대상 정기 실기시험을 의무화해야 합니다.", removed_tokens: ["말도안되게", "!!"] },
-          { side: "CON", perspective_label: "이동권 보장", color: "red", raw: "[MBC] 면허 반납하면 10만원 카드 한 장 달랑 주면서 반납하라고 하는 게 코미디지 시골은 버스도 없는데 걸어 다니란 소리냐", cleaned: "대중교통이 취약한 지역 여건을 무시한 일회성 10만 원 지원책은 실효성이 낮으므로 지속적인 대체 이동수단 지원이 선행되어야 합니다.", removed_tokens: ["달랑 주면서", "코미디지"] },
-          { side: "PRO", perspective_label: "기술 대안", color: "violet", raw: "[YTN] 나이로만 딱 잘라서 면허 뺏는 건 차별이다 젊은 사람 음주운전 난폭운전이 더 위험한데 운전 능력으로만 평가해야 맞지", cleaned: "연령만을 기준으로 한 획일적 면허 제한 대신 안전 보조장치 장착과 객관적 개인별 실주행 능력 평가 제도를 도입해야 합니다.", removed_tokens: ["딱 잘라서", "면허 뺏는"] }
+          { faction: "A", faction_label: "즉각 면허반납파", color: "blue", raw: "[MBC] 오늘 운전하다가 미친각으로 끼어드는 차 있어서 욕하고 넘어갔는데 70대 할머니더라 본인이 민폐라 생각하면 면허 반납 좀 해라", cleaned: "고령으로 시야랑 반응속도가 떨어져 위험 주행이 잦아지면 도로 안전을 위해 면허 반납이 필요해.", removed_tokens: ["미친각으로", "욕하고", "민폐라"] },
+          { faction: "A", faction_label: "즉각 면허반납파", color: "blue", raw: "[KBS] 솔직히 도로에 나가보면 말도안되게 운전하는 사람들 나이 많으신분들이 대다수 본인 먹고 살겠다고 남한테 피해주면 안되지 정기 시험 봐라!!", cleaned: "생계 목적이라도 타인 안전을 위협하면 안 되니까 고령 운전자 정기 실기시험을 의무화해야 해.", removed_tokens: ["말도안되게", "!!"] },
+          { faction: "B", faction_label: "이동권 보장 대안파", color: "red", raw: "[MBC] 면허 반납하면 10만원 카드 한 장 달랑 주면서 반납하라고 하는 게 코미디지 시골은 버스도 없는데 걸어 다니란 소리냐", cleaned: "대중교통 없는 지역 현실을 무시한 일회성 10만 원 지원 대신 지속적인 대체 이동수단부터 마련해야지.", removed_tokens: ["달랑 주면서", "코미디지"] },
+          { faction: "B", faction_label: "이동권 보장 대안파", color: "red", raw: "[YTN] 나이로만 딱 잘라서 면허 뺏는 건 차별이다 젊은 사람 음주운전 난폭운전이 더 위험한데 운전 능력으로만 평가해야 맞지", cleaned: "연령 기준 획일 규제 대신 오조작 방지 장치랑 객관적 개인별 실주행 능력 평가로 걸러내야 맞아.", removed_tokens: ["딱 잘라서", "면허 뺏는"] }
         ]
       }
     };
@@ -1324,10 +1506,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     let isPlaying = false;
     let playerMode = "interactive";
     let currentTurnIndex = 0;
-    let playbackRate = Number(localStorage.getItem("hannyang_playback_rate") || "1") || 1.0;
+    let playbackRate = Number(localStorage.getItem("hannyang_battle_rate") || "1.3") || 1.3;
     let elapsedSec = 0.0;
     let timerInterval = null;
     let turnTimeout = null;
+    let hitAnimTimeout = null;
     let audioCtx = null;
     let currentHtmlAudio = null;
     let currentHtmlAudioUrl = null;
@@ -1342,12 +1525,12 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
     function saveUiPrefs() {
       const m = document.getElementById("analysisModeSelect")?.value || "auto";
-      const v = document.getElementById("voiceEngineSelect")?.value || "auto";
+      const v = document.getElementById("voiceEngineSelect")?.value || "browser";
       const ch = document.getElementById("chimeToggle")?.checked ? "1" : "0";
       localStorage.setItem("hannyang_analysis_mode", m);
       localStorage.setItem("hannyang_voice_engine", v);
       localStorage.setItem("hannyang_chime_enabled", ch);
-      localStorage.setItem("hannyang_playback_rate", String(playbackRate));
+      localStorage.setItem("hannyang_battle_rate", String(playbackRate));
     }
 
     function loadUiPrefs() {
@@ -1360,15 +1543,16 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const spEl = document.getElementById("speedToggleBtn");
       if (m && mEl && [...mEl.options].some((o) => o.value === m)) mEl.value = m;
       if (v && vEl && [...vEl.options].some((o) => o.value === v)) vEl.value = v;
+      else if (vEl) vEl.value = "browser";
       if (ch !== null && cEl) cEl.checked = ch === "1";
-      if (![1.0, 1.15, 1.25].includes(playbackRate)) playbackRate = 1.0;
+      if (![1.1, 1.3, 1.5].includes(playbackRate)) playbackRate = 1.3;
       if (spEl) spEl.textContent = `${playbackRate}x`;
     }
 
     function onAnalysisModeChange() {
       saveUiPrefs();
-      const modeLbl = document.getElementById("analysisModeSelect")?.selectedOptions?.[0]?.textContent || "자동 감지";
-      showToast(`분석 모드: ${modeLbl}`);
+      const modeLbl = document.getElementById("analysisModeSelect")?.selectedOptions?.[0]?.textContent || "동적 진영 자동";
+      showToast(`배틀 모드: ${modeLbl}`);
     }
 
     function scoreKoreanVoice(v) {
@@ -1414,9 +1598,9 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if (diagEl) {
         const picked = pickBestKoreanVoices();
         if (list.length) {
-          diagEl.textContent = `감지된 브라우저 한국어 음성 ${list.length}개 · 적용 중: 좌측(L) [${picked.pro ? picked.pro.name : "기본"}] / 우측(R) [${picked.con ? picked.con.name : "기본"}]`;
+          diagEl.textContent = `감지된 브라우저 한국어 음성 ${list.length}개 · 적용 중: A 진영 [${picked.pro ? picked.pro.name : "기본"}] / B 진영 [${picked.con ? picked.con.name : "기본"}]`;
         } else {
-          diagEl.textContent = "브라우저 내장 한국어 음성이 감지되지 않았습니다 (타이머 자막 동기화 모드로 동작).";
+          diagEl.textContent = "브라우저 내장 한국어 음성이 감지되지 않았습니다 (속사포 자막·8비트 타격음 모드로 동작).";
         }
       }
     }
@@ -1818,28 +2002,34 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       saveUiPrefs();
       if (isPlaying) stopShortsPlayback(false);
       updateIdleTimerDisplay();
-      const selLbl = document.getElementById("voiceEngineSelect")?.selectedOptions?.[0]?.textContent || "자동";
+      const selLbl = document.getElementById("voiceEngineSelect")?.selectedOptions?.[0]?.textContent || "속사포 한국어";
       showToast(selLbl);
     }
 
     function togglePlaybackSpeed() {
-      if (playbackRate === 1.0) playbackRate = 1.15;
-      else if (playbackRate === 1.15) playbackRate = 1.25;
-      else playbackRate = 1.0;
-      document.getElementById("speedToggleBtn").textContent = `${playbackRate}x`;
+      if (playbackRate === 1.3) playbackRate = 1.5;
+      else if (playbackRate === 1.5) playbackRate = 1.1;
+      else playbackRate = 1.3;
+      const spEl = document.getElementById("speedToggleBtn");
+      if (spEl) spEl.textContent = `${playbackRate}x`;
       saveUiPrefs();
       renderScriptList();
       updateIdleTimerDisplay();
-      showToast(`재생 속도 ${playbackRate}x`);
+      showToast(`배틀 속도 ${playbackRate}x`);
       if (currentData.rendered_video_blob_url) currentData.rendered_video_blob_url = null;
       if (isPlaying) startShortsPlayback(currentTurnIndex);
     }
 
     function updateIdleTimerDisplay() {
-      const tot = getTotalDurationSec();
-      if (!isPlaying) {
-        document.getElementById("ttsStatusLabel").textContent = `총 ${tot.toFixed(1)}s`;
-        document.getElementById("shortsTimerDisplay").textContent = `0:00 / ${formatMinSec(tot)}`;
+      const turns = currentData.debate_script || [];
+      const statusEl = document.getElementById("ttsStatusLabel");
+      if (!isPlaying && statusEl) {
+        statusEl.textContent = `${turns.length}턴 HP 배틀 · ${playbackRate}x`;
+      }
+      const timerEl = document.getElementById("shortsTimerDisplay");
+      if (!isPlaying && timerEl) {
+        const tot = getTotalDurationSec();
+        timerEl.textContent = `0:00 / ${formatMinSec(tot)}`;
       }
     }
 
@@ -1912,11 +2102,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
       if (overlayEl) {
         overlayEl.classList.remove("hidden");
-        overlayTxt.textContent = "한국어 AI 아나운서 음성 + 영상 준비 중...";
+        overlayTxt.textContent = "한국어 팩트 배틀 음성 + 9:16 영상 준비 중...";
       }
       try {
         const result = await generateDynamicVideoUrl((pct, label) => {
-          if (overlayTxt) overlayTxt.textContent = `9:16 영상 생성 중 (${pct}%)`;
+          if (overlayTxt) overlayTxt.textContent = `9:16 배틀 영상 생성 중 (${pct}%)`;
           if (overlaySub && label) overlaySub.textContent = label;
         });
         if (result && result.url) {
@@ -2020,10 +2210,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     const PREDICATE_ENDING_RE = /(?:합니다|됩니다|입니다|랍니다|습니다|ㅂ니다|한다|된다|했다|됐다|겠다|였다|이다|하다|되다|없다|있다|으면|어야|아야|여야|지만|면서|니까|거든|잖아|네요|군요|어요|아요|해요|돼요|어렵|좋겠|바랍|필요하|같음|인듯|일듯|할듯|뛰는|타는|보는|주는|받는|가는|오는|만든|나온|생긴|싶은)$/;
     const TOXIC_RE = /ㅅㅂ|시발|씨발|ㅂㅅ|병신|ㅈㄹ|지랄|ㅈ같|존나|새끼|미친|개소리|ㄱ\s*ㅐ소리|개판|꺼져|닥쳐|딸배|킥라니|틀딱|노인네|충들|소음충|오토바이충|폭주족|양아치|쓰레기|버러지|인간말종|민폐|극혐|혐오|역겹|뒤지|죽어|죽이|살인|불질러|망해|감옥|깜빵|폐차|박멸|무법천지|개법|덤터기|코미디|ㅉㅉ|ㅋㅋ+|ㅎㅎ+|ㅠ+|ㅜ+|!!+|\?\?+/gi;
     const MODE_LABELS = {
-      debate: "찬반 공론장 중재",
-      multi: "다관점 여론 비교",
-      proscons: "장단점·체감 분석",
-      summary: "핵심 반응 브리핑"
+      auto: "동적 진영 HP 팩트 배틀",
+      battle: "동적 진영 HP 팩트 배틀",
+      faction_battle: "동적 진영 HP 팩트 배틀",
+      proscons: "장단점·체감 정면충돌",
+      summary: "핵심 갈등 2축 대결"
     };
 
     function stripJosa(tok) {
@@ -2061,15 +2252,13 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
     function resolveAnalysisMode(reqMode, commentsList, issueTitle) {
       const m = (reqMode || "auto").trim().toLowerCase();
-      if (["debate", "multi", "proscons", "summary"].includes(m)) return m;
+      if (["battle", "faction_battle", "proscons", "summary"].includes(m)) return m;
       const joined = (issueTitle || "") + " " + commentsList.slice(0, 40).map((c) => (c.text || "").slice(0, 140)).join(" ");
-      let debHits = 0, revHits = 0, altHits = 0;
+      let debHits = 0, revHits = 0;
       for (const k of DEBATE_CUES) if (joined.includes(k)) debHits++;
       for (const k of REVIEW_CUES) if (joined.includes(k)) revHits++;
-      for (const k of ALT_CUES) if (joined.includes(k)) altHits++;
       if (revHits >= 3 && debHits < 3) return "proscons";
-      if (debHits >= 3 && altHits < 2 && revHits === 0) return "debate";
-      return "multi";
+      return "faction_battle";
     }
 
     function normalizeRatios(rawCounts) {
@@ -2103,6 +2292,61 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         }
       }
       return best;
+    }
+
+    function clampDamage(val, ratioHint = 50, rank = 0) {
+      const num = Number(val);
+      if (Number.isFinite(num) && num >= 15 && num <= 35) return Math.round(num);
+      const base = 15 + Math.round((Math.max(5, Math.min(95, ratioHint)) / 100) * 19);
+      return Math.max(15, Math.min(35, base - (rank % 3)));
+    }
+
+    function toBanmalOneSentence(rawClause, factionLabel, isA) {
+      let s = String(rawClause || "").replace(/\s+/g, " ").trim().replace(/[.,!?\s]+$/, "");
+      if (s.length < 8) {
+        return isA
+          ? `이 사안 핵심은 결국 ${factionLabel} 쪽 현실 논리가 훨씬 설득력 있다는 거야!`
+          : `현실 여건 따져보면 ${factionLabel} 관점을 빼놓고 말할 수 없지!`;
+      }
+      if (s.length > 64) s = trimKoreanWords(s, 64).replace(/[.,!?\s]+$/, "");
+      const reps = [
+        [/(?:해야 합니다|해야됩니다|해야해요|해야 돼요)$/, "해야 해!"],
+        [/(?:있습니다|있어요)$/, "있어!"],
+        [/(?:없습니다|없어요)$/, "없어!"],
+        [/(?:아닙니다|아니에요|아닌가요)$/, "아니냐!"],
+        [/(?:입니다|이에요|예요)$/, "이지!"],
+        [/(?:됩니다|돼요)$/, "돼!"],
+        [/(?:합니다|해요)$/, "해!"],
+        [/(?:습니다|ㅂ니다|네요|군요|거든요|잖아요|어요|아요)$/, "지!"]
+      ];
+      let out = s, changed = false;
+      for (const [pat, rep] of reps) {
+        if (pat.test(out)) {
+          out = out.replace(pat, rep);
+          changed = true;
+          break;
+        }
+      }
+      if (!changed) out = out.length < 42 ? `${out}라는 게 팩트야!` : `${out} 아니냐!`;
+      return out;
+    }
+
+    function inferDynamicFactionLabel(kw, items, isFirst, issueTitle) {
+      const sumPos = items.reduce((a, x) => a + x.tones.pos, 0);
+      const sumCrit = items.reduce((a, x) => a + x.tones.crit, 0);
+      const sumAlt = items.reduce((a, x) => a + x.tones.alt, 0);
+      const joinedKw = kw || "";
+      if (!joinedKw) {
+        if (/소음|오토바이/.test(issueTitle)) return isFirst ? "라이더 생계 우선파" : "주민 수면권 수호파";
+        if (/킥보드/.test(issueTitle)) return isFirst ? "전면 견인 강경파" : "인프라 확충 현실파";
+        if (/면허|고령/.test(issueTitle)) return isFirst ? "즉각 면허반납파" : "이동권 보장 대안파";
+        return isFirst ? "핵심 강경 개혁파" : "현실 대안 신중파";
+      }
+      let suf = isFirst ? "원칙 강조파" : "현장 대안파";
+      if (sumCrit > sumPos && sumCrit >= sumAlt) suf = isFirst ? "강경 지적파" : "현실 비판파";
+      else if (sumAlt >= sumPos && sumAlt > 0) suf = isFirst ? "인프라 대안파" : "제도 보완파";
+      else if (sumPos > sumCrit) suf = isFirst ? "핵심 우선파" : "가치 수호파";
+      return `${joinedKw.slice(0, 6)} ${suf}`.trim();
     }
 
     function clusterCommentsMultiperspective(commentsList, issueTitle, analysisMode = "auto") {
@@ -2161,114 +2405,50 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         });
       const topKws = sortedKws.slice(0, 16).map((kv) => kv[0]);
 
-      let clusters = [];
-      if (resolvedMode === "debate") {
-        clusters = [
-          { id: "P1", label: "핵심 지지·필요론", short_label: "찬성·필요", color: "blue", kws: topKws.slice(0, 3), items: [] },
-          { id: "P2", label: "신중·현실 보완론", short_label: "반대·보완", color: "red", kws: topKws.slice(3, 6).length ? topKws.slice(3, 6) : topKws.slice(0, 2), items: [] }
-        ];
-        parsedItems.forEach((it) => {
-          const pSc = it.tones.pos;
-          const cSc = it.tones.crit + it.tones.alt;
-          const target = pSc > cSc ? 0 : (cSc > pSc ? 1 : (it.idx % 2));
-          clusters[target].items.push(it);
-        });
-      } else if (resolvedMode === "proscons") {
-        const excl = new Set();
-        const posKw = pickFacetKw(parsedItems, (it) => it.tones.pos > it.tones.crit, excl);
-        if (posKw) excl.add(posKw);
-        const critKw = pickFacetKw(parsedItems, (it) => it.tones.crit > it.tones.pos, excl);
-        if (critKw) excl.add(critKw);
-        const altKw = pickFacetKw(parsedItems, (it) => it.tones.alt > 0, excl);
-        clusters = [
-          { id: "P1", label: posKw ? `${posKw} 긍정 호평` : "핵심 강점·호평", short_label: posKw ? `${posKw.slice(0, 6)} 호평` : "장점 호평", color: "blue", kws: posKw ? [posKw] : topKws.slice(0, 2), items: [] },
-          { id: "P2", label: critKw ? `${critKw} 아쉬움 지적` : "단점·부담 지적", short_label: critKw ? `${critKw.slice(0, 6)} 지적` : "아쉬움 지적", color: "red", kws: critKw ? [critKw] : topKws.slice(2, 4), items: [] },
-          { id: "P3", label: altKw ? `${altKw} 비교·대안` : "가성비·비교 대안", short_label: altKw ? `${altKw.slice(0, 6)} 대안` : "비교·대안", color: "violet", kws: altKw ? [altKw] : topKws.slice(4, 6), items: [] }
-        ];
-        parsedItems.forEach((it) => {
-          const t = it.tones;
-          if (t.alt > 0 && t.alt >= t.pos) clusters[2].items.push(it);
-          else if (t.crit > t.pos) clusters[1].items.push(it);
-          else if (t.pos > 0) clusters[0].items.push(it);
-          else clusters[parsedItems.length >= 3 ? 2 : (it.idx % 3)].items.push(it);
-        });
-      } else {
-        const wantK = (parsedItems.length >= 8 && topKws.length >= 4) ? 4 : 3;
-        const chosenAnchors = [];
-        for (const kw of topKws) {
-          if (!chosenAnchors.some((a) => kw.includes(a) || a.includes(kw))) chosenAnchors.push(kw);
-          if (chosenAnchors.length >= wantK) break;
-        }
-        if (chosenAnchors.length >= 3) {
-          const bucketItems = chosenAnchors.map(() => []);
-          for (const it of parsedItems) {
-            let bestK = -1;
-            chosenAnchors.forEach((ak, ki) => {
-              if (it.tokens.has(ak) || it.cleaned.includes(ak)) {
-                if (bestK === -1 || bucketItems[ki].length < bucketItems[bestK].length) bestK = ki;
-              }
-            });
-            if (bestK === -1) {
-              bestK = 0;
-              for (let i = 1; i < chosenAnchors.length; i++) {
-                if (bucketItems[i].length < bucketItems[bestK].length) bestK = i;
-              }
-            }
-            bucketItems[bestK].push(it);
-          }
-          chosenAnchors.forEach((ak, ki) => {
-            const bItems = bucketItems[ki];
-            const sumPos = bItems.reduce((a, x) => a + x.tones.pos, 0);
-            const sumCrit = bItems.reduce((a, x) => a + x.tones.crit, 0);
-            const sumAlt = bItems.reduce((a, x) => a + x.tones.alt, 0);
-            let suf = "현실 시선", shortSuf = "의견", colorHint = "violet";
-            if (sumCrit > sumPos && sumCrit >= sumAlt) { suf = "아쉬움·지적"; shortSuf = "지적"; colorHint = "red"; }
-            else if (sumAlt > sumPos && sumAlt >= sumCrit) { suf = "개선·대안"; shortSuf = "대안"; colorHint = "violet"; }
-            else if (sumPos > sumCrit) { suf = "공감·호평"; shortSuf = "호평"; colorHint = ki >= 2 ? "emerald" : "blue"; }
-            else if (ki === 0) { suf = "핵심 시각"; shortSuf = "시각"; colorHint = "blue"; }
+      const bucketA = [];
+      const bucketB = [];
+      let kwA = pickFacetKw(parsedItems, (it) => it.tones.pos > it.tones.crit);
+      const excl = new Set(kwA ? [kwA] : []);
+      let kwB = pickFacetKw(parsedItems, (it) => (it.tones.crit + it.tones.alt) > it.tones.pos, excl);
+      if (!kwA && topKws.length) kwA = topKws[0];
+      if (!kwB) kwB = topKws.find((k) => k !== kwA && !k.includes(kwA) && !kwA.includes(k)) || topKws[1] || "";
 
-            const usedColors = new Set(clusters.map((c) => c.color));
-            const col = !usedColors.has(colorHint)
-              ? colorHint
-              : (PALETTE_ORDER.find((pc) => !usedColors.has(pc)) || PALETTE_ORDER[ki % 4]);
-            const lbl = `${ak} ${suf}`;
-            const shortLbl = `${ak.slice(0, 6)} ${shortSuf}`.slice(0, 11);
-            clusters.push({
-              id: `P${ki + 1}`,
-              label: lbl,
-              short_label: shortLbl,
-              color: col,
-              kws: [ak],
-              items: bItems
-            });
-          });
-        } else {
-          clusters = [
-            { id: "P1", label: "핵심 공감·강점", short_label: "공감·강점", color: "blue", kws: topKws.slice(0, 2), items: [] },
-            { id: "P2", label: "우려·현실 지적", short_label: "현실 지적", color: "red", kws: topKws.slice(2, 4), items: [] },
-            { id: "P3", label: "보완·대안 시각", short_label: "대안 시각", color: "violet", kws: topKws.slice(4, 6), items: [] }
-          ];
-          parsedItems.forEach((it) => {
-            const t = it.tones;
-            if (t.alt > 0 && t.alt >= t.pos) clusters[2].items.push(it);
-            else if (t.crit > t.pos) clusters[1].items.push(it);
-            else if (t.pos > 0) clusters[0].items.push(it);
-            else clusters[it.idx % 3].items.push(it);
-          });
+      parsedItems.forEach((it) => {
+        const aSc = it.tones.pos + (kwA && it.tokens.has(kwA) ? 1.5 : 0);
+        const bSc = it.tones.crit + it.tones.alt + (kwB && it.tokens.has(kwB) ? 1.5 : 0);
+        if (aSc > bSc) bucketA.push(it);
+        else if (bSc > aSc) bucketB.push(it);
+        else (bucketA.length <= bucketB.length ? bucketA : bucketB).push(it);
+      });
+
+      if (!bucketA.length && bucketB.length > 1) bucketA.push(bucketB.pop());
+      if (!bucketB.length && bucketA.length > 1) bucketB.push(bucketA.pop());
+
+      let sideALabel = "";
+      let sideBLabel = "";
+      if (resolvedMode === "proscons") {
+        sideALabel = kwA ? `${kwA.slice(0, 6)} 호평파` : "핵심 성능 호평파";
+        sideBLabel = kwB ? `${kwB.slice(0, 6)} 지적파` : "가격·부담 지적파";
+      } else {
+        sideALabel = inferDynamicFactionLabel(kwA, bucketA, true, issueTitle);
+        sideBLabel = inferDynamicFactionLabel(kwB, bucketB, false, issueTitle);
+        if (sideALabel === sideBLabel) {
+          sideBLabel = kwB ? `${kwB.slice(0, 6)} 대안파` : "현실 대안 신중파";
         }
       }
 
-      const nonEmpty = clusters.filter((c) => c.items.length > 0);
-      if (nonEmpty.length >= 2) clusters = nonEmpty;
-      const ratios = normalizeRatios(clusters.map((c) => c.items.length));
-      const perspectives = clusters.map((cl, ci) => ({
-        id: cl.id,
-        label: cl.label,
-        short_label: cl.short_label,
-        ratio: ratios[ci],
-        color: cl.color,
-        keywords: (cl.kws || []).filter(Boolean).slice(0, 3)
-      }));
+      const [sideARatio, sideBRatio] = normalizeRatios([bucketA.length, bucketB.length]);
+      const kwsA = [kwA, ...topKws.slice(0, 3)].filter(Boolean).slice(0, 3);
+      const kwsB = [kwB, ...topKws.slice(2, 5)].filter((k) => k && !kwsA.includes(k)).slice(0, 3);
+
+      const clusters = [
+        { id: "A", label: sideALabel, short_label: sideALabel.slice(0, 14), color: "blue", kws: kwsA, items: bucketA },
+        { id: "B", label: sideBLabel, short_label: sideBLabel.slice(0, 14), color: "red", kws: kwsB.length ? kwsB : topKws.slice(0, 2), items: bucketB }
+      ];
+      const perspectives = [
+        { id: "A", label: sideALabel, short_label: sideALabel.slice(0, 14), ratio: sideARatio, color: "blue", keywords: kwsA },
+        { id: "B", label: sideBLabel, short_label: sideBLabel.slice(0, 14), ratio: sideBRatio, color: "red", keywords: kwsB }
+      ];
 
       const itemToCl = new Map();
       clusters.forEach((cl) => cl.items.forEach((it) => itemToCl.set(it.idx, cl)));
@@ -2276,31 +2456,29 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const detoxSamples = [];
       for (const it of parsedItems) {
         const cl = itemToCl.get(it.idx) || clusters[0];
-        const isLeft = cl.color === "blue" || cl.color === "emerald";
-        if (it.isToxic && detoxSamples.length < 4 && it.raw.length > 12) {
+        if (it.isToxic && detoxSamples.length < 4 && it.raw.length > 10) {
           detoxSamples.push({
-            side: isLeft ? "PRO" : "CON",
-            perspective_label: cl.short_label,
+            faction: cl.id,
+            faction_label: cl.label,
             color: cl.color,
             raw: `[${it.author}] ${it.raw.replace(/\n+/g, " ").slice(0, 125)}`,
-            cleaned: it.cleaned.length > 12
-              ? `${it.cleaned.slice(0, 95)} (과열 표현을 덜어내고 핵심 관점으로 정제)`
-              : "과열된 감정 표현을 배제하고 핵심 취지만 남긴 정제 의견입니다.",
+            cleaned: it.cleaned.length > 10
+              ? toBanmalOneSentence(it.cleaned.slice(0, 80), cl.label, cl.id === "A")
+              : `욕설 빼고 핵심만 말하면 ${cl.label} 주장이 근거 있다는 거야!`,
             removed_tokens: it.matches.length ? it.matches.slice(0, 4) : ["과열표현"]
           });
         }
       }
       if (!detoxSamples.length) {
         for (const it of parsedItems.slice(0, 4)) {
-          if (it.raw.length > 10) {
+          if (it.raw.length > 8) {
             const cl = itemToCl.get(it.idx) || clusters[0];
-            const isLeft = cl.color === "blue" || cl.color === "emerald";
             detoxSamples.push({
-              side: isLeft ? "PRO" : "CON",
-              perspective_label: cl.short_label,
+              faction: cl.id,
+              faction_label: cl.label,
               color: cl.color,
               raw: `[${it.author}] ${it.raw.replace(/\n+/g, " ").slice(0, 125)}`,
-              cleaned: (it.cleaned || it.raw).slice(0, 100),
+              cleaned: (it.cleaned || it.raw).slice(0, 96),
               removed_tokens: []
             });
           }
@@ -2314,29 +2492,19 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         ? +(afterScores.reduce((a, b) => a + b, 0) / afterScores.length).toFixed(1)
         : 14.2;
 
-      const modeLabel = resolvedMode === "debate"
-        ? MODE_LABELS.debate
-        : (resolvedMode === "proscons" ? MODE_LABELS.proscons : (resolvedMode === "summary" ? MODE_LABELS.summary : `${perspectives.length}관점 여론 비교`));
-
-      let proR = perspectives[0] ? perspectives[0].ratio : 50;
-      let conR = perspectives.length > 1 ? perspectives.slice(1).reduce((a, p) => a + p.ratio, 0) : (100 - proR);
-      if (resolvedMode !== "debate") {
-        const posSum = perspectives.filter((p) => p.color === "blue" || p.color === "emerald").reduce((a, p) => a + p.ratio, 0);
-        if (posSum > 0) {
-          proR = Math.max(1, Math.min(99, posSum));
-          conR = 100 - proR;
-        }
-      }
-
       return {
-        analysis_mode: resolvedMode,
-        mode_label: modeLabel,
+        analysis_mode: "faction_battle",
+        mode_label: MODE_LABELS[resolvedMode] || "동적 진영 HP 팩트 배틀",
+        side_a_label: sideALabel,
+        side_b_label: sideBLabel,
+        side_a_ratio: sideARatio,
+        side_b_ratio: sideBRatio,
         perspectives,
         clusters,
         total_comments: commentsList.length,
         filtered_curse_count: toxicCount,
-        pro_ratio: proR,
-        con_ratio: conR,
+        pro_ratio: sideARatio,
+        con_ratio: sideBRatio,
         toxicity_before: avgToxBefore,
         toxicity_after: avgToxAfter,
         detox_samples: detoxSamples
@@ -2344,62 +2512,47 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     }
 
     function buildDynamicScriptFromClusters(issueTitle, clusterRes) {
-      let shortTopic = (issueTitle || "이번 주제 댓글 여론")
+      let shortTopic = (issueTitle || "이번 이슈")
         .replace(/\[[^\]]*\]|\([^)]*\)|#\S+/g, "")
         .replace(/\s{2,}/g, " ")
         .trim();
-      if (shortTopic.length > 36) shortTopic = `${trimKoreanWords(shortTopic, 34)}...`;
-      if (!shortTopic) shortTopic = "이번 주제 댓글 여론";
+      if (shortTopic.length > 28) shortTopic = trimKoreanWords(shortTopic, 26);
+      if (!shortTopic) shortTopic = "이번 이슈";
 
-      const perspectives = clusterRes.perspectives || [];
       const clusters = clusterRes.clusters || [];
-      const mode = clusterRes.analysis_mode || "multi";
+      const sideALabel = clusterRes.side_a_label || "A 진영";
+      const sideBLabel = clusterRes.side_b_label || "B 진영";
+      const sideARatio = clusterRes.side_a_ratio || 50;
+      const sideBRatio = clusterRes.side_b_ratio || 50;
 
-      const quotesByCluster = [];
+      const quotesByFaction = { A: [], B: [] };
       const allSubstantive = [];
       for (const cl of clusters) {
-        const sortedItems = [...cl.items].sort((a, b) => (b.likes || 0) - (a.likes || 0));
-        const qs = [];
+        const fid = cl.id === "A" ? "A" : "B";
+        const sortedItems = [...(cl.items || [])].sort((a, b) => (b.likes || 0) - (a.likes || 0));
         for (const it of sortedItems) {
-          const q = trimKoreanWords(it.cleaned, 84).replace(/[.,!?\s]+$/, "");
-          if (q.length >= 10 && !qs.includes(q)) {
-            qs.push(q);
+          const q = trimKoreanWords(it.cleaned, 68).replace(/[.,!?\s]+$/, "");
+          if (q.length >= 8 && !quotesByFaction[fid].includes(q)) {
+            quotesByFaction[fid].push(q);
             if (!allSubstantive.includes(q)) allSubstantive.push(q);
           }
         }
-        quotesByCluster.push(qs);
       }
 
-      const nP = perspectives.length;
-      const pSeq = nP >= 4 ? [0, 1, 2, 3, 0, 2] : (nP === 3 ? [0, 1, 2, 1, 0, 2] : [0, 1, 0, 1, 0, 1]);
       const usedQuotes = new Set();
-      const usedIdx = new Array(nP).fill(0);
-
-      const openersMulti = [
-        (r, l) => `먼저 전체 반응의 ${r}퍼센트를 차지한 ${l} 시각을 살펴보겠습니다.`,
-        (r, l) => `반면 ${r}퍼센트 비중의 ${l} 의견에서는 다른 지점을 짚습니다.`,
-        (r, l) => `세 번째 시선인 ${l} 측에서는 ${r}퍼센트의 시청자가 색다른 관점을 보탰습니다.`,
-        (r, l) => `이어서 ${l} 반응을 보면, 댓글창의 현실적인 고민이 드러납니다.`,
-        (r, l) => `${l} 입장에서는 앞선 논점에 더해 구체적인 체감 사례도 덧붙였습니다.`,
-        (r, l) => `결국 ${l} 시각까지 함께 짚어보면 이번 사안의 입체적인 흐름이 한눈에 보입니다.`
-      ];
-      const openersDebate = [
-        (r, l) => `실제 댓글의 ${r}퍼센트를 차지한 ${l} 측에서는 뚜렷한 원칙을 내세웠습니다.`,
-        (r, l) => `반면 ${r}퍼센트 비중의 ${l} 측에서는 현실적인 우려를 제기합니다.`,
-        (r, l) => `${l} 측은 한 걸음 더 나아가 실질적인 기준과 실행력을 강조하고 있습니다.`,
-        (r, l) => `이에 대해 ${l} 측은 성급한 접근보다 부작용 보완이 먼저라고 맞섭니다.`,
-        (r, l) => `또한 ${l} 측에서는 장기적인 공익과 신뢰 회복을 핵심 과제로 꼽았습니다.`,
-        (r, l) => `종합하면 ${l} 측의 문제의식까지 균형 있게 반영해야 합리적 해법이 나옵니다.`
-      ];
-
+      const idxMap = { A: 0, B: 0 };
       const script = [];
+
       for (let turnI = 0; turnI < 6; turnI++) {
-        const pi = pSeq[turnI] % Math.max(1, nP);
-        const persp = perspectives[pi] || { id: "P1", short_label: "핵심 관점", label: "핵심 관점", ratio: 50, color: "blue" };
-        const pool = quotesByCluster[pi] || [];
+        const fid = turnI % 2 === 0 ? "A" : "B";
+        const isA = fid === "A";
+        const flabel = isA ? sideALabel : sideBLabel;
+        const fratio = isA ? sideARatio : sideBRatio;
+        const pool = quotesByFaction[fid];
+
         let chosenQ = "";
-        while (usedIdx[pi] < pool.length) {
-          const cand = pool[usedIdx[pi]++];
+        while (idxMap[fid] < pool.length) {
+          const cand = pool[idxMap[fid]++];
           if (!usedQuotes.has(cand)) { chosenQ = cand; usedQuotes.add(cand); break; }
         }
         if (!chosenQ) {
@@ -2407,18 +2560,21 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
             if (!usedQuotes.has(q)) { chosenQ = q; usedQuotes.add(q); break; }
           }
         }
-        if (!chosenQ) chosenQ = `${shortTopic} 사안에서 ${persp.label} 측면을 비중 있게 다뤄야 합니다`;
+        if (!chosenQ) {
+          chosenQ = isA
+            ? `${shortTopic} 사안에선 ${sideALabel} 쪽 핵심 근거부터 직시해야 해`
+            : `${shortTopic} 문제 풀려면 ${sideBLabel} 쪽 현실 대안부터 세워야지`;
+        }
 
-        const tmplFn = (mode === "debate" ? openersDebate : openersMulti)[turnI];
-        const intro = tmplFn(persp.ratio, persp.short_label);
-        const corePt = chosenQ.length > 10 ? trimKoreanWords(chosenQ, 32) : persp.label;
+        const corePt = trimKoreanWords(chosenQ, 20) || `${flabel} 핵심 팩폭`;
+        const punchLine = toBanmalOneSentence(chosenQ, flabel, isA);
+        const dmg = clampDamage(null, fratio, Math.floor(turnI / 2));
+
         script.push({
-          speaker: turnI % 2 === 0 ? "PRO" : "CON",
-          perspective_id: persp.id,
-          perspective_label: persp.short_label,
-          color: persp.color,
+          faction: fid,
           core_point: corePt,
-          text: `${intro} "${chosenQ}." 이처럼 댓글창의 다양한 목소리가 모이고 있습니다.`
+          text: punchLine,
+          damage: dmg
         });
       }
       return script;
@@ -2426,57 +2582,37 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
     function normalizeGeminiAnalysis(parsed, clusterRes, fallbackTitle) {
       if (!parsed || !Array.isArray(parsed.debate_script) || parsed.debate_script.length < 4) return null;
-      let perspectives = [];
-      if (Array.isArray(parsed.perspectives) && parsed.perspectives.length >= 2) {
-        const rawP = parsed.perspectives.slice(0, 4);
-        const ratios = normalizeRatios(rawP.map((p) => Number(p.ratio) || 25));
-        const usedColors = new Set();
-        rawP.forEach((p, idx) => {
-          let ck = String(p.color || "").toLowerCase();
-          if (!PALETTES[ck] || usedColors.has(ck)) {
-            ck = PALETTE_ORDER.find((c) => !usedColors.has(c)) || PALETTE_ORDER[idx % 4];
-          }
-          usedColors.add(ck);
-          const lbl = String(p.label || p.short_label || `관점 ${idx + 1}`).trim();
-          const shortLbl = String(p.short_label || trimKoreanWords(lbl, 11)).trim().slice(0, 12);
-          perspectives.push({
-            id: String(p.id || `P${idx + 1}`),
-            label: lbl,
-            short_label: shortLbl,
-            ratio: ratios[idx],
-            color: ck,
-            keywords: Array.isArray(p.keywords) ? p.keywords : []
-          });
-        });
-      } else {
-        perspectives = clusterRes.perspectives;
-      }
+      const sideALabel = String(parsed.side_a_label || clusterRes.side_a_label || "A 진영").trim().slice(0, 14) || "A 진영";
+      const sideBLabel = String(parsed.side_b_label || clusterRes.side_b_label || "B 진영").trim().slice(0, 14) || "B 진영";
+      const rA = clusterRes.side_a_ratio || 50;
+      const rB = clusterRes.side_b_ratio || 50;
 
-      const pById = new Map(perspectives.map((p) => [p.id, p]));
-      const normScript = parsed.debate_script.slice(0, 8).map((t, idx) => {
-        const pid = String(t.perspective_id || "");
-        const matchedP = pById.get(pid) || perspectives[idx % perspectives.length];
-        let ck = String(t.color || "").toLowerCase();
-        if (!PALETTES[ck]) ck = matchedP.color;
-        const pLbl = String(t.perspective_label || matchedP.short_label).trim().slice(0, 12);
-        const spk = (t.speaker === "PRO" || t.speaker === "CON") ? t.speaker : (idx % 2 === 0 ? "PRO" : "CON");
+      const normScript = parsed.debate_script.slice(0, 6).map((t, idx) => {
+        const fRaw = String(t.faction || "").trim().toUpperCase();
+        const faction = (fRaw === "A" || fRaw === "B") ? fRaw : (idx % 2 === 0 ? "A" : "B");
+        const hintR = faction === "A" ? rA : rB;
+        const dmg = clampDamage(t.damage, hintR, Math.floor(idx / 2));
         return {
-          speaker: spk,
-          perspective_id: matchedP.id,
-          perspective_label: pLbl,
-          color: ck,
-          core_point: String(t.core_point || matchedP.label).trim(),
-          text: String(t.text || "").trim()
+          faction,
+          core_point: trimKoreanWords(String(t.core_point || (faction === "A" ? sideALabel : sideBLabel)).trim(), 22),
+          text: String(t.text || "").trim(),
+          damage: dmg
         };
       });
       if (normScript.some((x) => !x.text)) return null;
 
-      const modeLbl = String(parsed.mode_label || "").trim() || (perspectives.length >= 3 ? `${perspectives.length}관점 여론 비교` : clusterRes.mode_label);
       return {
         issue_title: String(parsed.issue_title || fallbackTitle).trim(),
-        analysis_mode: String(parsed.detected_mode || clusterRes.analysis_mode).trim(),
-        mode_label: modeLbl,
-        perspectives,
+        analysis_mode: "faction_battle",
+        mode_label: "동적 진영 HP 팩트 배틀",
+        side_a_label: sideALabel,
+        side_b_label: sideBLabel,
+        side_a_ratio: rA,
+        side_b_ratio: rB,
+        perspectives: [
+          { id: "A", label: sideALabel, short_label: sideALabel, ratio: rA, color: "blue", keywords: (clusterRes.perspectives?.[0]?.keywords) || [] },
+          { id: "B", label: sideBLabel, short_label: sideBLabel, ratio: rB, color: "red", keywords: (clusterRes.perspectives?.[1]?.keywords) || [] }
+        ],
         debate_script: normScript
       };
     }
@@ -2489,14 +2625,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const selectedMode = document.getElementById("analysisModeSelect")?.value || "auto";
       const btn = document.getElementById("runPipelineBtn");
       const origText = btn.textContent;
-      btn.textContent = "분석·생성 중...";
+      btn.textContent = "배틀 생성 중...";
       btn.disabled = true;
 
       try {
         const vid = extractVideoId(sourceUrl) || extractVideoId(rawText);
 
         if (!vid && !rawText) {
-          setCommandNotice("유튜브 영상 URL을 입력하거나 [댓글 직접 입력]으로 내용을 넣어 주세요.");
+          setCommandNotice("유튜브 영상 URL을 입력하거나 [댓글 직접입력]으로 내용을 넣어 주세요.");
           return;
         }
         if (sourceUrl && !vid && !rawText) {
@@ -2523,7 +2659,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
                 setPipelineStep("완료");
                 const wasVideoMode = playerMode === "video";
                 renderAll(apiData, apiData.engine_mode || `실시간 (${apiData.raw_stats.total_comments}건)`);
-                showToast("다관점 쇼츠 대본 생성 완료");
+                showToast(`${apiData.side_a_label || "A 진영"} vs ${apiData.side_b_label || "B 진영"} 배틀 생성 완료`);
                 if (wasVideoMode) setPlayerMode("video");
                 else setPlayerMode("interactive");
                 return;
@@ -2588,18 +2724,17 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         if (!comments.length && vid) {
           const fallbackTitle = videoTitle || `YouTube 영상 (${vid})`;
           comments = [
-            { author: channelTitle || "YouTube", text: `${fallbackTitle} 주제의 핵심 강점과 기대 포인트가 주목받고 있습니다.`, like_count: 1 },
-            { author: "시청자 의견", text: `${(videoDesc || fallbackTitle).slice(0, 120)} 관련 현실적인 부담이나 아쉬운 지점을 짚는 반응도 있습니다.`, like_count: 0 },
-            { author: "대안 의견", text: `${fallbackTitle} 관련 보완책이나 비교 대안을 함께 따져봐야 한다는 제안도 나옵니다.`, like_count: 0 }
+            { author: channelTitle || "YouTube", text: `${fallbackTitle} 핵심 강점과 변화가 필요하다는 반응이 높습니다.`, like_count: 1 },
+            { author: "시청자 의견", text: `${(videoDesc || fallbackTitle).slice(0, 120)} 관련 현실적인 부담과 대안 보완이 우선이라는 지적도 있습니다.`, like_count: 0 }
           ];
           const reasonHint = ytErrorReason === "commentsDisabled"
-            ? "해당 영상은 댓글이 비활성화되어 영상 제목·설명 기반으로 다관점 대본을 생성했습니다."
-            : `댓글을 불러오지 못해(${ytErrorReason || "API 제한 또는 댓글 없음"}) 영상 제목 기반으로 다관점 대본을 구성했습니다.`;
+            ? "해당 영상은 댓글이 비활성화되어 영상 제목·설명 기반으로 동적 진영 HP 배틀을 구성했습니다."
+            : `댓글을 불러오지 못해(${ytErrorReason || "API 제한 또는 댓글 없음"}) 영상 제목 기반으로 동적 진영 HP 배틀을 구성했습니다.`;
           setCommandNotice(reasonHint, false);
         }
 
         if (!comments.length) {
-          setCommandNotice("분석할 댓글을 찾지 못했습니다. [댓글 직접 입력]으로 내용을 넣어 주세요.");
+          setCommandNotice("분석할 댓글을 찾지 못했습니다. [댓글 직접입력]으로 내용을 넣어 주세요.");
           return;
         }
 
@@ -2608,30 +2743,33 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           if (pb) pb.classList.remove("active");
         });
 
-        setPipelineStep("2/4 비속어 정제·관점 추출");
-        let issueTitle = videoTitle || "실시간 입력 댓글 다관점 분석";
+        setPipelineStep("2/4 비속어 정제·진영 추출");
+        let issueTitle = videoTitle || "실시간 입력 댓글 진영 배틀";
         const clusterRes = clusterCommentsMultiperspective(comments, issueTitle, selectedMode);
-        let resolvedMode = clusterRes.analysis_mode;
-        let modeLabel = clusterRes.mode_label;
+        let sideALabel = clusterRes.side_a_label;
+        let sideBLabel = clusterRes.side_b_label;
         let perspectives = clusterRes.perspectives;
         let debateScript = buildDynamicScriptFromClusters(issueTitle, clusterRes);
         const total = clusterRes.total_comments;
-        let engineMode = vid ? `실시간 ${perspectives.length}관점 (${total}건)` : `직접 입력 ${perspectives.length}관점 (${total}건)`;
+        let engineMode = vid ? `실시간 HP 배틀 (${total}건)` : `직접 입력 HP 배틀 (${total}건)`;
 
-        setPipelineStep("3/4 AI 대본 구조화");
+        setPipelineStep("3/4 AI 팩폭 대본 생성");
         const sampleText = comments.slice(0, 35).map((c) => c.text).join("\n");
-        const modeGuidance = {
-          debate: "찬성과 반대 양측 핵심 논거로 2관점 균형 토론을 구성해라.",
-          multi: "반드시 찬성/반대 이분법에 가두지 말고, 댓글에서 드러나는 3~4개의 실제 관점·이해관계·감상 축(blue, red, violet, emerald)을 추출해 큐레이터 대본을 구성해라.",
-          proscons: "장점·호평 / 아쉬움·단점 / 비교·구매·개선 대안 3관점(blue, red, violet)으로 균형 있게 구성해라.",
-          summary: "시청자·유저의 핵심 반응 3~4축(blue, red, violet, emerald)을 뉴스룸 브리핑처럼 정리해라."
-        }[resolvedMode] || "주제 성격에 맞게 2~4개의 실제 댓글 관점 축(blue, red, violet, emerald)을 자유롭게 추출해라.";
+        const gemPrompt = `다음 콘텐츠("${issueTitle}")의 실제 댓글 ${total}건을 분석해 고정된 '찬반/아나운서/40초' 형식을 완전히 버리고, 가장 첨예하게 대립하거나 대비되는 상위 2개 여론 진영(Side A vs Side B)이 맞붙는 6턴 격투 게임식 HP 팩트 배틀 쇼츠 JSON을 작성해라.
+규칙:
+1. side_a_label, side_b_label: 단순 찬성/반대 금지! 해당 이슈에 딱 맞는 8~12자 내외의 직관적 진영 이름을 동적 생성 (예: "라이더 생계 우선파" vs "주민 수면권 수호파", "전면 견인 강경파" vs "인프라 확충 현실파").
+2. debate_script: 반드시 총 6턴 배열 (faction "A" 3턴, "B" 3턴 교대 배치: A, B, A, B, A, B).
+3. text: 욕설·비속어는 모두 뺀 매운맛 반말/단언형 공격 대사 딱 1문장 (45~75자 이내, 속사포로 치고 빠지는 팩폭 스타일).
+4. damage: 15~35 사이의 정수 (실제 댓글 공감 비율이 높은 우세 진영 공격일수록 26~34 높은 데미지, 열세 진영은 15~22).
+출력 JSON 스펙:
+{"issue_title":"이슈 한 줄 요약(25자 이내)","side_a_label":"첫 번째 여론 진영명","side_b_label":"두 번째 대립 여론 진영명","debate_script":[{"faction":"A","core_point":"핵심 팩트 라벨(14자 이내)","text":"매운맛 반말/단언형 1문장 공격 대사!","damage":28}]}
 
-        const gemPrompt = `다음 콘텐츠("${issueTitle}")의 실제 댓글 ${total}건을 분석해 6턴 아나운서 쇼츠 대본 JSON을 작성해라.\n규칙: ${modeGuidance}\n2명의 스튜디오 아나운서(speaker는 좌/우 발화 교차를 위해 PRO, CON 번갈아 배치)가 각 관점(perspective_id, perspective_label, color)을 번갈아 명쾌하게 소개한다.\n스펙: {"issue_title": "주제 한 줄 요약", "detected_mode": "multi", "mode_label": "예: 3관점 여론 비교", "perspectives": [{"id":"P1","label":"핵심 관점명","short_label":"짧은라벨(8자이내)","ratio":45,"color":"blue|red|violet|emerald"}], "debate_script": [{"speaker":"PRO","perspective_id":"P1","perspective_label":"짧은라벨","color":"blue","core_point":"핵심 요약","text":"비속어가 제거된 자연스러운 2문장 표준 한국어 아나운서 대사"}]}\n\n댓글 샘플:\n${sampleText}`;
+댓글 샘플:
+${sampleText}`;
 
         if (Date.now() >= geminiApiCooldownUntil) {
           const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
-          const to = ctrl ? setTimeout(() => ctrl.abort(), 3000) : null;
+          const to = ctrl ? setTimeout(() => ctrl.abort(), 3500) : null;
           try {
             const gemRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
               method: "POST",
@@ -2639,7 +2777,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               signal: ctrl ? ctrl.signal : undefined,
               body: JSON.stringify({
                 contents: [{ parts: [{ text: gemPrompt }] }],
-                generationConfig: { responseMimeType: "application/json", temperature: 0.3 }
+                generationConfig: { responseMimeType: "application/json", temperature: 0.35 }
               })
             });
             if (to) clearTimeout(to);
@@ -2651,11 +2789,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
                 const norm = normalizeGeminiAnalysis(parsed, clusterRes, issueTitle);
                 if (norm) {
                   issueTitle = norm.issue_title;
-                  resolvedMode = norm.analysis_mode;
-                  modeLabel = norm.mode_label;
+                  sideALabel = norm.side_a_label;
+                  sideBLabel = norm.side_b_label;
                   perspectives = norm.perspectives;
                   debateScript = norm.debate_script;
-                  engineMode = `Gemini ${perspectives.length}관점 (${total}건)`;
+                  engineMode = `Gemini HP 배틀 (${total}건)`;
                 }
               }
             } else {
@@ -2668,31 +2806,37 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         }
 
         setPipelineStep("4/4 스튜디오 반영 완료");
-        const kwTags = perspectives
-          .map((p) => (p.short_label || "").replace(/[·\s]/g, ""))
+        const kwTags = [sideALabel, sideBLabel]
+          .map((lbl) => String(lbl || "").replace(/[·\s]/g, ""))
           .filter(Boolean)
           .map((k) => `#${k}`)
           .join(" ");
 
         const liveData = {
           id: vid ? `yt_${vid}` : "live_custom",
-          analysis_mode: resolvedMode,
-          mode_label: modeLabel,
+          analysis_mode: "faction_battle",
+          mode_label: "동적 진영 HP 팩트 배틀",
+          side_a_label: sideALabel,
+          side_b_label: sideBLabel,
+          side_a_ratio: clusterRes.side_a_ratio,
+          side_b_ratio: clusterRes.side_b_ratio,
           perspectives,
           source_label: vid
             ? `YouTube Data API v3 실시간 수집 · ${channelTitle || "YouTube"} (${total}건)`
-            : `직접 입력 댓글 다관점 분석 (${total}건 · ${modeLabel})`,
+            : `직접 입력 댓글 동적 진영 배틀 (${total}건)`,
           source_url: sourceUrl,
           video_mp4_url: null,
           has_voice_track: false,
           rendered_video_blob_url: null,
           issue_title: issueTitle,
-          hashtags: `#한냥 #다관점쇼츠 ${kwTags} #유튜브쇼츠`.trim(),
+          hashtags: `#한냥 #팩트배틀 ${kwTags} #쇼츠`.trim(),
           raw_stats: {
             total_comments: total,
             filtered_curse_count: clusterRes.filtered_curse_count,
-            pro_ratio: clusterRes.pro_ratio,
-            con_ratio: clusterRes.con_ratio,
+            pro_ratio: clusterRes.side_a_ratio,
+            con_ratio: clusterRes.side_b_ratio,
+            side_a_ratio: clusterRes.side_a_ratio,
+            side_b_ratio: clusterRes.side_b_ratio,
             toxicity_before: clusterRes.toxicity_before,
             toxicity_after: clusterRes.toxicity_after
           },
@@ -2701,7 +2845,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         };
         const wasVideoMode = playerMode === "video";
         renderAll(liveData, engineMode);
-        showToast(`${perspectives.length}개 관점 · ${debateScript.length}턴 대본 생성됨`);
+        showToast(`${sideALabel} vs ${sideBLabel} 배틀 생성됨`);
         if (wasVideoMode) setPlayerMode("video");
         else setPlayerMode("interactive");
       } finally {
@@ -3043,10 +3187,10 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return { clauseIdx: lastCi, wordIdx: Math.max(0, lastLen - 1) };
     }
 
-    async function fetchCloudTtsTurn(turn) {
+    async function fetchCloudTtsTurn(turn, idx = 0) {
       if (cloudTtsDisabled) return null;
-      const isPro = turn.speaker === "PRO";
-      const voiceName = isPro ? "ko-KR-Neural2-C" : "ko-KR-Neural2-A";
+      const isA = getTurnFaction(turn, idx) === "A";
+      const voiceName = isA ? "ko-KR-Neural2-C" : "ko-KR-Neural2-A";
       const spokenText = normalizeKoreanForTts(turn.text);
       if (!spokenText) return null;
 
@@ -3084,7 +3228,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if (!currentData._turnAudioDur) currentData._turnAudioDur = {};
       if (!currentData._turnAudioMeta) currentData._turnAudioMeta = {};
 
-      const cacheKey = `${turn.speaker}:${turn.text}`;
+      const cacheKey = `${getTurnFaction(turn, turnIdx)}:${turn.text}`;
       currentData._ttsAudioCache[turnIdx] = { key: cacheKey, ...resObj };
       const ctx = getOrResumeAudioContext();
       if (ctx) {
@@ -3105,7 +3249,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if (!currentData._turnAudioDur) currentData._turnAudioDur = {};
       if (!currentData._turnAudioMeta) currentData._turnAudioMeta = {};
 
-      const cacheKey = `${turn.speaker}:${turn.text}`;
+      const cacheKey = `${getTurnFaction(turn, turnIdx)}:${turn.text}`;
       const cached = currentData._ttsAudioCache[turnIdx];
       if (cached && cached.key === cacheKey && cached.b64) {
         if (!currentData._turnAudioMeta[turnIdx]) {
@@ -3114,7 +3258,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         return currentData._ttsAudioCache[turnIdx];
       }
 
-      const resObj = await fetchCloudTtsTurn(turn);
+      const resObj = await fetchCloudTtsTurn(turn, turnIdx);
       return await cacheAndAnalyzeTurnVoice(turnIdx, turn, resObj);
     }
 
@@ -3133,7 +3277,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
       const allCached = turns.every((t, i) => {
         const c = currentData._ttsAudioCache[i];
-        return c && c.key === `${t.speaker}:${t.text}` && c.b64;
+        return c && c.key === `${getTurnFaction(t, i)}:${t.text}` && c.b64;
       });
       if (allCached) {
         for (let i = 0; i < turns.length; i++) {
@@ -3144,14 +3288,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         return { ok: true, voicedCount: turns.length, totalTurns: turns.length, mode: "cached", reason: "" };
       }
 
-      if (!cloudTtsDisabled) {
-        onProgress(8, "Google Cloud 한국어 아나운서 음성 확인 중...");
-        const firstRes = await fetchCloudTtsTurn(turns[0]);
+      if (!cloudTtsDisabled && turns.length) {
+        onProgress(8, "Google Cloud 한국어 음성 확인 중...");
+        const firstRes = await fetchCloudTtsTurn(turns[0], 0);
         if (firstRes && firstRes.b64) {
           await cacheAndAnalyzeTurnVoice(0, turns[0], firstRes);
           await Promise.all(turns.slice(1).map(async (t, offset) => {
             const idx = offset + 1;
-            const r = await fetchCloudTtsTurn(t);
+            const r = await fetchCloudTtsTurn(t, idx);
             if (r && r.b64) await cacheAndAnalyzeTurnVoice(idx, t, r);
           }));
           renderScriptList();
@@ -3271,14 +3415,15 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const audioCtxRec = getOrResumeAudioContext();
       const turns = (currentData.debate_script || []).slice(0, 8);
       const resolvedPersp = resolvePerspectives(currentData);
-      const resolvedModeLbl = currentData.mode_label || (resolvedPersp.length >= 3 ? `${resolvedPersp.length}관점 여론 비교` : "AI 공론장 중재");
-      onProgress(4, "한국어 AI 음성 트랙 합성 준비 중...");
+      const { labelA, labelB } = getFactionLabels(currentData);
+      const resolvedModeLbl = currentData.mode_label || "동적 진영 HP 팩트 배틀";
+      onProgress(4, "한국어 속사포 음성 트랙 합성 준비 중...");
 
       // 1) Synthesize voices BEFORE launching recorder/server render
       const voicePrep = await prepareAllVoices(onProgress, { forVideoExport: true });
       const turnAudioList = turns.map((_, i) => (currentData._ttsAudioCache && currentData._ttsAudioCache[i]) || null);
 
-      onProgress(20, "1080×1920 스튜디오 영상 렌더링 준비 중...");
+      onProgress(20, "1080×1920 HP 배틀 영상 렌더링 준비 중...");
 
       // 2) Try FastAPI backend MP4 renderer when running locally / connected to Python backend
       if (window.location.protocol.startsWith("http") && !window.location.hostname.includes("github.io")) {
@@ -3293,6 +3438,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               raw_stats: currentData.raw_stats,
               perspectives: resolvedPersp,
               mode_label: resolvedModeLbl,
+              side_a_label: labelA,
+              side_b_label: labelB,
               debate_script: turns,
               turn_audio_b64_list: turnAudioList.map((x) => (x ? x.b64 : null))
             })
@@ -3330,7 +3477,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         throw new Error("이 브라우저에서는 동적 MP4/WebM 녹화를 지원하지 않습니다.");
       }
 
-      // 3) Client-side Full-HD 1080x1920 @ 30fps Offscreen-Cached Broadcast Recorder
+      // 3) Client-side Full-HD 1080x1920 @ 30fps Offscreen-Cached HP Battle Recorder
       const canvas = document.getElementById("hiddenShortsRecorderCanvas");
       const W = 1080, H = 1920;
       if (canvas.width !== W) canvas.width = W;
@@ -3343,7 +3490,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const conImg = document.getElementById("avatarCardCon");
       await Promise.all([studioImg, deskImg, proImg, conImg].map(waitImageReady));
 
-      // Pre-bake offscreen canvases per (side, colorKey) ONCE so every 30fps frame blits in <3ms!
       const bakeHost = (img, targetH, active) => {
         if (!img || !img.complete || img.naturalWidth <= 0) return null;
         const sc = targetH / img.naturalHeight;
@@ -3352,7 +3498,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         const cx = c.getContext("2d");
         cx.globalAlpha = 1.0;
         if ("filter" in cx) {
-          cx.filter = active ? "brightness(1.03) saturate(1.04)" : "brightness(0.76) saturate(0.88) blur(0.45px)";
+          cx.filter = active ? "brightness(1.04) saturate(1.06)" : "brightness(0.76) saturate(0.88)";
         }
         cx.drawImage(img, 8, 8, dw, targetH);
         return { canvas: c, dw, dh: targetH };
@@ -3363,8 +3509,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const conIdleH = bakeHost(conImg, 550, false);
 
       const stageCache = {};
-      const getStageCanvas = (isPro, colorKey) => {
-        const key = `${isPro ? "L" : "R"}_${colorKey}`;
+      const getStageCanvas = (isA, colorKey) => {
+        const key = `${isA ? "A" : "B"}_${colorKey}`;
         if (stageCache[key]) return stageCache[key];
         const pal = PALETTES[colorKey] || PALETTES.blue;
         const c = createOffscreenCanvas(W, H);
@@ -3376,26 +3522,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           g.addColorStop(0, "#0E1015"); g.addColorStop(1, "#0B0D12");
           cx.fillStyle = g; cx.fillRect(0, 0, W, H);
         }
-        // Subtle chair ambient shadows behind both seated anchors
-        if (proImg && proImg.complete && proImg.naturalWidth > 0) {
-          const scP = 566 / proImg.naturalHeight;
-          const dwP = Math.round(proImg.naturalWidth * scP);
-          cx.save();
-          cx.globalAlpha = 0.36;
-          if ("filter" in cx) cx.filter = "brightness(0) blur(12px)";
-          cx.drawImage(proImg, 225 - dwP / 2 + 10, 1318 - 566 + 10, dwP, 566);
-          cx.restore();
-        }
-        if (conImg && conImg.complete && conImg.naturalWidth > 0) {
-          const scC = 558 / conImg.naturalHeight;
-          const dwC = Math.round(conImg.naturalWidth * scC);
-          cx.save();
-          cx.globalAlpha = 0.36;
-          if ("filter" in cx) cx.filter = "brightness(0) blur(12px)";
-          cx.drawImage(conImg, 855 - dwC / 2 - 10, 1316 - 558 + 10, dwC, 558);
-          cx.restore();
-        }
-        const sx = isPro ? 235 : 845;
+        const sx = isA ? 235 : 845;
         const sy = 940;
         const rad = cx.createRadialGradient(sx, sy, 28, sx, sy, 480);
         rad.addColorStop(0, pal.canvasSpot0);
@@ -3405,32 +3532,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         stageCache[key] = c;
         return c;
       };
-      turns.forEach((t) => getStageCanvas(t.speaker === "PRO", getTurnColorKey(t)));
-
-      const deskBaseC = createOffscreenCanvas(W, H);
-      const dCtx = deskBaseC.getContext("2d");
-      dCtx.save();
-      dCtx.beginPath();
-      for (let x = 0; x <= W; x += 24) {
-        const y = 1212 + 18 * Math.pow((x - 540) / 540, 2);
-        if (x === 0) dCtx.moveTo(x, y);
-        else dCtx.lineTo(x, y);
-      }
-      dCtx.strokeStyle = "rgba(0, 0, 0, 0.42)";
-      dCtx.lineWidth = 18;
-      if ("filter" in dCtx) dCtx.filter = "blur(8px)";
-      dCtx.stroke();
-      dCtx.restore();
-      if (deskImg && deskImg.complete && deskImg.naturalWidth > 0) {
-        dCtx.drawImage(deskImg, 0, 0, W, H);
-      }
+      turns.forEach((t, idx) => getStageCanvas(getTurnFaction(t, idx) === "A", getTurnColorKey(t, idx)));
 
       const drawDeskPlateOnCtx = (c, centerX, label, active, accentCol) => {
         c.save();
         c.font = "bold 22px Pretendard, sans-serif";
         const tw = c.measureText(label).width;
         const badgeW = active ? 68 : 0;
-        const pw = Math.round(Math.max(220, Math.min(390, tw + badgeW + 56)));
+        const pw = Math.round(Math.max(220, Math.min(405, tw + badgeW + 56)));
         const x0 = Math.max(54, Math.min(W - 54 - pw, Math.round(centerX - pw / 2)));
         const y0 = 1368, ph = 56, cyM = y0 + ph / 2;
         if (active) {
@@ -3446,17 +3555,17 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           c.textBaseline = "middle";
           c.fillStyle = "#FFFFFF";
           c.font = "bold 18px Pretendard, sans-serif";
-          c.fillText("발언", x0 + 38, cyM);
+          c.fillText("공격", x0 + 38, cyM);
           c.font = "bold 22px Pretendard, sans-serif";
           c.fillText(label, Math.round((x0 + 72 + x0 + pw - 10) / 2), cyM);
         } else {
-          c.fillStyle = "rgba(12, 16, 25, 0.78)";
+          c.fillStyle = "rgba(12, 16, 25, 0.80)";
           c.strokeStyle = "rgba(255, 255, 255, 0.16)";
           c.lineWidth = 2;
           drawRoundRect(c, x0, y0, pw, ph, 14); c.fill(); c.stroke();
           c.textAlign = "center";
           c.textBaseline = "middle";
-          c.fillStyle = "rgba(182, 192, 208, 0.88)";
+          c.fillStyle = "rgba(182, 192, 208, 0.90)";
           c.font = "bold 22px Pretendard, sans-serif";
           c.fillText(label, centerX, cyM);
         }
@@ -3466,30 +3575,26 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const turnDeskCanvases = turns.map((turn, idx) => {
         const tc = createOffscreenCanvas(W, H);
         const tCtx = tc.getContext("2d");
-        tCtx.drawImage(deskBaseC, 0, 0);
-        const curIsPro = turn.speaker === "PRO";
-        const curPal = PALETTES[getTurnColorKey(turn)] || PALETTES.blue;
-        const curLbl = (turn.perspective_label || "").trim() || (curIsPro ? `좌측 ${Math.floor(idx / 2) + 1}` : `우측 ${Math.floor(idx / 2) + 1}`);
-        let oppTurn = null;
-        for (let step = 1; step <= turns.length; step++) {
-          for (const ci of [idx + step, idx - step]) {
-            if (ci >= 0 && ci < turns.length && (turns[ci].speaker === "PRO") !== curIsPro) {
-              oppTurn = turns[ci];
-              break;
-            }
-          }
-          if (oppTurn) break;
-        }
-        const oppLbl = ((oppTurn && oppTurn.perspective_label) || "").trim() || (curIsPro ? "우측 패널" : "좌측 패널");
-        if (curIsPro) {
-          drawDeskPlateOnCtx(tCtx, 242, curLbl, true, curPal.accent);
-          drawDeskPlateOnCtx(tCtx, 838, oppLbl, false, curPal.accent);
-        } else {
-          drawDeskPlateOnCtx(tCtx, 242, oppLbl, false, curPal.accent);
-          drawDeskPlateOnCtx(tCtx, 838, curLbl, true, curPal.accent);
-        }
+        const curIsA = getTurnFaction(turn, idx) === "A";
+        const curPal = PALETTES[getTurnColorKey(turn, idx)] || PALETTES.blue;
+        drawDeskPlateOnCtx(tCtx, 242, labelA.slice(0, 14), curIsA, curPal.accent);
+        drawDeskPlateOnCtx(tCtx, 838, labelB.slice(0, 14), !curIsA, curPal.accent);
         return tc;
       });
+
+      // Pre-compute cumulative HP states per turn
+      const turnHpStates = [];
+      let curHpA = 100, curHpB = 100;
+      turns.forEach((t, i) => {
+        const isA = getTurnFaction(t, i) === "A";
+        const dmg = getTurnDamage(t);
+        const startA = curHpA, startB = curHpB;
+        if (isA) curHpB = Math.max(0, curHpB - dmg);
+        else curHpA = Math.max(0, curHpA - dmg);
+        turnHpStates.push({ startA, startB, endA: curHpA, endB: curHpB, isA, dmg });
+      });
+      const finalHpA = curHpA, finalHpB = curHpB;
+      const winnerLabel = finalHpA >= finalHpB ? labelA : labelB;
 
       // Decode audio buffers & compute acoustic RMS clause boundaries
       const ttsBuffers = audioCtxRec
@@ -3499,16 +3604,17 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const hasRealVoices = voicedCount === turns.length && turns.length > 0;
       const hasPartialVoices = voicedCount > 0 && voicedCount < turns.length;
 
-      // Compute natural duration per turn (NEVER clipped to 7.2s or compressed to 40s!)
+      // Rapid-fire 1.3x battle durations + 0.30s inter-turn beat + 1.5s K.O. outro
       const turnDurationsSec = turns.map((t, i) => {
         const buf = ttsBuffers[i];
-        if (buf && buf.duration > 0.4) return +((buf.duration / playbackRate) + 0.45).toFixed(3);
+        if (buf && buf.duration > 0.4) return +((buf.duration / playbackRate) + 0.30).toFixed(3);
         return estimateTurnDurationSec(t.text, playbackRate);
       });
       const turnStartsSec = [];
-      let totalSecAcc = 0;
-      turnDurationsSec.forEach((d) => { turnStartsSec.push(totalSecAcc); totalSecAcc += d; });
-      const totalRenderSec = totalSecAcc;
+      let battleSecAcc = 0;
+      turnDurationsSec.forEach((d) => { turnStartsSec.push(battleSecAcc); battleSecAcc += d; });
+      const outroSec = 1.5;
+      const totalRenderSec = battleSecAcc + outroSec;
 
       // Setup WebAudio Recorder Bus
       const videoStream = canvas.captureStream(30);
@@ -3520,15 +3626,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         if (audioCtxRec) {
           if (audioCtxRec.state === "suspended") await audioCtxRec.resume();
           audioDest = audioCtxRec.createMediaStreamDestination();
-          // Warm newsroom bed (louder if BGM fallback, smoothly ducked if voiced)
           const lp = audioCtxRec.createBiquadFilter();
           lp.type = "lowpass";
-          lp.frequency.setValueAtTime(580, audioCtxRec.currentTime);
+          lp.frequency.setValueAtTime(520, audioCtxRec.currentTime);
           const padGain = audioCtxRec.createGain();
-          padGain.gain.setValueAtTime(voicedCount > 0 ? 0.022 : 0.075, audioCtxRec.currentTime);
+          padGain.gain.setValueAtTime(voicedCount > 0 ? 0.018 : 0.055, audioCtxRec.currentTime);
           lp.connect(padGain);
           padGain.connect(audioDest);
-          [110.0, 164.81, 220.0, 261.63].forEach((freq) => {
+          [98.0, 146.83, 196.0].forEach((freq) => {
             const osc = audioCtxRec.createOscillator();
             osc.type = "sine";
             osc.frequency.setValueAtTime(freq, audioCtxRec.currentTime);
@@ -3540,7 +3645,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         }
       } catch (e) {}
 
-      // Pick MIME type that ALWAYS preserves explicit audio codec alongside video!
       const candidateMimes = [
         "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
         "video/mp4;codecs=avc1,mp4a.40.2",
@@ -3573,53 +3677,40 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         };
       });
 
-      // Pre-prepare layout, weighted word timelines, and RMS clause metadata per turn
       const titleSpec = fitTitleCanvas(ctx, currentData.issue_title, W - 156);
-
       const turnAudioMeta = turns.map((turn, i) => {
         const buf = ttsBuffers[i];
         if (!buf) return null;
         return (currentData._turnAudioMeta && currentData._turnAudioMeta[i]) || analyzeTurnAudioEnvelope(buf, splitTurnIntoClauses(turn.text));
       });
-
       const turnLayouts = turns.map((turn) => {
         const clauses = splitTurnIntoClauses(turn.text);
         const coreSpec = fitCorePointCanvas(ctx, turn.core_point || "", W - 268);
         const clauseSpecs = clauses.map((cTxt) => fitCaptionClauseCanvas(ctx, cTxt, W - 180));
         const clauseWordTimelines = clauseSpecs.map((cs) => buildWeightedWordTimeline(cs.lines.flat()));
-        const clauseWordCounts = clauseWordTimelines.map((tl) => Math.max(tl.length, 1));
-        return { clauses, coreSpec, clauseSpecs, clauseWordTimelines, clauseWordCounts };
+        return { clauses, coreSpec, clauseSpecs, clauseWordTimelines };
       });
 
       recorder.start(250);
       const masterStartAudioTime = audioCtxRec ? audioCtxRec.currentTime + 0.14 : 0;
       const masterStartPerf = performance.now() + 140;
 
-      // Schedule sample-accurate voices & stingers onto the AudioContext timeline!
-      const chimeFreqMap = {
-        blue: [440, 554.37],
-        red: [587.33, 493.88],
-        violet: [554.37, 659.25],
-        emerald: [493.88, 659.25],
-        amber: [440, 587.33]
-      };
+      // Schedule sample-accurate 8-bit hit SFX + rapid-fire voices + K.O. fanfare!
       if (audioCtxRec && audioDest) {
         turns.forEach((turn, idx) => {
           const tStart = masterStartAudioTime + turnStartsSec[idx];
-          const cKey = getTurnColorKey(turn);
+          const isA = getTurnFaction(turn, idx) === "A";
           try {
-            const freqs = chimeFreqMap[cKey] || [440, 554.37];
-            freqs.forEach((f, fi) => {
-              const osc = audioCtxRec.createOscillator();
-              const g = audioCtxRec.createGain();
-              osc.type = "triangle";
-              osc.frequency.setValueAtTime(f, tStart + fi * 0.055);
-              g.gain.setValueAtTime(voicedCount > 0 ? 0.065 : 0.11, tStart + fi * 0.055);
-              g.gain.exponentialRampToValueAtTime(0.0008, tStart + fi * 0.055 + 0.28);
-              osc.connect(g); g.connect(audioDest);
-              osc.start(tStart + fi * 0.055);
-              osc.stop(tStart + fi * 0.055 + 0.30);
-            });
+            const osc = audioCtxRec.createOscillator();
+            const g = audioCtxRec.createGain();
+            osc.type = "square";
+            osc.frequency.setValueAtTime(isA ? 235 : 195, tStart);
+            osc.frequency.exponentialRampToValueAtTime(42, tStart + 0.16);
+            g.gain.setValueAtTime(0.22, tStart);
+            g.gain.exponentialRampToValueAtTime(0.001, tStart + 0.18);
+            osc.connect(g); g.connect(audioDest);
+            osc.start(tStart);
+            osc.stop(tStart + 0.19);
           } catch (e) {}
 
           const ttsBuf = ttsBuffers[idx];
@@ -3635,150 +3726,212 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
             } catch (e) {}
           }
         });
+        // K.O. Fanfare
+        const koStart = masterStartAudioTime + battleSecAcc;
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, fi) => {
+          try {
+            const osc = audioCtxRec.createOscillator();
+            const g = audioCtxRec.createGain();
+            osc.type = "square";
+            osc.frequency.setValueAtTime(freq, koStart + fi * 0.08);
+            g.gain.setValueAtTime(0.14, koStart + fi * 0.08);
+            g.gain.exponentialRampToValueAtTime(0.001, koStart + fi * 0.08 + 0.34);
+            osc.connect(g); g.connect(audioDest);
+            osc.start(koStart + fi * 0.08);
+            osc.stop(koStart + fi * 0.08 + 0.36);
+          } catch (e) {}
+        });
       }
 
+      const drawTopHpHud = (hpA, hpB, roundNum) => {
+        ctx.fillStyle = "rgba(9, 13, 22, 0.92)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
+        ctx.lineWidth = 2;
+        drawRoundRect(ctx, 40, 24, W - 80, 96, 18); ctx.fill(); ctx.stroke();
+
+        const barW = 340;
+        const ax0 = 62, ax1 = ax0 + barW;
+        ctx.textBaseline = "middle";
+        ctx.font = "bold 22px Pretendard, sans-serif";
+        ctx.fillStyle = "#93C5FD";
+        ctx.textAlign = "left";
+        ctx.fillText(labelA.slice(0, 14), ax0, 50);
+        ctx.font = "bold 19px Pretendard, sans-serif";
+        ctx.fillStyle = "#DBEAFE";
+        ctx.textAlign = "right";
+        ctx.fillText(`${Math.round(hpA)} HP`, ax1, 50);
+        ctx.fillStyle = "#1E293B";
+        drawRoundRect(ctx, ax0, 74, barW, 22, 10); ctx.fill();
+        const fillA = Math.round(barW * Math.max(0, Math.min(1, hpA / 100)));
+        if (fillA > 4) {
+          ctx.fillStyle = "#2563EB";
+          drawRoundRect(ctx, ax0, 74, fillA, 22, 10); ctx.fill();
+        }
+
+        ctx.textAlign = "center";
+        ctx.font = "bold 24px Pretendard, sans-serif";
+        ctx.fillStyle = "#FACC15";
+        ctx.fillText("VS", W / 2, 48);
+        ctx.fillStyle = "#1E293B";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+        ctx.lineWidth = 1;
+        drawRoundRect(ctx, W / 2 - 74, 68, 148, 34, 9); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#F8FAFC";
+        ctx.font = "bold 18px Pretendard, sans-serif";
+        ctx.fillText(`ROUND ${roundNum}/${turns.length}`, W / 2, 85);
+
+        const bx1 = W - 62, bx0 = bx1 - barW;
+        ctx.font = "bold 19px Pretendard, sans-serif";
+        ctx.fillStyle = "#FEE2E2";
+        ctx.textAlign = "left";
+        ctx.fillText(`${Math.round(hpB)} HP`, bx0, 50);
+        ctx.font = "bold 22px Pretendard, sans-serif";
+        ctx.fillStyle = "#FCA5A5";
+        ctx.textAlign = "right";
+        ctx.fillText(labelB.slice(0, 14), bx1, 50);
+        ctx.fillStyle = "#1E293B";
+        drawRoundRect(ctx, bx0, 74, barW, 22, 10); ctx.fill();
+        const fillB = Math.round(barW * Math.max(0, Math.min(1, hpB / 100)));
+        if (fillB > 4) {
+          ctx.fillStyle = "#DC2626";
+          drawRoundRect(ctx, bx1 - fillB, 74, fillB, 22, 10); ctx.fill();
+        }
+        ctx.textBaseline = "alphabetic";
+        ctx.textAlign = "left";
+      };
+
       const drawFrameAt = (nowSec) => {
+        const isOutro = nowSec >= battleSecAcc;
         let tIdx = turns.length - 1;
-        for (let i = 0; i < turns.length; i++) {
-          if (nowSec < turnStartsSec[i] + turnDurationsSec[i]) { tIdx = i; break; }
+        if (!isOutro) {
+          for (let i = 0; i < turns.length; i++) {
+            if (nowSec < turnStartsSec[i] + turnDurationsSec[i]) { tIdx = i; break; }
+          }
         }
         const turn = turns[tIdx];
+        const hpSt = turnHpStates[tIdx];
         const layout = turnLayouts[tIdx];
         const turnDur = turnDurationsSec[tIdx];
-        const localSec = Math.max(0, nowSec - turnStartsSec[tIdx]);
+        const localSec = isOutro ? turnDur : Math.max(0, nowSec - turnStartsSec[tIdx]);
         const turnProg = Math.min(1, localSec / Math.max(turnDur, 0.1));
         const globalProg = Math.min(1, nowSec / Math.max(totalRenderSec, 0.1));
-        const isPro = turn.speaker === "PRO";
-        const cKey = getTurnColorKey(turn);
+        const isA = hpSt.isA;
+        const dmg = hpSt.dmg;
+        const cKey = getTurnColorKey(turn, tIdx);
         const pal = PALETTES[cKey] || PALETTES.blue;
         const accent = pal.accent;
         const badgeAccentTxt = pal.txt;
         const tint = pal.pillBg;
 
-        onProgress(Math.min(99, Math.round(22 + globalProg * 77)), `${ttsBuffers[tIdx] ? "AI 음성 + " : ""}1080p 방송 영상 녹화 중 (${formatMinSec(nowSec)} / ${formatMinSec(totalRenderSec)})`);
+        const hitT = isOutro ? 1.0 : Math.min(1, localSec / 0.36);
+        const curHpA = hpSt.startA + (hpSt.endA - hpSt.startA) * hitT;
+        const curHpB = hpSt.startB + (hpSt.endB - hpSt.startB) * hitT;
 
-        // 1) Calm Broadcast Camera Pan & Seated Anchor Framing (matches render_mp4.py)
-        const panProg = Math.min(1, localSec / 0.55);
-        const easePan = 1 - Math.pow(1 - panProg, 3);
-        const zoom = 1.022 + 0.030 * turnProg;
-        const cw = W / zoom, ch = H / zoom;
-        const focusCx = isPro ? W * 0.468 : W * 0.532;
-        const prevFocusCx = tIdx === 0
-          ? W * 0.50
-          : (turns[tIdx - 1].speaker === "PRO" ? W * 0.468 : W * 0.532);
-        const cxRaw = prevFocusCx + (focusCx - prevFocusCx) * easePan;
-        const cx = Math.max(cw * 0.5, Math.min(W - cw * 0.5, cxRaw));
-        const cy = Math.max(ch * 0.5, Math.min(H - ch * 0.5, H * 0.504));
+        onProgress(Math.min(99, Math.round(22 + globalProg * 77)), `1080p HP 배틀 녹화 중 (${Math.round(globalProg * 100)}%)`);
 
+        // 1) Fighter Stage with Hit Shake & Red Flash
         ctx.save();
-        ctx.translate(W * 0.5, H * 0.5);
-        ctx.scale(zoom, zoom);
-        ctx.translate(-cx, -cy);
+        ctx.drawImage(getStageCanvas(isA, cKey), 0, 0);
 
-        ctx.drawImage(getStageCanvas(isPro, cKey), 0, 0);
-
-        const talkCadence = Math.sin(localSec * 1.8) * 0.9 - 1.1 * (0.5 + 0.5 * Math.sin(localSec * 5.4));
+        const hitShake = !isOutro && localSec < 0.45 ? Math.round(Math.sin(localSec * 52) * 14 * (1 - localSec / 0.45)) : 0;
+        const talkCadence = Math.sin(localSec * 3.0) * 1.2;
         const idleBreath = Math.sin(localSec * 1.45 + 1.1) * 1.0;
-        const blitHost = (hSpec, centerX, baselineY, offY) => {
+        const blitHost = (hSpec, centerX, baselineY, offY, offX = 0) => {
           if (!hSpec) return;
-          ctx.drawImage(hSpec.canvas, centerX - hSpec.dw / 2 - 8, baselineY - hSpec.dh - 8 + offY);
+          ctx.drawImage(hSpec.canvas, centerX - hSpec.dw / 2 - 8 + offX, baselineY - hSpec.dh - 8 + offY);
         };
 
-        if (isPro) {
-          blitHost(conIdleH, 855, 1314, idleBreath);
-          blitHost(proActH, 225, 1318, talkCadence);
+        if (isA) {
+          blitHost(conIdleH, 855, 1314, idleBreath, hitShake);
+          blitHost(proActH, 225, 1318, talkCadence, 0);
         } else {
-          blitHost(proIdleH, 225, 1316, idleBreath);
-          blitHost(conActH, 855, 1316, talkCadence);
+          blitHost(proIdleH, 225, 1316, idleBreath, hitShake);
+          blitHost(conActH, 855, 1316, talkCadence, 0);
+        }
+
+        if (!isOutro && localSec < 0.42) {
+          const flashA = 0.42 * (1 - localSec / 0.42);
+          const rx = isA ? 855 : 225;
+          const rg = ctx.createRadialGradient(rx, 1020, 20, rx, 1020, 220);
+          rg.addColorStop(0, `rgba(239, 68, 68, ${flashA.toFixed(3)})`);
+          rg.addColorStop(1, "rgba(239, 68, 68, 0)");
+          ctx.fillStyle = rg;
+          ctx.fillRect(rx - 220, 800, 440, 460);
         }
         ctx.drawImage(turnDeskCanvases[tIdx], 0, 0);
+
+        if (!isOutro && localSec < 0.85) {
+          const popX = (isA ? 855 : 225) + hitShake;
+          const popY = Math.round(770 - (localSec / 0.85) * 46);
+          const popTxt = `-${dmg} HP (공감 팩폭!)`;
+          ctx.font = "bold 30px Pretendard, sans-serif";
+          const pw = Math.round(ctx.measureText(popTxt).width + 44);
+          ctx.fillStyle = "#DC2626";
+          ctx.strokeStyle = "#FEF08A";
+          ctx.lineWidth = 3;
+          drawRoundRect(ctx, popX - pw / 2, popY - 26, pw, 52, 14); ctx.fill(); ctx.stroke();
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
+          ctx.fillStyle = "#FEF08A";
+          ctx.fillText(popTxt, popX, popY);
+          ctx.textBaseline = "alphabetic";
+          ctx.textAlign = "left";
+        }
         ctx.restore();
 
-        // 2) Top Segmented Bar + Counter/Timer Pills
-        const segGap = 10, segTotalW = W - 96;
-        const segW = (segTotalW - segGap * (turns.length - 1)) / turns.length;
-        for (let si = 0; si < turns.length; si++) {
-          const sx = 48 + si * (segW + segGap);
-          ctx.fillStyle = "rgba(45, 50, 65, 0.86)";
-          drawRoundRect(ctx, sx, 34, segW, 9, 4); ctx.fill();
-          if (si < tIdx) {
-            ctx.fillStyle = (PALETTES[getTurnColorKey(turns[si])] || PALETTES.blue).accent;
-            drawRoundRect(ctx, sx, 34, segW, 9, 4); ctx.fill();
-          } else if (si === tIdx) {
-            ctx.fillStyle = accent;
-            drawRoundRect(ctx, sx, 34, Math.max(12, segW * turnProg), 9, 4); ctx.fill();
-          }
-        }
+        // 2) Top Dynamic Faction HP Gauge Bar (NO 40s countdown timer)
+        drawTopHpHud(curHpA, curHpB, tIdx + 1);
 
-        ctx.fillStyle = "rgba(14, 17, 25, 0.85)";
-        drawRoundRect(ctx, 48, 54, 114, 34, 12); ctx.fill();
-        drawRoundRect(ctx, W - 186, 54, 138, 34, 12); ctx.fill();
-
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.font = "bold 22px Pretendard, sans-serif";
-        ctx.fillStyle = "#F4F4F5";
-        ctx.fillText(`${String(tIdx + 1).padStart(2, "0")} / ${String(turns.length).padStart(2, "0")}`, 105, 71);
-        ctx.fillStyle = "#E4E4E7";
-        ctx.fillText(`${formatMinSec(nowSec)} / ${formatMinSec(totalRenderSec)}`, W - 117, 71);
-        ctx.textBaseline = "alphabetic";
-        ctx.textAlign = "left";
-
-        // 3) TOPIC HERO BILLBOARD (y=98..288) — unmistakably the #1 show topic at a glance
-        const tx0 = 48, ty0 = 98, tw = W - 96, th = 190;
+        // 3) Battle Issue Card (y=134..310)
+        const tx0 = 48, ty0 = 134, tw = W - 96, th = 176;
         ctx.fillStyle = "rgba(0, 0, 0, 0.49)";
         drawRoundRect(ctx, tx0, ty0 + 8, tw, th, 22); ctx.fill();
-
         ctx.fillStyle = "rgba(9, 13, 22, 0.97)";
         ctx.strokeStyle = "rgba(250, 204, 21, 0.57)";
         ctx.lineWidth = 2;
         drawRoundRect(ctx, tx0, ty0, tw, th, 22); ctx.fill(); ctx.stroke();
-
         ctx.save();
         drawRoundRect(ctx, tx0, ty0, tw, th, 22);
         ctx.clip();
         ctx.fillStyle = "#FACC15";
-        ctx.fillRect(tx0, ty0, tw, 9);
+        ctx.fillRect(tx0, ty0, tw, 8);
         ctx.restore();
 
-        // Row 1 inside Topic Card: Solid Gold "영상 주제" chip + Mode tag + Total dataset count
         ctx.fillStyle = "#FACC15";
-        drawRoundRect(ctx, 76, ty0 + 20, 122, 34, 10); ctx.fill();
+        drawRoundRect(ctx, 76, ty0 + 18, 122, 32, 10); ctx.fill();
         ctx.textBaseline = "middle";
         ctx.textAlign = "center";
         ctx.font = "bold 20px Pretendard, sans-serif";
         ctx.fillStyle = "#090D16";
-        ctx.fillText("영상 주제", 137, ty0 + 37);
+        ctx.fillText("배틀 이슈", 137, ty0 + 34);
 
         ctx.font = "bold 19px Pretendard, sans-serif";
-        const modeW = Math.round(Math.min(360, Math.max(130, ctx.measureText(resolvedModeLbl).width + 32)));
+        const modeW = Math.round(Math.min(360, Math.max(150, ctx.measureText(resolvedModeLbl).width + 32)));
         ctx.fillStyle = "rgba(255, 255, 255, 0.10)";
-        drawRoundRect(ctx, 210, ty0 + 20, modeW, 34, 10); ctx.fill();
+        drawRoundRect(ctx, 210, ty0 + 18, modeW, 32, 10); ctx.fill();
         ctx.fillStyle = "#E2E8F0";
-        ctx.fillText(resolvedModeLbl, 210 + modeW / 2, ty0 + 37);
+        ctx.fillText(resolvedModeLbl, 210 + modeW / 2, ty0 + 34);
 
         ctx.fillStyle = "#94A3B8";
         ctx.textAlign = "right";
-        ctx.fillText(`댓글 ${(currentData.raw_stats && currentData.raw_stats.total_comments) || 0}건 분석`, W - 76, ty0 + 37);
+        ctx.fillText(`댓글 ${(currentData.raw_stats && currentData.raw_stats.total_comments) || 0}건`, W - 76, ty0 + 34);
 
-        // Giant Crisp Pure-White Topic Title (44px -> 40px -> 36px)
         ctx.fillStyle = "#FFFFFF";
         ctx.font = titleSpec.font;
         ctx.textAlign = "center";
         if (titleSpec.lines.length === 1) {
-          ctx.fillText(titleSpec.lines[0], W / 2, ty0 + 122);
+          ctx.fillText(titleSpec.lines[0], W / 2, ty0 + 112);
         } else {
-          ctx.fillText(titleSpec.lines[0], W / 2, ty0 + 94);
-          ctx.fillText(titleSpec.lines[1], W / 2, ty0 + 148);
+          ctx.fillText(titleSpec.lines[0], W / 2, ty0 + 86);
+          ctx.fillText(titleSpec.lines[1], W / 2, ty0 + 138);
         }
         ctx.textBaseline = "alphabetic";
         ctx.textAlign = "left";
 
-        // 4) SPEAKER STATEMENT BUBBLE (y=306..668, tail tip y=708 -> clears anchor crowns!)
-        const bx0 = 48, by0 = 306, bw = W - 96, bh = 362;
+        // 4) Faction Attack Bubble (y=326..676)
+        const bx0 = 48, by0 = 326, bw = W - 96, bh = 350;
         ctx.fillStyle = "rgba(0, 0, 0, 0.47)";
         drawRoundRect(ctx, bx0, by0 + 10, bw, bh, 24); ctx.fill();
-
         ctx.fillStyle = "rgba(255, 255, 255, 0.996)";
         ctx.strokeStyle = "rgba(15, 23, 42, 0.13)";
         ctx.lineWidth = 2;
@@ -3793,13 +3946,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
         ctx.fillStyle = "rgba(255, 255, 255, 0.996)";
         ctx.beginPath();
-        if (isPro) { ctx.moveTo(265, by0 + bh - 2); ctx.lineTo(295, by0 + bh + 40); ctx.lineTo(335, by0 + bh - 2); }
+        if (isA) { ctx.moveTo(265, by0 + bh - 2); ctx.lineTo(295, by0 + bh + 40); ctx.lineTo(335, by0 + bh - 2); }
         else { ctx.moveTo(W - 335, by0 + bh - 2); ctx.lineTo(W - 295, by0 + bh + 40); ctx.lineTo(W - 265, by0 + bh - 2); }
         ctx.fill();
 
-        // Row 1: Solid High-Contrast Perspective Badge (with directional arrow) + Clause Step Pill
-        const spkLabel = (turn.perspective_label || "").trim() || (isPro ? `좌측 패널 ${Math.floor(tIdx / 2) + 1}` : `우측 패널 ${Math.floor(tIdx / 2) + 1}`);
-        const spkDisplay = isPro ? `◀ ${spkLabel}` : `${spkLabel} ▶`;
+        const spkDisplay = `⚡ ${isA ? labelA : labelB}`;
         ctx.font = "bold 23px Pretendard, sans-serif";
         const spkPillW = Math.round(Math.min(W - 328, Math.max(168, ctx.measureText(spkDisplay).width + 48)));
         ctx.fillStyle = accent;
@@ -3809,27 +3960,25 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         ctx.fillStyle = "#FFFFFF";
         ctx.fillText(spkDisplay, 84 + spkPillW / 2, by0 + 47);
 
-        // Acoustic RMS Pause + Weighted Word Sync (accounting for +0.10s AudioContext voice onset)
+        ctx.fillStyle = "#FEE2E2";
+        ctx.strokeStyle = "#F87171";
+        ctx.lineWidth = 2;
+        drawRoundRect(ctx, W - 224, by0 + 26, 140, 42, 11); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#B91C1C";
+        ctx.font = "bold 20px Pretendard, sans-serif";
+        ctx.fillText(`-${dmg} DMG`, W - 154, by0 + 47);
+
         const voiceAudioSec = Math.max(0, (localSec - 0.10) * playbackRate);
         const syncPos = resolveClauseAndWordFromAudioSec(
           voiceAudioSec,
           layout.clauses,
           layout.clauseWordTimelines,
           turnAudioMeta[tIdx],
-          Math.min(1, Math.max(0, localSec - 0.10) / Math.max(turnDur - 0.35, 0.4))
+          Math.min(1, Math.max(0, localSec - 0.10) / Math.max(turnDur - 0.30, 0.4))
         );
         const activeClauseIdx = syncPos.clauseIdx;
         const localWordIdx = syncPos.wordIdx;
 
-        ctx.fillStyle = "#F1F5F9";
-        ctx.strokeStyle = "#CBD5E1";
-        ctx.lineWidth = 1;
-        drawRoundRect(ctx, W - 224, by0 + 26, 140, 42, 11); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "#334155";
-        ctx.font = "bold 20px Pretendard, sans-serif";
-        ctx.fillText(`논지 ${activeClauseIdx + 1} / ${layout.clauseSpecs.length}`, W - 154, by0 + 47);
-
-        // Row 2: Tinted Key Claim Banner (isolates Core Point from Spoken Subtitle)
         const claimH = layout.coreSpec.lines.length === 1 ? 54 : 82;
         const claimY0 = by0 + 84;
         const claimY1 = claimY0 + claimH;
@@ -3846,7 +3995,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         drawRoundRect(ctx, 108, claimY0 + 12, 60, 30, 7); ctx.fill();
         ctx.fillStyle = "#FFFFFF";
         ctx.font = "bold 18px Pretendard, sans-serif";
-        ctx.fillText("핵심", 138, claimY0 + 27);
+        ctx.fillText("팩폭", 138, claimY0 + 27);
 
         ctx.fillStyle = badgeAccentTxt;
         ctx.font = layout.coreSpec.font;
@@ -3859,7 +4008,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         }
         ctx.textBaseline = "alphabetic";
 
-        // Row 3: Bold Kinetic Spoken Captions centered vertically in remaining box
         const cSpec = layout.clauseSpecs[activeClauseIdx];
         ctx.font = cSpec.font;
         const spW = ctx.measureText(" ").width + 3;
@@ -3890,94 +4038,79 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           });
         });
 
-        // 5) Dynamic Multi-Perspective Lower Telemetry Card + 24-Band EQ
+        // 5) Lower Faction Ratio Telemetry Card
         const ly0 = 1652, lh = 206;
         ctx.fillStyle = "rgba(14, 17, 25, 0.94)";
         ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
         ctx.lineWidth = 2;
         drawRoundRect(ctx, 48, ly0, W - 96, lh, 26); ctx.fill(); ctx.stroke();
 
-        if (resolvedPersp.length <= 2) {
-          const p0 = resolvedPersp[0];
-          const p1 = resolvedPersp[1] || { short_label: "대안", ratio: Math.max(1, 100 - p0.ratio), color: "red" };
-          const c0 = PALETTES[p0.color] || PALETTES.blue;
-          const c1 = PALETTES[p1.color] || PALETTES.red;
-          ctx.font = "bold 23px Pretendard, sans-serif";
-          ctx.fillStyle = c0.barTxt;
-          ctx.fillText(`${p0.short_label} ${p0.ratio}%`, 94, ly0 + 54);
-          ctx.fillStyle = c1.barTxt;
-          ctx.textAlign = "right";
-          ctx.fillText(`${p1.short_label} ${p1.ratio}%`, W - 94, ly0 + 54);
-          ctx.textAlign = "center";
-          ctx.fillStyle = "#A1A1AA";
-          ctx.font = "600 19px Pretendard, sans-serif";
-          ctx.fillText(resolvedModeLbl, W / 2, ly0 + 84);
-          ctx.textAlign = "left";
+        const p0 = resolvedPersp[0];
+        const p1 = resolvedPersp[1] || { short_label: labelB, ratio: Math.max(1, 100 - p0.ratio) };
+        ctx.font = "bold 22px Pretendard, sans-serif";
+        ctx.fillStyle = "#60A5FA";
+        ctx.fillText(`${p0.short_label} ${p0.ratio}%`, 90, ly0 + 46);
+        ctx.fillStyle = "#F87171";
+        ctx.textAlign = "right";
+        ctx.fillText(`${p1.short_label} ${p1.ratio}%`, W - 90, ly0 + 46);
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#A1A1AA";
+        ctx.font = "600 19px Pretendard, sans-serif";
+        ctx.fillText(resolvedModeLbl, W / 2, ly0 + 104);
+        ctx.textAlign = "left";
 
-          const barX0 = 316, barW = W - 632;
-          const totR = Math.max(1, p0.ratio + p1.ratio);
-          const w0 = Math.max(24, Math.round(barW * (p0.ratio / totR)));
-          ctx.fillStyle = c0.accent;
-          drawRoundRect(ctx, barX0, ly0 + 40, w0, 14, 7); ctx.fill();
-          ctx.fillStyle = c1.accent;
-          drawRoundRect(ctx, barX0 + w0 + 6, ly0 + 40, Math.max(20, barW - w0 - 6), 14, 7); ctx.fill();
-        } else {
-          const nP = resolvedPersp.length;
-          const totR = resolvedPersp.reduce((a, b) => a + Math.max(1, b.ratio), 0) || 100;
-          const innerL = 90, innerR = W - 90, spanW = innerR - innerL, colW = spanW / nP;
-          ctx.font = "bold 20px Pretendard, sans-serif";
-          ctx.textAlign = "center";
-          resolvedPersp.forEach((p, pi) => {
-            const pc = PALETTES[p.color] || PALETTES.blue;
-            ctx.fillStyle = pc.barTxt;
-            ctx.fillText(`${p.short_label} ${p.ratio}%`, Math.round(innerL + colW * (pi + 0.5)), ly0 + 44);
-          });
-
-          const segGap = 6, availW = spanW - segGap * (nP - 1);
-          let curX = innerL;
-          resolvedPersp.forEach((p, pi) => {
-            const pc = PALETTES[p.color] || PALETTES.blue;
-            const segLen = pi < nP - 1 ? availW * (Math.max(1, p.ratio) / totR) : (innerR - curX);
-            const drawW = Math.max(18, segLen);
-            ctx.fillStyle = pc.accent;
-            drawRoundRect(ctx, Math.round(curX), ly0 + 64, Math.min(innerR - Math.round(curX), Math.round(drawW)), 14, 7); ctx.fill();
-            curX += drawW + segGap;
-          });
-
-          ctx.fillStyle = "#A1A1AA";
-          ctx.font = "600 19px Pretendard, sans-serif";
-          ctx.fillText(resolvedModeLbl, W / 2, ly0 + 104);
-          ctx.textAlign = "left";
-        }
+        const barX0 = 90, barSpanW = W - 180;
+        const totR = Math.max(1, p0.ratio + p1.ratio);
+        const w0 = Math.max(24, Math.round(barSpanW * (p0.ratio / totR)));
+        ctx.fillStyle = "#2563EB";
+        drawRoundRect(ctx, barX0, ly0 + 66, w0 - 4, 14, 7); ctx.fill();
+        ctx.fillStyle = "#DC2626";
+        drawRoundRect(ctx, barX0 + w0 + 4, ly0 + 66, Math.max(20, barSpanW - w0 - 4), 14, 7); ctx.fill();
 
         ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
-        ctx.fillRect(86, ly0 + 118, W - 172, 2);
-
-        const eqCount = 24, eqGap = 15;
-        const eqStartX = W / 2 - (eqCount * eqGap) / 2;
-        for (let bi = 0; bi < eqCount; bi++) {
-          const bx = eqStartX + bi * eqGap;
-          const wave = 0.45 + 0.55 * Math.sin(localSec * 15 + bi * 0.65);
-          const bhEq = Math.round(10 + (hasRealVoices ? 32 : 24) * wave);
-          ctx.fillStyle = accent;
-          drawRoundRect(ctx, bx, ly0 + 150 - bhEq / 2, 7, bhEq, 3); ctx.fill();
-        }
+        ctx.fillRect(86, ly0 + 122, W - 172, 2);
 
         const dotStep = turns.length > 6 ? 30 : 34;
         for (let di = 0; di < turns.length; di++) {
           const dx = 94 + di * dotStep;
           ctx.fillStyle = di === tIdx ? accent : (di < tIdx ? "#A1A1AA" : "#2D313E");
-          drawRoundRect(ctx, dx, ly0 + 154, di === tIdx ? 24 : 16, 10, 5); ctx.fill();
+          drawRoundRect(ctx, dx, ly0 + 152, di === tIdx ? 24 : 16, 10, 5); ctx.fill();
         }
-
         ctx.fillStyle = "#A1A1AA";
         ctx.font = "bold 23px Pretendard, sans-serif";
         ctx.textAlign = "right";
-        ctx.fillText("한냥 Studio", W - 94, ly0 + 165);
+        ctx.fillText("한냥 Studio", W - 94, ly0 + 162);
         ctx.textAlign = "left";
+
+        // 6) Final K.O. Victory Overlay
+        if (isOutro) {
+          ctx.fillStyle = "rgba(6, 9, 16, 0.80)";
+          ctx.fillRect(0, 0, W, H);
+          ctx.fillStyle = "rgba(15, 23, 42, 0.96)";
+          ctx.strokeStyle = "#FACC15";
+          ctx.lineWidth = 4;
+          drawRoundRect(ctx, 84, 740, W - 168, 430, 30); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = "#DC2626";
+          drawRoundRect(ctx, W / 2 - 110, 782, 220, 76, 18); ctx.fill();
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
+          ctx.fillStyle = "#FFFFFF";
+          ctx.font = "bold 52px Pretendard, sans-serif";
+          ctx.fillText("K.O.", W / 2, 820);
+
+          ctx.fillStyle = "#FACC15";
+          ctx.font = "bold 36px Pretendard, sans-serif";
+          ctx.fillText(`K.O. - [${winnerLabel}] 여론 우세!`, W / 2, 950);
+
+          ctx.fillStyle = "#E2E8F0";
+          ctx.font = "bold 24px Pretendard, sans-serif";
+          ctx.fillText(`최종 HP: ${labelA} ${finalHpA} vs ${labelB} ${finalHpB}`, W / 2, 1055);
+          ctx.textBaseline = "alphabetic";
+          ctx.textAlign = "left";
+        }
       };
 
-      // Render loop locked strictly to WebAudio / Perf timeline (at ~30fps cadence)
       await new Promise((resLoop) => {
         let lastFrameAt = -999;
         const tick = () => {
@@ -4062,28 +4195,73 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
     }
 
-    function playTurnChime(turnOrSpeaker) {
+    function playHitSfx(isFactionA = true, dmg = 22) {
       const toggle = document.getElementById("chimeToggle");
       if (toggle && !toggle.checked) return;
       try {
         const ctx = getOrResumeAudioContext();
         if (!ctx) return;
-        const cKey = (turnOrSpeaker && typeof turnOrSpeaker === "object")
-          ? getTurnColorKey(turnOrSpeaker)
-          : (turnOrSpeaker === "CON" ? "red" : "blue");
-        const baseMap = { blue: 440, red: 587.33, violet: 523.25, emerald: 493.88, amber: 415.30 };
-        const baseFreq = baseMap[cKey] || 440;
+        const now = ctx.currentTime;
+        const intensity = Math.max(0.85, Math.min(1.25, (Number(dmg) || 22) / 24));
+
+        // 8-bit square wave punch sweep (no external MP3)
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.25, ctx.currentTime + 0.14);
-        gain.gain.setValueAtTime(0.05, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+        osc.type = "square";
+        const startFreq = (isFactionA ? 245 : 210) * intensity;
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(44, now + 0.16);
+        gain.gain.setValueAtTime(0.13, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.19);
+        osc.start(now);
+        osc.stop(now + 0.18);
+
+        // Short 8-bit white-noise impact transient
+        const nLen = Math.floor(ctx.sampleRate * 0.11);
+        const nBuf = ctx.createBuffer(1, nLen, ctx.sampleRate);
+        const ch = nBuf.getChannelData(0);
+        for (let i = 0; i < nLen; i++) {
+          ch[i] = (Math.random() * 2 - 1) * Math.exp(-i / (nLen * 0.3));
+        }
+        const nSrc = ctx.createBufferSource();
+        nSrc.buffer = nBuf;
+        const bp = ctx.createBiquadFilter();
+        bp.type = "bandpass";
+        bp.frequency.setValueAtTime(isFactionA ? 1050 : 880, now);
+        bp.Q.setValueAtTime(1.2, now);
+        const nGain = ctx.createGain();
+        nGain.gain.setValueAtTime(0.11, now);
+        nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+        nSrc.connect(bp);
+        bp.connect(nGain);
+        nGain.connect(ctx.destination);
+        nSrc.start(now);
+      } catch (e) {}
+    }
+
+    function playKoSfx() {
+      const toggle = document.getElementById("chimeToggle");
+      if (toggle && !toggle.checked) return;
+      try {
+        const ctx = getOrResumeAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, i) => {
+          const t0 = now + i * 0.085;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "square";
+          osc.frequency.setValueAtTime(freq, t0);
+          gain.gain.setValueAtTime(0.09, t0);
+          gain.gain.exponentialRampToValueAtTime(0.001, t0 + (i === notes.length - 1 ? 0.34 : 0.14));
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + (i === notes.length - 1 ? 0.35 : 0.15));
+        });
       } catch (e) {}
     }
 
@@ -4109,25 +4287,20 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       currentData = data;
       const stats = data.raw_stats;
       const persps = resolvePerspectives(data);
-      const modeLabel = data.mode_label || (persps.length >= 3 ? `${persps.length}관점 여론 비교` : "찬반 공론장 중재");
-      const totSec = Math.round(getTotalDurationSec());
+      const { labelA, labelB } = getFactionLabels(data);
+      const modeLabel = data.mode_label || "동적 진영 HP 팩트 배틀";
+      const turns = data.debate_script || [];
 
       const filterRate = ((stats.filtered_curse_count / Math.max(stats.total_comments, 1)) * 100).toFixed(1);
       const logicIndex = (100 - stats.toxicity_after).toFixed(1);
       const delta = (stats.toxicity_after - stats.toxicity_before).toFixed(1);
-      const perspSummary = persps.map((p) => `${p.short_label} ${p.ratio}%`).join(" · ");
+      const perspSummary = persps.map((p) => `${p.short_label} ${p.ratio}%`).join(" vs ");
 
-      if (persps.length >= 3) {
-        document.getElementById("publishTitleInput").value = `[다관점 요약] ${data.issue_title.slice(0, 52)} #쇼츠`;
-        document.getElementById("publishDescInput").value =
-          `실제 댓글 ${stats.total_comments}건을 분석해 과열·비속어를 걸러내고 ${persps.length}개 핵심 시각(${perspSummary})으로 입체 정리한 ${totSec}초 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#한냥 #다관점쇼츠 #여론분석 #쇼츠"}`;
-      } else {
-        document.getElementById("publishTitleInput").value = `[AI 공론장 토론] ${data.issue_title.slice(0, 52)} #쇼츠`;
-        document.getElementById("publishDescInput").value =
-          `유튜브 실제 댓글 ${stats.total_comments}건을 분석해 비속어를 제거하고 양측 핵심 논거(${perspSummary})를 균형 있게 정리한 ${totSec}초 토론 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#한냥 #공론장중재 #핵심토론 #쇼츠"}`;
-      }
+      document.getElementById("publishTitleInput").value = `[HP 팩트 배틀] ${labelA} vs ${labelB} — ${data.issue_title.slice(0, 38)} #쇼츠`;
+      document.getElementById("publishDescInput").value =
+        `유튜브·실댓글 ${stats.total_comments}건을 분석해 과열·비속어를 걸러내고 상위 2대 대립 진영(${perspSummary})으로 압축한 ${turns.length}턴 HP 팩트 배틀 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#한냥 #팩트배틀 #HP배틀 #쇼츠"}`;
       document.getElementById("miniSummaryStats").textContent =
-        `${modeLabel} · 댓글 ${stats.total_comments}건 중 과열 ${stats.filtered_curse_count}건(${filterRate}%) 정제`;
+        `${labelA} vs ${labelB} · 댓글 ${stats.total_comments}건 중 과열 ${stats.filtered_curse_count}건(${filterRate}%) 정제`;
 
       const radarModeEl = document.getElementById("studioTopicModeBadge");
       if (radarModeEl) radarModeEl.textContent = modeLabel;
@@ -4181,13 +4354,15 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
       const legendEl = document.getElementById("analyticsPerspectivesLegend");
       if (legendEl) {
-        legendEl.innerHTML = persps.map((p) => {
+        legendEl.innerHTML = persps.map((p, idx) => {
           const pal = PALETTES[p.color] || PALETTES.blue;
           const kws = (p.keywords && p.keywords.length) ? `<span class="text-[11px] text-[#71717A] ml-1">(${escapeHtml(p.keywords.slice(0, 2).join(", "))})</span>` : "";
+          const fBadge = idx === 0 ? "A 진영" : "B 진영";
           return `
             <div class="flex items-center justify-between text-[12px]">
               <div class="flex items-center gap-1.5 min-w-0">
                 <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${pal.accent}"></span>
+                <span class="text-[10px] font-bold px-1 py-0.5 rounded bg-slate-100 text-slate-600 shrink-0">${fBadge}</span>
                 <span class="font-semibold text-[#111317] truncate">${escapeHtml(p.label)}</span>
                 ${kws}
               </div>
@@ -4198,9 +4373,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
       const stanceDescEl = document.getElementById("analyticsStanceDesc");
       if (stanceDescEl) {
-        stanceDescEl.textContent = persps.length >= 3
-          ? `찬반 이분법을 넘어 실제 댓글에서 도출된 ${persps.length}개 시각을 균형 있게 배분해 입체적인 쇼츠 대본을 생성합니다.`
-          : "편향된 원본 댓글 분포에서도 핵심 관점별 논거를 추출해 대본으로 균형을 맞춥니다.";
+        stanceDescEl.textContent = "고정된 찬반 프레임 없이 댓글창에서 가장 첨예하게 충돌하는 상위 2개 여론 진영(A 진영 vs B 진영)을 동적으로 추출해 6턴 HP 배틀을 구성합니다.";
       }
 
       document.getElementById("barToxBeforeLabel").textContent = `${stats.toxicity_before.toFixed(1)} / 100`;
@@ -4213,9 +4386,10 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const detoxContainer = document.getElementById("detoxSamplesList");
       detoxContainer.innerHTML = "";
       (data.detox_samples || []).forEach((item) => {
-        const ck = (item.color && PALETTES[item.color]) ? item.color : (item.side === "CON" ? "red" : "blue");
+        const isB = item.faction === "B" || item.color === "red" || item.side === "CON";
+        const ck = (item.color && PALETTES[item.color]) ? item.color : (isB ? "red" : "blue");
         const pal = PALETTES[ck] || PALETTES.blue;
-        const lbl = item.perspective_label || (item.side === "PRO" ? "핵심 공감" : "신중·비판");
+        const lbl = item.faction_label || item.perspective_label || (isB ? labelB : labelA);
         const box = document.createElement("div");
         box.className = "studio-subpanel p-3.5";
         const tokensHtml = (item.removed_tokens || [])
@@ -4236,11 +4410,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
       document.getElementById("jsonSchemaPreview").textContent = JSON.stringify({
         issue_title: data.issue_title,
-        analysis_mode: data.analysis_mode || "multi",
+        analysis_mode: data.analysis_mode || "faction_battle",
         mode_label: modeLabel,
-        perspectives: persps,
+        side_a_label: labelA,
+        side_b_label: labelB,
+        side_a_ratio: persps[0]?.ratio ?? stats.side_a_ratio ?? 50,
+        side_b_ratio: persps[1]?.ratio ?? stats.side_b_ratio ?? 50,
         raw_stats: data.raw_stats,
-        debate_script: data.debate_script
+        debate_script: turns
       }, null, 2);
 
       document.getElementById("shortsIssueTitle").textContent = data.issue_title;
@@ -4251,23 +4428,16 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const legendRow = document.getElementById("shortsLegendRow");
       const ratioBar = document.getElementById("shortsRatioBar");
       const footLbl = document.getElementById("shortsModeFootLabel");
-      if (footLbl) footLbl.textContent = "한냥 Studio";
+      if (footLbl) footLbl.textContent = "한냥 HP 배틀";
 
       if (legendRow) {
-        if (persps.length <= 2) {
-          const p0 = persps[0];
-          const p1 = persps[1] || { short_label: "대안", ratio: Math.max(1, 100 - p0.ratio), color: "red" };
-          legendRow.innerHTML = `
-            <span class="mono-num truncate" style="color:${(PALETTES[p0.color] || PALETTES.blue).barTxt}">${escapeHtml(p0.short_label)} ${p0.ratio}%</span>
-            <span class="text-[#A1A1AA] shrink-0">${escapeHtml(modeLabel)}</span>
-            <span class="mono-num truncate" style="color:${(PALETTES[p1.color] || PALETTES.red).barTxt}">${escapeHtml(p1.short_label)} ${p1.ratio}%</span>
-          `;
-        } else {
-          legendRow.innerHTML = persps.map((p) => {
-            const pal = PALETTES[p.color] || PALETTES.blue;
-            return `<span class="mono-num truncate" style="color:${pal.barTxt}">${escapeHtml(p.short_label)} ${p.ratio}%</span>`;
-          }).join("");
-        }
+        const p0 = persps[0] || { short_label: labelA, ratio: 50, color: "blue" };
+        const p1 = persps[1] || { short_label: labelB, ratio: 50, color: "red" };
+        legendRow.innerHTML = `
+          <span class="mono-num truncate" style="color:${PALETTES.blue.barTxt}">${escapeHtml(p0.short_label)} ${p0.ratio}%</span>
+          <span class="text-[#A1A1AA] shrink-0">공감 비중</span>
+          <span class="mono-num truncate" style="color:${PALETTES.red.barTxt}">${escapeHtml(p1.short_label)} ${p1.ratio}%</span>
+        `;
       }
       if (ratioBar) {
         ratioBar.innerHTML = persps.map((p) => {
@@ -4275,6 +4445,16 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           return `<div class="h-full rounded-full transition-all duration-300" style="width:${p.ratio}%;background:${pal.accent}"></div>`;
         }).join("");
       }
+
+      const hpLblA = document.getElementById("hpLabelA");
+      const hpLblB = document.getElementById("hpLabelB");
+      const fTagA = document.getElementById("fighterTagA");
+      const fTagB = document.getElementById("fighterTagB");
+      if (hpLblA) hpLblA.textContent = labelA;
+      if (hpLblB) hpLblB.textContent = labelB;
+      if (fTagA) fTagA.textContent = labelA;
+      if (fTagB) fTagB.textContent = labelB;
+      document.getElementById("koOverlay")?.classList.add("hidden");
 
       const videoEl = document.getElementById("realMp4Player");
       if (videoEl) {
@@ -4310,10 +4490,10 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     function renderScriptList() {
       const scriptContainer = document.getElementById("debateScriptList");
       const turns = currentData.debate_script || [];
-      const persps = resolvePerspectives(currentData);
+      const { labelA, labelB } = getFactionLabels(currentData);
       const headingEl = document.getElementById("scriptEditorHeading");
       const addBtn = document.getElementById("addTurnBtn");
-      if (headingEl) headingEl.textContent = `스튜디오 대본 (${turns.length}턴)`;
+      if (headingEl) headingEl.textContent = `팩트 배틀 대본 (${turns.length}턴)`;
       if (addBtn) {
         addBtn.disabled = turns.length >= 8;
         addBtn.classList.toggle("opacity-40", turns.length >= 8);
@@ -4323,20 +4503,13 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const { durs, starts } = getTurnTimeline();
 
       turns.forEach((turn, idx) => {
-        const isPro = turn.speaker === "PRO";
-        const cKey = getTurnColorKey(turn);
-        const pal = PALETTES[cKey] || PALETTES.blue;
+        const isA = getTurnFaction(turn, idx) === "A";
+        const cKey = isA ? "blue" : "red";
+        const pal = PALETTES[cKey];
         const sTime = starts[idx] || 0;
-        const eTime = sTime + (durs[idx] || 6);
-        const curPid = turn.perspective_id || persps[0]?.id || "P1";
-
-        const optsList = persps.some((p) => p.id === curPid)
-          ? persps
-          : [...persps, { id: curPid, short_label: turn.perspective_label || "사용자 지정", color: cKey }];
-
-        const selectOpts = optsList.map((p) =>
-          `<option value="${escapeHtml(p.id)}" ${p.id === curPid ? "selected" : ""}>${escapeHtml(p.short_label)}</option>`
-        ).join("");
+        const eTime = sTime + (durs[idx] || 5);
+        const dmg = getTurnDamage(turn);
+        const fLabel = isA ? labelA : labelB;
 
         const card = document.createElement("div");
         card.id = `scriptTurnItem_${idx}`;
@@ -4348,24 +4521,31 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               <button
                 type="button"
                 onclick="setPlayerMode('interactive');startShortsPlayback(${idx})"
-                title="턴 ${idx + 1}부터 미리보기 재생"
+                title="라운드 ${idx + 1}부터 배틀 재생"
                 class="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-[11px] font-bold mono-num text-slate-700 hover:border-slate-400 hover:text-slate-900 shrink-0 transition"
-              >${String(idx + 1).padStart(2, "0")} ▶</button>
-              <select
-                aria-label="관점 선택"
-                onchange="changeTurnPerspective(${idx}, this.value)"
-                style="background:${pal.pillBg};color:${pal.txt}"
-                class="px-2 py-0.5 text-[11px] font-bold rounded-md outline-none cursor-pointer shrink-0 border border-transparent hover:border-slate-900/15"
-              >${selectOpts}</select>
-              <span id="scriptTurnTime_${idx}" class="text-[11px] text-slate-400 mono-num shrink-0">${formatMinSec(sTime)}–${formatMinSec(eTime)}</span>
-            </div>
-            <div class="row-tools flex items-center gap-1 shrink-0">
+              >R${idx + 1} ▶</button>
               <button
                 type="button"
-                onclick="toggleTurnSide(${idx})"
-                title="좌/우 진행자 좌석 전환"
-                class="px-1.5 py-0.5 text-[10.5px] font-semibold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 shrink-0 transition"
-              >${isPro ? "좌측 L" : "우측 R"}</button>
+                onclick="toggleTurnFaction(${idx})"
+                title="클릭하여 A/B 진영 전환"
+                style="background:${pal.pillBg};color:${pal.txt}"
+                class="px-2 py-0.5 text-[11px] font-bold rounded-md cursor-pointer truncate max-w-[165px] border border-transparent hover:border-slate-900/15 transition"
+              >${isA ? "A" : "B"}: ${escapeHtml(fLabel)}</button>
+              <span id="scriptTurnTime_${idx}" class="text-[11px] text-slate-400 mono-num shrink-0 hidden sm:inline">${formatMinSec(sTime)}–${formatMinSec(eTime)}</span>
+            </div>
+            <div class="row-tools flex items-center gap-1 shrink-0">
+              <label class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-red-50 border border-red-200 text-[10.5px] font-bold text-red-700 mono-num" title="타격 데미지 (15~35 HP)">
+                <span>-</span>
+                <input
+                  type="number"
+                  min="15"
+                  max="35"
+                  value="${dmg}"
+                  onchange="updateTurnDamage(${idx}, this.value)"
+                  class="w-7 bg-transparent text-center font-extrabold outline-none mono-num"
+                />
+                <span>HP</span>
+              </label>
               <button type="button" onclick="moveScriptTurn(${idx}, -1)" ${idx === 0 ? "disabled" : ""} title="위로 이동" class="w-6 h-6 rounded-md hover:bg-slate-100 text-[11px] text-slate-500 hover:text-slate-900 disabled:opacity-30 flex items-center justify-center transition">↑</button>
               <button type="button" onclick="moveScriptTurn(${idx}, 1)" ${idx === turns.length - 1 ? "disabled" : ""} title="아래로 이동" class="w-6 h-6 rounded-md hover:bg-slate-100 text-[11px] text-slate-500 hover:text-slate-900 disabled:opacity-30 flex items-center justify-center transition">↓</button>
               <button type="button" onclick="deleteScriptTurn(${idx})" ${turns.length <= 2 ? "disabled" : ""} title="턴 삭제" class="w-6 h-6 rounded-md hover:bg-red-50 text-[12px] font-bold text-slate-400 hover:text-red-600 disabled:opacity-25 flex items-center justify-center transition">×</button>
@@ -4404,7 +4584,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const clauseWordArrs = clauses.map((c) => c.trim().split(/\s+/).filter(Boolean));
 
       if (typeof progressOrState === "number" && progressOrState >= 1) {
-        if (clBadge) clBadge.textContent = clauses.length > 1 ? `논지 1/${clauses.length}` : "핵심 논지";
+        if (clBadge) clBadge.textContent = clauses.length > 1 ? `논지 1/${clauses.length}` : "핵심 팩폭";
         el.textContent = clauses[0] || text;
         return;
       }
@@ -4434,7 +4614,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         }
       }
 
-      if (clBadge) clBadge.textContent = clauses.length > 1 ? `논지 ${activeClauseIdx + 1}/${clauses.length}` : "핵심 논지";
+      if (clBadge) clBadge.textContent = clauses.length > 1 ? `논지 ${activeClauseIdx + 1}/${clauses.length}` : "핵심 팩폭";
       const words = clauseWordArrs[activeClauseIdx] || [""];
       if (localActiveIdx < 0) {
         el.textContent = words.join(" ");
@@ -4468,37 +4648,36 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const { durs, starts } = getTurnTimeline();
       turns.forEach((_, ti) => {
         const tEl = document.getElementById(`scriptTurnTime_${ti}`);
-        if (tEl) tEl.textContent = `${formatMinSec(starts[ti] || 0)}–${formatMinSec((starts[ti] || 0) + (durs[ti] || 6))}`;
+        if (tEl) tEl.textContent = `${formatMinSec(starts[ti] || 0)}–${formatMinSec((starts[ti] || 0) + (durs[ti] || 5))}`;
       });
       updateIdleTimerDisplay();
       if (idx === currentTurnIndex) {
-        renderKineticSubtitle(turns[idx].text, getTurnColorKey(turns[idx]), 1);
+        renderKineticSubtitle(turns[idx].text, getTurnColorKey(turns[idx], idx), 1);
       }
     }
 
-    function changeTurnPerspective(idx, perspId) {
+    function toggleTurnFaction(idx) {
       const turns = currentData.debate_script || [];
       if (!turns[idx]) return;
-      const persps = resolvePerspectives(currentData);
-      const found = persps.find((p) => p.id === perspId);
-      if (!found) return;
-      turns[idx].perspective_id = found.id;
-      turns[idx].perspective_label = found.short_label;
-      turns[idx].color = found.color;
-      invalidateScriptMediaCache(null);
-      renderScriptList();
-      updateShortsTurnVisual(currentTurnIndex, isPlaying);
-      showToast(`턴 ${idx + 1} 관점: ${found.short_label}`);
-    }
-
-    function toggleTurnSide(idx) {
-      const turns = currentData.debate_script || [];
-      if (!turns[idx]) return;
-      turns[idx].speaker = turns[idx].speaker === "PRO" ? "CON" : "PRO";
+      const curF = getTurnFaction(turns[idx], idx);
+      const nextF = curF === "A" ? "B" : "A";
+      turns[idx].faction = nextF;
+      const { labelA, labelB } = getFactionLabels(currentData);
       invalidateScriptMediaCache(idx);
       renderScriptList();
       updateShortsTurnVisual(currentTurnIndex, isPlaying);
-      showToast(`턴 ${idx + 1} 화자: ${turns[idx].speaker === "PRO" ? "좌측 진행자" : "우측 진행자"}`);
+      showToast(`R${idx + 1} 진영: ${nextF === "A" ? labelA : labelB}`);
+    }
+
+    function updateTurnDamage(idx, rawVal) {
+      const turns = currentData.debate_script || [];
+      if (!turns[idx]) return;
+      const clamped = clampDamage(rawVal, 50, idx);
+      turns[idx].damage = clamped;
+      invalidateScriptMediaCache(null);
+      renderScriptList();
+      updateShortsTurnVisual(currentTurnIndex, isPlaying);
+      showToast(`R${idx + 1} 타격 데미지: -${clamped} HP`);
     }
 
     function moveScriptTurn(idx, delta) {
@@ -4524,23 +4703,21 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         return;
       }
       if (isPlaying) stopShortsPlayback(false);
-      const persps = resolvePerspectives(currentData);
+      const { labelA, labelB } = getFactionLabels(currentData);
       const last = turns[turns.length - 1];
-      const nextSpeaker = (last && last.speaker === "PRO") ? "CON" : "PRO";
-      const nextPersp = persps[turns.length % persps.length];
+      const nextF = (last && getTurnFaction(last, turns.length - 1) === "A") ? "B" : "A";
+      const nextLabel = nextF === "A" ? labelA : labelB;
       turns.push({
-        speaker: nextSpeaker,
-        perspective_id: nextPersp.id,
-        perspective_label: nextPersp.short_label,
-        color: nextPersp.color,
-        core_point: `${nextPersp.short_label} 보충 논점`,
-        text: `${nextPersp.label} 측면에서 추가로 살펴볼 핵심 사례를 정리해 말씀드립니다. 다양한 시청자 의견이 이어지고 있습니다.`
+        faction: nextF,
+        core_point: `${nextLabel} 추가 팩폭`,
+        text: `실제 댓글 반응만 따져봐도 ${nextLabel} 주장이 핵심 쟁점을 정확히 짚은 거 아니냐!`,
+        damage: 22
       });
       invalidateScriptMediaCache(null);
       renderScriptList();
       updateIdleTimerDisplay();
       updateShortsTurnVisual(turns.length - 1, false);
-      showToast(`턴 ${turns.length} 추가됨`);
+      showToast(`라운드 ${turns.length} 추가됨`);
     }
 
     function deleteScriptTurn(idx) {
@@ -4556,7 +4733,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       renderScriptList();
       updateIdleTimerDisplay();
       updateShortsTurnVisual(nextIdx, false);
-      showToast("선택한 턴 삭제됨");
+      showToast("선택한 라운드 삭제됨");
     }
 
     function jumpToTurn(idx) {
@@ -4567,11 +4744,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if (isPlaying) {
         startShortsPlayback(target);
       } else {
-        const { starts, total } = getTurnTimeline();
-        const progBar = document.getElementById("shortsProgressBar");
-        const timerEl = document.getElementById("shortsTimerDisplay");
-        if (progBar) progBar.style.width = `${((starts[target] || 0) / Math.max(total, 0.1) * 100).toFixed(1)}%`;
-        if (timerEl) timerEl.textContent = `${formatMinSec(starts[target] || 0)} / ${formatMinSec(total)}`;
         updateShortsTurnVisual(target, false);
       }
     }
@@ -4583,44 +4755,103 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       jumpToTurn(target);
     }
 
+    function clearHitAnimations() {
+      if (hitAnimTimeout) { clearTimeout(hitAnimTimeout); hitAnimTimeout = null; }
+      ["fighterSlotA", "fighterSlotB"].forEach((id) => document.getElementById(id)?.classList.remove("fighter-hit-shake"));
+      ["hitFlashA", "hitFlashB", "dmgPopA", "dmgPopB"].forEach((id) => document.getElementById(id)?.classList.remove("active"));
+    }
+
     function updateShortsTurnVisual(turnIdx, speakingActive) {
       const turns = currentData.debate_script || [];
       if (!turns.length) return;
       const safeIdx = Math.max(0, Math.min(turns.length - 1, turnIdx));
       currentTurnIndex = safeIdx;
       const turn = turns[safeIdx] || turns[0];
-      const isPro = turn.speaker === "PRO";
-      const cKey = getTurnColorKey(turn);
-      const pal = PALETTES[cKey] || PALETTES.blue;
+      const isA = getTurnFaction(turn, safeIdx) === "A";
+      const cKey = isA ? "blue" : "red";
+      const pal = PALETTES[cKey];
+      const dmg = getTurnDamage(turn);
+      const { labelA, labelB } = getFactionLabels(currentData);
+      const lblText = isA ? labelA : labelB;
 
-      const progBar = document.getElementById("shortsProgressBar");
-      if (progBar) progBar.style.backgroundColor = pal.accent;
+      document.getElementById("koOverlay")?.classList.add("hidden");
+
+      const roundBadge = document.getElementById("shortsRoundBadge");
+      if (roundBadge) roundBadge.textContent = `ROUND ${safeIdx + 1}/${turns.length}`;
+      const dmgBadge = document.getElementById("shortsDamageBadge");
+      if (dmgBadge) dmgBadge.textContent = `-${dmg} DMG`;
+
+      const { hpA, hpB } = (!speakingActive && safeIdx === 0)
+        ? { hpA: 100, hpB: 100 }
+        : computeHpStateUpTo(turns, safeIdx);
+
+      const hpLblA = document.getElementById("hpLabelA");
+      const hpLblB = document.getElementById("hpLabelB");
+      const fTagA = document.getElementById("fighterTagA");
+      const fTagB = document.getElementById("fighterTagB");
+      if (hpLblA) hpLblA.textContent = labelA;
+      if (hpLblB) hpLblB.textContent = labelB;
+      if (fTagA) fTagA.textContent = labelA;
+      if (fTagB) fTagB.textContent = labelB;
+
+      const hpValAEl = document.getElementById("hpValA");
+      const hpValBEl = document.getElementById("hpValB");
+      const hpBarAEl = document.getElementById("hpBarA");
+      const hpBarBEl = document.getElementById("hpBarB");
+      if (hpValAEl) hpValAEl.textContent = String(hpA);
+      if (hpValBEl) hpValBEl.textContent = String(hpB);
+      if (hpBarAEl) hpBarAEl.style.width = `${hpA}%`;
+      if (hpBarBEl) hpBarBEl.style.width = `${hpB}%`;
 
       const spotlight = document.getElementById("stageSpotlight");
       if (spotlight) {
-        spotlight.classList.toggle("con-mode", !isPro);
-        spotlight.style.background = `radial-gradient(circle at ${isPro ? "23%" : "77%"} 56%, ${pal.spotlight0}, ${pal.spotlight1} 40%, transparent 66%)`;
+        spotlight.classList.toggle("con-mode", !isA);
+        spotlight.style.background = `radial-gradient(circle at ${isA ? "23%" : "77%"} 56%, ${pal.spotlight0}, ${pal.spotlight1} 40%, transparent 66%)`;
       }
 
-      document.getElementById("shortsTurnCounter").textContent = `${safeIdx + 1} / ${turns.length}`;
-      document.getElementById("avatarCardPro").classList.toggle("speaking", isPro);
-      document.getElementById("avatarCardCon").classList.toggle("speaking", !isPro);
+      document.getElementById("avatarCardPro")?.classList.toggle("speaking", isA);
+      document.getElementById("avatarCardCon")?.classList.toggle("speaking", !isA);
+
+      clearHitAnimations();
+      if (speakingActive || safeIdx > 0) {
+        const defSlot = document.getElementById(isA ? "fighterSlotB" : "fighterSlotA");
+        const defFlash = document.getElementById(isA ? "hitFlashB" : "hitFlashA");
+        const defPop = document.getElementById(isA ? "dmgPopB" : "dmgPopA");
+        if (defPop) defPop.textContent = `-${dmg} HP (공감 팩폭!)`;
+        if (defSlot) {
+          void defSlot.offsetWidth;
+          defSlot.classList.add("fighter-hit-shake");
+        }
+        if (defFlash) {
+          void defFlash.offsetWidth;
+          defFlash.classList.add("active");
+        }
+        if (defPop) {
+          void defPop.offsetWidth;
+          defPop.classList.add("active");
+        }
+        hitAnimTimeout = setTimeout(() => clearHitAnimations(), 950);
+      }
 
       const bubble = document.getElementById("shortsSpeechBubble");
-      bubble.classList.toggle("con-mode", !isPro);
-      bubble.style.borderTopColor = pal.accent;
+      if (bubble) {
+        bubble.classList.toggle("con-mode", !isA);
+        bubble.style.borderTopColor = pal.accent;
+      }
 
       const eq = document.getElementById("shortsBubbleEq");
-      eq.classList.remove("eq-pro", "eq-con", "eq-blue", "eq-red", "eq-violet", "eq-emerald", "eq-amber");
-      if (speakingActive) eq.classList.add(`eq-${cKey}`);
+      if (eq) {
+        eq.classList.remove("eq-pro", "eq-con", "eq-blue", "eq-red", "eq-violet", "eq-emerald", "eq-amber");
+        if (speakingActive) eq.classList.add(`eq-${cKey}`);
+      }
 
       const badge = document.getElementById("shortsSpeakerBadge");
-      const sideNum = Math.floor(safeIdx / 2) + 1;
-      const lblText = (turn.perspective_label || "").trim() || (isPro ? `좌측 ${sideNum}` : `우측 ${sideNum}`);
-      badge.className = "text-[9.5px] font-extrabold px-2 py-[2px] rounded text-white truncate max-w-[140px]";
-      badge.style.backgroundColor = pal.accent;
-      badge.style.color = "#FFFFFF";
-      badge.textContent = isPro ? `◀ ${lblText}` : `${lblText} ▶`;
+      if (badge) {
+        badge.className = "text-[9.5px] font-extrabold px-2 py-[2px] rounded text-white truncate max-w-[155px]";
+        badge.style.backgroundColor = pal.accent;
+        badge.style.color = "#FFFFFF";
+        badge.textContent = `⚡ ${lblText}`;
+      }
 
       const coreBox = document.getElementById("shortsCoreBox");
       if (coreBox) {
@@ -4631,53 +4862,31 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if (coreTag) coreTag.style.backgroundColor = pal.accent;
 
       const coreEl = document.getElementById("shortsCorePoint");
-      coreEl.className = "text-[10px] font-bold leading-[1.22] line-clamp-1";
-      coreEl.style.color = pal.txt;
-      coreEl.textContent = turn.core_point;
-
-      let oppTurn = null;
-      for (let step = 1; step <= turns.length; step++) {
-        for (const ci of [safeIdx + step, safeIdx - step]) {
-          if (ci >= 0 && ci < turns.length && (turns[ci].speaker === "PRO") !== isPro) {
-            oppTurn = turns[ci];
-            break;
-          }
-        }
-        if (oppTurn) break;
+      if (coreEl) {
+        coreEl.className = "text-[10px] font-bold leading-[1.22] line-clamp-1";
+        coreEl.style.color = pal.txt;
+        coreEl.textContent = turn.core_point;
       }
-      const oppLbl = ((oppTurn && oppTurn.perspective_label) || "").trim() || (isPro ? "우측 패널" : "좌측 패널");
-      const renderDeskPlate = (elId, label, active) => {
-        const el = document.getElementById(elId);
-        if (!el) return;
-        if (active) {
-          el.className = "absolute -translate-x-1/2 pointer-events-none z-[25] inline-flex items-center gap-1 px-1.5 py-[2px] rounded-md bg-[#0A0E16]/95 border shadow-md max-w-[116px]";
-          el.style.borderColor = pal.accent;
-          el.innerHTML = `<span class="px-1 py-[1px] rounded text-white text-[7.5px] font-extrabold leading-none shrink-0" style="background:${pal.accent}">발언</span><span class="text-[8.5px] font-bold text-white truncate">${escapeHtml(label)}</span>`;
-        } else {
-          el.className = "absolute -translate-x-1/2 pointer-events-none z-[25] inline-flex items-center gap-1 px-2 py-[2px] rounded-md bg-[#0C1019]/85 border border-white/15 max-w-[108px]";
-          el.style.borderColor = "rgba(255,255,255,0.16)";
-          el.innerHTML = `<span class="text-[8.5px] font-semibold text-slate-300 truncate">${escapeHtml(label)}</span>`;
-        }
-      };
-      renderDeskPlate("deskPlatePro", isPro ? lblText : oppLbl, isPro);
-      renderDeskPlate("deskPlateCon", isPro ? oppLbl : lblText, !isPro);
 
       renderKineticSubtitle(turn.text, cKey, speakingActive ? { clauseIdx: 0, wordIdx: 0 } : 1);
 
-      document.getElementById("shortsTurnDots").innerHTML = turns
-        .map((t, i) => {
-          const tPal = PALETTES[getTurnColorKey(t)] || PALETTES.blue;
-          const isCur = i === safeIdx;
-          const wCls = isCur ? "w-4" : "w-1.5";
-          const bgStyle = isCur ? tPal.accent : (i < safeIdx ? "#A1A1AA" : "#3F3F46");
-          return `<button type="button" onclick="jumpToTurn(${i})" title="턴 ${i + 1}" class="${wCls} h-1.5 rounded-full transition-all cursor-pointer" style="background:${bgStyle}"></button>`;
-        })
-        .join("");
+      const dotsEl = document.getElementById("shortsTurnDots");
+      if (dotsEl) {
+        dotsEl.innerHTML = turns
+          .map((t, i) => {
+            const tPal = PALETTES[getTurnColorKey(t, i)] || PALETTES.blue;
+            const isCur = i === safeIdx;
+            const wCls = isCur ? "w-4" : "w-1.5";
+            const bgStyle = isCur ? tPal.accent : (i < safeIdx ? "#A1A1AA" : "#3F3F46");
+            return `<button type="button" onclick="jumpToTurn(${i})" title="라운드 ${i + 1}" class="${wCls} h-1.5 rounded-full transition-all cursor-pointer" style="background:${bgStyle}"></button>`;
+          })
+          .join("");
+      }
 
       turns.forEach((t, i) => {
         const el = document.getElementById(`scriptTurnItem_${i}`);
         if (!el) return;
-        const ck = getTurnColorKey(t);
+        const ck = getTurnColorKey(t, i);
         const tPal = PALETTES[ck] || PALETTES.blue;
         el.classList.remove("active-pro", "active-con", "active-blue", "active-red", "active-violet", "active-emerald", "active-amber");
         if (i === safeIdx) {
@@ -4707,12 +4916,13 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const turns = currentData.debate_script || [];
       if (!turns.length) return;
 
+      document.getElementById("koOverlay")?.classList.add("hidden");
       isPlaying = true;
       currentTurnIndex = startIdx;
       const mySession = ++playSessionToken;
 
-      document.getElementById("playBtnLabel").textContent = "일시정지";
-      const engineMode = document.getElementById("voiceEngineSelect")?.value || "auto";
+      document.getElementById("playBtnLabel").textContent = "배틀 일시정지";
+      const engineMode = document.getElementById("voiceEngineSelect")?.value || "browser";
       let resolvedEngine = engineMode;
 
       if (engineMode !== "browser" && !cloudTtsDisabled) {
@@ -4760,15 +4970,16 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
       currentTurnIndex = turnIdx;
       const turn = turns[turnIdx];
-      const cKey = getTurnColorKey(turn);
+      const isA = getTurnFaction(turn, turnIdx) === "A";
+      const dmg = getTurnDamage(turn);
+      const cKey = isA ? "blue" : "red";
 
-      playTurnChime(turn);
+      playHitSfx(isA, dmg);
       updateShortsTurnVisual(turnIdx, true);
 
-      // Tier 1 / 2: All-Turn Pre-Synthesized Cloud Neural2 or Gemini 3.8 Korean WAV (RMS Envelope Synced)
       if (resolvedEngine !== "browser") {
         let voiceItem = currentData._ttsAudioCache && currentData._ttsAudioCache[turnIdx];
-        if (voiceItem && voiceItem.b64 && voiceItem.key === `${turn.speaker}:${turn.text}`) {
+        if (voiceItem && voiceItem.b64 && voiceItem.key === `${getTurnFaction(turn, turnIdx)}:${turn.text}`) {
           try {
             if (!currentData._turnAudioMeta || !currentData._turnAudioMeta[turnIdx]) {
               await cacheAndAnalyzeTurnVoice(turnIdx, turn, voiceItem);
@@ -4778,7 +4989,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
             currentHtmlAudioUrl = wavUrl;
             currentHtmlAudio = new Audio(wavUrl);
             currentHtmlAudio.playbackRate = playbackRate;
-            document.getElementById("ttsStatusLabel").textContent = voiceItem.engine || "AI 보이스";
+            document.getElementById("ttsStatusLabel").textContent = `${voiceItem.engine || "AI 보이스"} · ${playbackRate}x`;
 
             const clauses = splitTurnIntoClauses(turn.text);
             const clauseWordTimelines = clauses.map((c) => buildWeightedWordTimeline(c.trim().split(/\s+/).filter(Boolean)));
@@ -4797,7 +5008,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               turnTimeout = setTimeout(() => {
                 if (turnIdx + 1 < turns.length) speakTurn(turnIdx + 1, mySession, resolvedEngine);
                 else stopShortsPlayback(true);
-              }, 250);
+              }, 300);
             };
 
             currentHtmlAudio.onplaying = () => {
@@ -4813,7 +5024,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
             };
 
             await currentHtmlAudio.play();
-            const { durs, starts } = getTurnTimeline();
+            const { durs } = getTurnTimeline();
             const expectedRealDur = (
               (currentHtmlAudio.duration && isFinite(currentHtmlAudio.duration) ? currentHtmlAudio.duration : null)
               || (currentData._turnAudioDur && currentData._turnAudioDur[turnIdx])
@@ -4829,13 +5040,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
               const rawDur = (isFinite(ad.duration) && ad.duration > 0.3) ? ad.duration : expectedRealDur * playbackRate;
               const cur = ad.currentTime || 0;
-              const localSec = cur / playbackRate;
-              const { starts: curStarts, total: curTotal } = getTurnTimeline();
-              const gSec = Math.min(curTotal, (curStarts[turnIdx] ?? starts[turnIdx] ?? 0) + localSec);
-              const pct = Math.min(100, (gSec / Math.max(curTotal, 0.1)) * 100);
-              document.getElementById("shortsProgressBar").style.width = `${pct.toFixed(1)}%`;
-              document.getElementById("shortsTimerDisplay").textContent = `${formatMinSec(gSec)} / ${formatMinSec(curTotal)}`;
-
               const syncPos = resolveClauseAndWordFromAudioSec(cur, clauses, clauseWordTimelines, audioMeta, cur / Math.max(rawDur, 0.2));
               const sig = `${syncPos.clauseIdx}:${syncPos.wordIdx}`;
               if (sig !== lastSig) {
@@ -4852,7 +5056,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         }
       }
 
-      // Tier 3: Per-Clause Event-Locked Standard Korean Web Speech API (Natural Pitch = 1.0, Exact Clause/Word Lock)
       speakClause(turnIdx, 0, 0, mySession, "browser");
     }
 
@@ -4872,8 +5075,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
       if (turnTimeout) { clearTimeout(turnTimeout); turnTimeout = null; }
 
-      const isPro = turn.speaker === "PRO";
-      const cKey = getTurnColorKey(turn);
+      const isA = getTurnFaction(turn, turnIdx) === "A";
+      const cKey = isA ? "blue" : "red";
       const clauseRaw = clauses[clauseIdx];
       const visualWords = clauseRaw.trim().split(/\s+/).filter(Boolean);
       const wordTimeline = buildWeightedWordTimeline(visualWords);
@@ -4881,13 +5084,10 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const spokenChars = Math.max(1, spokenText.replace(/\s+/g, "").length);
       const estClauseSec = estimateClauseDurationSec(clauseRaw, playbackRate);
       const { pro, con, label } = pickBestKoreanVoices();
-      const chosenVoice = isPro ? pro : con;
+      const chosenVoice = isA ? pro : con;
 
-      if (!document.getElementById("ttsStatusLabel").textContent.includes("할당량") && !document.getElementById("ttsStatusLabel").textContent.includes("미응답")) {
-        document.getElementById("ttsStatusLabel").textContent = `표준 한국어 · ${label}`;
-      }
+      document.getElementById("ttsStatusLabel").textContent = `R${turnIdx + 1}/${turns.length} · ${playbackRate}x (${label})`;
 
-      // Hold subtitle on clause start word 0 until utter.onstart confirms audio has begun
       renderKineticSubtitle(turn.text, cKey, { clauseIdx, wordIdx: 0 });
 
       let audioStarted = false;
@@ -4900,13 +5100,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         if (!isPlaying || mySession !== playSessionToken) return;
         if (!audioStarted) return;
         const clauseLocalSec = Math.max(0, (performance.now() - startPerf) / 1000);
-        const { starts, total } = getTurnTimeline();
-        const gSec = Math.min(total, (starts[turnIdx] || 0) + priorClausesSec + clauseLocalSec);
-        const pct = Math.min(100, (gSec / Math.max(total, 0.1)) * 100);
-        document.getElementById("shortsProgressBar").style.width = `${pct.toFixed(1)}%`;
-        document.getElementById("shortsTimerDisplay").textContent = `${formatMinSec(gSec)} / ${formatMinSec(total)}`;
-
-        const estWordIdx = wordIdxForRatio(wordTimeline, clauseLocalSec / Math.max(estClauseSec - 0.12, 0.6));
+        const estWordIdx = wordIdxForRatio(wordTimeline, clauseLocalSec / Math.max(estClauseSec - 0.12, 0.5));
         const wIdx = (boundaryWordHits >= 2 || boundaryWordIdx > 0) ? boundaryWordIdx : estWordIdx;
         if (wIdx !== lastRenderedWord) {
           lastRenderedWord = wIdx;
@@ -4928,7 +5122,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
         renderKineticSubtitle(turn.text, cKey, { clauseIdx, wordIdx: Math.max(0, visualWords.length - 1) });
         const isLastClause = clauseIdx + 1 >= clauses.length;
-        const nextDelay = isLastClause ? 250 : 120;
+        const nextDelay = isLastClause ? 300 : 120;
         const nextPriorSec = priorClausesSec + (audioStarted ? realElapsedSec : estClauseSec);
 
         turnTimeout = setTimeout(() => {
@@ -4950,7 +5144,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           if (chosenVoice) utter.voice = chosenVoice;
           utter.lang = "ko-KR";
           utter.pitch = 1.0;
-          utter.rate = 1.0 * playbackRate;
+          utter.rate = playbackRate;
 
           let settled = false;
           const settle = (fromEnd) => {
@@ -4965,7 +5159,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
               audioStarted = true;
               startPerf = performance.now();
             }
-          }, 2400);
+          }, 1800);
 
           utter.onstart = () => {
             clearTimeout(startGuard);
@@ -4988,7 +5182,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           utter.onend = () => { clearTimeout(startGuard); settle(true); };
           utter.onerror = () => { clearTimeout(startGuard); settle(false); };
 
-          turnTimeout = setTimeout(() => settle(false), Math.max((estClauseSec + 5.5) * 1000, 12000));
+          turnTimeout = setTimeout(() => settle(false), Math.max((estClauseSec + 4.5) * 1000, 9000));
           window.speechSynthesis.speak(utter);
           return;
         } catch (e) {}
@@ -5009,25 +5203,48 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       if ("speechSynthesis" in window) {
         try { window.speechSynthesis.cancel(); } catch (e) {}
       }
-      document.getElementById("shortsBubbleEq").classList.remove("eq-pro", "eq-con", "eq-blue", "eq-red", "eq-violet", "eq-emerald", "eq-amber");
-      document.getElementById("playBtnLabel").textContent = completed ? "다시 재생" : "재생";
+      document.getElementById("shortsBubbleEq")?.classList.remove("eq-pro", "eq-con", "eq-blue", "eq-red", "eq-violet", "eq-emerald", "eq-amber");
+      const playLbl = document.getElementById("playBtnLabel");
+      if (playLbl) playLbl.textContent = completed ? "다시 재생" : "배틀 재생";
 
-      const tot = getTotalDurationSec();
-      document.getElementById("ttsStatusLabel").textContent = completed ? `재생 완료 (${tot.toFixed(1)}s)` : `총 ${tot.toFixed(1)}s`;
+      const turns = currentData.debate_script || [];
+      const statusEl = document.getElementById("ttsStatusLabel");
+      if (statusEl) {
+        statusEl.textContent = completed ? `K.O. 판정 완료` : `${turns.length}턴 HP 배틀 · ${playbackRate}x`;
+      }
 
       if (!completed) {
         elapsedSec = 0;
-        document.getElementById("shortsProgressBar").style.width = "0%";
-        document.getElementById("shortsTimerDisplay").textContent = `0:00 / ${formatMinSec(tot)}`;
+        clearHitAnimations();
+        document.getElementById("koOverlay")?.classList.add("hidden");
         updateShortsTurnVisual(0, false);
       } else {
-        document.getElementById("shortsProgressBar").style.width = "100%";
-        document.getElementById("shortsTimerDisplay").textContent = `${formatMinSec(tot)} / ${formatMinSec(tot)}`;
-        const turns = currentData.debate_script || [];
+        const { labelA, labelB } = getFactionLabels(currentData);
+        const { hpA, hpB } = computeHpStateUpTo(turns, turns.length - 1);
+        const hpValAEl = document.getElementById("hpValA");
+        const hpValBEl = document.getElementById("hpValB");
+        const hpBarAEl = document.getElementById("hpBarA");
+        const hpBarBEl = document.getElementById("hpBarB");
+        if (hpValAEl) hpValAEl.textContent = String(hpA);
+        if (hpValBEl) hpValBEl.textContent = String(hpB);
+        if (hpBarAEl) hpBarAEl.style.width = `${hpA}%`;
+        if (hpBarBEl) hpBarBEl.style.width = `${hpB}%`;
+
         const finalTurn = turns[currentTurnIndex] || turns[turns.length - 1];
         if (finalTurn) {
-          renderKineticSubtitle(finalTurn.text, getTurnColorKey(finalTurn), 1);
+          renderKineticSubtitle(finalTurn.text, getTurnColorKey(finalTurn, turns.length - 1), 1);
         }
+
+        const winnerLabel = hpA > hpB
+          ? labelA
+          : (hpB > hpA ? labelB : (Number(currentData.side_a_ratio ?? 50) >= Number(currentData.side_b_ratio ?? 50) ? labelA : labelB));
+        const koOverlay = document.getElementById("koOverlay");
+        const koWinner = document.getElementById("koWinnerText");
+        const koScore = document.getElementById("koScoreLine");
+        if (koWinner) koWinner.textContent = `K.O. - [${winnerLabel}] 여론 우세!`;
+        if (koScore) koScore.textContent = `${labelA} ${hpA} HP vs ${labelB} ${hpB} HP`;
+        if (koOverlay) koOverlay.classList.remove("hidden");
+        playKoSfx();
       }
     }
 
@@ -5125,29 +5342,29 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       ctx.fillStyle = "#111317";
       ctx.fillRect(36, 30, 8, 44);
       ctx.font = "bold 21px Pretendard, sans-serif";
-      ctx.fillText("찬성(877회) vs 반대(510회) 6대 핵심 키워드 군집 빈도", 56, 52);
+      ctx.fillText("A 진영(주류 여론 1 · 877회) vs B 진영(대립 여론 2 · 510회) 6대 키워드 군집", 56, 52);
       ctx.fillStyle = "#71717A";
       ctx.font = "13.5px Pretendard, sans-serif";
       ctx.fillText("YouTube Data API v3 실측 527건 분석 기반", 56, 74);
 
-      const pro = [
+      const factionA = [
         ["면허 반납·적성검사", 260], ["강력 단속·처벌 강화", 194], ["소음·수면권 피해", 192],
         ["즉시 견인·전면 금지", 82], ["보행자 안전·사고 예방", 75], ["번호판·업체 책임", 74]
       ];
-      const con = [
+      const factionB = [
         ["주차 인프라 선행", 195], ["생계형 라이더 생존권", 109], ["현실적 교통비 보상", 75],
         ["농어촌·고령층 이동권", 64], ["탁상행정·실효성 비판", 45], ["일부 일탈 일반화 경계", 22]
       ];
       const centerX = 600, maxBarW = 305, startY = 155, rowGap = 78;
       ctx.fillStyle = "#EFF6FF"; ctx.fillRect(60, 95, 455, 38);
       ctx.fillStyle = "#1D4ED8"; ctx.font = "bold 14.5px sans-serif";
-      ctx.fillText("찬성·규제 군집 — 총 877회 (63.2%)", 84, 119);
+      ctx.fillText("A 진영 (핵심 주류 여론 1) — 총 877회 (63.2%)", 78, 119);
       ctx.fillStyle = "#FEF2F2"; ctx.fillRect(685, 95, 455, 38);
       ctx.fillStyle = "#B91C1C";
-      ctx.fillText("반대·대안 군집 — 총 510회 (36.8%)", 710, 119);
+      ctx.fillText("B 진영 (핵심 대립 여론 2) — 총 510회 (36.8%)", 703, 119);
 
-      pro.forEach((pItem, idx) => {
-        const cItem = con[idx];
+      factionA.forEach((pItem, idx) => {
+        const cItem = factionB[idx];
         const y = startY + idx * rowGap;
         const pw = Math.max(20, (pItem[1] / 280) * maxBarW);
         const cw = Math.max(20, (cItem[1] / 280) * maxBarW);

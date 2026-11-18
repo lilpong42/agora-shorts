@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
 render_mp4.py
-한냥 (Hannyang) Full-HD 1080x1920 @ 30fps 방송형 토론 쇼츠 MP4 렌더링 엔진 (H.264 High + AAC).
-- 고정 40초 제한 해제: 실제 TTS 음성 길이(또는 자연스러운 한국어 낭독 속도)에 맞춘 가변 턴/전체 타임라인
-- 입체 뉴스룸 토론 세트 + 스모크 글래스 데스크 & 듀얼 방송 마이크 포그라운드 마스킹
-- 4단 가독성 계층 HUD (골드 영상 주제 빌보드 + 화자 입장 배지 + 핵심 주장 박스 + 38px 카라오케 자막)
-- 병렬 한국어 Neural TTS 합성 + 디스크 캐시 + 프레임 스테이지 캐싱 고속 렌더링
+한냥 (Hannyang) Full-HD 1080x1920 @ 30fps 동적 진영 HP 팩트 배틀 쇼츠 MP4 렌더링 엔진 (H.264 High + AAC).
+- 고정 '찬반/아나운서/40초' 포맷 폐기 -> 동적 대립 진영(Side A vs B) HP 딜교환 + K.O. 판정 쇼츠
+- 상단 블루/레드 HP 게이지 바 + VS / ROUND X/6 카운터 + 피격 흔들림 및 -DMG HP (공감 팩폭!) 팝업
+- 8비트 타격음 합성 + 한국어 속사포(1.3x) TTS 동기화 + 최종 K.O. 승리 배지 엔딩
 """
 
 import asyncio
@@ -118,15 +117,39 @@ def _get_fonts() -> Dict[str, ImageFont.FreeTypeFont]:
             "stat": _load_font(FONT_BOLD_PATH, 23),
             "stat_sm": _load_font(FONT_BOLD_PATH, 20),
             "brand": _load_font(FONT_BOLD_PATH, 23),
+            "ko_big": _load_font(FONT_BOLD_PATH, 54),
+            "dmg_pop": _load_font(FONT_BOLD_PATH, 32),
         }
     return _FONTS_CACHE
 
 
-def _get_turn_color_key(turn: Dict[str, Any]) -> str:
+def _is_turn_faction_a(turn: Dict[str, Any], idx: int = 0) -> bool:
+    f = str(turn.get("faction") or "").strip().upper()
+    if f in ("A", "PRO", "SIDE_A"):
+        return True
+    if f in ("B", "CON", "SIDE_B"):
+        return False
+    spk = str(turn.get("speaker") or "").strip().upper()
+    if spk == "PRO":
+        return True
+    if spk == "CON":
+        return False
+    return (idx % 2) == 0
+
+
+def _get_turn_damage(turn: Dict[str, Any]) -> int:
+    try:
+        d = int(round(float(turn.get("damage", 24))))
+        return max(15, min(35, d))
+    except Exception:
+        return 24
+
+
+def _get_turn_color_key(turn: Dict[str, Any], idx: int = 0) -> str:
     ck = (turn.get("color") or "").strip().lower()
     if ck in PALETTE:
         return ck
-    return "blue" if turn.get("speaker") == "PRO" else "red"
+    return "blue" if _is_turn_faction_a(turn, idx) else "red"
 
 
 def _wrap_words_by_width(
@@ -513,9 +536,11 @@ def generate_broadcast_soundtrack(
     turn_pcms: List[Optional[np.ndarray]],
     turn_durations: List[float],
     sample_rate: int = SAMPLE_RATE,
+    outro_sec: float = 1.5,
 ) -> Tuple[np.ndarray, bool]:
-    """가변 턴 길이에 맞춘 방송 스튜디오 사운드트랙 생성."""
-    total_duration_sec = sum(turn_durations)
+    """동적 진영 HP 배틀 사운드트랙 (업템포 비트 + 8비트 타격음 + K.O. 효과음 + TTS)."""
+    battle_sec = sum(turn_durations)
+    total_duration_sec = battle_sec + max(0.0, outro_sec)
     n_samples = int(math.ceil(total_duration_sec * sample_rate))
     t = np.arange(n_samples, dtype=np.float32) / sample_rate
     bed = np.zeros(n_samples, dtype=np.float32)
@@ -526,34 +551,34 @@ def generate_broadcast_soundtrack(
         [98.00, 196.00, 246.94, 293.66, 392.00],
         [110.00, 220.00, 261.63, 329.63, 440.00],
     ]
-    bar_len = 5.0
+    bar_len = 4.0
     for idx in range(int(math.ceil(total_duration_sec / bar_len))):
         s0 = int(idx * bar_len * sample_rate)
         s1 = min(n_samples, int((idx + 1) * bar_len * sample_rate))
         if s1 <= s0:
             continue
         seg_t = t[s0:s1] - idx * bar_len
-        env = np.minimum(seg_t / 0.45, 1.0) * np.minimum((bar_len - seg_t) / 0.45, 1.0)
+        env = np.minimum(seg_t / 0.35, 1.0) * np.minimum((bar_len - seg_t) / 0.35, 1.0)
         chord = chords[idx % len(chords)]
         pad = (
-            1.35 * np.sin(2.0 * np.pi * chord[0] * seg_t)
+            1.30 * np.sin(2.0 * np.pi * chord[0] * seg_t)
             + sum(np.sin(2.0 * np.pi * f * seg_t) for f in chord[1:]) / max(len(chord) - 1, 1)
-        ) * 0.5
-        bed[s0:s1] += 0.085 * env * pad
+        ) * 0.48
+        bed[s0:s1] += 0.070 * env * pad
 
-    beat_step = 0.50
+    beat_step = 0.40
     pluck_notes = [440.0, 523.25, 659.25, 587.33, 523.25, 659.25, 783.99, 659.25]
-    bt = 0.25
+    bt = 0.20
     b_idx = 0
-    while bt < total_duration_sec - 0.5:
+    while bt < battle_sec - 0.3:
         s0 = int(bt * sample_rate)
-        s1 = min(n_samples, s0 + int(0.24 * sample_rate))
+        s1 = min(n_samples, s0 + int(0.18 * sample_rate))
         if s1 > s0:
             lt = np.arange(s1 - s0, dtype=np.float32) / sample_rate
             freq = pluck_notes[b_idx % len(pluck_notes)]
-            env = np.exp(-lt * 14.0) * np.minimum(lt / 0.008, 1.0)
+            env = np.exp(-lt * 15.0) * np.minimum(lt / 0.006, 1.0)
             tone = 0.72 * np.sin(2.0 * np.pi * freq * lt) + 0.20 * np.sin(2.0 * np.pi * freq * 2.0 * lt)
-            bed[s0:s1] += 0.062 * env * tone
+            bed[s0:s1] += 0.055 * env * tone
         b_idx += 1
         bt += beat_step
 
@@ -564,34 +589,37 @@ def generate_broadcast_soundtrack(
         turn_starts.append(acc_t)
         acc_t += d
 
-    chime_map = {
-        "blue": [523.25, 659.25],
-        "red": [587.33, 493.88],
-        "violet": [554.37, 659.25],
-        "emerald": [493.88, 659.25],
-        "amber": [440.00, 587.33],
-    }
-
+    # 8비트 타격 효과음 (AudioContext 주파수 스윕과 동일한 묵직한 square+noise 펀치)
     for idx, turn in enumerate(turns):
         t0 = turn_starts[idx]
-        ckey = _get_turn_color_key(turn)
-        ws0 = max(0, int((t0 - 0.06) * sample_rate))
-        ws1 = min(n_samples, ws0 + int(0.22 * sample_rate))
-        if ws1 > ws0:
-            wt = np.arange(ws1 - ws0, dtype=np.float32) / sample_rate
-            w_env = np.sin(np.pi * wt / 0.22) ** 2
-            noise = rng.normal(0.0, 1.0, ws1 - ws0).astype(np.float32)
-            noise = np.convolve(noise, np.ones(14, dtype=np.float32) / 14.0, mode="same")
-            bed[ws0:ws1] += 0.095 * w_env * noise
+        is_a = _is_turn_faction_a(turn, idx)
+        dmg = _get_turn_damage(turn)
+        hs0 = max(0, int(t0 * sample_rate))
+        hs1 = min(n_samples, hs0 + int(0.20 * sample_rate))
+        if hs1 > hs0:
+            ht = np.arange(hs1 - hs0, dtype=np.float32) / sample_rate
+            start_f = 220.0 if is_a else 190.0
+            end_f = 42.0
+            inst_f = start_f * np.exp(np.log(end_f / start_f) * np.minimum(ht / 0.16, 1.0))
+            phase = 2.0 * np.pi * np.cumsum(inst_f) / sample_rate
+            square_hit = np.sign(np.sin(phase)) * 0.65 + np.sin(phase * 0.5) * 0.35
+            noise_hit = rng.normal(0.0, 1.0, hs1 - hs0).astype(np.float32)
+            noise_hit = np.convolve(noise_hit, np.ones(6, dtype=np.float32) / 6.0, mode="same")
+            n_env = np.exp(-ht * 36.0)
+            h_env = np.exp(-ht * 17.0) * np.minimum(ht / 0.004, 1.0)
+            gain = 0.24 + (dmg - 15) * 0.004
+            bed[hs0:hs1] += gain * (h_env * square_hit + 0.55 * n_env * noise_hit)
 
-        for ni, freq in enumerate(chime_map.get(ckey, [523.25, 659.25])):
-            cs0 = int((t0 + ni * 0.085) * sample_rate)
-            cs1 = min(n_samples, cs0 + int(0.38 * sample_rate))
-            if cs1 > cs0:
-                lt = np.arange(cs1 - cs0, dtype=np.float32) / sample_rate
-                env = np.exp(-lt * 10.0) * np.minimum(lt / 0.006, 1.0)
-                chime = 0.78 * np.sin(2.0 * np.pi * freq * lt) + 0.22 * np.sin(2.0 * np.pi * freq * 2.0 * lt)
-                bed[cs0:cs1] += 0.145 * env * chime
+    # 최종 K.O. 팡파르 스팅어
+    if outro_sec > 0.2:
+        for ni, freq in enumerate([261.63, 329.63, 392.00, 523.25]):
+            ks0 = min(n_samples, int((battle_sec + ni * 0.075) * sample_rate))
+            ks1 = min(n_samples, ks0 + int(0.42 * sample_rate))
+            if ks1 > ks0:
+                kt = np.arange(ks1 - ks0, dtype=np.float32) / sample_rate
+                k_env = np.exp(-kt * 6.5) * np.minimum(kt / 0.008, 1.0)
+                k_tone = np.sign(np.sin(2.0 * np.pi * freq * kt)) * 0.45 + np.sin(2.0 * np.pi * freq * kt) * 0.55
+                bed[ks0:ks1] += 0.16 * k_env * k_tone
 
     voice_track = np.zeros(n_samples, dtype=np.float32)
     has_voice = False
@@ -600,14 +628,14 @@ def generate_broadcast_soundtrack(
             continue
         peak = float(np.max(np.abs(pcm))) + 1e-6
         norm_pcm = (pcm / peak) * 0.88
-        v0 = int((turn_starts[idx] + 0.14) * sample_rate)
+        v0 = int((turn_starts[idx] + 0.12) * sample_rate)
         v1 = min(n_samples, v0 + len(norm_pcm))
         if v1 > v0:
             voice_track[v0:v1] = norm_pcm[: v1 - v0]
             has_voice = True
 
-    audio = (bed * 0.28 + voice_track * 0.94) if has_voice else (bed * 0.95)
-    fade_s = int(0.8 * sample_rate)
+    audio = (bed * 0.36 + voice_track * 0.94) if has_voice else (bed * 0.96)
+    fade_s = int(0.45 * sample_rate)
     if n_samples > fade_s:
         audio[-fade_s:] *= np.linspace(1.0, 0.0, fade_s, dtype=np.float32)
 
@@ -816,23 +844,27 @@ def _pick_caption_font_and_lines(
     return bf, _wrap_words_by_width(clause_text, bf, max_width, max_lines=4), 42
 
 
-def _resolve_perspectives(raw_stats: Dict[str, Any], perspectives: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+def _resolve_perspectives(
+    raw_stats: Dict[str, Any],
+    perspectives: Optional[List[Dict[str, Any]]],
+    side_a_label: str = "",
+    side_b_label: str = "",
+) -> List[Dict[str, Any]]:
     if perspectives and isinstance(perspectives, list) and len(perspectives) >= 2:
         out: List[Dict[str, Any]] = []
-        for idx, p in enumerate(perspectives[:4]):
-            ck = (p.get("color") or "").lower()
-            if ck not in PALETTE:
-                ck = ["blue", "red", "violet", "emerald"][idx % 4]
+        for idx, p in enumerate(perspectives[:2]):
+            ck = "blue" if idx == 0 else "red"
+            fallback_lbl = (side_a_label if idx == 0 else side_b_label) or ("A 진영" if idx == 0 else "B 진영")
             out.append({
-                "short_label": (p.get("short_label") or p.get("label") or f"관점 {idx + 1}")[:12],
-                "ratio": max(1, int(p.get("ratio", 25))),
+                "short_label": (p.get("short_label") or p.get("label") or fallback_lbl)[:14],
+                "ratio": max(1, int(p.get("ratio", 50))),
                 "color": ck,
             })
         return out
-    pro_r = max(1, min(99, int(raw_stats.get("pro_ratio", 50))))
+    a_r = max(1, min(99, int(raw_stats.get("side_a_ratio", raw_stats.get("pro_ratio", 50)))))
     return [
-        {"short_label": "찬성", "ratio": pro_r, "color": "blue"},
-        {"short_label": "반대", "ratio": max(1, 100 - pro_r), "color": "red"},
+        {"short_label": (side_a_label or "A 진영")[:14], "ratio": a_r, "color": "blue"},
+        {"short_label": (side_b_label or "B 진영")[:14], "ratio": max(1, 100 - a_r), "color": "red"},
     ]
 
 
@@ -840,27 +872,16 @@ def _draw_desk_nameplates(
     desk_img: Image.Image,
     turns: List[Dict[str, Any]],
     turn_idx: int,
+    side_a_label: str,
+    side_b_label: str,
     fonts: Dict[str, ImageFont.FreeTypeFont],
 ) -> None:
-    """커브드 스튜디오 데스크 전면 패널에 현재 발화자/대기 패널 입장 명패를 깔끔하게 각인."""
+    """하단 진영 배틀 네임플레이트: 현재 공격 진영 강조 + 피격 대기 진영 표시."""
     cur_turn = turns[turn_idx]
-    cur_is_pro = cur_turn.get("speaker") == "PRO"
-    cur_ck = _get_turn_color_key(cur_turn)
-    cur_lbl = (cur_turn.get("perspective_label") or "").strip() or (
-        f"좌측 {turn_idx // 2 + 1}" if cur_is_pro else f"우측 {turn_idx // 2 + 1}"
-    )
-
-    opp_turn: Optional[Dict[str, Any]] = None
-    for step in range(1, len(turns) + 1):
-        for cand_i in (turn_idx + step, turn_idx - step):
-            if 0 <= cand_i < len(turns) and (turns[cand_i].get("speaker") == "PRO") != cur_is_pro:
-                opp_turn = turns[cand_i]
-                break
-        if opp_turn is not None:
-            break
-    opp_lbl = ((opp_turn.get("perspective_label") or "").strip() if opp_turn else "") or (
-        "우측 패널" if cur_is_pro else "좌측 패널"
-    )
+    cur_is_a = _is_turn_faction_a(cur_turn, turn_idx)
+    cur_ck = _get_turn_color_key(cur_turn, turn_idx)
+    lbl_a = (side_a_label or "A 진영")[:14]
+    lbl_b = (side_b_label or "B 진영")[:14]
 
     d = ImageDraw.Draw(desk_img, "RGBA")
 
@@ -868,27 +889,23 @@ def _draw_desk_nameplates(
         plate_font = fonts["desk_plate"]
         tw = plate_font.getlength(label)
         badge_w = 68 if active else 0
-        pw = int(max(220, min(390, tw + badge_w + 56)))
+        pw = int(max(230, min(405, tw + badge_w + 56)))
         x0 = max(54, min(W - 54 - pw, center_x - pw // 2))
         x1 = x0 + pw
         y0, y1 = 1368, 1424
         if active:
             d.rounded_rectangle([x0, y0 + 5, x1, y1 + 5], radius=14, fill=(0, 0, 0, 120))
-            d.rounded_rectangle([x0, y0, x1, y1], radius=14, fill=(10, 14, 22, 240), outline=accent_col, width=3)
+            d.rounded_rectangle([x0, y0, x1, y1], radius=14, fill=(10, 14, 22, 242), outline=accent_col, width=3)
             d.rounded_rectangle([x0 + 8, y0 + 8, x0 + 68, y1 - 8], radius=9, fill=accent_col)
-            d.text((x0 + 38, (y0 + y1) // 2), "발언", font=fonts["claim_tag"], fill=(255, 255, 255, 255), anchor="mm")
+            d.text((x0 + 38, (y0 + y1) // 2), "공격", font=fonts["claim_tag"], fill=(255, 255, 255, 255), anchor="mm")
             d.text(((x0 + 72 + x1 - 10) // 2, (y0 + y1) // 2), label, font=plate_font, fill=(255, 255, 255, 255), anchor="mm")
         else:
             d.rounded_rectangle([x0, y0, x1, y1], radius=14, fill=(12, 16, 25, 200), outline=(255, 255, 255, 42), width=2)
             d.text((center_x, (y0 + y1) // 2), label, font=plate_font, fill=(182, 192, 208, 225), anchor="mm")
 
     cur_accent = PALETTE[cur_ck]["accent"]
-    if cur_is_pro:
-        paint_plate(242, cur_lbl, True, cur_accent)
-        paint_plate(838, opp_lbl, False, cur_accent)
-    else:
-        paint_plate(242, opp_lbl, False, cur_accent)
-        paint_plate(838, cur_lbl, True, cur_accent)
+    paint_plate(242, lbl_a, cur_is_a, cur_accent)
+    paint_plate(838, lbl_b, not cur_is_a, cur_accent)
 
 
 def _render_ui_hud_strips(
@@ -896,6 +913,8 @@ def _render_ui_hud_strips(
     raw_stats: Dict[str, Any],
     perspectives: List[Dict[str, Any]],
     mode_label: str,
+    side_a_label: str,
+    side_b_label: str,
     turn_idx: int,
     total_turns: int,
     turn_data: Dict[str, Any],
@@ -907,63 +926,64 @@ def _render_ui_hud_strips(
     active_word_idx: int,
     fonts: Dict[str, ImageFont.FreeTypeFont],
 ) -> Tuple[Image.Image, Image.Image]:
-    """주제 빌보드 + 발언 말풍선 상단 스트립(y=90..712) 및 하단 텔레메트리 스트립(y=1648..1868) 반환."""
+    """주제 빌보드 + 팩트 배틀 대사 카드(y=130..726) 및 하단 여론 분포 카드(y=1648..1868) 반환."""
     overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(overlay, "RGBA")
 
-    is_pro = turn_data.get("speaker") == "PRO"
-    ckey = _get_turn_color_key(turn_data)
+    is_a = _is_turn_faction_a(turn_data, turn_idx)
+    ckey = _get_turn_color_key(turn_data, turn_idx)
+    dmg = _get_turn_damage(turn_data)
     pal = PALETTE[ckey]
     accent = pal["accent"]
     accent_pill = pal["pill"]
     accent_badge_txt = pal["txt"]
 
-    default_lbl = f"좌측 패널 {turn_idx // 2 + 1}" if is_pro else f"우측 패널 {turn_idx // 2 + 1}"
-    speaker_label = (turn_data.get("perspective_label") or "").strip() or default_lbl
+    speaker_label = (side_a_label if is_a else side_b_label) or ("A 진영" if is_a else "B 진영")
 
-    # 1) TOPIC HERO BILLBOARD (y=98..288)
-    tx0, ty0, tx1, ty1 = 48, 98, W - 48, 288
+    # 1) TOPIC HERO BILLBOARD (y=134..310)
+    tx0, ty0, tx1, ty1 = 48, 134, W - 48, 310
     d.rounded_rectangle([tx0, ty0 + 8, tx1, ty1 + 8], radius=22, fill=(0, 0, 0, 125))
     d.rounded_rectangle([tx0, ty0, tx1, ty1], radius=22, fill=(9, 13, 22, 248), outline=(250, 204, 21, 145), width=2)
-    d.rounded_rectangle([tx0, ty0, tx1, ty0 + 9], radius=8, fill=(250, 204, 21, 255))
-    d.rectangle([tx0, ty0 + 4, tx1, ty0 + 9], fill=(250, 204, 21, 255))
+    d.rounded_rectangle([tx0, ty0, tx1, ty0 + 8], radius=8, fill=(250, 204, 21, 255))
+    d.rectangle([tx0, ty0 + 4, tx1, ty0 + 8], fill=(250, 204, 21, 255))
 
-    d.rounded_rectangle([76, ty0 + 20, 198, ty0 + 54], radius=10, fill=(250, 204, 21, 255))
-    d.text((137, ty0 + 37), "영상 주제", font=fonts["topic_tag"], fill=(9, 13, 22, 255), anchor="mm")
+    d.rounded_rectangle([76, ty0 + 18, 198, ty0 + 50], radius=10, fill=(250, 204, 21, 255))
+    d.text((137, ty0 + 34), "배틀 이슈", font=fonts["topic_tag"], fill=(9, 13, 22, 255), anchor="mm")
 
-    mode_chip = mode_label or "다관점 분석"
-    mode_w = int(min(360, max(130, fonts["badge_sm"].getlength(mode_chip) + 32)))
-    d.rounded_rectangle([210, ty0 + 20, 210 + mode_w, ty0 + 54], radius=10, fill=(255, 255, 255, 24))
-    d.text((210 + mode_w // 2, ty0 + 37), mode_chip, font=fonts["badge_sm"], fill=(226, 232, 240, 255), anchor="mm")
-    d.text((W - 76, ty0 + 37), f"댓글 {raw_stats.get('total_comments', 0)}건 분석", font=fonts["badge_sm"], fill=(148, 163, 184, 255), anchor="rm")
+    mode_chip = mode_label or "동적 진영 HP 팩트 배틀"
+    mode_w = int(min(360, max(150, fonts["badge_sm"].getlength(mode_chip) + 32)))
+    d.rounded_rectangle([210, ty0 + 18, 210 + mode_w, ty0 + 50], radius=10, fill=(255, 255, 255, 24))
+    d.text((210 + mode_w // 2, ty0 + 34), mode_chip, font=fonts["badge_sm"], fill=(226, 232, 240, 255), anchor="mm")
+    d.text((W - 76, ty0 + 34), f"댓글 {raw_stats.get('total_comments', 0)}건", font=fonts["badge_sm"], fill=(148, 163, 184, 255), anchor="rm")
 
     title_font, title_lines = _pick_title_font_and_lines(issue_title, W - 156, fonts)
     if len(title_lines) == 1:
-        d.text((W // 2, ty0 + 122), title_lines[0], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
+        d.text((W // 2, ty0 + 114), title_lines[0], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
     else:
-        d.text((W // 2, ty0 + 94), title_lines[0], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
-        d.text((W // 2, ty0 + 148), title_lines[1], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
+        d.text((W // 2, ty0 + 86), title_lines[0], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
+        d.text((W // 2, ty0 + 138), title_lines[1], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
 
-    # 2) SPEAKER STATEMENT BUBBLE (y=306..668, tail tip=708 -> clears anchor crowns y>=734)
-    bx0, by0, bx1, by1 = 48, 306, W - 48, 668
+    # 2) FACTION ATTACK BUBBLE (y=326..676, tail tip=716)
+    bx0, by0, bx1, by1 = 48, 326, W - 48, 676
     d.rounded_rectangle([bx0, by0 + 10, bx1, by1 + 10], radius=24, fill=(0, 0, 0, 120))
     d.rounded_rectangle([bx0, by0, bx1, by1], radius=24, fill=(255, 255, 255, 254), outline=(15, 23, 42, 34), width=2)
     d.rounded_rectangle([bx0, by0, bx1, by0 + 11], radius=8, fill=accent)
     d.rectangle([bx0, by0 + 5, bx1, by0 + 11], fill=accent)
 
-    if is_pro:
+    if is_a:
         d.polygon([(265, by1 - 2), (335, by1 - 2), (295, by1 + 40)], fill=(255, 255, 255, 254))
     else:
         d.polygon([(W - 335, by1 - 2), (W - 265, by1 - 2), (W - 295, by1 + 40)], fill=(255, 255, 255, 254))
 
-    spk_display = f"◀ {speaker_label}" if is_pro else f"{speaker_label} ▶"
+    spk_display = f"[{'A' if is_a else 'B'}] {speaker_label}"
     sp_text_w = fonts["speaker"].getlength(spk_display)
-    sp_pill_r = int(min(W - 244, 84 + max(168, sp_text_w + 48)))
+    sp_pill_r = int(min(W - 260, 84 + max(180, sp_text_w + 48)))
     d.rounded_rectangle([84, by0 + 24, sp_pill_r, by0 + 70], radius=12, fill=accent)
     d.text(((84 + sp_pill_r) // 2, by0 + 47), spk_display, font=fonts["speaker"], fill=(255, 255, 255, 255), anchor="mm")
 
-    d.rounded_rectangle([W - 224, by0 + 26, W - 84, by0 + 68], radius=11, fill=(241, 245, 249, 255), outline=(203, 213, 225, 255), width=1)
-    d.text((W - 154, by0 + 47), f"논지 {clause_idx + 1} / {total_clauses}", font=fonts["meta"], fill=(51, 65, 85, 255), anchor="mm")
+    # Damage Tag Pill on Bubble Top-Right
+    d.rounded_rectangle([W - 224, by0 + 26, W - 84, by0 + 68], radius=11, fill=(254, 226, 226, 255), outline=(248, 113, 113, 255), width=2)
+    d.text((W - 154, by0 + 47), f"-{dmg} DMG", font=fonts["meta"], fill=(185, 28, 28, 255), anchor="mm")
 
     core_font, core_lines = _pick_core_font_and_lines(turn_data.get("core_point", ""), W - 268, fonts)
     claim_y0 = by0 + 84
@@ -973,7 +993,7 @@ def _render_ui_hud_strips(
     d.rectangle([90, claim_y0, 96, claim_y1], fill=accent)
 
     d.rounded_rectangle([108, claim_y0 + 12, 168, claim_y0 + 42], radius=7, fill=accent)
-    d.text((138, claim_y0 + 27), "핵심", font=fonts["claim_tag"], fill=(255, 255, 255, 255), anchor="mm")
+    d.text((138, claim_y0 + 27), "팩폭", font=fonts["claim_tag"], fill=(255, 255, 255, 255), anchor="mm")
 
     if len(core_lines) == 1:
         d.text((180, (claim_y0 + claim_y1) // 2), core_lines[0], font=core_font, fill=accent_badge_txt, anchor="lm")
@@ -1007,47 +1027,25 @@ def _render_ui_hud_strips(
             cx += ww + space_w
             running_idx += 1
 
-    # 3) Lower-Third Broadcast Telemetry Card over Studio Floor (y=1652..1860)
+    # 3) Lower-Third Faction Support Telemetry Card (y=1652..1860)
     lx0, ly0, lx1, ly1 = 48, 1652, W - 48, 1860
     d.rounded_rectangle([lx0, ly0, lx1, ly1], radius=26, fill=(14, 17, 25, 242), outline=(255, 255, 255, 38), width=2)
 
-    if len(perspectives) <= 2:
-        p0 = perspectives[0]
-        p1 = perspectives[1] if len(perspectives) > 1 else {"short_label": "대안", "ratio": max(1, 100 - p0["ratio"]), "color": "red"}
-        c0 = PALETTE.get(p0["color"], PALETTE["blue"])
-        c1 = PALETTE.get(p1["color"], PALETTE["red"])
-        d.text((94, ly0 + 50), f"{p0['short_label']} {p0['ratio']}%", font=fonts["stat"], fill=c0["bar"], anchor="lm")
-        d.text((W - 94, ly0 + 50), f"{p1['short_label']} {p1['ratio']}%", font=fonts["stat"], fill=c1["bar"], anchor="rm")
-        bar_x0, bar_x1 = 316, W - 316
-        bar_w = bar_x1 - bar_x0
-        tot_r = max(1, p0["ratio"] + p1["ratio"])
-        w0 = max(24, int(bar_w * (p0["ratio"] / tot_r)))
-        d.rounded_rectangle([bar_x0, ly0 + 42, bar_x0 + w0 - 4, ly0 + 56], radius=7, fill=c0["accent"])
-        d.rounded_rectangle([bar_x0 + w0 + 4, ly0 + 42, bar_x1, ly0 + 56], radius=7, fill=c1["accent"])
-        d.text((W // 2, ly0 + 84), mode_label or "AI 공론장 중재", font=fonts["badge_sm"], fill=(161, 161, 170, 255), anchor="mm")
-    else:
-        n_p = len(perspectives)
-        tot_r = sum(max(1, p["ratio"]) for p in perspectives) or 100
-        inner_l, inner_r = 90, W - 90
-        span_w = inner_r - inner_l
-        col_w = span_w / n_p
-        for pi, p in enumerate(perspectives):
-            pc = PALETTE.get(p["color"], PALETTE["blue"])
-            cx_p = int(inner_l + col_w * (pi + 0.5))
-            d.text((cx_p, ly0 + 40), f"{p['short_label']} {p['ratio']}%", font=fonts["stat_sm"], fill=pc["bar"], anchor="mm")
+    p0 = perspectives[0]
+    p1 = perspectives[1] if len(perspectives) > 1 else {"short_label": side_b_label or "B 진영", "ratio": max(1, 100 - p0["ratio"]), "color": "red"}
+    c0 = PALETTE["blue"]
+    c1 = PALETTE["red"]
+    d.text((90, ly0 + 46), f"{p0['short_label']} {p0['ratio']}%", font=fonts["stat_sm"], fill=c0["bar"], anchor="lm")
+    d.text((W - 90, ly0 + 46), f"{p1['short_label']} {p1['ratio']}%", font=fonts["stat_sm"], fill=c1["bar"], anchor="rm")
+    bar_x0, bar_x1 = 90, W - 90
+    bar_w = bar_x1 - bar_x0
+    tot_r = max(1, p0["ratio"] + p1["ratio"])
+    w0 = max(24, int(bar_w * (p0["ratio"] / tot_r)))
+    d.rounded_rectangle([bar_x0, ly0 + 70, bar_x0 + w0 - 4, ly0 + 84], radius=7, fill=c0["accent"])
+    d.rounded_rectangle([bar_x0 + w0 + 4, ly0 + 70, bar_x1, ly0 + 84], radius=7, fill=c1["accent"])
+    d.text((W // 2, ly0 + 104), mode_label or "동적 진영 HP 팩트 배틀", font=fonts["badge_sm"], fill=(161, 161, 170, 255), anchor="mm")
 
-        seg_gap = 6
-        avail_bar_w = span_w - seg_gap * (n_p - 1)
-        cur_x = float(inner_l)
-        for pi, p in enumerate(perspectives):
-            pc = PALETTE.get(p["color"], PALETTE["blue"])
-            seg_len = avail_bar_w * (max(1, p["ratio"]) / tot_r) if pi < n_p - 1 else (inner_r - cur_x)
-            seg_end = min(float(inner_r), cur_x + max(18.0, seg_len))
-            d.rounded_rectangle([int(cur_x), ly0 + 66, int(seg_end), ly0 + 80], radius=7, fill=pc["accent"])
-            cur_x = seg_end + seg_gap
-        d.text((W // 2, ly0 + 100), mode_label or f"{n_p}관점 여론 비교", font=fonts["badge_sm"], fill=(161, 161, 170, 255), anchor="mm")
-
-    d.line([(86, ly0 + 118), (W - 86, ly0 + 118)], fill=(255, 255, 255, 20), width=2)
+    d.line([(86, ly0 + 122), (W - 86, ly0 + 122)], fill=(255, 255, 255, 20), width=2)
 
     dot_step = 30 if total_turns > 6 else 34
     for i in range(total_turns):
@@ -1060,7 +1058,49 @@ def _render_ui_hud_strips(
             d.rounded_rectangle([dx, ly0 + 150, dx + 16, ly0 + 160], radius=5, fill=(45, 49, 62, 255))
 
     d.text((W - 94, ly0 + 155), "한냥 Studio", font=fonts["brand"], fill=(161, 161, 170, 255), anchor="rm")
-    return overlay.crop((0, 90, W, 712)), overlay.crop((0, 1648, W, 1868))
+    return overlay.crop((0, 130, W, 726)), overlay.crop((0, 1648, W, 1868))
+
+
+def _draw_top_hp_hud(
+    frame: Image.Image,
+    side_a_label: str,
+    side_b_label: str,
+    hp_a: float,
+    hp_b: float,
+    round_num: int,
+    total_turns: int,
+    fonts: Dict[str, ImageFont.FreeTypeFont],
+) -> None:
+    """상단 동적 진영 HP 게이지 바 (좌 블루 vs 우 레드) + 중앙 VS / ROUND X/6."""
+    draw = ImageDraw.Draw(frame, "RGBA")
+    # Dark HUD strip backdrop
+    draw.rounded_rectangle([40, 24, W - 40, 120], radius=18, fill=(9, 13, 22, 232), outline=(255, 255, 255, 36), width=2)
+
+    bar_w = 340
+    # Left Blue Faction A
+    ax0 = 62
+    ax1 = ax0 + bar_w
+    draw.text((ax0, 50), (side_a_label or "A 진영")[:14], font=fonts["hud"], fill=(147, 197, 253, 255), anchor="lm")
+    draw.text((ax1, 50), f"{int(round(hp_a))} HP", font=fonts["badge_sm"], fill=(219, 234, 254, 255), anchor="rm")
+    draw.rounded_rectangle([ax0, 74, ax1, 96], radius=10, fill=(30, 41, 59, 255))
+    fill_a = int(bar_w * max(0.0, min(1.0, hp_a / 100.0)))
+    if fill_a > 4:
+        draw.rounded_rectangle([ax0, 74, ax0 + fill_a, 96], radius=10, fill=(37, 99, 235, 255))
+
+    # Center VS + ROUND badge
+    draw.text((W // 2, 48), "VS", font=fonts["speaker"], fill=(250, 204, 21, 255), anchor="mm")
+    draw.rounded_rectangle([W // 2 - 74, 68, W // 2 + 74, 102], radius=9, fill=(30, 41, 59, 255), outline=(255, 255, 255, 45), width=1)
+    draw.text((W // 2, 85), f"ROUND {round_num}/{total_turns}", font=fonts["claim_tag"], fill=(248, 250, 252, 255), anchor="mm")
+
+    # Right Red Faction B (fills right-aligned)
+    bx1 = W - 62
+    bx0 = bx1 - bar_w
+    draw.text((bx0, 50), f"{int(round(hp_b))} HP", font=fonts["badge_sm"], fill=(254, 226, 226, 255), anchor="lm")
+    draw.text((bx1, 50), (side_b_label or "B 진영")[:14], font=fonts["hud"], fill=(252, 165, 165, 255), anchor="rm")
+    draw.rounded_rectangle([bx0, 74, bx1, 96], radius=10, fill=(30, 41, 59, 255))
+    fill_b = int(bar_w * max(0.0, min(1.0, hp_b / 100.0)))
+    if fill_b > 4:
+        draw.rounded_rectangle([bx1 - fill_b, 74, bx1, 96], radius=10, fill=(220, 38, 38, 255))
 
 
 def render_debate_mp4(
@@ -1074,12 +1114,29 @@ def render_debate_mp4(
     meta_out: Optional[Dict[str, Any]] = None,
     perspectives: Optional[List[Dict[str, Any]]] = None,
     mode_label: str = "",
+    side_a_label: str = "",
+    side_b_label: str = "",
 ) -> Path:
-    """1080x1920 @ 30fps Full-HD 가변 길이 방송형 다관점 쇼츠 MP4 고속 렌더링."""
+    """1080x1920 @ 30fps Full-HD 동적 진영 HP 팩트 배틀 쇼츠 MP4 렌더링."""
     turns = debate_script[:8]
     total_turns = max(len(turns), 1)
-    resolved_persp = _resolve_perspectives(raw_stats, perspectives)
-    resolved_mode_lbl = (mode_label or "").strip() or (f"{len(resolved_persp)}관점 여론 비교" if len(resolved_persp) >= 3 else "AI 공론장 중재")
+    resolved_persp = _resolve_perspectives(raw_stats, perspectives, side_a_label, side_b_label)
+    lbl_a = (side_a_label or resolved_persp[0]["short_label"] or "A 진영").strip()
+    lbl_b = (side_b_label or resolved_persp[1]["short_label"] or "B 진영").strip()
+    resolved_mode_lbl = (mode_label or "").strip() or "동적 진영 HP 팩트 배틀"
+
+    # Pre-compute cumulative HP states (startHP -> endHP per turn)
+    turn_hp_states: List[Tuple[int, int, int, int, bool, int]] = []
+    cur_hp_a, cur_hp_b = 100, 100
+    for idx, t in enumerate(turns):
+        is_a = _is_turn_faction_a(t, idx)
+        dmg = _get_turn_damage(t)
+        start_a, start_b = cur_hp_a, cur_hp_b
+        if is_a:
+            cur_hp_b = max(0, cur_hp_b - dmg)
+        else:
+            cur_hp_a = max(0, cur_hp_a - dmg)
+        turn_hp_states.append((start_a, start_b, cur_hp_a, cur_hp_b, is_a, dmg))
 
     # Step 1: Collect or synthesize voice audio in parallel across all turns
     raw_voices: List[Optional[bytes]] = [None] * len(turns)
@@ -1094,7 +1151,10 @@ def render_debate_mp4(
                     raw_voices[idx] = None
     elif try_gemini_tts and turns:
         with concurrent.futures.ThreadPoolExecutor(max_workers=min(6, len(turns))) as pool:
-            futs = [pool.submit(fetch_tts_audio_bytes, t["text"], t["speaker"]) for t in turns]
+            futs = [
+                pool.submit(fetch_tts_audio_bytes, t["text"], "PRO" if _is_turn_faction_a(t, idx) else "CON")
+                for idx, t in enumerate(turns)
+            ]
             raw_voices = [f.result() for f in futs]
 
     turn_pcms: List[Optional[np.ndarray]] = []
@@ -1110,17 +1170,18 @@ def render_debate_mp4(
         turn_pcms = [None] * len(turns)
         voiced_pcms = 0
 
-    # Step 2: Natural adaptive per-turn durations
+    # Step 2: Rapid-fire 1.3x battle durations (+0.30s beat between turns)
     turn_durations: List[float] = []
     for idx, turn in enumerate(turns):
         pcm = turn_pcms[idx]
         if pcm is not None and len(pcm) > SAMPLE_RATE * 0.4:
-            turn_durations.append(round(max(2.6, (len(pcm) / SAMPLE_RATE) + 0.45), 2))
+            turn_durations.append(round(max(2.2, ((len(pcm) / SAMPLE_RATE) / 1.15) + 0.30), 2))
         else:
-            turn_durations.append(estimate_turn_duration_sec(turn["text"]))
+            turn_durations.append(estimate_turn_duration_sec(turn["text"], speed_mult=1.3))
 
     turn_frame_counts = [max(30, int(round(d * FPS))) for d in turn_durations]
-    total_frames = sum(turn_frame_counts)
+    outro_sec = 1.5
+    outro_frames = int(round(outro_sec * FPS))
 
     assets = _get_stage_assets()
     fonts = _get_fonts()
@@ -1133,6 +1194,7 @@ def render_debate_mp4(
             turns=turns,
             turn_pcms=turn_pcms,
             turn_durations=turn_durations,
+            outro_sec=outro_sec,
         )
         if meta_out is not None:
             meta_out["has_voice"] = bool(has_voice and voiced_pcms == len(turns) and len(turns) > 0)
@@ -1167,43 +1229,43 @@ def render_debate_mp4(
         assert proc.stdin is not None
 
         global_f = 0
+        last_stage_frame: Optional[Image.Image] = None
         for idx, turn in enumerate(turns):
-            is_pro = turn.get("speaker") == "PRO"
-            ckey = _get_turn_color_key(turn)
+            start_a, start_b, end_a, end_b, is_a, dmg = turn_hp_states[idx]
+            ckey = _get_turn_color_key(turn, idx)
             accent_rgb = PALETTE[ckey]["accent"][:3]
 
             turn_bg = assets["studio_bg"].copy()
-            side_key = "PRO" if is_pro else "CON"
+            side_key = "PRO" if is_a else "CON"
             turn_bg.alpha_composite(assets["glows"][(side_key, ckey)])
 
             turn_desk = assets["desk_fg"].copy()
-            _draw_desk_nameplates(turn_desk, turns, idx, fonts)
+            _draw_desk_nameplates(turn_desk, turns, idx, lbl_a, lbl_b, fonts)
 
-            # Lazily cache up to 8 (dy_talk, is_blinking) RGB stage frames per turn
-            stage_cache: Dict[Tuple[int, bool], Image.Image] = {}
+            stage_cache: Dict[Tuple[int, int, bool], Image.Image] = {}
 
-            def get_stage_rgb(dy_talk: int, blink: bool) -> Image.Image:
-                key = (dy_talk, blink)
+            def get_stage_rgb(dy_talk: int, dx_hit: int, blink: bool) -> Image.Image:
+                key = (dy_talk, dx_hit, blink)
                 if key in stage_cache:
                     return stage_cache[key]
                 st = turn_bg.copy()
-                if is_pro:
+                if is_a:
                     p_spr = assets["pro_act_blink"] if blink else assets["pro_act"]
                     c_spr = assets["con_idle"]
-                    st.paste(c_spr, (855 - c_spr.width // 2, 1314 - c_spr.height), c_spr)
+                    st.paste(c_spr, (855 - c_spr.width // 2 + dx_hit, 1314 - c_spr.height), c_spr)
                     st.paste(p_spr, (225 - p_spr.width // 2, 1318 - p_spr.height + dy_talk), p_spr)
                 else:
                     p_spr = assets["pro_idle"]
                     c_spr = assets["con_act_blink"] if blink else assets["con_act"]
-                    st.paste(p_spr, (225 - p_spr.width // 2, 1316 - p_spr.height), p_spr)
+                    st.paste(p_spr, (225 - p_spr.width // 2 + dx_hit, 1316 - p_spr.height), p_spr)
                     st.paste(c_spr, (855 - c_spr.width // 2, 1316 - c_spr.height + dy_talk), c_spr)
                 st.paste(turn_desk, (0, 0), turn_desk)
                 rgb = st.convert("RGB")
                 stage_cache[key] = rgb
                 return rgb
 
-            base_stage_rgb = get_stage_rgb(0, False)
-            top_bg_crop = base_stage_rgb.crop((0, 90, W, 712))
+            base_stage_rgb = get_stage_rgb(0, 0, False)
+            top_bg_crop = base_stage_rgb.crop((0, 130, W, 726))
             bot_bg_crop = base_stage_rgb.crop((0, 1648, W, 1868))
 
             clauses = _split_turn_into_clauses(turn["text"])
@@ -1222,6 +1284,8 @@ def render_debate_mp4(
                         raw_stats=raw_stats,
                         perspectives=resolved_persp,
                         mode_label=resolved_mode_lbl,
+                        side_a_label=lbl_a,
+                        side_b_label=lbl_b,
                         turn_idx=idx,
                         total_turns=total_turns,
                         turn_data=turn,
@@ -1245,52 +1309,66 @@ def render_debate_mp4(
                 SAMPLE_RATE,
                 clauses,
                 turn_durations[idx],
-                lead_in_sec=0.14,
+                lead_in_sec=0.12,
             )
 
             n_f = turn_frame_counts[idx]
-            seg_gap = 10
-            seg_total_w = W - 96
-            seg_w = (seg_total_w - seg_gap * (total_turns - 1)) / total_turns
-
             for f in range(n_f):
                 local_t = f / FPS
-                turn_prog = f / max(n_f - 1, 1)
-                remaining_sec = max(0.0, (total_frames - global_f) / FPS)
                 energy = float(rms_env[min(global_f, len(rms_env) - 1)])
                 global_f += 1
 
                 is_blinking = ((local_t + 1.1) % 3.6) < 0.13
                 talk_cadence = (
-                    math.sin(local_t * 1.8) * 0.9
-                    - (0.4 + 1.4 * energy) * (0.5 + 0.5 * math.sin(local_t * 5.4))
+                    math.sin(local_t * 2.2) * 1.0
+                    - (0.4 + 1.6 * energy) * (0.5 + 0.5 * math.sin(local_t * 6.0))
                 )
-                dy_talk = max(-2, min(1, int(round(talk_cadence))))
-                frame = get_stage_rgb(dy_talk, is_blinking).copy()
+                dy_talk = max(-3, min(1, int(round(talk_cadence))))
+
+                # Hit shake + red flash during first 0.55s of turn
+                dx_hit = 0
+                if local_t < 0.48:
+                    dx_hit = int(round(math.sin(local_t * 58.0) * 14.0 * (1.0 - local_t / 0.48)))
+
+                frame = get_stage_rgb(dy_talk, dx_hit, is_blinking).copy()
 
                 c_idx, local_w = _resolve_clause_and_word(local_t, clause_timelines, clause_windows)
                 ov_list = clause_strips[min(c_idx, len(clause_strips) - 1)]
                 top_rgb, bot_rgb = ov_list[min(local_w, len(ov_list) - 1)]
-                frame.paste(top_rgb, (0, 90))
+                frame.paste(top_rgb, (0, 130))
                 frame.paste(bot_rgb, (0, 1648))
 
+                # Red hit flash & floating -DMG popup over defender side
+                if local_t < 0.72:
+                    d_fx = ImageDraw.Draw(frame, "RGBA")
+                    if local_t < 0.36:
+                        alpha_flash = int(125 * (1.0 - local_t / 0.36))
+                        fx_x0, fx_x1 = (540, W) if is_a else (0, 540)
+                        d_fx.rectangle([fx_x0, 720, fx_x1, 1450], fill=(220, 38, 38, alpha_flash))
+                    # Floating damage popup
+                    pop_prog = local_t / 0.72
+                    pop_alpha = int(255 * min(1.0, (1.0 - pop_prog) * 1.4))
+                    pop_cx = 825 if is_a else 255
+                    pop_cy = int(835 - pop_prog * 70)
+                    pop_txt = f"-{dmg} HP (공감 팩폭!)"
+                    pw_pop = int(fonts["dmg_pop"].getlength(pop_txt) + 34)
+                    d_fx.rounded_rectangle(
+                        [pop_cx - pw_pop // 2, pop_cy - 26, pop_cx + pw_pop // 2, pop_cy + 26],
+                        radius=14,
+                        fill=(127, 29, 29, int(pop_alpha * 0.9)),
+                        outline=(252, 165, 165, pop_alpha),
+                        width=2,
+                    )
+                    d_fx.text((pop_cx, pop_cy), pop_txt, font=fonts["dmg_pop"], fill=(254, 240, 138, pop_alpha), anchor="mm")
+
+                # Animated HP drain during first 0.35s
+                hp_t = min(1.0, local_t / 0.35)
+                disp_hp_a = start_a + (end_a - start_a) * hp_t
+                disp_hp_b = start_b + (end_b - start_b) * hp_t
+
+                _draw_top_hp_hud(frame, lbl_a, lbl_b, disp_hp_a, disp_hp_b, idx + 1, total_turns, fonts)
+
                 draw = ImageDraw.Draw(frame)
-                for s_i in range(total_turns):
-                    sx0 = 48 + s_i * (seg_w + seg_gap)
-                    sx1 = sx0 + seg_w
-                    draw.rounded_rectangle([sx0, 34, sx1, 43], radius=4, fill=(45, 50, 65))
-                    if s_i < idx:
-                        s_col = PALETTE[_get_turn_color_key(turns[s_i])]["accent"][:3]
-                        draw.rounded_rectangle([sx0, 34, sx1, 43], radius=4, fill=s_col)
-                    elif s_i == idx:
-                        fill_x = sx0 + max(10.0, (sx1 - sx0) * turn_prog)
-                        draw.rounded_rectangle([sx0, 34, fill_x, 43], radius=4, fill=accent_rgb)
-
-                draw.rounded_rectangle([48, 54, 162, 88], radius=12, fill=(14, 17, 25))
-                draw.text((105, 71), f"{idx + 1:02d} / {total_turns:02d}", font=fonts["hud"], fill=(244, 244, 245), anchor="mm")
-                draw.rounded_rectangle([W - 154, 54, W - 48, 88], radius=12, fill=(14, 17, 25))
-                draw.text((W - 101, 71), f"{remaining_sec:.1f}s", font=fonts["hud"], fill=(228, 228, 231), anchor="mm")
-
                 eq_x0 = 365
                 for bi in range(24):
                     bx = eq_x0 + bi * 15
@@ -1298,7 +1376,41 @@ def render_debate_mp4(
                     bh = int(8 + (14 + 26 * energy) * wave_mod)
                     draw.rounded_rectangle([bx, 1804 - bh // 2, bx + 7, 1804 + bh // 2], radius=3, fill=accent_rgb)
 
+                last_stage_frame = frame
                 proc.stdin.write(frame.tobytes())
+
+        # Step 3: Append 1.5s K.O. Victory Overlay finale
+        winner_is_a = cur_hp_a >= cur_hp_b
+        winner_lbl = lbl_a if winner_is_a else lbl_b
+        win_col = PALETTE["blue"]["accent"] if winner_is_a else PALETTE["red"]["accent"]
+        if last_stage_frame is None:
+            last_stage_frame = Image.new("RGB", (W, H), (9, 13, 22))
+
+        for of in range(outro_frames):
+            ko_frame = last_stage_frame.copy()
+            kd = ImageDraw.Draw(ko_frame, "RGBA")
+            kd.rectangle([0, 0, W, H], fill=(6, 9, 16, 175))
+            _draw_top_hp_hud(ko_frame, lbl_a, lbl_b, float(cur_hp_a), float(cur_hp_b), total_turns, total_turns, fonts)
+
+            # Center K.O. Victory Card
+            cx0, cy0, cx1, cy1 = 80, 740, W - 80, 1140
+            kd.rounded_rectangle([cx0, cy0, cx1, cy1], radius=32, fill=(15, 23, 42, 248), outline=(250, 204, 21, 255), width=5)
+            kd.rounded_rectangle([W // 2 - 140, cy0 + 44, W // 2 + 140, cy0 + 124], radius=18, fill=(220, 38, 38, 255))
+            kd.text((W // 2, cy0 + 84), "K.O.", font=fonts["ko_big"], fill=(255, 255, 255, 255), anchor="mm")
+
+            win_pill = f"K.O. - [{winner_lbl}] 여론 우세!"
+            kd.text((W // 2, cy0 + 215), win_pill, font=fonts["title_lg"], fill=(250, 204, 21, 255), anchor="mm")
+            score_txt = f"{lbl_a} {cur_hp_a} HP  vs  {lbl_b} {cur_hp_b} HP"
+            half_pw = min((cx1 - cx0) // 2 - 28, max(240, int(fonts["hud"].getlength(score_txt) // 2 + 34)))
+            kd.rounded_rectangle([W // 2 - half_pw, cy0 + 280, W // 2 + half_pw, cy0 + 340], radius=14, fill=win_col)
+            kd.text(
+                (W // 2, cy0 + 310),
+                score_txt,
+                font=fonts["hud"],
+                fill=(255, 255, 255, 255),
+                anchor="mm",
+            )
+            proc.stdin.write(ko_frame.tobytes())
 
         proc.stdin.close()
         ret = proc.wait()
@@ -1320,6 +1432,8 @@ def main():
             try_gemini_tts=True,
             perspectives=data.get("perspectives"),
             mode_label=data.get("mode_label", ""),
+            side_a_label=data.get("side_a_label", ""),
+            side_b_label=data.get("side_b_label", ""),
         )
         print(f"[MP4 RENDERED 1080p 30fps] {out_file} ({out_file.stat().st_size:,} bytes)")
 
