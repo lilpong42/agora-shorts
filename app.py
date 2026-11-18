@@ -45,6 +45,7 @@ DEFAULT_SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://cqxrdcylppmvjsjnw
 DEFAULT_SUPABASE_KEY = os.environ.get(
     "SUPABASE_KEY", "sb_publishable_-v3SG7BvweiuJceeCl5fEg_pUt-qVFk"
 )
+_GEMINI_COOLDOWN_UNTIL = 0.0
 
 app = FastAPI(
     title="한냥 (Hannyang) Full-Stack API",
@@ -830,44 +831,46 @@ async def analyze_input(req: AnalyzeRequest):
     resolved_mode = cluster_res["analysis_mode"]
     debate_script = build_dynamic_script_from_clusters(issue_title, cluster_res)
 
-    try:
-        sample_lines = "\n".join(c["text"][:160] for c in comments_list[:35])
-        mode_guidance = {
-            "debate": "찬성과 반대 양측 핵심 논거로 2관점 균형 토론을 구성해라.",
-            "multi": "반드시 찬성/반대 이분법에 가두지 말고, 댓글에서 드러나는 3~4개의 실제 관점/이해관계/감상 축(blue, red, violet, emerald)을 추출해 큐레이터 대본을 구성해라.",
-            "proscons": "장점·호평 / 아쉬움·단점 / 비교·구매·개선 대안 3관점(blue, red, violet)으로 균형 있게 구성해라.",
-            "summary": "시청자·유저의 핵심 반응 3~4축(blue, red, violet, emerald)을 뉴스룸 브리핑처럼 정리해라.",
-        }.get(resolved_mode, "찬반 토론 주제면 2~3관점, 리뷰/반응/다자간 의견이면 3~4관점으로 실제 댓글에 맞는 분류를 자유롭게 추출해라.")
+    global _GEMINI_COOLDOWN_UNTIL
+    if time.time() >= _GEMINI_COOLDOWN_UNTIL:
+        try:
+            sample_lines = "\n".join(c["text"][:160] for c in comments_list[:35])
+            mode_guidance = {
+                "debate": "찬성과 반대 양측 핵심 논거로 2관점 균형 토론을 구성해라.",
+                "multi": "반드시 찬성/반대 이분법에 가두지 말고, 댓글에서 드러나는 3~4개의 실제 관점/이해관계/감상 축(blue, red, violet, emerald)을 추출해 큐레이터 대본을 구성해라.",
+                "proscons": "장점·호평 / 아쉬움·단점 / 비교·구매·개선 대안 3관점(blue, red, violet)으로 균형 있게 구성해라.",
+                "summary": "시청자·유저의 핵심 반응 3~4축(blue, red, violet, emerald)을 뉴스룸 브리핑처럼 정리해라.",
+            }.get(resolved_mode, "찬반 토론 주제면 2~3관점, 리뷰/반응/다자간 의견이면 3~4관점으로 실제 댓글에 맞는 분류를 자유롭게 추출해라.")
 
-        gem_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={DEFAULT_GOOGLE_API_KEY}"
-        payload = json.dumps({
-            "contents": [{
-                "parts": [{
-                    "text": (
-                        f"다음 콘텐츠({issue_title})의 실제 댓글 {len(comments_list)}건을 분석해 6턴 아나운서 쇼츠 대본 JSON을 작성해라.\n"
-                        f"규칙: {mode_guidance}\n"
-                        f"2명의 스튜디오 아나운서(speaker는 좌/우 발화 교차를 위해 PRO, CON 번갈아 배치)가 각 관점(perspective_id, perspective_label, color)을 번갈아 명쾌하게 소개한다.\n"
-                        f'스펙: {{"issue_title":"주제 한 줄 요약","detected_mode":"multi","mode_label":"예: 3관점 여론 비교","perspectives":[{{"id":"P1","label":"핵심 관점명","short_label":"짧은라벨(8자이내)","ratio":45,"color":"blue|red|violet|emerald"}}],"debate_script":[{{"speaker":"PRO","perspective_id":"P1","perspective_label":"짧은라벨","color":"blue","core_point":"핵심 요약","text":"비속어를 제거한 2문장 표준 한국어 아나운서 대사"}}]}}\n\n'
-                        f"댓글 샘플:\n{sample_lines}"
-                    )
-                }]
-            }],
-            "generationConfig": {"responseMimeType": "application/json", "temperature": 0.3},
-        }).encode("utf-8")
-        req_gem = urllib.request.Request(gem_url, data=payload, headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req_gem, timeout=10) as resp:
-            g_data = json.loads(resp.read().decode("utf-8"))
-            parsed = json.loads(g_data["candidates"][0]["content"]["parts"][0]["text"])
-            norm = normalize_gemini_analysis(parsed, cluster_res, issue_title)
-            if norm:
-                issue_title = norm["issue_title"]
-                resolved_mode = norm["analysis_mode"]
-                mode_label = norm["mode_label"]
-                perspectives = norm["perspectives"]
-                debate_script = norm["debate_script"]
-                engine_mode = f"YOUTUBE_GEMINI_MULTI (N={cluster_res['total_comments']})"
-    except Exception:
-        pass
+            gem_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={DEFAULT_GOOGLE_API_KEY}"
+            payload = json.dumps({
+                "contents": [{
+                    "parts": [{
+                        "text": (
+                            f"다음 콘텐츠({issue_title})의 실제 댓글 {len(comments_list)}건을 분석해 6턴 아나운서 쇼츠 대본 JSON을 작성해라.\n"
+                            f"규칙: {mode_guidance}\n"
+                            f"2명의 스튜디오 아나운서(speaker는 좌/우 발화 교차를 위해 PRO, CON 번갈아 배치)가 각 관점(perspective_id, perspective_label, color)을 번갈아 명쾌하게 소개한다.\n"
+                            f'스펙: {{"issue_title":"주제 한 줄 요약","detected_mode":"multi","mode_label":"예: 3관점 여론 비교","perspectives":[{{"id":"P1","label":"핵심 관점명","short_label":"짧은라벨(8자이내)","ratio":45,"color":"blue|red|violet|emerald"}}],"debate_script":[{{"speaker":"PRO","perspective_id":"P1","perspective_label":"짧은라벨","color":"blue","core_point":"핵심 요약","text":"비속어를 제거한 2문장 표준 한국어 아나운서 대사"}}]}}\n\n'
+                            f"댓글 샘플:\n{sample_lines}"
+                        )
+                    }]
+                }],
+                "generationConfig": {"responseMimeType": "application/json", "temperature": 0.3},
+            }).encode("utf-8")
+            req_gem = urllib.request.Request(gem_url, data=payload, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req_gem, timeout=3.5) as resp:
+                g_data = json.loads(resp.read().decode("utf-8"))
+                parsed = json.loads(g_data["candidates"][0]["content"]["parts"][0]["text"])
+                norm = normalize_gemini_analysis(parsed, cluster_res, issue_title)
+                if norm:
+                    issue_title = norm["issue_title"]
+                    resolved_mode = norm["analysis_mode"]
+                    mode_label = norm["mode_label"]
+                    perspectives = norm["perspectives"]
+                    debate_script = norm["debate_script"]
+                    engine_mode = f"YOUTUBE_GEMINI_MULTI (N={cluster_res['total_comments']})"
+        except Exception:
+            _GEMINI_COOLDOWN_UNTIL = time.time() + 60.0
 
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 2)
     kw_tags = " ".join(f"#{k}" for k in [p.get("short_label", "").replace("·", "").replace(" ", "") for p in perspectives] if k)

@@ -1209,10 +1209,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return (turn && turn.speaker === "CON") ? "red" : "blue";
     }
 
-    function getTurnPalette(turn) {
-      return PALETTES[getTurnColorKey(turn)] || PALETTES.blue;
-    }
-
     function resolvePerspectives(data) {
       if (data && Array.isArray(data.perspectives) && data.perspectives.length >= 2) {
         return data.perspectives.slice(0, 4).map((p, i) => {
@@ -1253,7 +1249,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         source_label: "YouTube Data API v3 실측 · YTN(vNIXiWyXs90), MBC(lt7knjTuuOM), 연합뉴스TV(Cs_A2EcMsto) 200건",
         source_url: "https://www.youtube.com/watch?v=vNIXiWyXs90",
         video_mp4_url: "static/videos/preset_1.mp4",
-        has_voice_track: false,
+        has_voice_track: true,
         issue_title: "심야 시간대 배달 오토바이 배기 소음 규제 및 단속 의무화 논란",
         hashtags: "#심야오토바이소음 #배달라이더 #공론장중재 #핵심토론 #쇼츠",
         perspectives: [
@@ -1283,7 +1279,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         source_label: "YouTube Data API v3 실측 · MBC(Xt8TRqMuZRc), SBS(aI0awk0NBfc), TBS(D2hNIe74HEQ) 180건",
         source_url: "https://www.youtube.com/watch?v=Xt8TRqMuZRc",
         video_mp4_url: "static/videos/preset_2.mp4",
-        has_voice_track: false,
+        has_voice_track: true,
         issue_title: "대학가·도심 공유 전동킥보드 즉시 견인 및 통행 금지 논란",
         hashtags: "#전동킥보드 #킥보드견인 #보행안전 #공론장중재 #쇼츠",
         perspectives: [
@@ -1313,7 +1309,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         source_label: "YouTube Data API v3 실측 · MBC(NKIvNrtdiGA), KBS(x3J5hpBci98 외 2건), YTN(yfAshZpECCo) 147건",
         source_url: "https://www.youtube.com/watch?v=NKIvNrtdiGA",
         video_mp4_url: "static/videos/preset_3.mp4",
-        has_voice_track: false,
+        has_voice_track: true,
         issue_title: "고령 운전자 면허 논쟁, 실기검증·이동권·안전기술 3대 시각",
         hashtags: "#고령운전자 #다관점여론 #실기시험 #이동권 #페달오조작방지 #쇼츠",
         perspectives: [
@@ -1351,12 +1347,11 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     let currentHtmlAudio = null;
     let currentHtmlAudioUrl = null;
     let cloudTtsDisabled = false;
-    let geminiTtsCooldownUntil = 0;
+    let geminiApiCooldownUntil = 0;
     let cachedBrowserKoVoices = [];
     let playSessionToken = 0;
     let calibratedCps = 7.4;
     let activeUtteranceRef = null;
-    let geminiKoVoicesCache = { key: "", pro: null, con: null, probed: false };
     let selectedProVoiceURI = localStorage.getItem("hannyang_pro_voice_uri") || "auto";
     let selectedConVoiceURI = localStorage.getItem("hannyang_con_voice_uri") || "auto";
 
@@ -1672,14 +1667,12 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const panelScript = document.getElementById("panelScriptTab");
       const panelPublish = document.getElementById("panelPublishTab");
       const addBtn = document.getElementById("addTurnBtn");
-      const badges = document.getElementById("scriptPerspectiveBadges");
 
       if (tabScript) tabScript.classList.toggle("active", !isPublish);
       if (tabPublish) tabPublish.classList.toggle("active", isPublish);
       if (panelScript) panelScript.classList.toggle("hidden", isPublish);
       if (panelPublish) panelPublish.classList.toggle("hidden", !isPublish);
       if (addBtn) addBtn.classList.toggle("hidden", isPublish);
-      if (badges) badges.classList.toggle("sm:hidden", isPublish);
     }
 
     function toggleCustomTextBox() {
@@ -1811,8 +1804,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         CONFIG.GOOGLE_API_KEY = DEFAULT_GKEY;
       }
       cloudTtsDisabled = false;
-      geminiTtsCooldownUntil = 0;
-      geminiKoVoicesCache = { key: "", pro: null, con: null, probed: false };
+      geminiApiCooldownUntil = 0;
       currentData._ttsAudioCache = {};
       currentData._turnAudioDur = {};
       currentData._turnAudioMeta = {};
@@ -1828,8 +1820,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       CONFIG.GOOGLE_API_KEY = DEFAULT_GKEY;
       document.getElementById("customApiKeyInput").value = "";
       cloudTtsDisabled = false;
-      geminiTtsCooldownUntil = 0;
-      geminiKoVoicesCache = { key: "", pro: null, con: null, probed: false };
+      geminiApiCooldownUntil = 0;
       currentData._ttsAudioCache = {};
       currentData._turnAudioDur = {};
       currentData._turnAudioMeta = {};
@@ -1892,6 +1883,14 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       }
     }
 
+    function resolvePresetMp4CandidateUrl(rawUrl) {
+      if (!rawUrl) return null;
+      if (window.location.protocol === "file:") {
+        return rawUrl.split("/").pop();
+      }
+      return rawUrl;
+    }
+
     async function ensureVideoPlayerSynced() {
       const videoEl = document.getElementById("realMp4Player");
       const overlayEl = document.getElementById("mp4RenderOverlay");
@@ -1911,12 +1910,16 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         return;
       }
 
-      // Only reuse a server MP4 directly if it actually contains synthesized speech!
-      if (currentData.video_mp4_url && currentData.has_voice_track && window.location.protocol.startsWith("http")) {
+      if (currentData.video_mp4_url && currentData.has_voice_track) {
+        const candidateUrl = resolvePresetMp4CandidateUrl(currentData.video_mp4_url);
+        if (window.location.protocol === "file:") {
+          applyVideoSrc(candidateUrl);
+          return;
+        }
         try {
-          const headRes = await fetch(currentData.video_mp4_url, { method: "HEAD" });
+          const headRes = await fetch(candidateUrl, { method: "HEAD" });
           if (headRes.ok) {
-            applyVideoSrc(currentData.video_mp4_url);
+            applyVideoSrc(candidateUrl);
             return;
           }
         } catch (e) {}
@@ -1935,7 +1938,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           applyVideoSrc(result.url);
         }
       } catch (err) {
-        if (currentData.video_mp4_url) applyVideoSrc(currentData.video_mp4_url);
+        if (currentData.video_mp4_url) applyVideoSrc(resolvePresetMp4CandidateUrl(currentData.video_mp4_url));
       } finally {
         if (overlayEl) overlayEl.classList.add("hidden");
       }
@@ -2641,16 +2644,20 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
         const gemPrompt = `다음 콘텐츠("${issueTitle}")의 실제 댓글 ${total}건을 분석해 6턴 아나운서 쇼츠 대본 JSON을 작성해라.\n규칙: ${modeGuidance}\n2명의 스튜디오 아나운서(speaker는 좌/우 발화 교차를 위해 PRO, CON 번갈아 배치)가 각 관점(perspective_id, perspective_label, color)을 번갈아 명쾌하게 소개한다.\n스펙: {"issue_title": "주제 한 줄 요약", "detected_mode": "multi", "mode_label": "예: 3관점 여론 비교", "perspectives": [{"id":"P1","label":"핵심 관점명","short_label":"짧은라벨(8자이내)","ratio":45,"color":"blue|red|violet|emerald"}], "debate_script": [{"speaker":"PRO","perspective_id":"P1","perspective_label":"짧은라벨","color":"blue","core_point":"핵심 요약","text":"비속어가 제거된 자연스러운 2문장 표준 한국어 아나운서 대사"}]}\n\n댓글 샘플:\n${sampleText}`;
 
-        for (const modelName of ["gemini-2.5-flash", "gemini-2.0-flash"]) {
+        if (Date.now() >= geminiApiCooldownUntil) {
+          const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+          const to = ctrl ? setTimeout(() => ctrl.abort(), 3000) : null;
           try {
-            const gemRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
+            const gemRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
+              signal: ctrl ? ctrl.signal : undefined,
               body: JSON.stringify({
                 contents: [{ parts: [{ text: gemPrompt }] }],
                 generationConfig: { responseMimeType: "application/json", temperature: 0.3 }
               })
             });
+            if (to) clearTimeout(to);
             if (gemRes.ok) {
               const gemJson = await gemRes.json();
               const rawReply = gemJson.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -2664,11 +2671,15 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
                   perspectives = norm.perspectives;
                   debateScript = norm.debate_script;
                   engineMode = `Gemini ${perspectives.length}관점 (${total}건)`;
-                  break;
                 }
               }
+            } else {
+              geminiApiCooldownUntil = Date.now() + 60000;
             }
-          } catch (gemErr) {}
+          } catch (gemErr) {
+            if (to) clearTimeout(to);
+            geminiApiCooldownUntil = Date.now() + 60000;
+          }
         }
 
         setPipelineStep("4/4 스튜디오 반영 완료");
@@ -2733,21 +2744,17 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         detox_samples: currentData.detox_samples || []
       });
       try {
-        let saved = false;
-        for (const table of ["hannyang_debates", "agora_debates"]) {
-          const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/${table}`, {
-            method: "POST",
-            headers: {
-              "apikey": CONFIG.SUPABASE_KEY,
-              "Authorization": `Bearer ${CONFIG.SUPABASE_KEY}`,
-              "Content-Type": "application/json",
-              "Prefer": "return=representation"
-            },
-            body: payload
-          });
-          if (res.ok) { saved = true; break; }
-        }
-        if (saved) {
+        const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/hannyang_debates`, {
+          method: "POST",
+          headers: {
+            "apikey": CONFIG.SUPABASE_KEY,
+            "Authorization": `Bearer ${CONFIG.SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=representation"
+          },
+          body: payload
+        });
+        if (res.ok) {
           btn.textContent = "저장됨";
           showToast("클라우드 아카이브에 저장됨");
           loadSupabaseArchive();
@@ -2764,58 +2771,24 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     async function loadSupabaseArchive() {
       const listEl = document.getElementById("supabaseArchiveList");
       try {
-        for (const table of ["hannyang_debates", "agora_debates"]) {
-          const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/${table}?select=id,issue_title,total_comments,filtered_curse_count,created_at&order=created_at.desc&limit=5`, {
-            headers: { "apikey": CONFIG.SUPABASE_KEY, "Authorization": `Bearer ${CONFIG.SUPABASE_KEY}` }
-          });
-          if (res.ok) {
-            const rows = await res.json();
-            if (rows && rows.length) {
-              listEl.innerHTML = rows.map((r) => `
-                <div class="studio-subpanel p-3 flex items-center justify-between gap-2">
-                  <div class="truncate">
-                    <div class="font-semibold text-[#111317] truncate">${escapeHtml(r.issue_title)}</div>
-                    <div class="text-[11.5px] text-[#71717A]">댓글 ${r.total_comments}건 · 정화 ${r.filtered_curse_count}건</div>
-                  </div>
-                  <span class="text-[11.5px] font-semibold text-[#059669] shrink-0">저장됨</span>
+        const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/hannyang_debates?select=id,issue_title,total_comments,filtered_curse_count,created_at&order=created_at.desc&limit=5`, {
+          headers: { "apikey": CONFIG.SUPABASE_KEY, "Authorization": `Bearer ${CONFIG.SUPABASE_KEY}` }
+        });
+        if (res.ok) {
+          const rows = await res.json();
+          if (rows && rows.length) {
+            listEl.innerHTML = rows.map((r) => `
+              <div class="studio-subpanel p-3 flex items-center justify-between gap-2">
+                <div class="truncate">
+                  <div class="font-semibold text-[#111317] truncate">${escapeHtml(r.issue_title)}</div>
+                  <div class="text-[11.5px] text-[#71717A]">댓글 ${r.total_comments}건 · 정화 ${r.filtered_curse_count}건</div>
                 </div>
-              `).join("");
-            }
-            return;
+                <span class="text-[11.5px] font-semibold text-[#059669] shrink-0">저장됨</span>
+              </div>
+            `).join("");
           }
         }
       } catch (e) {}
-    }
-
-    function encodeFloat32MonoToWavB64(samples, sampleRate = 24000) {
-      const numSamples = samples.length;
-      const buf = new ArrayBuffer(44 + numSamples * 2);
-      const view = new DataView(buf);
-      const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
-      writeStr(0, "RIFF");
-      view.setUint32(4, 36 + numSamples * 2, true);
-      writeStr(8, "WAVE");
-      writeStr(12, "fmt ");
-      view.setUint32(16, 16, true);
-      view.setUint16(20, 1, true);
-      view.setUint16(22, 1, true);
-      view.setUint32(24, sampleRate, true);
-      view.setUint32(28, sampleRate * 2, true);
-      view.setUint16(32, 2, true);
-      view.setUint16(34, 16, true);
-      writeStr(36, "data");
-      view.setUint32(40, numSamples * 2, true);
-      for (let i = 0; i < numSamples; i++) {
-        const s = Math.max(-1, Math.min(1, samples[i]));
-        view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-      }
-      const bytes = new Uint8Array(buf);
-      let bin = "";
-      const chunk = 0x8000;
-      for (let i = 0; i < bytes.length; i += chunk) {
-        bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
-      }
-      return btoa(bin);
     }
 
     function parseSampleRateFromMime(mimeType, fallback = 24000) {
@@ -3088,140 +3061,34 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
     async function fetchCloudTtsTurn(turn) {
       if (cloudTtsDisabled) return null;
       const isPro = turn.speaker === "PRO";
-      const candidates = isPro ? ["ko-KR-Neural2-C", "ko-KR-Wavenet-C"] : ["ko-KR-Neural2-A", "ko-KR-Wavenet-A"];
+      const voiceName = isPro ? "ko-KR-Neural2-C" : "ko-KR-Neural2-A";
       const spokenText = normalizeKoreanForTts(turn.text);
       if (!spokenText) return null;
 
-      for (const name of candidates) {
-        try {
-          const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${CONFIG.GOOGLE_API_KEY}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              input: { text: spokenText },
-              voice: { languageCode: "ko-KR", name },
-              audioConfig: { audioEncoding: "LINEAR16", sampleRateHertz: 24000, speakingRate: 1.0, pitch: 0.0 }
-            })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.audioContent) {
-              return { b64: data.audioContent, mimeType: "audio/wav", engine: `Cloud ${name}` };
-            }
-          } else if (res.status === 401 || res.status === 403) {
-            cloudTtsDisabled = true;
-            return null;
+      const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const to = ctrl ? setTimeout(() => ctrl.abort(), 2500) : null;
+      try {
+        const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${CONFIG.GOOGLE_API_KEY}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: ctrl ? ctrl.signal : undefined,
+          body: JSON.stringify({
+            input: { text: spokenText },
+            voice: { languageCode: "ko-KR", name: voiceName },
+            audioConfig: { audioEncoding: "LINEAR16", sampleRateHertz: 24000, speakingRate: 1.0, pitch: 0.0 }
+          })
+        });
+        if (to) clearTimeout(to);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.audioContent) {
+            return { b64: data.audioContent, mimeType: "audio/wav", engine: `Cloud ${voiceName}` };
           }
-        } catch (e) {}
-      }
-      return null;
-    }
-
-    async function fetchGeminiKoreanVoices(apiKey) {
-      if (geminiKoVoicesCache.probed && geminiKoVoicesCache.key === apiKey) {
-        return geminiKoVoicesCache;
-      }
-      const result = { key: apiKey, pro: null, con: null, probed: true };
-      const endpoints = [
-        `https://generativelanguage.googleapis.com/v1beta/voices?language_code=ko-KR&type=prebuilt&page_size=50&key=${apiKey}`,
-        `https://generativelanguage.googleapis.com/v1beta/voices?language_code=ko-KR&page_size=50&key=${apiKey}`
-      ];
-      for (const url of endpoints) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) continue;
-          const json = await res.json();
-          const voices = json.voices || [];
-          const koList = voices.filter((v) => {
-            const langs = v.languageCodes || (v.languageCode ? [v.languageCode] : []);
-            return !langs.length || langs.some((l) => String(l).toLowerCase().startsWith("ko"));
-          });
-          if (koList.length) {
-            const pickId = (v) => v ? (v.voiceId || (v.name || "").replace(/^voices\//, "") || "") : "";
-            const isMale = (v) => /male|man|남/i.test(`${v.gender || ""} ${v.ssmlGender || ""} ${v.displayName || ""} ${v.name || ""}`) && !/female/i.test(`${v.gender || ""} ${v.ssmlGender || ""}`);
-            const isFemale = (v) => /female|woman|여/i.test(`${v.gender || ""} ${v.ssmlGender || ""} ${v.displayName || ""} ${v.name || ""}`);
-            const maleV = koList.find(isMale) || koList[0];
-            const femaleV = koList.find((v) => isFemale(v) && v !== maleV) || koList.find((v) => v !== maleV) || koList[0];
-            result.pro = pickId(maleV) || null;
-            result.con = pickId(femaleV) || null;
-            break;
-          }
-        } catch (e) {}
-      }
-      geminiKoVoicesCache = result;
-      return result;
-    }
-
-    let lastGeminiErrorStatus = 0;
-
-    async function fetchGeminiSingleTurn(turn, allowMultilingualFallback = false) {
-      if (Date.now() < geminiTtsCooldownUntil) {
-        lastGeminiErrorStatus = 429;
-        return null;
-      }
-      lastGeminiErrorStatus = 0;
-      const isPro = turn.speaker === "PRO";
-      const spokenText = normalizeKoreanForTts(turn.text);
-      if (!spokenText) return null;
-
-      const koVoices = await fetchGeminiKoreanVoices(CONFIG.GOOGLE_API_KEY);
-      const koVoiceId = isPro ? koVoices.pro : koVoices.con;
-
-      const tries = [];
-      if (koVoiceId) {
-        tries.push(
-          { model: "gemini-3.8-flash-tts", meta: true, voiceConfig: { voice: koVoiceId }, label: `Gemini 3.8 ko-KR (${koVoiceId.slice(0, 12)})` },
-          { model: "gemini-3.8-flash-lite-tts", meta: true, voiceConfig: { voice: koVoiceId }, label: `Gemini 3.8 Lite ko-KR` }
-        );
-      } else if (allowMultilingualFallback) {
-        const vName = isPro ? "Charon" : "Sulafat";
-        tries.push(
-          { model: "gemini-3.8-flash-tts", meta: true, voiceConfig: { prebuiltVoiceConfig: { voiceName: vName } }, label: `Gemini 3.8 ${vName}` },
-          { model: "gemini-3.8-flash-lite-tts", meta: true, voiceConfig: { prebuiltVoiceConfig: { voiceName: vName } }, label: `Gemini 3.8 Lite ${vName}` },
-          { model: "gemini-2.5-flash-tts", meta: false, voiceConfig: { prebuiltVoiceConfig: { voiceName: vName } }, label: `Gemini 2.5 ${vName}` }
-        );
-      } else {
-        return null;
-      }
-
-      for (const item of tries) {
-        const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
-        const to = ctrl ? setTimeout(() => ctrl.abort(), 14000) : null;
-        try {
-          const part = item.meta
-            ? { text: spokenText, speechMetadata: { style: "Calm, crisp standard Seoul Korean broadcast panelist" } }
-            : { text: spokenText };
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${item.model}:generateContent?key=${CONFIG.GOOGLE_API_KEY}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            signal: ctrl ? ctrl.signal : undefined,
-            body: JSON.stringify({
-              contents: [{ parts: [part] }],
-              generationConfig: {
-                responseModalities: ["AUDIO"],
-                speechConfig: { voiceConfig: item.voiceConfig }
-              }
-            })
-          });
-          if (to) clearTimeout(to);
-          if (res.ok) {
-            const data = await res.json();
-            const partsList = data.candidates?.[0]?.content?.parts || [];
-            const inl = (partsList.find((p) => p && p.inlineData && p.inlineData.data) || {}).inlineData;
-            if (inl && inl.data) {
-              return { b64: inl.data, mimeType: inl.mimeType || "audio/L16;rate=24000", engine: item.label };
-            }
-          } else {
-            lastGeminiErrorStatus = res.status;
-            if (res.status === 429) {
-              geminiTtsCooldownUntil = Date.now() + 25000;
-              return null;
-            }
-            if (res.status === 401 || res.status === 403) return null;
-          }
-        } catch (e) {
-          if (to) clearTimeout(to);
         }
+        cloudTtsDisabled = true;
+      } catch (e) {
+        if (to) clearTimeout(to);
+        cloudTtsDisabled = true;
       }
       return null;
     }
@@ -3245,7 +3112,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       return currentData._ttsAudioCache[turnIdx];
     }
 
-    async function fetchTurnVoice(turnIdx, opts = {}) {
+    async function fetchTurnVoice(turnIdx) {
       const turns = currentData.debate_script || [];
       const turn = turns[turnIdx];
       if (!turn || !turn.text) return null;
@@ -3262,12 +3129,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         return currentData._ttsAudioCache[turnIdx];
       }
 
-      const engineMode = opts.engineMode || document.getElementById("voiceEngineSelect")?.value || "auto";
-      const allowMultilingualFallback = !!opts.allowMultilingualFallback;
-      let resObj = engineMode === "gemini" ? null : await fetchCloudTtsTurn(turn);
-      if (!resObj && (engineMode === "gemini" || allowMultilingualFallback)) {
-        resObj = await fetchGeminiSingleTurn(turn, allowMultilingualFallback);
-      }
+      const resObj = await fetchCloudTtsTurn(turn);
       return await cacheAndAnalyzeTurnVoice(turnIdx, turn, resObj);
     }
 
@@ -3297,8 +3159,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         return { ok: true, voicedCount: turns.length, totalTurns: turns.length, mode: "cached", reason: "" };
       }
 
-      // 1) Cloud Neural2 한국어 아나운서 (빠른 병렬 처리)
-      if (!cloudTtsDisabled && engineMode !== "gemini") {
+      if (!cloudTtsDisabled) {
         onProgress(8, "Google Cloud 한국어 아나운서 음성 확인 중...");
         const firstRes = await fetchCloudTtsTurn(turns[0]);
         if (firstRes && firstRes.b64) {
@@ -3314,32 +3175,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         }
       }
 
-      // 2) Live preview in "auto" mode: never degrade to mismatched English accents or 429 mid-video;
-      //    use crisp Per-Clause Event-Locked Browser Korean TTS consistently across all turns!
-      if (!forVideoExport && engineMode === "auto") {
-        return { ok: false, voicedCount: 0, totalTurns: turns.length, mode: "browser", reason: "" };
-      }
-
-      // 3) Dedicated single-turn Gemini Korean TTS (when user chose "gemini" or for Canvas video export)
-      let voicedCount = 0;
-      for (let i = 0; i < turns.length; i++) {
-        onProgress(8 + Math.round(((i + 1) / turns.length) * 12), `턴 ${i + 1}/${turns.length} AI 음성 생성 중...`);
-        const cached = currentData._ttsAudioCache[i];
-        if (cached && cached.key === `${turns[i].speaker}:${turns[i].text}` && cached.b64) {
-          if (!currentData._turnAudioMeta[i]) await cacheAndAnalyzeTurnVoice(i, turns[i], cached);
-          voicedCount++;
-          continue;
-        }
-        const got = await fetchTurnVoice(i, {
-          engineMode: "gemini",
-          allowMultilingualFallback: (forVideoExport || engineMode === "gemini")
-        });
-        if (got && got.b64) voicedCount++;
-        if (lastGeminiErrorStatus === 429 || lastGeminiErrorStatus === 403 || Date.now() < geminiTtsCooldownUntil) break;
-      }
-      renderScriptList();
-      const reason = lastGeminiErrorStatus === 429 ? "quota_429" : (lastGeminiErrorStatus ? `http_${lastGeminiErrorStatus}` : "");
-      return { ok: voicedCount === turns.length, partial: voicedCount > 0 && voicedCount < turns.length, voicedCount, totalTurns: turns.length, mode: "gemini", reason };
+      return { ok: false, voicedCount: 0, totalTurns: turns.length, mode: "browser", reason: "" };
     }
 
     function wrapWordsByWidth(ctx, text, maxPx, maxLines = 4) {
@@ -4184,7 +4020,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
 
     async function exportReal916Video() {
       const statusEl = document.getElementById("mp4ExportStatus");
-      // Resume AudioContext synchronously inside user click gesture BEFORE async waits!
       getOrResumeAudioContext();
       const setStatus = (msg, clsColor = "text-slate-600") => {
         if (!statusEl) return;
@@ -4193,20 +4028,24 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         statusEl.textContent = msg;
       };
       try {
-        // Only direct-download pre-baked MP4 if it is verified to include real spoken dialogue
-        if (window.location.protocol.startsWith("http") && currentData.video_mp4_url && currentData.has_voice_track) {
-          try {
-            const headRes = await fetch(currentData.video_mp4_url, { method: "HEAD" });
-            if (headRes.ok) {
-              const a = document.createElement("a");
-              a.href = currentData.video_mp4_url;
-              a.download = `${currentData.id || "hannyang_shorts"}_9x16.mp4`;
-              a.click();
-              setStatus("MP4 다운로드 완료", "text-emerald-600");
-              showToast("음성 포함 1080×1920 MP4 다운로드 완료");
-              return;
-            }
-          } catch (e) {}
+        if (currentData.video_mp4_url && currentData.has_voice_track) {
+          const candidateUrl = resolvePresetMp4CandidateUrl(currentData.video_mp4_url);
+          let canDirectDownload = window.location.protocol === "file:";
+          if (!canDirectDownload) {
+            try {
+              const headRes = await fetch(candidateUrl, { method: "HEAD" });
+              canDirectDownload = headRes.ok;
+            } catch (e) {}
+          }
+          if (canDirectDownload) {
+            const a = document.createElement("a");
+            a.href = candidateUrl;
+            a.download = `${currentData.id || "hannyang_shorts"}_9x16.mp4`;
+            a.click();
+            setStatus("MP4 다운로드 완료", "text-emerald-600");
+            showToast("음성 포함 1080×1920 MP4 다운로드 완료");
+            return;
+          }
         }
 
         setStatus("음성·영상 준비 중...", "text-sky-600");
@@ -4222,15 +4061,9 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           if (res.hasVoice) {
             setStatus(`음성 합본 .${ext} 저장 완료`, "text-emerald-600");
             showToast(`AI 음성 합본 1080×1920 (.${ext}) 저장 완료`);
-          } else if (res.partialVoice) {
-            setStatus(`일부 음성 반영 (${res.voicedCount || 0}/${res.totalTurns || 6}턴)`, "text-amber-600");
-            showToast("할당량 제한으로 일부 턴 음성만 반영됨 — [음성 · API]에서 키 확인");
           } else {
-            const reasonPrefix = res.reason === "quota_429"
-              ? "음성 할당량(429) 초과 · "
-              : "음성 키 제한 · ";
-            setStatus(`${reasonPrefix}BGM .${ext} 저장됨`, "text-amber-600");
-            showToast(`${reasonPrefix}BGM 버전(.${ext}) 저장됨 — [음성 · API]에서 키 설정 가능`);
+            setStatus(`스튜디오 .${ext} 저장 완료`, "text-emerald-600");
+            showToast(`스튜디오 1080×1920 (.${ext}) 저장 완료`);
           }
           if (playerMode === "video") {
             const videoEl = document.getElementById("realMp4Player");
@@ -4242,22 +4075,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         setStatus("영상 생성 실패", "text-red-600");
         showToast(`영상 생성 오류: ${err && err.message ? err.message : "렌더링 실패"}`);
       }
-    }
-
-    function copyVideoAiPrompt(btn) {
-      const promptText = [
-        `[한냥 9:16 YouTube Shorts Video Prompt]`,
-        `Topic: ${currentData.issue_title}`,
-        `Format: ${currentData.mode_label || "Multi-perspective curation"}`,
-        `2 anchors present diverse audience perspectives behind a dark broadcast desk.`,
-        ...currentData.debate_script.map((t, i) => `Turn ${i + 1} [${t.perspective_label || t.speaker}] (${t.speaker}): ${t.text}`)
-      ].join("\n");
-      navigator.clipboard.writeText(promptText).then(() => {
-        const orig = btn.textContent;
-        btn.textContent = "복사됨";
-        showToast("영상 AI 프롬프트 복사됨");
-        setTimeout(() => { btn.textContent = orig; }, 1500);
-      });
     }
 
     function playTurnChime(turnOrSpeaker) {
@@ -4354,12 +4171,6 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
             </span>
           `;
         }).join("");
-      }
-
-      const perspBadgesEl = document.getElementById("scriptPerspectiveBadges");
-      if (perspBadgesEl) {
-        perspBadgesEl.className = "hidden";
-        perspBadgesEl.innerHTML = "";
       }
 
       document.getElementById("reportIssueTitle").textContent = data.issue_title;
@@ -4919,10 +4730,8 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
       const engineMode = document.getElementById("voiceEngineSelect")?.value || "auto";
       let resolvedEngine = engineMode;
 
-      // Never mix voices mid-video: resolve consistent engine upfront across all turns
-      if (engineMode !== "browser") {
-        document.getElementById("ttsStatusLabel").textContent =
-          engineMode === "gemini" ? "Gemini 한국어 음성 생성 중..." : "고품질 음성 확인 중...";
+      if (engineMode !== "browser" && !cloudTtsDisabled) {
+        document.getElementById("ttsStatusLabel").textContent = "고품질 음성 확인 중...";
         updateShortsTurnVisual(startIdx, false);
         const voicePrep = await prepareAllVoices((_, lbl) => {
           if (isPlaying && mySession === playSessionToken) {
@@ -4930,18 +4739,9 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
           }
         }, { engineMode });
         if (!isPlaying || mySession !== playSessionToken) return;
-
-        if (!voicePrep || !voicePrep.ok) {
-          resolvedEngine = "browser";
-          if (engineMode === "gemini") {
-            document.getElementById("ttsStatusLabel").textContent =
-              voicePrep && voicePrep.reason === "quota_429"
-                ? "Gemini 할당량 초과 → 표준 한국어 통일 재생"
-                : "Gemini 미응답 → 표준 한국어 통일 재생";
-          }
-        } else {
-          resolvedEngine = voicePrep.mode || engineMode;
-        }
+        resolvedEngine = (voicePrep && voicePrep.ok) ? (voicePrep.mode || engineMode) : "browser";
+      } else {
+        resolvedEngine = "browser";
       }
 
       if (hadSpeech && resolvedEngine === "browser") {

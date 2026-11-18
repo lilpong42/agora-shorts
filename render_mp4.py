@@ -4,11 +4,14 @@ render_mp4.py
 한냥 (Hannyang) Full-HD 1080x1920 @ 30fps 방송형 토론 쇼츠 MP4 렌더링 엔진 (H.264 High + AAC).
 - 고정 40초 제한 해제: 실제 TTS 음성 길이(또는 자연스러운 한국어 낭독 속도)에 맞춘 가변 턴/전체 타임라인
 - 입체 뉴스룸 토론 세트 + 스모크 글래스 데스크 & 듀얼 방송 마이크 포그라운드 마스킹
-- 2절(문장) 분할 초대형 고대비 자막 카드 (39px Bold + #334155 고대비 대기 텍스트 + 논거 원문 보존)
-- Cloud Neural2 한국어 TTS -> Gemini 3.8 / 2.5 TTS 자동 합성 + 스튜디오 BGM/스팅어 믹싱
+- 4단 가독성 계층 HUD (골드 영상 주제 빌보드 + 화자 입장 배지 + 핵심 주장 박스 + 38px 카라오케 자막)
+- 병렬 한국어 Neural TTS 합성 + 디스크 캐시 + 프레임 스테이지 캐싱 고속 렌더링
 """
 
+import asyncio
 import base64
+import concurrent.futures
+import hashlib
 import json
 import math
 import os
@@ -28,6 +31,8 @@ BASE_DIR = Path(__file__).resolve().parent
 ASSETS_DIR = BASE_DIR / "static" / "assets"
 VIDEOS_DIR = BASE_DIR / "static" / "videos"
 VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
+TTS_CACHE_DIR = Path("/tmp/hannyang_tts_cache")
+TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 PRO_AVATAR_PATH = ASSETS_DIR / "pro_avatar.png"
 CON_AVATAR_PATH = ASSETS_DIR / "con_avatar.png"
@@ -35,15 +40,53 @@ STUDIO_SET_PATH = ASSETS_DIR / "studio_set.jpg"
 STUDIO_DESK_FG_PATH = ASSETS_DIR / "studio_desk_fg.png"
 
 FONT_BOLD_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
-FONT_REG_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
-if not Path(FONT_REG_PATH).exists():
-    FONT_REG_PATH = FONT_BOLD_PATH
 
 FPS = 30
 W, H = 1080, 1920
 SAMPLE_RATE = 24000
 
 _DEFAULT_GKEY = "".join(["AI", "zaSyAZzWv", "KA41M7GXj9d", "GN8tmluyCskcf2ymI"])
+_CLOUD_TTS_DISABLED = False
+_STAGE_ASSETS_CACHE: Optional[Dict[str, Any]] = None
+_FONTS_CACHE: Optional[Dict[str, ImageFont.FreeTypeFont]] = None
+
+PALETTE: Dict[str, Dict[str, Any]] = {
+    "blue": {
+        "accent": (37, 99, 235, 255),
+        "pill": (219, 234, 254, 255),
+        "txt": (29, 78, 216, 255),
+        "glow": (37, 99, 235),
+        "bar": (96, 165, 250, 255),
+    },
+    "red": {
+        "accent": (220, 38, 38, 255),
+        "pill": (254, 226, 226, 255),
+        "txt": (185, 28, 28, 255),
+        "glow": (220, 38, 38),
+        "bar": (248, 113, 113, 255),
+    },
+    "violet": {
+        "accent": (124, 58, 237, 255),
+        "pill": (237, 233, 254, 255),
+        "txt": (109, 40, 217, 255),
+        "glow": (124, 58, 237),
+        "bar": (167, 139, 250, 255),
+    },
+    "emerald": {
+        "accent": (5, 150, 105, 255),
+        "pill": (209, 250, 229, 255),
+        "txt": (4, 120, 87, 255),
+        "glow": (5, 150, 105),
+        "bar": (52, 211, 153, 255),
+    },
+    "amber": {
+        "accent": (217, 119, 6, 255),
+        "pill": (254, 243, 199, 255),
+        "txt": (180, 83, 9, 255),
+        "glow": (217, 119, 6),
+        "bar": (251, 191, 36, 255),
+    },
+}
 
 
 def _load_font(path: str, size: int) -> ImageFont.FreeTypeFont:
@@ -51,6 +94,39 @@ def _load_font(path: str, size: int) -> ImageFont.FreeTypeFont:
         return ImageFont.truetype(path, size)
     except Exception:
         return ImageFont.load_default()
+
+
+def _get_fonts() -> Dict[str, ImageFont.FreeTypeFont]:
+    global _FONTS_CACHE
+    if _FONTS_CACHE is None:
+        _FONTS_CACHE = {
+            "hud": _load_font(FONT_BOLD_PATH, 23),
+            "badge_sm": _load_font(FONT_BOLD_PATH, 19),
+            "topic_tag": _load_font(FONT_BOLD_PATH, 20),
+            "claim_tag": _load_font(FONT_BOLD_PATH, 18),
+            "desk_plate": _load_font(FONT_BOLD_PATH, 22),
+            "title_xl": _load_font(FONT_BOLD_PATH, 44),
+            "title_lg": _load_font(FONT_BOLD_PATH, 40),
+            "title_md": _load_font(FONT_BOLD_PATH, 36),
+            "speaker": _load_font(FONT_BOLD_PATH, 23),
+            "meta": _load_font(FONT_BOLD_PATH, 20),
+            "core_lg": _load_font(FONT_BOLD_PATH, 27),
+            "core_md": _load_font(FONT_BOLD_PATH, 24),
+            "core_sm": _load_font(FONT_BOLD_PATH, 21),
+            "body_xl": _load_font(FONT_BOLD_PATH, 38),
+            "body_lg": _load_font(FONT_BOLD_PATH, 34),
+            "stat": _load_font(FONT_BOLD_PATH, 23),
+            "stat_sm": _load_font(FONT_BOLD_PATH, 20),
+            "brand": _load_font(FONT_BOLD_PATH, 23),
+        }
+    return _FONTS_CACHE
+
+
+def _get_turn_color_key(turn: Dict[str, Any]) -> str:
+    ck = (turn.get("color") or "").strip().lower()
+    if ck in PALETTE:
+        return ck
+    return "blue" if turn.get("speaker") == "PRO" else "red"
 
 
 def _wrap_words_by_width(
@@ -111,8 +187,7 @@ def _split_turn_into_clauses(text: str) -> List[str]:
     for i in range(lo, hi + 1):
         prev_w = words[i - 1]
         left_chars = sum(len(w) for w in words[:i])
-        balance_pen = abs(left_chars - total_chars * 0.5) * 0.16
-        sc = -balance_pen
+        sc = -abs(left_chars - total_chars * 0.5) * 0.16
         if prev_w.endswith(","):
             sc += 10.0
         elif re.search(r"(위해|보다|지만|으나|으며|므로|면서|도록|는데|거나|거든)$", prev_w):
@@ -141,8 +216,7 @@ def normalize_korean_for_tts(text: str) -> str:
     s = re.sub(r"(\d+(?:\.\d+)?)\s*pt\b", r"\1포인트", s, flags=re.IGNORECASE)
     s = re.sub(r"\.{2,}", ".", s)
     s = re.sub(r"\s*,\s*,\s*", ", ", s)
-    s = re.sub(r"\s+", " ", s).strip()
-    return s
+    return re.sub(r"\s+", " ", s).strip()
 
 
 def _build_weighted_word_timeline(words: List[str]) -> List[Tuple[float, float]]:
@@ -217,8 +291,7 @@ def _analyze_pcm_clause_timing(
         for wt in weights:
             s0 = usable_start + (acc_w / tot_wt) * span
             acc_w += wt
-            s1 = usable_start + (acc_w / tot_wt) * span
-            win_out.append((s0, s1))
+            win_out.append((s0, usable_start + (acc_w / tot_wt) * span))
         return win_out
 
     dur_audio = len(pcm) / float(sample_rate)
@@ -230,8 +303,7 @@ def _analyze_pcm_clause_timing(
         for wt in weights:
             s0 = lead_in_sec + (acc_w / tot_wt) * dur_audio
             acc_w += wt
-            s1 = lead_in_sec + (acc_w / tot_wt) * dur_audio
-            win_out.append((s0, s1))
+            win_out.append((s0, lead_in_sec + (acc_w / tot_wt) * dur_audio))
         return win_out
 
     trimmed = pcm[: n_win * win_samples].reshape(n_win, win_samples)
@@ -269,8 +341,7 @@ def _analyze_pcm_clause_timing(
         best_sc = float("inf")
         for w in range(w_lo, w_hi + 1):
             local_mean = float(np.mean(rms[max(0, w - 2) : min(n_win, w + 3)]))
-            dist_pen = abs(w - exp_w) * (peak_rms * 0.002)
-            sc = local_mean + dist_pen
+            sc = local_mean + abs(w - exp_w) * (peak_rms * 0.002)
             if sc < best_sc:
                 best_sc = sc
                 best_w = w
@@ -285,9 +356,7 @@ def _resolve_clause_and_word(
     word_timelines: List[List[Tuple[float, float]]],
     clause_windows: List[Tuple[float, float]],
 ) -> Tuple[int, int]:
-    if not clause_windows:
-        return 0, 0
-    if local_t < clause_windows[0][0]:
+    if not clause_windows or local_t < clause_windows[0][0]:
         return 0, 0
     for ci, (s0, s1) in enumerate(clause_windows):
         next_s0 = clause_windows[ci + 1][0] if ci + 1 < len(clause_windows) else float("inf")
@@ -302,99 +371,9 @@ def _resolve_clause_and_word(
     return last_ci, max(0, len(last_tl) - 1)
 
 
-_GEMINI_KO_VOICES_CACHE: Dict[str, Tuple[Optional[str], Optional[str]]] = {}
-
-PALETTE: Dict[str, Dict[str, Any]] = {
-    "blue": {
-        "accent": (37, 99, 235, 255),
-        "pill": (219, 234, 254, 255),
-        "txt": (29, 78, 216, 255),
-        "glow": (37, 99, 235),
-        "bar": (96, 165, 250, 255),
-    },
-    "red": {
-        "accent": (220, 38, 38, 255),
-        "pill": (254, 226, 226, 255),
-        "txt": (185, 28, 28, 255),
-        "glow": (220, 38, 38),
-        "bar": (248, 113, 113, 255),
-    },
-    "violet": {
-        "accent": (124, 58, 237, 255),
-        "pill": (237, 233, 254, 255),
-        "txt": (109, 40, 217, 255),
-        "glow": (124, 58, 237),
-        "bar": (167, 139, 250, 255),
-    },
-    "emerald": {
-        "accent": (5, 150, 105, 255),
-        "pill": (209, 250, 229, 255),
-        "txt": (4, 120, 87, 255),
-        "glow": (5, 150, 105),
-        "bar": (52, 211, 153, 255),
-    },
-    "amber": {
-        "accent": (217, 119, 6, 255),
-        "pill": (254, 243, 199, 255),
-        "txt": (180, 83, 9, 255),
-        "glow": (217, 119, 6),
-        "bar": (251, 191, 36, 255),
-    },
-}
-
-
-def _get_turn_color_key(turn: Dict[str, Any]) -> str:
-    ck = (turn.get("color") or "").strip().lower()
-    if ck in PALETTE:
-        return ck
-    return "blue" if turn.get("speaker") == "PRO" else "red"
-
-
-def _fetch_gemini_korean_voices(key: str) -> Tuple[Optional[str], Optional[str]]:
-    if key in _GEMINI_KO_VOICES_CACHE:
-        return _GEMINI_KO_VOICES_CACHE[key]
-    pro_id: Optional[str] = None
-    con_id: Optional[str] = None
-    for qs in ("language_code=ko-KR&type=prebuilt&page_size=50", "language_code=ko-KR&page_size=50"):
-        url = f"https://generativelanguage.googleapis.com/v1beta/voices?{qs}&key={key}"
-        try:
-            with urllib.request.urlopen(url, timeout=6) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-            voices = data.get("voices") or []
-            ko_list = [
-                v for v in voices
-                if not (v.get("languageCodes") or v.get("languageCode"))
-                or any(str(l).lower().startswith("ko") for l in (v.get("languageCodes") or [v.get("languageCode")]))
-            ]
-            if ko_list:
-                def pick_id(v: Dict[str, Any]) -> Optional[str]:
-                    vid = v.get("voiceId") or re.sub(r"^voices/", "", v.get("name", ""))
-                    return vid or None
-
-                def is_male(v: Dict[str, Any]) -> bool:
-                    desc = f"{v.get('gender', '')} {v.get('ssmlGender', '')} {v.get('displayName', '')} {v.get('name', '')}"
-                    return bool(re.search(r"male|man|남", desc, re.I)) and not bool(re.search(r"female", desc, re.I))
-
-                def is_female(v: Dict[str, Any]) -> bool:
-                    desc = f"{v.get('gender', '')} {v.get('ssmlGender', '')} {v.get('displayName', '')} {v.get('name', '')}"
-                    return bool(re.search(r"female|woman|여", desc, re.I))
-
-                male_v = next((v for v in ko_list if is_male(v)), ko_list[0])
-                female_v = next((v for v in ko_list if is_female(v) and v is not male_v), None) or next((v for v in ko_list if v is not male_v), ko_list[0])
-                pro_id = pick_id(male_v)
-                con_id = pick_id(female_v)
-                break
-        except Exception:
-            continue
-    _GEMINI_KO_VOICES_CACHE[key] = (pro_id, con_id)
-    return pro_id, con_id
-
-
 def _try_edge_tts_bytes(spoken_text: str, is_pro: bool) -> Optional[bytes]:
-    """무료 Microsoft Edge Korean Neural 음성 (ko-KR-InJoonNeural / ko-KR-SunHiNeural) 폴백."""
+    """무료 Microsoft Edge Korean Neural 음성 (ko-KR-InJoonNeural / ko-KR-SunHiNeural)."""
     try:
-        import asyncio
-        import concurrent.futures
         import edge_tts  # type: ignore
     except Exception:
         return None
@@ -409,100 +388,66 @@ def _try_edge_tts_bytes(spoken_text: str, is_pro: bool) -> Optional[bytes]:
                 buf.extend(chunk["data"])
         return bytes(buf)
 
-    def _thread_entry() -> bytes:
-        return asyncio.run(_run())
-
     try:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-            data = pool.submit(_thread_entry).result(timeout=8)
-            return data if len(data) > 256 else None
+        data = asyncio.run(_run())
+        return data if len(data) > 256 else None
     except Exception:
         return None
 
 
 def fetch_tts_audio_bytes(text: str, speaker: str, api_key: Optional[str] = None) -> Optional[bytes]:
     """
-    1) Google Cloud TTS (ko-KR-Neural2-C / ko-KR-Neural2-A, speakingRate=1.0)
-    2) Edge TTS Korean Neural (ko-KR-InJoonNeural / ko-KR-SunHiNeural) — 무료 표준 한국어
-    3) Gemini 3.8 Flash TTS 한국어 보이스 조회 후 합성 (외국인 억양 방지)
+    1) 로컬 디스크 캐시 (/tmp/hannyang_tts_cache) 즉시 조회
+    2) Google Cloud TTS (ko-KR-Neural2-C / ko-KR-Neural2-A)
+    3) Edge TTS Korean Neural (ko-KR-InJoonNeural / ko-KR-SunHiNeural)
     """
-    key = (api_key or os.environ.get("GOOGLE_API_KEY") or _DEFAULT_GKEY).strip()
+    global _CLOUD_TTS_DISABLED
     spoken_text = normalize_korean_for_tts(text)
     if not spoken_text:
         return None
 
     is_pro = speaker == "PRO"
+    cache_hash = hashlib.sha256(f"{'PRO' if is_pro else 'CON'}:{spoken_text}".encode("utf-8")).hexdigest()[:24]
+    cache_file = TTS_CACHE_DIR / f"{cache_hash}.bin"
+    if cache_file.exists() and cache_file.stat().st_size > 256:
+        try:
+            return cache_file.read_bytes()
+        except Exception:
+            pass
 
-    # Tier 1: Google Cloud Korean Neural2
-    if key:
+    key = (api_key or os.environ.get("GOOGLE_API_KEY") or _DEFAULT_GKEY).strip()
+    if key and not _CLOUD_TTS_DISABLED:
         cloud_url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={key}"
-        for voice_name in (["ko-KR-Neural2-C", "ko-KR-Wavenet-C"] if is_pro else ["ko-KR-Neural2-A", "ko-KR-Wavenet-A"]):
-            cloud_payload = json.dumps({
-                "input": {"text": spoken_text},
-                "voice": {"languageCode": "ko-KR", "name": voice_name},
-                "audioConfig": {
-                    "audioEncoding": "LINEAR16",
-                    "sampleRateHertz": SAMPLE_RATE,
-                    "speakingRate": 1.0,
-                    "pitch": 0.0,
-                },
-            }).encode("utf-8")
-            try:
-                req = urllib.request.Request(cloud_url, data=cloud_payload, headers={"Content-Type": "application/json"})
-                with urllib.request.urlopen(req, timeout=8) as resp:
-                    data = json.loads(resp.read().decode("utf-8"))
-                    ac = data.get("audioContent")
-                    if ac:
-                        return base64.b64decode(ac)
-            except Exception:
-                break
-
-    # Tier 2: Edge Korean Neural TTS
-    edge_bytes = _try_edge_tts_bytes(spoken_text, is_pro)
-    if edge_bytes:
-        return edge_bytes
-
-    # Tier 3: Gemini TTS (discover native Korean voices first, avoid Orus/Kore)
-    if not key:
-        return None
-    pro_ko, con_ko = _fetch_gemini_korean_voices(key)
-    ko_voice_id = pro_ko if is_pro else con_ko
-    tries: List[Tuple[str, bool, Dict[str, Any]]] = []
-    if ko_voice_id:
-        tries.extend([
-            ("gemini-3.8-flash-tts", True, {"voice": ko_voice_id}),
-            ("gemini-3.8-flash-lite-tts", True, {"voice": ko_voice_id}),
-        ])
-    else:
-        fallback_name = "Charon" if is_pro else "Sulafat"
-        tries.extend([
-            ("gemini-3.8-flash-tts", True, {"prebuiltVoiceConfig": {"voiceName": fallback_name}}),
-            ("gemini-2.5-flash-tts", False, {"prebuiltVoiceConfig": {"voiceName": fallback_name}}),
-        ])
-
-    for model_id, use_meta, v_cfg in tries:
-        gem_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={key}"
-        part: Dict[str, Any] = {"text": spoken_text}
-        if use_meta:
-            part["speechMetadata"] = {"style": "Calm, articulate standard Seoul Korean broadcast news panelist"}
-        payload = json.dumps({
-            "contents": [{"parts": [part]}],
-            "generationConfig": {
-                "responseModalities": ["AUDIO"],
-                "speechConfig": {"voiceConfig": v_cfg},
+        voice_name = "ko-KR-Neural2-C" if is_pro else "ko-KR-Neural2-A"
+        cloud_payload = json.dumps({
+            "input": {"text": spoken_text},
+            "voice": {"languageCode": "ko-KR", "name": voice_name},
+            "audioConfig": {
+                "audioEncoding": "LINEAR16",
+                "sampleRateHertz": SAMPLE_RATE,
+                "speakingRate": 1.0,
+                "pitch": 0.0,
             },
         }).encode("utf-8")
         try:
-            req = urllib.request.Request(gem_url, data=payload, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=12) as resp:
+            req = urllib.request.Request(cloud_url, data=cloud_payload, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=3.5) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-                parts = data["candidates"][0]["content"]["parts"]
-                b64 = next((p["inlineData"]["data"] for p in parts if p.get("inlineData", {}).get("data")), "")
-                if b64:
-                    return base64.b64decode(b64)
+                ac = data.get("audioContent")
+                if ac:
+                    out = base64.b64decode(ac)
+                    cache_file.write_bytes(out)
+                    return out
         except Exception:
-            continue
+            _CLOUD_TTS_DISABLED = True
 
+    edge_bytes = _try_edge_tts_bytes(spoken_text, is_pro)
+    if edge_bytes:
+        try:
+            cache_file.write_bytes(edge_bytes)
+        except Exception:
+            pass
+        return edge_bytes
     return None
 
 
@@ -544,7 +489,7 @@ def _pcm16_resample_mono(raw_bytes: bytes, src_rate: int = SAMPLE_RATE, dst_rate
                 ["ffmpeg", "-v", "error", "-i", "pipe:0", "-f", "s16le", "-ac", "1", "-ar", str(dst_rate), "pipe:1"],
                 input=raw_bytes,
                 capture_output=True,
-                timeout=15,
+                timeout=12,
             )
             if proc.returncode == 0 and len(proc.stdout) >= 2:
                 even = len(proc.stdout) - (len(proc.stdout) % 2)
@@ -569,21 +514,17 @@ def generate_broadcast_soundtrack(
     turn_durations: List[float],
     sample_rate: int = SAMPLE_RATE,
 ) -> Tuple[np.ndarray, bool]:
-    """
-    가변 턴 길이에 맞춘 방송 스튜디오 사운드트랙 생성.
-    음성이 있는 경우 자연스러운 원래 말하기 길이 그대로 배치하고 BGM을 더킹(ducking)한다.
-    """
+    """가변 턴 길이에 맞춘 방송 스튜디오 사운드트랙 생성."""
     total_duration_sec = sum(turn_durations)
     n_samples = int(math.ceil(total_duration_sec * sample_rate))
     t = np.arange(n_samples, dtype=np.float32) / sample_rate
     bed = np.zeros(n_samples, dtype=np.float32)
 
-    # 1) Warm Newsroom Chord Pad + Sub-Bass
     chords = [
-        [110.00, 220.00, 261.63, 329.63, 392.00],  # Am7
-        [87.31, 174.61, 220.00, 261.63, 329.63],   # Fmaj7
-        [98.00, 196.00, 246.94, 293.66, 392.00],   # G6
-        [110.00, 220.00, 261.63, 329.63, 440.00],  # Am
+        [110.00, 220.00, 261.63, 329.63, 392.00],
+        [87.31, 174.61, 220.00, 261.63, 329.63],
+        [98.00, 196.00, 246.94, 293.66, 392.00],
+        [110.00, 220.00, 261.63, 329.63, 440.00],
     ]
     bar_len = 5.0
     for idx in range(int(math.ceil(total_duration_sec / bar_len))):
@@ -600,15 +541,13 @@ def generate_broadcast_soundtrack(
         ) * 0.5
         bed[s0:s1] += 0.085 * env * pad
 
-    # 2) Subtle Broadcast Tempo Pluck
     beat_step = 0.50
     pluck_notes = [440.0, 523.25, 659.25, 587.33, 523.25, 659.25, 783.99, 659.25]
     bt = 0.25
     b_idx = 0
     while bt < total_duration_sec - 0.5:
         s0 = int(bt * sample_rate)
-        dur = int(0.24 * sample_rate)
-        s1 = min(n_samples, s0 + dur)
+        s1 = min(n_samples, s0 + int(0.24 * sample_rate))
         if s1 > s0:
             lt = np.arange(s1 - s0, dtype=np.float32) / sample_rate
             freq = pluck_notes[b_idx % len(pluck_notes)]
@@ -618,7 +557,6 @@ def generate_broadcast_soundtrack(
         b_idx += 1
         bt += beat_step
 
-    # 3) Exact Turn-Start Whoosh + Dual Broadcast Chimes
     rng = np.random.default_rng(42)
     turn_starts: List[float] = []
     acc_t = 0.0
@@ -643,12 +581,10 @@ def generate_broadcast_soundtrack(
             wt = np.arange(ws1 - ws0, dtype=np.float32) / sample_rate
             w_env = np.sin(np.pi * wt / 0.22) ** 2
             noise = rng.normal(0.0, 1.0, ws1 - ws0).astype(np.float32)
-            kernel = np.ones(14, dtype=np.float32) / 14.0
-            noise = np.convolve(noise, kernel, mode="same")
+            noise = np.convolve(noise, np.ones(14, dtype=np.float32) / 14.0, mode="same")
             bed[ws0:ws1] += 0.095 * w_env * noise
 
-        notes = chime_map.get(ckey, [523.25, 659.25])
-        for ni, freq in enumerate(notes):
+        for ni, freq in enumerate(chime_map.get(ckey, [523.25, 659.25])):
             cs0 = int((t0 + ni * 0.085) * sample_rate)
             cs1 = min(n_samples, cs0 + int(0.38 * sample_rate))
             if cs1 > cs0:
@@ -657,7 +593,6 @@ def generate_broadcast_soundtrack(
                 chime = 0.78 * np.sin(2.0 * np.pi * freq * lt) + 0.22 * np.sin(2.0 * np.pi * freq * 2.0 * lt)
                 bed[cs0:cs1] += 0.145 * env * chime
 
-    # 4) Voice Track Overlay at Exact Natural Timing
     voice_track = np.zeros(n_samples, dtype=np.float32)
     has_voice = False
     for idx, pcm in enumerate(turn_pcms):
@@ -671,11 +606,7 @@ def generate_broadcast_soundtrack(
             voice_track[v0:v1] = norm_pcm[: v1 - v0]
             has_voice = True
 
-    if has_voice:
-        audio = bed * 0.28 + voice_track * 0.94
-    else:
-        audio = bed * 0.95
-
+    audio = (bed * 0.28 + voice_track * 0.94) if has_voice else (bed * 0.95)
     fade_s = int(0.8 * sample_rate)
     if n_samples > fade_s:
         audio[-fade_s:] *= np.linspace(1.0, 0.0, fade_s, dtype=np.float32)
@@ -701,10 +632,7 @@ def generate_broadcast_soundtrack(
     return np.clip(rms / mx, 0.0, 1.0), has_voice
 
 
-def _create_blink_variant(
-    avatar: Image.Image,
-    eye_specs: List[Dict[str, Any]],
-) -> Image.Image:
+def _create_blink_variant(avatar: Image.Image, eye_specs: List[Dict[str, Any]]) -> Image.Image:
     """해부학적 아몬드형 눈꺼풀 마스크 + 슈퍼샘플링 속눈썹으로 자연스러운 눈 깜빡임 생성."""
     arr = np.array(avatar).astype(np.float32)
     h, w = arr.shape[:2]
@@ -721,7 +649,6 @@ def _create_blink_variant(
         ys = [p[1] for p in poly]
         x0, x1 = max(2, min(xs) - 1), min(w - 3, max(xs) + 1)
         y0, y1 = max(2, min(ys)), min(h - 3, max(ys))
-        # Sample clean eyelid skin beside outer/inner corners (avoiding dark brow/crease lines)
         c_l = arr[int(round(sp["skin_l"][1] * sy)) - 1 : int(round(sp["skin_l"][1] * sy)) + 2, int(round(sp["skin_l"][0] * sx)), :3].mean(axis=0)
         c_r = arr[int(round(sp["skin_r"][1] * sy)) - 1 : int(round(sp["skin_r"][1] * sy)) + 2, int(round(sp["skin_r"][0] * sx)), :3].mean(axis=0)
         bot_l = arr[min(h - 2, y1 + 1) : min(h, y1 + 4), max(0, x0 + (x1 - x0) // 4) : min(w, x0 + (x1 - x0) * 3 // 4), :3].mean(axis=(0, 1))
@@ -745,7 +672,11 @@ def _create_blink_variant(
     return out
 
 
-def _build_stage_assets() -> Dict[str, Any]:
+def _get_stage_assets() -> Dict[str, Any]:
+    global _STAGE_ASSETS_CACHE
+    if _STAGE_ASSETS_CACHE is not None:
+        return _STAGE_ASSETS_CACHE
+
     studio_bg = Image.open(STUDIO_SET_PATH).convert("RGBA").resize((W, H), Image.Resampling.LANCZOS)
     desk_fg = Image.open(STUDIO_DESK_FG_PATH).convert("RGBA").resize((W, H), Image.Resampling.LANCZOS)
 
@@ -799,7 +730,6 @@ def _build_stage_assets() -> Dict[str, Any]:
         ImageEnhance.Brightness(fit_h(con_orig, 550)).enhance(0.76)
     ).enhance(0.88).filter(ImageFilter.GaussianBlur(0.45))
 
-    # Bake soft ambient studio shadows onto chair backrests behind both anchors
     def add_chair_shadow(base: Image.Image, sprite: Image.Image, cx: int, by: int, dx: int) -> None:
         alpha_ch = sprite.split()[3]
         sh = Image.new("RGBA", sprite.size, (0, 0, 0, 115))
@@ -811,7 +741,6 @@ def _build_stage_assets() -> Dict[str, Any]:
     add_chair_shadow(studio_bg, pro_act, 225, 1318, 10)
     add_chair_shadow(studio_bg, con_act, 855, 1316, -10)
 
-    # Bake subtle tabletop ambient occlusion shadow strip right along the curved back desk edge
     ao_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ao_draw = ImageDraw.Draw(ao_layer)
     for dy in range(-16, 6):
@@ -833,7 +762,7 @@ def _build_stage_assets() -> Dict[str, Any]:
         glows[("PRO", ck)] = make_glow(235, 940, spec["glow"])
         glows[("CON", ck)] = make_glow(845, 940, spec["glow"])
 
-    return {
+    _STAGE_ASSETS_CACHE = {
         "studio_bg": studio_bg,
         "desk_fg": desk_fg_comp,
         "pro_act": pro_act,
@@ -844,6 +773,7 @@ def _build_stage_assets() -> Dict[str, Any]:
         "con_idle": con_idle,
         "glows": glows,
     }
+    return _STAGE_ASSETS_CACHE
 
 
 def _pick_title_font_and_lines(
@@ -861,7 +791,9 @@ def _pick_title_font_and_lines(
     return f, [" ".join(ln) for ln in wrapped]
 
 
-def _pick_core_font_and_lines(text: str, max_width: int, fonts: Dict[str, ImageFont.FreeTypeFont]) -> Tuple[ImageFont.FreeTypeFont, List[str]]:
+def _pick_core_font_and_lines(
+    text: str, max_width: int, fonts: Dict[str, ImageFont.FreeTypeFont]
+) -> Tuple[ImageFont.FreeTypeFont, List[str]]:
     clean = " ".join((text or "").split())
     for key in ["core_lg", "core_md", "core_sm"]:
         f = fonts[key]
@@ -871,16 +803,17 @@ def _pick_core_font_and_lines(text: str, max_width: int, fonts: Dict[str, ImageF
     return fonts["core_sm"], [" ".join(ln) for ln in wrapped]
 
 
-def _pick_caption_font_and_lines(clause_text: str, max_width: int, fonts: Dict[str, ImageFont.FreeTypeFont]) -> Tuple[ImageFont.FreeTypeFont, ImageFont.FreeTypeFont, List[List[str]], int]:
-    for b_key, d_key, lh in [("body_xl", "body_xl_dim", 54), ("body_lg", "body_lg_dim", 48)]:
+def _pick_caption_font_and_lines(
+    clause_text: str, max_width: int, fonts: Dict[str, ImageFont.FreeTypeFont]
+) -> Tuple[ImageFont.FreeTypeFont, List[List[str]], int]:
+    word_cnt_total = len([w for w in clause_text.split() if w])
+    for b_key, lh in [("body_xl", 54), ("body_lg", 48)]:
         bf = fonts[b_key]
         lines = _wrap_words_by_width(clause_text, bf, max_width, max_lines=3)
-        word_cnt_wrapped = sum(len(x) for x in lines)
-        word_cnt_total = len([w for w in clause_text.split() if w])
-        if word_cnt_wrapped >= word_cnt_total:
-            return bf, fonts[d_key], lines, lh
+        if sum(len(x) for x in lines) >= word_cnt_total:
+            return bf, lines, lh
     bf = fonts["body_lg"]
-    return bf, fonts["body_lg_dim"], _wrap_words_by_width(clause_text, bf, max_width, max_lines=4), 42
+    return bf, _wrap_words_by_width(clause_text, bf, max_width, max_lines=4), 42
 
 
 def _resolve_perspectives(raw_stats: Dict[str, Any], perspectives: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
@@ -897,10 +830,9 @@ def _resolve_perspectives(raw_stats: Dict[str, Any], perspectives: Optional[List
             })
         return out
     pro_r = max(1, min(99, int(raw_stats.get("pro_ratio", 50))))
-    con_r = max(1, 100 - pro_r)
     return [
         {"short_label": "찬성", "ratio": pro_r, "color": "blue"},
-        {"short_label": "반대", "ratio": con_r, "color": "red"},
+        {"short_label": "반대", "ratio": max(1, 100 - pro_r), "color": "red"},
     ]
 
 
@@ -959,7 +891,7 @@ def _draw_desk_nameplates(
         paint_plate(838, cur_lbl, True, cur_accent)
 
 
-def _render_ui_hud_frame(
+def _render_ui_hud_strips(
     issue_title: str,
     raw_stats: Dict[str, Any],
     perspectives: List[Dict[str, Any]],
@@ -970,13 +902,12 @@ def _render_ui_hud_frame(
     clause_idx: int,
     total_clauses: int,
     caption_font: ImageFont.FreeTypeFont,
-    caption_dim_font: ImageFont.FreeTypeFont,
     caption_lines: List[List[str]],
     line_h: int,
     active_word_idx: int,
     fonts: Dict[str, ImageFont.FreeTypeFont],
-) -> Image.Image:
-    """주제(골드+초대형 헤드라인) · 화자/입장(솔리드 컬러 배지) · 핵심 요점 · 발화 자막의 명확한 4단 계층 HUD."""
+) -> Tuple[Image.Image, Image.Image]:
+    """주제 빌보드 + 발언 말풍선 상단 스트립(y=90..712) 및 하단 텔레메트리 스트립(y=1648..1868) 반환."""
     overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(overlay, "RGBA")
 
@@ -990,14 +921,13 @@ def _render_ui_hud_frame(
     default_lbl = f"좌측 패널 {turn_idx // 2 + 1}" if is_pro else f"우측 패널 {turn_idx // 2 + 1}"
     speaker_label = (turn_data.get("perspective_label") or "").strip() or default_lbl
 
-    # 1) TOPIC HERO BILLBOARD (y=98..288) — unmistakably the #1 show topic at a glance
+    # 1) TOPIC HERO BILLBOARD (y=98..288)
     tx0, ty0, tx1, ty1 = 48, 98, W - 48, 288
     d.rounded_rectangle([tx0, ty0 + 8, tx1, ty1 + 8], radius=22, fill=(0, 0, 0, 125))
     d.rounded_rectangle([tx0, ty0, tx1, ty1], radius=22, fill=(9, 13, 22, 248), outline=(250, 204, 21, 145), width=2)
     d.rounded_rectangle([tx0, ty0, tx1, ty0 + 9], radius=8, fill=(250, 204, 21, 255))
     d.rectangle([tx0, ty0 + 4, tx1, ty0 + 9], fill=(250, 204, 21, 255))
 
-    # Row 1 inside Topic Card: Solid Gold "영상 주제" chip + Mode tag + Total dataset count
     d.rounded_rectangle([76, ty0 + 20, 198, ty0 + 54], radius=10, fill=(250, 204, 21, 255))
     d.text((137, ty0 + 37), "영상 주제", font=fonts["topic_tag"], fill=(9, 13, 22, 255), anchor="mm")
 
@@ -1005,10 +935,8 @@ def _render_ui_hud_frame(
     mode_w = int(min(360, max(130, fonts["badge_sm"].getlength(mode_chip) + 32)))
     d.rounded_rectangle([210, ty0 + 20, 210 + mode_w, ty0 + 54], radius=10, fill=(255, 255, 255, 24))
     d.text((210 + mode_w // 2, ty0 + 37), mode_chip, font=fonts["badge_sm"], fill=(226, 232, 240, 255), anchor="mm")
-
     d.text((W - 76, ty0 + 37), f"댓글 {raw_stats.get('total_comments', 0)}건 분석", font=fonts["badge_sm"], fill=(148, 163, 184, 255), anchor="rm")
 
-    # Giant Crisp Pure-White Topic Title (44px -> 40px -> 36px)
     title_font, title_lines = _pick_title_font_and_lines(issue_title, W - 156, fonts)
     if len(title_lines) == 1:
         d.text((W // 2, ty0 + 122), title_lines[0], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
@@ -1016,7 +944,7 @@ def _render_ui_hud_frame(
         d.text((W // 2, ty0 + 94), title_lines[0], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
         d.text((W // 2, ty0 + 148), title_lines[1], font=title_font, fill=(255, 255, 255, 255), anchor="mm")
 
-    # 2) SPEAKER STATEMENT BUBBLE (y=306..668, tail tip=708 -> clears anchor crowns y>=734!)
+    # 2) SPEAKER STATEMENT BUBBLE (y=306..668, tail tip=708 -> clears anchor crowns y>=734)
     bx0, by0, bx1, by1 = 48, 306, W - 48, 668
     d.rounded_rectangle([bx0, by0 + 10, bx1, by1 + 10], radius=24, fill=(0, 0, 0, 120))
     d.rounded_rectangle([bx0, by0, bx1, by1], radius=24, fill=(255, 255, 255, 254), outline=(15, 23, 42, 34), width=2)
@@ -1028,7 +956,6 @@ def _render_ui_hud_frame(
     else:
         d.polygon([(W - 335, by1 - 2), (W - 265, by1 - 2), (W - 295, by1 + 40)], fill=(255, 255, 255, 254))
 
-    # Row 1: Solid High-Contrast Perspective Badge (with directional arrow) + Clause Step Pill
     spk_display = f"◀ {speaker_label}" if is_pro else f"{speaker_label} ▶"
     sp_text_w = fonts["speaker"].getlength(spk_display)
     sp_pill_r = int(min(W - 244, 84 + max(168, sp_text_w + 48)))
@@ -1038,7 +965,6 @@ def _render_ui_hud_frame(
     d.rounded_rectangle([W - 224, by0 + 26, W - 84, by0 + 68], radius=11, fill=(241, 245, 249, 255), outline=(203, 213, 225, 255), width=1)
     d.text((W - 154, by0 + 47), f"논지 {clause_idx + 1} / {total_clauses}", font=fonts["meta"], fill=(51, 65, 85, 255), anchor="mm")
 
-    # Row 2: Tinted Key Claim Banner (isolates Core Point from Spoken Subtitle)
     core_font, core_lines = _pick_core_font_and_lines(turn_data.get("core_point", ""), W - 268, fonts)
     claim_y0 = by0 + 84
     claim_y1 = claim_y0 + (54 if len(core_lines) == 1 else 82)
@@ -1055,7 +981,6 @@ def _render_ui_hud_frame(
         d.text((180, claim_y0 + 26), core_lines[0], font=core_font, fill=accent_badge_txt, anchor="lm")
         d.text((180, claim_y0 + 57), core_lines[1], font=core_font, fill=accent_badge_txt, anchor="lm")
 
-    # Row 3: Bold Kinetic Spoken Captions centered vertically in remaining box
     space_w = caption_font.getlength(" ") + 3.0
     running_idx = 0
     block_h = len(caption_lines) * line_h
@@ -1078,7 +1003,7 @@ def _render_ui_hud_frame(
                 )
                 d.text((cx, cy), w_str, font=caption_font, fill=accent_badge_txt, anchor="lt")
             else:
-                d.text((cx, cy), w_str, font=caption_dim_font, fill=(51, 65, 85, 255), anchor="lt")
+                d.text((cx, cy), w_str, font=caption_font, fill=(51, 65, 85, 255), anchor="lt")
             cx += ww + space_w
             running_idx += 1
 
@@ -1109,8 +1034,7 @@ def _render_ui_hud_frame(
         for pi, p in enumerate(perspectives):
             pc = PALETTE.get(p["color"], PALETTE["blue"])
             cx_p = int(inner_l + col_w * (pi + 0.5))
-            lbl = f"{p['short_label']} {p['ratio']}%"
-            d.text((cx_p, ly0 + 40), lbl, font=fonts["stat_sm"], fill=pc["bar"], anchor="mm")
+            d.text((cx_p, ly0 + 40), f"{p['short_label']} {p['ratio']}%", font=fonts["stat_sm"], fill=pc["bar"], anchor="mm")
 
         seg_gap = 6
         avail_bar_w = span_w - seg_gap * (n_p - 1)
@@ -1136,7 +1060,7 @@ def _render_ui_hud_frame(
             d.rounded_rectangle([dx, ly0 + 150, dx + 16, ly0 + 160], radius=5, fill=(45, 49, 62, 255))
 
     d.text((W - 94, ly0 + 155), "한냥 Studio", font=fonts["brand"], fill=(161, 161, 170, 255), anchor="rm")
-    return overlay
+    return overlay.crop((0, 90, W, 712)), overlay.crop((0, 1648, W, 1868))
 
 
 def render_debate_mp4(
@@ -1151,36 +1075,36 @@ def render_debate_mp4(
     perspectives: Optional[List[Dict[str, Any]]] = None,
     mode_label: str = "",
 ) -> Path:
-    """1080x1920 @ 30fps Full-HD 가변 길이 방송형 다관점 쇼츠 MP4 렌더링."""
+    """1080x1920 @ 30fps Full-HD 가변 길이 방송형 다관점 쇼츠 MP4 고속 렌더링."""
     turns = debate_script[:8]
     total_turns = max(len(turns), 1)
     resolved_persp = _resolve_perspectives(raw_stats, perspectives)
     resolved_mode_lbl = (mode_label or "").strip() or (f"{len(resolved_persp)}관점 여론 비교" if len(resolved_persp) >= 3 else "AI 공론장 중재")
 
-    # Step 1: Collect or synthesize voice audio FIRST so each turn fits speech length naturally
-    turn_pcms: List[Optional[np.ndarray]] = []
+    # Step 1: Collect or synthesize voice audio in parallel across all turns
+    raw_voices: List[Optional[bytes]] = [None] * len(turns)
     client_supplied_any = bool(turn_audio_b64_list and any(turn_audio_b64_list))
-    server_tts_failed = False
 
-    for idx, turn in enumerate(turns):
-        raw_voice: Optional[bytes] = None
-        if turn_audio_b64_list and idx < len(turn_audio_b64_list) and turn_audio_b64_list[idx]:
-            try:
-                raw_voice = base64.b64decode(turn_audio_b64_list[idx])
-            except Exception:
-                raw_voice = None
-        elif try_gemini_tts and not client_supplied_any and not server_tts_failed:
-            raw_voice = fetch_tts_audio_bytes(turn["text"], turn["speaker"])
-            if not raw_voice:
-                server_tts_failed = True
+    if client_supplied_any and turn_audio_b64_list:
+        for idx in range(min(len(turns), len(turn_audio_b64_list))):
+            if turn_audio_b64_list[idx]:
+                try:
+                    raw_voices[idx] = base64.b64decode(turn_audio_b64_list[idx])  # type: ignore[arg-type]
+                except Exception:
+                    raw_voices[idx] = None
+    elif try_gemini_tts and turns:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(6, len(turns))) as pool:
+            futs = [pool.submit(fetch_tts_audio_bytes, t["text"], t["speaker"]) for t in turns]
+            raw_voices = [f.result() for f in futs]
 
-        if raw_voice:
-            pcm = _pcm16_resample_mono(raw_voice, SAMPLE_RATE, SAMPLE_RATE)
+    turn_pcms: List[Optional[np.ndarray]] = []
+    for rv in raw_voices:
+        if rv:
+            pcm = _pcm16_resample_mono(rv, SAMPLE_RATE, SAMPLE_RATE)
             turn_pcms.append(pcm if len(pcm) > 0 else None)
         else:
             turn_pcms.append(None)
 
-    # Prevent jarring mid-video flip when server TTS failed midway
     voiced_pcms = sum(1 for p in turn_pcms if p is not None and len(p) > int(SAMPLE_RATE * 0.25))
     if not client_supplied_any and 0 < voiced_pcms < len(turns):
         turn_pcms = [None] * len(turns)
@@ -1195,34 +1119,11 @@ def render_debate_mp4(
         else:
             turn_durations.append(estimate_turn_duration_sec(turn["text"]))
 
-    total_duration = sum(turn_durations)
     turn_frame_counts = [max(30, int(round(d * FPS))) for d in turn_durations]
     total_frames = sum(turn_frame_counts)
 
-    assets = _build_stage_assets()
-    fonts = {
-        "hud": _load_font(FONT_BOLD_PATH, 23),
-        "badge_sm": _load_font(FONT_BOLD_PATH, 19),
-        "topic_tag": _load_font(FONT_BOLD_PATH, 20),
-        "claim_tag": _load_font(FONT_BOLD_PATH, 18),
-        "desk_plate": _load_font(FONT_BOLD_PATH, 22),
-        "title_xl": _load_font(FONT_BOLD_PATH, 44),
-        "title_lg": _load_font(FONT_BOLD_PATH, 40),
-        "title_md": _load_font(FONT_BOLD_PATH, 36),
-        "title": _load_font(FONT_BOLD_PATH, 40),
-        "speaker": _load_font(FONT_BOLD_PATH, 23),
-        "meta": _load_font(FONT_BOLD_PATH, 20),
-        "core_lg": _load_font(FONT_BOLD_PATH, 27),
-        "core_md": _load_font(FONT_BOLD_PATH, 24),
-        "core_sm": _load_font(FONT_BOLD_PATH, 21),
-        "body_xl": _load_font(FONT_BOLD_PATH, 38),
-        "body_xl_dim": _load_font(FONT_BOLD_PATH, 38),
-        "body_lg": _load_font(FONT_BOLD_PATH, 34),
-        "body_lg_dim": _load_font(FONT_BOLD_PATH, 34),
-        "stat": _load_font(FONT_BOLD_PATH, 23),
-        "stat_sm": _load_font(FONT_BOLD_PATH, 20),
-        "brand": _load_font(FONT_BOLD_PATH, 23),
-    }
+    assets = _get_stage_assets()
+    fonts = _get_fonts()
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp = Path(tmpdir)
@@ -1244,13 +1145,13 @@ def render_debate_mp4(
                 "-f", "rawvideo",
                 "-vcodec", "rawvideo",
                 "-s", f"{W}x{H}",
-                "-pix_fmt", "rgba",
+                "-pix_fmt", "rgb24",
                 "-r", str(FPS),
                 "-i", "pipe:0",
                 "-i", str(wav_path),
                 "-c:v", "libx264",
-                "-preset", "fast",
-                "-crf", "19",
+                "-preset", "ultrafast",
+                "-crf", "20",
                 "-pix_fmt", "yuv420p",
                 "-c:a", "aac",
                 "-b:a", "192k",
@@ -1266,43 +1167,78 @@ def render_debate_mp4(
         assert proc.stdin is not None
 
         global_f = 0
-        prev_focus_cx = W * 0.50
         for idx, turn in enumerate(turns):
             is_pro = turn.get("speaker") == "PRO"
             ckey = _get_turn_color_key(turn)
-            accent_rgb = PALETTE[ckey]["accent"]
+            accent_rgb = PALETTE[ckey]["accent"][:3]
+
+            turn_bg = assets["studio_bg"].copy()
+            side_key = "PRO" if is_pro else "CON"
+            turn_bg.alpha_composite(assets["glows"][(side_key, ckey)])
+
+            turn_desk = assets["desk_fg"].copy()
+            _draw_desk_nameplates(turn_desk, turns, idx, fonts)
+
+            # Lazily cache up to 8 (dy_talk, is_blinking) RGB stage frames per turn
+            stage_cache: Dict[Tuple[int, bool], Image.Image] = {}
+
+            def get_stage_rgb(dy_talk: int, blink: bool) -> Image.Image:
+                key = (dy_talk, blink)
+                if key in stage_cache:
+                    return stage_cache[key]
+                st = turn_bg.copy()
+                if is_pro:
+                    p_spr = assets["pro_act_blink"] if blink else assets["pro_act"]
+                    c_spr = assets["con_idle"]
+                    st.paste(c_spr, (855 - c_spr.width // 2, 1314 - c_spr.height), c_spr)
+                    st.paste(p_spr, (225 - p_spr.width // 2, 1318 - p_spr.height + dy_talk), p_spr)
+                else:
+                    p_spr = assets["pro_idle"]
+                    c_spr = assets["con_act_blink"] if blink else assets["con_act"]
+                    st.paste(p_spr, (225 - p_spr.width // 2, 1316 - p_spr.height), p_spr)
+                    st.paste(c_spr, (855 - c_spr.width // 2, 1316 - c_spr.height + dy_talk), c_spr)
+                st.paste(turn_desk, (0, 0), turn_desk)
+                rgb = st.convert("RGB")
+                stage_cache[key] = rgb
+                return rgb
+
+            base_stage_rgb = get_stage_rgb(0, False)
+            top_bg_crop = base_stage_rgb.crop((0, 90, W, 712))
+            bot_bg_crop = base_stage_rgb.crop((0, 1648, W, 1868))
 
             clauses = _split_turn_into_clauses(turn["text"])
-            clause_overlays: List[List[Image.Image]] = []
+            clause_strips: List[List[Tuple[Image.Image, Image.Image]]] = []
             clause_timelines: List[List[Tuple[float, float]]] = []
 
             for c_idx, c_text in enumerate(clauses):
-                c_font, c_dim_font, c_lines, lh = _pick_caption_font_and_lines(c_text, W - 180, fonts)
+                c_font, c_lines, lh = _pick_caption_font_and_lines(c_text, W - 180, fonts)
                 flat_words = [w for ln in c_lines for w in ln]
                 w_cnt = max(len(flat_words), 1)
                 clause_timelines.append(_build_weighted_word_timeline(flat_words))
-                overlays_for_clause: List[Image.Image] = []
+                strips_for_clause: List[Tuple[Image.Image, Image.Image]] = []
                 for w_idx in range(w_cnt):
-                    overlays_for_clause.append(
-                        _render_ui_hud_frame(
-                            issue_title=issue_title,
-                            raw_stats=raw_stats,
-                            perspectives=resolved_persp,
-                            mode_label=resolved_mode_lbl,
-                            turn_idx=idx,
-                            total_turns=total_turns,
-                            turn_data=turn,
-                            clause_idx=c_idx,
-                            total_clauses=len(clauses),
-                            caption_font=c_font,
-                            caption_dim_font=c_dim_font,
-                            caption_lines=c_lines,
-                            line_h=lh,
-                            active_word_idx=w_idx,
-                            fonts=fonts,
-                        )
+                    top_rgba, bot_rgba = _render_ui_hud_strips(
+                        issue_title=issue_title,
+                        raw_stats=raw_stats,
+                        perspectives=resolved_persp,
+                        mode_label=resolved_mode_lbl,
+                        turn_idx=idx,
+                        total_turns=total_turns,
+                        turn_data=turn,
+                        clause_idx=c_idx,
+                        total_clauses=len(clauses),
+                        caption_font=c_font,
+                        caption_lines=c_lines,
+                        line_h=lh,
+                        active_word_idx=w_idx,
+                        fonts=fonts,
                     )
-                clause_overlays.append(overlays_for_clause)
+                    top_rgb = top_bg_crop.copy()
+                    top_rgb.paste(top_rgba, (0, 0), top_rgba)
+                    bot_rgb = bot_bg_crop.copy()
+                    bot_rgb.paste(bot_rgba, (0, 0), bot_rgba)
+                    strips_for_clause.append((top_rgb, bot_rgb))
+                clause_strips.append(strips_for_clause)
 
             clause_windows = _analyze_pcm_clause_timing(
                 turn_pcms[idx],
@@ -1312,15 +1248,11 @@ def render_debate_mp4(
                 lead_in_sec=0.14,
             )
 
-            turn_bg = assets["studio_bg"].copy()
-            side_key = "PRO" if is_pro else "CON"
-            turn_bg.alpha_composite(assets["glows"][(side_key, ckey)])
-
-            turn_desk = assets["desk_fg"].copy()
-            _draw_desk_nameplates(turn_desk, turns, idx, fonts)
-
-            focus_cx = (W * 0.468) if is_pro else (W * 0.532)
             n_f = turn_frame_counts[idx]
+            seg_gap = 10
+            seg_total_w = W - 96
+            seg_w = (seg_total_w - seg_gap * (total_turns - 1)) / total_turns
+
             for f in range(n_f):
                 local_t = f / FPS
                 turn_prog = f / max(n_f - 1, 1)
@@ -1328,71 +1260,36 @@ def render_debate_mp4(
                 energy = float(rms_env[min(global_f, len(rms_env) - 1)])
                 global_f += 1
 
-                pan_prog = min(1.0, local_t / 0.55)
-                ease_pan = 1.0 - (1.0 - pan_prog) ** 3
                 is_blinking = ((local_t + 1.1) % 3.6) < 0.13
                 talk_cadence = (
                     math.sin(local_t * 1.8) * 0.9
                     - (0.4 + 1.4 * energy) * (0.5 + 0.5 * math.sin(local_t * 5.4))
                 )
-                idle_breath = math.sin(local_t * 1.45 + 1.1) * 1.0
-
-                stage = turn_bg.copy()
-
-                if is_pro:
-                    p_spr = assets["pro_act_blink"] if is_blinking else assets["pro_act"]
-                    c_spr = assets["con_idle"]
-                    p_x = 225 - p_spr.width // 2
-                    p_y = 1318 - p_spr.height + int(round(talk_cadence))
-                    c_x = 855 - c_spr.width // 2
-                    c_y = 1314 - c_spr.height + int(round(idle_breath))
-                    stage.paste(c_spr, (c_x, c_y), c_spr)
-                    stage.paste(p_spr, (p_x, p_y), p_spr)
-                else:
-                    p_spr = assets["pro_idle"]
-                    c_spr = assets["con_act_blink"] if is_blinking else assets["con_act"]
-                    p_x = 225 - p_spr.width // 2
-                    p_y = 1316 - p_spr.height + int(round(idle_breath))
-                    c_x = 855 - c_spr.width // 2
-                    c_y = 1316 - c_spr.height + int(round(talk_cadence))
-                    stage.paste(p_spr, (p_x, p_y), p_spr)
-                    stage.paste(c_spr, (c_x, c_y), c_spr)
-
-                stage.paste(turn_desk, (0, 0), turn_desk)
-
-                zoom = 1.022 + 0.030 * turn_prog
-                cw = W / zoom
-                ch = H / zoom
-                cx = prev_focus_cx + (focus_cx - prev_focus_cx) * ease_pan
-                cy = H * 0.504
-                x0 = max(0.0, min(W - cw, cx - cw * 0.5))
-                y0 = max(0.0, min(H - ch, cy - ch * 0.5))
-                frame = stage.crop((int(x0), int(y0), int(x0 + cw), int(y0 + ch))).resize((W, H), Image.Resampling.BILINEAR)
+                dy_talk = max(-2, min(1, int(round(talk_cadence))))
+                frame = get_stage_rgb(dy_talk, is_blinking).copy()
 
                 c_idx, local_w = _resolve_clause_and_word(local_t, clause_timelines, clause_windows)
-                ov_list = clause_overlays[min(c_idx, len(clause_overlays) - 1)]
-                chosen_ov = ov_list[min(local_w, len(ov_list) - 1)]
-                frame.paste(chosen_ov, (0, 0), chosen_ov)
+                ov_list = clause_strips[min(c_idx, len(clause_strips) - 1)]
+                top_rgb, bot_rgb = ov_list[min(local_w, len(ov_list) - 1)]
+                frame.paste(top_rgb, (0, 90))
+                frame.paste(bot_rgb, (0, 1648))
 
-                draw = ImageDraw.Draw(frame, "RGBA")
-                seg_gap = 10
-                seg_total_w = W - 96
-                seg_w = (seg_total_w - seg_gap * (total_turns - 1)) / total_turns
+                draw = ImageDraw.Draw(frame)
                 for s_i in range(total_turns):
                     sx0 = 48 + s_i * (seg_w + seg_gap)
                     sx1 = sx0 + seg_w
-                    draw.rounded_rectangle([sx0, 34, sx1, 43], radius=4, fill=(45, 50, 65, 220))
+                    draw.rounded_rectangle([sx0, 34, sx1, 43], radius=4, fill=(45, 50, 65))
                     if s_i < idx:
-                        s_col = PALETTE[_get_turn_color_key(turns[s_i])]["accent"]
+                        s_col = PALETTE[_get_turn_color_key(turns[s_i])]["accent"][:3]
                         draw.rounded_rectangle([sx0, 34, sx1, 43], radius=4, fill=s_col)
                     elif s_i == idx:
                         fill_x = sx0 + max(10.0, (sx1 - sx0) * turn_prog)
                         draw.rounded_rectangle([sx0, 34, fill_x, 43], radius=4, fill=accent_rgb)
 
-                draw.rounded_rectangle([48, 54, 162, 88], radius=12, fill=(14, 17, 25, 215))
-                draw.text((105, 71), f"{idx + 1:02d} / {total_turns:02d}", font=fonts["hud"], fill=(244, 244, 245, 255), anchor="mm")
-                draw.rounded_rectangle([W - 154, 54, W - 48, 88], radius=12, fill=(14, 17, 25, 215))
-                draw.text((W - 101, 71), f"{remaining_sec:.1f}s", font=fonts["hud"], fill=(228, 228, 231, 255), anchor="mm")
+                draw.rounded_rectangle([48, 54, 162, 88], radius=12, fill=(14, 17, 25))
+                draw.text((105, 71), f"{idx + 1:02d} / {total_turns:02d}", font=fonts["hud"], fill=(244, 244, 245), anchor="mm")
+                draw.rounded_rectangle([W - 154, 54, W - 48, 88], radius=12, fill=(14, 17, 25))
+                draw.text((W - 101, 71), f"{remaining_sec:.1f}s", font=fonts["hud"], fill=(228, 228, 231), anchor="mm")
 
                 eq_x0 = 365
                 for bi in range(24):
@@ -1402,7 +1299,6 @@ def render_debate_mp4(
                     draw.rounded_rectangle([bx, 1804 - bh // 2, bx + 7, 1804 + bh // 2], radius=3, fill=accent_rgb)
 
                 proc.stdin.write(frame.tobytes())
-            prev_focus_cx = focus_cx
 
         proc.stdin.close()
         ret = proc.wait()
@@ -1421,7 +1317,7 @@ def main():
             raw_stats=data["raw_stats"],
             debate_script=data["debate_script"],
             output_mp4=out_file,
-            try_gemini_tts=False,
+            try_gemini_tts=True,
             perspectives=data.get("perspectives"),
             mode_label=data.get("mode_label", ""),
         )
@@ -1430,4 +1326,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
