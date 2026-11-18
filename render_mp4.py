@@ -36,7 +36,6 @@ TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 PRO_AVATAR_PATH = ASSETS_DIR / "pro_avatar.png"
 CON_AVATAR_PATH = ASSETS_DIR / "con_avatar.png"
 STUDIO_SET_PATH = ASSETS_DIR / "studio_set.jpg"
-STUDIO_DESK_FG_PATH = ASSETS_DIR / "studio_desk_fg.png"
 
 FONT_BOLD_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
 
@@ -660,144 +659,65 @@ def generate_broadcast_soundtrack(
     return np.clip(rms / mx, 0.0, 1.0), has_voice
 
 
-def _create_blink_variant(avatar: Image.Image, eye_specs: List[Dict[str, Any]]) -> Image.Image:
-    """해부학적 아몬드형 눈꺼풀 마스크 + 슈퍼샘플링 속눈썹으로 자연스러운 눈 깜빡임 생성."""
-    arr = np.array(avatar).astype(np.float32)
-    h, w = arr.shape[:2]
-    mask_full = Image.new("L", (w, h), 0)
-    md = ImageDraw.Draw(mask_full)
-    filled = arr.copy()
-
-    sx = w / 719.0
-    sy = h / 1116.0
-    for sp in eye_specs:
-        poly = [(int(round(px * sx)), int(round(py * sy))) for px, py in sp["poly"]]
-        md.polygon(poly, fill=255)
-        xs = [p[0] for p in poly]
-        ys = [p[1] for p in poly]
-        x0, x1 = max(2, min(xs) - 1), min(w - 3, max(xs) + 1)
-        y0, y1 = max(2, min(ys)), min(h - 3, max(ys))
-        c_l = arr[int(round(sp["skin_l"][1] * sy)) - 1 : int(round(sp["skin_l"][1] * sy)) + 2, int(round(sp["skin_l"][0] * sx)), :3].mean(axis=0)
-        c_r = arr[int(round(sp["skin_r"][1] * sy)) - 1 : int(round(sp["skin_r"][1] * sy)) + 2, int(round(sp["skin_r"][0] * sx)), :3].mean(axis=0)
-        bot_l = arr[min(h - 2, y1 + 1) : min(h, y1 + 4), max(0, x0 + (x1 - x0) // 4) : min(w, x0 + (x1 - x0) * 3 // 4), :3].mean(axis=(0, 1))
-        for x in range(x0, x1 + 1):
-            tx = (x - x0) / max(1, x1 - x0)
-            top_rgb = c_l * (1.0 - tx) + c_r * tx
-            for y in range(y0, y1 + 1):
-                ty = (y - y0) / max(1, y1 - y0)
-                filled[y, x, :3] = top_rgb * (1.0 - ty * 0.55) + bot_l * (ty * 0.55)
-
-    soft_mask = mask_full.filter(ImageFilter.GaussianBlur(1.4))
-    out = Image.composite(Image.fromarray(np.clip(filled, 0, 255).astype(np.uint8), "RGBA"), avatar, soft_mask)
-
-    ss = 4
-    lash_hi = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
-    ld = ImageDraw.Draw(lash_hi, "RGBA")
-    for sp in eye_specs:
-        pts_hi = [(int(round(px * sx * ss)), int(round(py * sy * ss))) for px, py in sp["lash"]]
-        ld.line(pts_hi, fill=(48, 32, 28, 205), width=max(4, int(round(1.6 * ss))), joint="curve")
-    out.alpha_composite(lash_hi.resize((w, h), Image.Resampling.LANCZOS))
-    return out
-
-
 def _get_stage_assets() -> Dict[str, Any]:
     global _STAGE_ASSETS_CACHE
     if _STAGE_ASSETS_CACHE is not None:
         return _STAGE_ASSETS_CACHE
 
     studio_bg = Image.open(STUDIO_SET_PATH).convert("RGBA").resize((W, H), Image.Resampling.LANCZOS)
-    desk_fg = Image.open(STUDIO_DESK_FG_PATH).convert("RGBA").resize((W, H), Image.Resampling.LANCZOS)
 
     pro_orig = Image.open(PRO_AVATAR_PATH).convert("RGBA")
     con_orig = Image.open(CON_AVATAR_PATH).convert("RGBA")
 
-    pro_active_grade = ImageEnhance.Contrast(ImageEnhance.Brightness(pro_orig).enhance(1.03)).enhance(1.04)
-    con_active_grade = ImageEnhance.Contrast(ImageEnhance.Brightness(con_orig).enhance(1.03)).enhance(1.04)
+    pro_active_grade = ImageEnhance.Color(ImageEnhance.Brightness(pro_orig).enhance(1.05)).enhance(1.10)
+    con_active_grade = ImageEnhance.Color(ImageEnhance.Brightness(con_orig).enhance(1.05)).enhance(1.10)
 
     def fit_h(im: Image.Image, target_h: int) -> Image.Image:
         sc = target_h / im.height
         return im.resize((int(round(im.width * sc)), target_h), Image.Resampling.LANCZOS)
 
-    pro_act = fit_h(pro_active_grade, 566)
-    pro_eye_specs = [
-        {
-            "poly": [(336, 211), (348, 204), (364, 204), (378, 207), (387, 219), (370, 221), (350, 219)],
-            "lash": [(338, 214), (355, 218), (373, 218), (386, 218)],
-            "skin_l": (335, 202),
-            "skin_r": (389, 206),
-        },
-        {
-            "poly": [(432, 215), (441, 206), (455, 205), (467, 208), (474, 218), (460, 220), (442, 219)],
-            "lash": [(433, 216), (449, 219), (464, 218), (473, 216)],
-            "skin_l": (431, 206),
-            "skin_r": (472, 205),
-        },
-    ]
-    pro_act_blink = fit_h(_create_blink_variant(pro_active_grade, pro_eye_specs), 566)
+    pro_act = fit_h(pro_active_grade, 650)
     pro_idle = ImageEnhance.Color(
-        ImageEnhance.Brightness(fit_h(pro_orig, 558)).enhance(0.76)
-    ).enhance(0.88).filter(ImageFilter.GaussianBlur(0.45))
+        ImageEnhance.Brightness(fit_h(pro_orig, 618)).enhance(0.76)
+    ).enhance(0.86)
 
-    con_act = fit_h(con_active_grade, 558)
-    con_eye_specs = [
-        {
-            "poly": [(263, 201), (270, 196), (281, 197), (294, 212), (284, 216), (269, 215), (263, 211)],
-            "lash": [(264, 210), (272, 214), (284, 215), (293, 213)],
-            "skin_l": (271, 190),
-            "skin_r": (294, 199),
-        },
-        {
-            "poly": [(339, 212), (347, 196), (362, 193), (382, 199), (396, 211), (378, 216), (354, 216)],
-            "lash": [(340, 213), (357, 215), (376, 214), (392, 211)],
-            "skin_l": (337, 201),
-            "skin_r": (391, 198),
-        },
-    ]
-    con_act_blink = fit_h(_create_blink_variant(con_active_grade, con_eye_specs), 558)
+    con_act = fit_h(con_active_grade, 650)
     con_idle = ImageEnhance.Color(
-        ImageEnhance.Brightness(fit_h(con_orig, 550)).enhance(0.76)
-    ).enhance(0.88).filter(ImageFilter.GaussianBlur(0.45))
+        ImageEnhance.Brightness(fit_h(con_orig, 618)).enhance(0.76)
+    ).enhance(0.86)
 
-    def add_chair_shadow(base: Image.Image, sprite: Image.Image, cx: int, by: int, dx: int) -> None:
+    def add_fighter_shadow(base: Image.Image, sprite: Image.Image, cx: int, by: int, dx: int) -> None:
         alpha_ch = sprite.split()[3]
-        sh = Image.new("RGBA", sprite.size, (0, 0, 0, 115))
-        sh.putalpha(alpha_ch.point(lambda v: int(v * 0.42)))
+        sh = Image.new("RGBA", sprite.size, (0, 0, 0, 145))
+        sh.putalpha(alpha_ch.point(lambda v: int(v * 0.45)))
         layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        layer.paste(sh, (cx - sprite.width // 2 + dx, by - sprite.height + 10))
+        layer.paste(sh, (cx - sprite.width // 2 + dx, by - sprite.height + 14))
         base.alpha_composite(layer.filter(ImageFilter.GaussianBlur(14)))
+        # Subtle ground contact ellipse on the battle ring
+        pad = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        pd = ImageDraw.Draw(pad)
+        pd.ellipse([cx - 180, by - 26, cx + 180, by + 22], fill=(0, 0, 0, 140))
+        base.alpha_composite(pad.filter(ImageFilter.GaussianBlur(18)))
 
-    add_chair_shadow(studio_bg, pro_act, 225, 1318, 10)
-    add_chair_shadow(studio_bg, con_act, 855, 1316, -10)
-
-    ao_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ao_draw = ImageDraw.Draw(ao_layer)
-    for dy in range(-16, 6):
-        op = max(0, 62 - abs(dy) * 3)
-        pts = [(x, int(round(1212.0 + 18.0 * ((x - 540.0) / 540.0) ** 2 + dy))) for x in range(0, W + 1, 12)]
-        ao_draw.line(pts, fill=(0, 0, 0, op), width=4)
-    desk_fg_comp = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    desk_fg_comp.alpha_composite(ao_layer)
-    desk_fg_comp.alpha_composite(desk_fg)
+    add_fighter_shadow(studio_bg, pro_act, 265, 1515, 10)
+    add_fighter_shadow(studio_bg, con_act, 815, 1515, -10)
 
     def make_glow(cx: int, cy: int, color: Tuple[int, int, int]) -> Image.Image:
         g = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         gd = ImageDraw.Draw(g)
-        gd.ellipse([cx - 320, cy - 340, cx + 320, cy + 340], fill=(*color, 92))
+        gd.ellipse([cx - 330, cy - 360, cx + 330, cy + 360], fill=(*color, 108))
         return g.filter(ImageFilter.GaussianBlur(105))
 
     glows: Dict[Tuple[str, str], Image.Image] = {}
     for ck, spec in PALETTE.items():
-        glows[("PRO", ck)] = make_glow(235, 940, spec["glow"])
-        glows[("CON", ck)] = make_glow(845, 940, spec["glow"])
+        glows[("PRO", ck)] = make_glow(265, 1170, spec["glow"])
+        glows[("CON", ck)] = make_glow(815, 1170, spec["glow"])
 
     _STAGE_ASSETS_CACHE = {
         "studio_bg": studio_bg,
-        "desk_fg": desk_fg_comp,
         "pro_act": pro_act,
-        "pro_act_blink": pro_act_blink,
         "pro_idle": pro_idle,
         "con_act": con_act,
-        "con_act_blink": con_act_blink,
         "con_idle": con_idle,
         "glows": glows,
     }
@@ -892,20 +812,20 @@ def _draw_desk_nameplates(
         pw = int(max(230, min(405, tw + badge_w + 56)))
         x0 = max(54, min(W - 54 - pw, center_x - pw // 2))
         x1 = x0 + pw
-        y0, y1 = 1368, 1424
+        y0, y1 = 1476, 1534
         if active:
-            d.rounded_rectangle([x0, y0 + 5, x1, y1 + 5], radius=14, fill=(0, 0, 0, 120))
-            d.rounded_rectangle([x0, y0, x1, y1], radius=14, fill=(10, 14, 22, 242), outline=accent_col, width=3)
+            d.rounded_rectangle([x0, y0 + 5, x1, y1 + 5], radius=14, fill=(0, 0, 0, 145))
+            d.rounded_rectangle([x0, y0, x1, y1], radius=14, fill=(10, 14, 22, 245), outline=accent_col, width=3)
             d.rounded_rectangle([x0 + 8, y0 + 8, x0 + 68, y1 - 8], radius=9, fill=accent_col)
             d.text((x0 + 38, (y0 + y1) // 2), "공격", font=fonts["claim_tag"], fill=(255, 255, 255, 255), anchor="mm")
             d.text(((x0 + 72 + x1 - 10) // 2, (y0 + y1) // 2), label, font=plate_font, fill=(255, 255, 255, 255), anchor="mm")
         else:
-            d.rounded_rectangle([x0, y0, x1, y1], radius=14, fill=(12, 16, 25, 200), outline=(255, 255, 255, 42), width=2)
-            d.text((center_x, (y0 + y1) // 2), label, font=plate_font, fill=(182, 192, 208, 225), anchor="mm")
+            d.rounded_rectangle([x0, y0, x1, y1], radius=14, fill=(12, 16, 25, 215), outline=(255, 255, 255, 48), width=2)
+            d.text((center_x, (y0 + y1) // 2), label, font=plate_font, fill=(182, 192, 208, 230), anchor="mm")
 
     cur_accent = PALETTE[cur_ck]["accent"]
-    paint_plate(242, lbl_a, cur_is_a, cur_accent)
-    paint_plate(838, lbl_b, not cur_is_a, cur_accent)
+    paint_plate(265, lbl_a, cur_is_a, cur_accent)
+    paint_plate(815, lbl_b, not cur_is_a, cur_accent)
 
 
 def _render_ui_hud_strips(
@@ -1239,32 +1159,32 @@ def render_debate_mp4(
             side_key = "PRO" if is_a else "CON"
             turn_bg.alpha_composite(assets["glows"][(side_key, ckey)])
 
-            turn_desk = assets["desk_fg"].copy()
-            _draw_desk_nameplates(turn_desk, turns, idx, lbl_a, lbl_b, fonts)
+            turn_plates = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+            _draw_desk_nameplates(turn_plates, turns, idx, lbl_a, lbl_b, fonts)
 
-            stage_cache: Dict[Tuple[int, int, bool], Image.Image] = {}
+            stage_cache: Dict[Tuple[int, int], Image.Image] = {}
 
-            def get_stage_rgb(dy_talk: int, dx_hit: int, blink: bool) -> Image.Image:
-                key = (dy_talk, dx_hit, blink)
+            def get_stage_rgb(dy_talk: int, dx_hit: int) -> Image.Image:
+                key = (dy_talk, dx_hit)
                 if key in stage_cache:
                     return stage_cache[key]
                 st = turn_bg.copy()
                 if is_a:
-                    p_spr = assets["pro_act_blink"] if blink else assets["pro_act"]
+                    p_spr = assets["pro_act"]
                     c_spr = assets["con_idle"]
-                    st.paste(c_spr, (855 - c_spr.width // 2 + dx_hit, 1314 - c_spr.height), c_spr)
-                    st.paste(p_spr, (225 - p_spr.width // 2, 1318 - p_spr.height + dy_talk), p_spr)
+                    st.paste(c_spr, (815 - c_spr.width // 2 + dx_hit, 1515 - c_spr.height), c_spr)
+                    st.paste(p_spr, (265 - p_spr.width // 2, 1515 - p_spr.height + dy_talk), p_spr)
                 else:
                     p_spr = assets["pro_idle"]
-                    c_spr = assets["con_act_blink"] if blink else assets["con_act"]
-                    st.paste(p_spr, (225 - p_spr.width // 2 + dx_hit, 1316 - p_spr.height), p_spr)
-                    st.paste(c_spr, (855 - c_spr.width // 2, 1316 - c_spr.height + dy_talk), c_spr)
-                st.paste(turn_desk, (0, 0), turn_desk)
+                    c_spr = assets["con_act"]
+                    st.paste(p_spr, (265 - p_spr.width // 2 + dx_hit, 1515 - p_spr.height), p_spr)
+                    st.paste(c_spr, (815 - c_spr.width // 2, 1515 - c_spr.height + dy_talk), c_spr)
+                st.paste(turn_plates, (0, 0), turn_plates)
                 rgb = st.convert("RGB")
                 stage_cache[key] = rgb
                 return rgb
 
-            base_stage_rgb = get_stage_rgb(0, 0, False)
+            base_stage_rgb = get_stage_rgb(0, 0)
             top_bg_crop = base_stage_rgb.crop((0, 130, W, 726))
             bot_bg_crop = base_stage_rgb.crop((0, 1648, W, 1868))
 
@@ -1318,19 +1238,18 @@ def render_debate_mp4(
                 energy = float(rms_env[min(global_f, len(rms_env) - 1)])
                 global_f += 1
 
-                is_blinking = ((local_t + 1.1) % 3.6) < 0.13
                 talk_cadence = (
-                    math.sin(local_t * 2.2) * 1.0
-                    - (0.4 + 1.6 * energy) * (0.5 + 0.5 * math.sin(local_t * 6.0))
+                    math.sin(local_t * 3.0) * 1.6
+                    - (0.8 + 2.2 * energy) * (0.5 + 0.5 * math.sin(local_t * 6.5))
                 )
-                dy_talk = max(-3, min(1, int(round(talk_cadence))))
+                dy_talk = max(-6, min(2, int(round(talk_cadence))))
 
                 # Hit shake + red flash during first 0.55s of turn
                 dx_hit = 0
                 if local_t < 0.48:
-                    dx_hit = int(round(math.sin(local_t * 58.0) * 14.0 * (1.0 - local_t / 0.48)))
+                    dx_hit = int(round(math.sin(local_t * 58.0) * 16.0 * (1.0 - local_t / 0.48)))
 
-                frame = get_stage_rgb(dy_talk, dx_hit, is_blinking).copy()
+                frame = get_stage_rgb(dy_talk, dx_hit).copy()
 
                 c_idx, local_w = _resolve_clause_and_word(local_t, clause_timelines, clause_windows)
                 ov_list = clause_strips[min(c_idx, len(clause_strips) - 1)]
@@ -1344,12 +1263,12 @@ def render_debate_mp4(
                     if local_t < 0.36:
                         alpha_flash = int(125 * (1.0 - local_t / 0.36))
                         fx_x0, fx_x1 = (540, W) if is_a else (0, 540)
-                        d_fx.rectangle([fx_x0, 720, fx_x1, 1450], fill=(220, 38, 38, alpha_flash))
+                        d_fx.rectangle([fx_x0, 820, fx_x1, 1535], fill=(220, 38, 38, alpha_flash))
                     # Floating damage popup
                     pop_prog = local_t / 0.72
                     pop_alpha = int(255 * min(1.0, (1.0 - pop_prog) * 1.4))
-                    pop_cx = 825 if is_a else 255
-                    pop_cy = int(835 - pop_prog * 70)
+                    pop_cx = 815 if is_a else 265
+                    pop_cy = int(845 - pop_prog * 70)
                     pop_txt = f"-{dmg} HP (공감 팩폭!)"
                     pw_pop = int(fonts["dmg_pop"].getlength(pop_txt) + 34)
                     d_fx.rounded_rectangle(

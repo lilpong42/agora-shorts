@@ -251,11 +251,11 @@
       inset: 0;
       z-index: 5;
       pointer-events: none;
-      background: radial-gradient(circle at 23% 56%, rgba(37, 99, 235, 0.32), rgba(37, 99, 235, 0.07) 40%, transparent 66%);
+      background: radial-gradient(circle at 25% 64%, rgba(37, 99, 235, 0.36), rgba(37, 99, 235, 0.08) 42%, transparent 68%);
       transition: background 0.35s ease;
     }
     .stage-spotlight.con-mode {
-      background: radial-gradient(circle at 77% 56%, rgba(220, 38, 38, 0.32), rgba(220, 38, 38, 0.07) 40%, transparent 66%);
+      background: radial-gradient(circle at 75% 64%, rgba(220, 38, 38, 0.36), rgba(220, 38, 38, 0.08) 42%, transparent 68%);
     }
 
     /* High-Contrast Speech Bubble */
@@ -294,23 +294,23 @@
     .kw-active-amber { color: #B45309; background: #FEF3C7; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
     .kw-upcoming { color: #334155; font-weight: 600; }
 
-    /* Calm Broadcast Seated Anchor Motion (centered via outer percentage anchor) */
+    /* Anime Arena Fighter Motion */
     .char-actor {
-      transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), filter 0.34s ease, opacity 0.34s ease;
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), filter 0.28s ease, opacity 0.28s ease;
       transform-origin: bottom center;
-      filter: brightness(0.76) saturate(0.88) blur(0.35px);
-      opacity: 0.96;
-      transform: scale(0.986);
+      filter: brightness(0.76) saturate(0.86) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.55));
+      opacity: 0.94;
+      transform: scale(0.95);
     }
     .char-actor.speaking {
-      filter: brightness(1.03) saturate(1.04) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.36));
+      filter: brightness(1.06) saturate(1.12) drop-shadow(0 0 16px rgba(255, 255, 255, 0.24)) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.65));
       opacity: 1;
-      transform: scale(1.012);
-      animation: talkCadence 1.8s infinite ease-in-out alternate;
+      transform: scale(1.04);
+      animation: talkCadence 1.3s infinite ease-in-out alternate;
     }
     @keyframes talkCadence {
-      0% { transform: scale(1.012) translateY(0px); }
-      100% { transform: scale(1.012) translateY(-1.5px); }
+      0% { transform: scale(1.04) translateY(0px); }
+      100% { transform: scale(1.055) translateY(-3px); }
     }
 
     /* Fighting-Game HP Battle Animations */
@@ -695,13 +695,6 @@
                   class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
                 />
                 <div id="stageSpotlight" class="stage-spotlight"></div>
-                <img
-                  id="studioDeskFgImg"
-                  src="static/assets/studio_desk_fg.png"
-                  onerror="this.onerror=null;this.src='studio_desk_fg.png'"
-                  alt=""
-                  class="hidden"
-                />
 
                 <!-- TOP: Dynamic Faction A (Blue) vs B (Red) HP Gauge Bar + Topic + Fact Attack Bubble -->
                 <div class="relative z-30 space-y-1.5">
@@ -777,8 +770,8 @@
                   </div>
                 </div>
 
-                <!-- Dynamic Faction Fighter Slots with Shake + Red Flash + Damage Popups -->
-                <div id="fighterSlotA" class="absolute -translate-x-1/2 pointer-events-none z-10" style="left: 23%; bottom: 18%; height: 34%;">
+                <!-- Dynamic Faction Anime Fighter Slots with Shake + Red Flash + Damage Popups -->
+                <div id="fighterSlotA" class="absolute -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center justify-end" style="left: 25%; bottom: 21%; height: 34.5%;">
                   <div id="dmgPopA" class="dmg-float-pop">-24 HP (공감 팩폭!)</div>
                   <div id="hitFlashA" class="hit-flash-overlay"></div>
                   <img
@@ -788,12 +781,12 @@
                     alt="A 진영"
                     class="char-actor speaking h-full w-auto max-w-none select-none pointer-events-none"
                   />
-                  <div id="fighterTagA" class="mt-0.5 px-2 py-[2px] rounded-md bg-[#0A0E16]/90 border border-[#3B82F6] text-[8.5px] font-bold text-[#93C5FD] text-center truncate max-w-[125px] mx-auto shadow">
+                  <div id="fighterTagA" class="relative z-20 -mt-3 px-2.5 py-[2.5px] rounded-md bg-[#0A0E16]/95 border border-[#3B82F6] text-[8.5px] font-extrabold text-[#93C5FD] text-center truncate max-w-[132px] mx-auto shadow-lg">
                     라이더 생계 우선파
                   </div>
                 </div>
 
-                <div id="fighterSlotB" class="absolute -translate-x-1/2 pointer-events-none z-10" style="left: 77%; bottom: 18%; height: 34%;">
+                <div id="fighterSlotB" class="absolute -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center justify-end" style="left: 75%; bottom: 21%; height: 34.5%;">
                   <div id="dmgPopB" class="dmg-float-pop">-24 HP (공감 팩폭!)</div>
                   <div id="hitFlashB" class="hit-flash-overlay"></div>
                   <img
@@ -803,7 +796,7 @@
                     alt="B 진영"
                     class="char-actor h-full w-auto max-w-none select-none pointer-events-none"
                   />
-                  <div id="fighterTagB" class="mt-0.5 px-2 py-[2px] rounded-md bg-[#0A0E16]/90 border border-[#EF4444] text-[8.5px] font-bold text-[#FCA5A5] text-center truncate max-w-[125px] mx-auto shadow">
+                  <div id="fighterTagB" class="relative z-20 -mt-3 px-2.5 py-[2.5px] rounded-md bg-[#0A0E16]/95 border border-[#EF4444] text-[8.5px] font-extrabold text-[#FCA5A5] text-center truncate max-w-[132px] mx-auto shadow-lg">
                     주민 수면권 수호파
                   </div>
                 </div>
@@ -3485,10 +3478,9 @@ ${sampleText}`;
       const ctx = canvas.getContext("2d");
 
       const studioImg = document.getElementById("studioSetImg");
-      const deskImg = document.getElementById("studioDeskFgImg");
       const proImg = document.getElementById("avatarCardPro");
       const conImg = document.getElementById("avatarCardCon");
-      await Promise.all([studioImg, deskImg, proImg, conImg].map(waitImageReady));
+      await Promise.all([studioImg, proImg, conImg].map(waitImageReady));
 
       const bakeHost = (img, targetH, active) => {
         if (!img || !img.complete || img.naturalWidth <= 0) return null;
@@ -3498,15 +3490,15 @@ ${sampleText}`;
         const cx = c.getContext("2d");
         cx.globalAlpha = 1.0;
         if ("filter" in cx) {
-          cx.filter = active ? "brightness(1.04) saturate(1.06)" : "brightness(0.76) saturate(0.88)";
+          cx.filter = active ? "brightness(1.06) saturate(1.12)" : "brightness(0.76) saturate(0.86)";
         }
         cx.drawImage(img, 8, 8, dw, targetH);
         return { canvas: c, dw, dh: targetH };
       };
-      const proActH = bakeHost(proImg, 566, true);
-      const proIdleH = bakeHost(proImg, 558, false);
-      const conActH = bakeHost(conImg, 558, true);
-      const conIdleH = bakeHost(conImg, 550, false);
+      const proActH = bakeHost(proImg, 650, true);
+      const proIdleH = bakeHost(proImg, 618, false);
+      const conActH = bakeHost(conImg, 650, true);
+      const conIdleH = bakeHost(conImg, 618, false);
 
       const stageCache = {};
       const getStageCanvas = (isA, colorKey) => {
@@ -3522,8 +3514,8 @@ ${sampleText}`;
           g.addColorStop(0, "#0E1015"); g.addColorStop(1, "#0B0D12");
           cx.fillStyle = g; cx.fillRect(0, 0, W, H);
         }
-        const sx = isA ? 235 : 845;
-        const sy = 940;
+        const sx = isA ? 265 : 815;
+        const sy = 1170;
         const rad = cx.createRadialGradient(sx, sy, 28, sx, sy, 480);
         rad.addColorStop(0, pal.canvasSpot0);
         rad.addColorStop(0.5, pal.canvasSpot1);
@@ -3541,11 +3533,11 @@ ${sampleText}`;
         const badgeW = active ? 68 : 0;
         const pw = Math.round(Math.max(220, Math.min(405, tw + badgeW + 56)));
         const x0 = Math.max(54, Math.min(W - 54 - pw, Math.round(centerX - pw / 2)));
-        const y0 = 1368, ph = 56, cyM = y0 + ph / 2;
+        const y0 = 1476, ph = 58, cyM = y0 + ph / 2;
         if (active) {
-          c.fillStyle = "rgba(0, 0, 0, 0.47)";
+          c.fillStyle = "rgba(0, 0, 0, 0.57)";
           drawRoundRect(c, x0, y0 + 5, pw, ph, 14); c.fill();
-          c.fillStyle = "rgba(10, 14, 22, 0.94)";
+          c.fillStyle = "rgba(10, 14, 22, 0.96)";
           c.strokeStyle = accentCol;
           c.lineWidth = 3;
           drawRoundRect(c, x0, y0, pw, ph, 14); c.fill(); c.stroke();
@@ -3559,8 +3551,8 @@ ${sampleText}`;
           c.font = "bold 22px Pretendard, sans-serif";
           c.fillText(label, Math.round((x0 + 72 + x0 + pw - 10) / 2), cyM);
         } else {
-          c.fillStyle = "rgba(12, 16, 25, 0.80)";
-          c.strokeStyle = "rgba(255, 255, 255, 0.16)";
+          c.fillStyle = "rgba(12, 16, 25, 0.84)";
+          c.strokeStyle = "rgba(255, 255, 255, 0.19)";
           c.lineWidth = 2;
           drawRoundRect(c, x0, y0, pw, ph, 14); c.fill(); c.stroke();
           c.textAlign = "center";
@@ -3577,8 +3569,8 @@ ${sampleText}`;
         const tCtx = tc.getContext("2d");
         const curIsA = getTurnFaction(turn, idx) === "A";
         const curPal = PALETTES[getTurnColorKey(turn, idx)] || PALETTES.blue;
-        drawDeskPlateOnCtx(tCtx, 242, labelA.slice(0, 14), curIsA, curPal.accent);
-        drawDeskPlateOnCtx(tCtx, 838, labelB.slice(0, 14), !curIsA, curPal.accent);
+        drawDeskPlateOnCtx(tCtx, 265, labelA.slice(0, 14), curIsA, curPal.accent);
+        drawDeskPlateOnCtx(tCtx, 815, labelB.slice(0, 14), !curIsA, curPal.accent);
         return tc;
       });
 
@@ -3833,8 +3825,8 @@ ${sampleText}`;
         ctx.save();
         ctx.drawImage(getStageCanvas(isA, cKey), 0, 0);
 
-        const hitShake = !isOutro && localSec < 0.45 ? Math.round(Math.sin(localSec * 52) * 14 * (1 - localSec / 0.45)) : 0;
-        const talkCadence = Math.sin(localSec * 3.0) * 1.2;
+        const hitShake = !isOutro && localSec < 0.45 ? Math.round(Math.sin(localSec * 52) * 16 * (1 - localSec / 0.45)) : 0;
+        const talkCadence = Math.sin(localSec * 3.0) * 2.0;
         const idleBreath = Math.sin(localSec * 1.45 + 1.1) * 1.0;
         const blitHost = (hSpec, centerX, baselineY, offY, offX = 0) => {
           if (!hSpec) return;
@@ -3842,27 +3834,27 @@ ${sampleText}`;
         };
 
         if (isA) {
-          blitHost(conIdleH, 855, 1314, idleBreath, hitShake);
-          blitHost(proActH, 225, 1318, talkCadence, 0);
+          blitHost(conIdleH, 815, 1515, idleBreath, hitShake);
+          blitHost(proActH, 265, 1515, talkCadence, 0);
         } else {
-          blitHost(proIdleH, 225, 1316, idleBreath, hitShake);
-          blitHost(conActH, 855, 1316, talkCadence, 0);
+          blitHost(proIdleH, 265, 1515, idleBreath, hitShake);
+          blitHost(conActH, 815, 1515, talkCadence, 0);
         }
 
         if (!isOutro && localSec < 0.42) {
           const flashA = 0.42 * (1 - localSec / 0.42);
-          const rx = isA ? 855 : 225;
-          const rg = ctx.createRadialGradient(rx, 1020, 20, rx, 1020, 220);
+          const rx = isA ? 815 : 265;
+          const rg = ctx.createRadialGradient(rx, 1180, 20, rx, 1180, 240);
           rg.addColorStop(0, `rgba(239, 68, 68, ${flashA.toFixed(3)})`);
           rg.addColorStop(1, "rgba(239, 68, 68, 0)");
           ctx.fillStyle = rg;
-          ctx.fillRect(rx - 220, 800, 440, 460);
+          ctx.fillRect(rx - 240, 860, 480, 620);
         }
         ctx.drawImage(turnDeskCanvases[tIdx], 0, 0);
 
         if (!isOutro && localSec < 0.85) {
-          const popX = (isA ? 855 : 225) + hitShake;
-          const popY = Math.round(770 - (localSec / 0.85) * 46);
+          const popX = (isA ? 815 : 265) + hitShake;
+          const popY = Math.round(845 - (localSec / 0.85) * 60);
           const popTxt = `-${dmg} HP (공감 팩폭!)`;
           ctx.font = "bold 30px Pretendard, sans-serif";
           const pw = Math.round(ctx.measureText(popTxt).width + 44);
