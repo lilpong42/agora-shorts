@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>한냥 Studio — 다관점 여론 쇼츠 워크스테이션</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23FDE68A'/%3E%3Cstop offset='55%25' stop-color='%23F59E0B'/%3E%3Cstop offset='100%25' stop-color='%23B45309'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='36' height='36' fill='white'/%3E%3Crect x='13' y='13' width='10' height='10' rx='1.2' fill='black'/%3E%3C/mask%3E%3C/defs%3E%3Cg mask='url(%23m)'%3E%3Ccircle cx='18' cy='18' r='16.5' fill='url(%23g)'/%3E%3Ccircle cx='18' cy='18' r='12.5' fill='%2392400E'/%3E%3Crect x='11.4' y='11.4' width='13.2' height='13.2' rx='1.8' fill='url(%23g)'/%3E%3C/g%3E%3C/svg%3E" />
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js" onerror="var s=document.createElement('script');s.src='static/vendor/tailwindcss.min.js';document.head.appendChild(s);"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -481,15 +482,45 @@
   <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-900/[0.07]">
     <div class="max-w-[1160px] mx-auto px-3.5 sm:px-6 h-14 flex items-center justify-between gap-2 sm:gap-3">
       <div class="flex items-center gap-2.5 sm:gap-4 shrink-0">
-        <div class="flex items-center gap-2 shrink-0">
-          <!-- Precision Split-Spectrum Emblem -->
-          <div class="w-7 h-7 rounded-lg bg-[#0B0F17] flex items-center justify-center gap-[3px] shadow-sm">
-            <span class="w-1 h-3 rounded-full bg-[#38BDF8]"></span>
-            <span class="w-1 h-2 rounded-full bg-[#F87171]"></span>
-            <span class="w-1 h-3.5 rounded-full bg-[#A78BFA]"></span>
+        <div class="flex items-center gap-2.5 shrink-0 group">
+          <!-- 한냥 엽전 (Yeopjeon Brass Coin) Emblem -->
+          <div class="w-8 h-8 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:rotate-12" aria-hidden="true">
+            <svg viewBox="0 0 36 36" class="w-8 h-8 drop-shadow-[0_2px_4px_rgba(146,64,14,0.28)]">
+              <defs>
+                <linearGradient id="yeopRimGrad" x1="10%" y1="5%" x2="90%" y2="95%">
+                  <stop offset="0%" stop-color="#FEF08A" />
+                  <stop offset="45%" stop-color="#F59E0B" />
+                  <stop offset="100%" stop-color="#B45309" />
+                </linearGradient>
+                <linearGradient id="yeopFaceGrad" x1="15%" y1="10%" x2="85%" y2="90%">
+                  <stop offset="0%" stop-color="#B45309" />
+                  <stop offset="55%" stop-color="#92400E" />
+                  <stop offset="100%" stop-color="#78350F" />
+                </linearGradient>
+                <mask id="yeopSquareHole">
+                  <rect width="36" height="36" fill="#FFFFFF" />
+                  <rect x="13.2" y="13.2" width="9.6" height="9.6" rx="1.2" fill="#000000" />
+                </mask>
+              </defs>
+              <g mask="url(#yeopSquareHole)">
+                <!-- 바깥 양각 테두리 -->
+                <circle cx="18" cy="18" r="16.5" fill="url(#yeopRimGrad)" stroke="#78350F" stroke-width="0.8" />
+                <!-- 오목한 동전 바닥면 -->
+                <circle cx="18" cy="18" r="13.1" fill="url(#yeopFaceGrad)" />
+                <!-- 4방위 상평통보 모던 양각 각인 -->
+                <rect x="16.9" y="6.3" width="2.2" height="4.2" rx="1" fill="url(#yeopRimGrad)" opacity="0.95" />
+                <rect x="16.9" y="25.5" width="2.2" height="4.2" rx="1" fill="url(#yeopRimGrad)" opacity="0.95" />
+                <rect x="6.3" y="16.9" width="4.2" height="2.2" rx="1" fill="url(#yeopRimGrad)" opacity="0.95" />
+                <rect x="25.5" y="16.9" width="4.2" height="2.2" rx="1" fill="url(#yeopRimGrad)" opacity="0.95" />
+                <!-- 가운데 정사각형 방공 테두리 -->
+                <rect x="11.4" y="11.4" width="13.2" height="13.2" rx="1.8" fill="url(#yeopRimGrad)" />
+                <!-- 은은한 상단 광택 -->
+                <path d="M7.5 11.5 A13.5 13.5 0 0 1 26.5 9.2" fill="none" stroke="#FEF9C3" stroke-width="1.1" stroke-linecap="round" opacity="0.55" />
+              </g>
+            </svg>
           </div>
-          <div class="flex items-baseline gap-2">
-            <span class="font-bold text-[15px] text-slate-900 tracking-tight whitespace-nowrap">한냥 <span class="hidden sm:inline">Studio</span></span>
+          <div class="flex items-baseline gap-1.5">
+            <span class="font-extrabold text-[15.5px] text-slate-900 tracking-tight whitespace-nowrap">한냥 <span class="hidden sm:inline font-bold text-slate-600">Studio</span></span>
           </div>
         </div>
 
