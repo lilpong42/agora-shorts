@@ -473,9 +473,6 @@
           <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
           <span>음성 · API</span>
         </button>
-        <a href="https://github.com/lilpong42/agora-shorts" target="_blank" class="btn-ghost h-8 px-2.5 text-[12px] hidden sm:inline-flex items-center">
-          GitHub
-        </a>
       </div>
     </div>
   </header>
@@ -764,7 +761,6 @@
                 <select id="voiceEngineSelect" onchange="onVoiceModeChange()" class="bg-transparent font-semibold text-slate-800 outline-none cursor-pointer text-[11.5px]">
                   <option value="auto">음성: 자동 (Cloud/표준)</option>
                   <option value="browser">음성: 표준 한국어</option>
-                  <option value="gemini">음성: Gemini 3.8</option>
                 </select>
                 <div class="flex items-center gap-2 shrink-0">
                   <button id="speedToggleBtn" onclick="togglePlaybackSpeed()" class="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-semibold text-slate-800 mono-num hover:bg-slate-50 transition">
@@ -826,7 +822,6 @@
               </div>
 
               <div class="flex items-center gap-2">
-                <div id="scriptPerspectiveBadges" class="hidden sm:flex flex-wrap items-center gap-1"></div>
                 <button id="addTurnBtn" type="button" onclick="addScriptTurn()" class="btn-outline h-8 px-2.5 text-[12px] shrink-0">
                   + 턴 추가
                 </button>
@@ -841,21 +836,16 @@
               <div id="debateScriptList" class="space-y-2"></div>
             </div>
 
-            <!-- SUB-PANEL 2: YOUTUBE UPLOAD METADATA & CLOUD ARCHIVE -->
+            <!-- SUB-PANEL 2: UPLOAD METADATA & CLOUD ARCHIVE -->
             <div id="panelPublishTab" class="hidden space-y-4">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <h2 class="text-[14.5px] font-bold text-slate-900">유튜브 쇼츠 업로드 메타데이터</h2>
-                  <p class="text-[12px] text-slate-500 mt-0.5">생성된 제목·해시태그를 그대로 복사해 업로드하세요</p>
+                  <h2 class="text-[14.5px] font-bold text-slate-900">쇼츠 업로드 메타데이터</h2>
+                  <p class="text-[12px] text-slate-500 mt-0.5">생성된 제목·해시태그를 그대로 복사해 사용하세요</p>
                 </div>
-                <div class="flex items-center gap-1.5">
-                  <button type="button" onclick="copyFullMetadata(this)" class="btn-ink h-8 px-3 text-[12px]">
-                    제목·설명 전체 복사
-                  </button>
-                  <a href="https://studio.youtube.com" target="_blank" class="btn-outline h-8 px-3 text-[12px] inline-flex items-center">
-                    YouTube Studio ↗
-                  </a>
-                </div>
+                <button type="button" onclick="copyFullMetadata(this)" class="btn-ink h-8 px-3 text-[12px]">
+                  제목·설명 전체 복사
+                </button>
               </div>
 
               <div class="space-y-3">
@@ -880,14 +870,9 @@
                 <button onclick="switchView('analytics')" class="text-[12px] font-semibold text-slate-500 hover:text-slate-900 transition">
                   분석 리포트 및 차트 PNG 보기 →
                 </button>
-                <div class="flex items-center gap-2">
-                  <button onclick="copyVideoAiPrompt(this)" class="btn-ghost px-3 py-1.5 text-[12px]">
-                    영상 AI 프롬프트 복사
-                  </button>
-                  <button onclick="saveToSupabase()" id="saveSupabaseBtn" class="btn-outline px-3 py-1.5 text-[12px]">
-                    아카이브 저장
-                  </button>
-                </div>
+                <button onclick="saveToSupabase()" id="saveSupabaseBtn" class="btn-outline px-3 py-1.5 text-[12px]">
+                  아카이브 저장
+                </button>
               </div>
             </div>
           </div>
