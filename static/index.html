@@ -235,15 +235,13 @@
       width: 100%;
       height: 100%;
       border-radius: 23px;
-      background:
-        radial-gradient(circle at 50% 24%, rgba(39, 48, 67, 0.45), transparent 60%),
-        linear-gradient(180deg, #0E1015 0%, #141821 55%, #0B0D12 100%);
+      background: linear-gradient(180deg, #090D16 0%, #111827 60%, #070A11 100%);
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 8px 10px 8px;
+      padding: 9px 10px 9px;
     }
 
     .stage-spotlight {
@@ -251,59 +249,46 @@
       inset: 0;
       z-index: 5;
       pointer-events: none;
-      background: radial-gradient(circle at 25% 64%, rgba(37, 99, 235, 0.36), rgba(37, 99, 235, 0.08) 42%, transparent 68%);
+      background: radial-gradient(circle at 25% 66%, rgba(37, 99, 235, 0.24), rgba(37, 99, 235, 0.05) 42%, transparent 66%);
       transition: background 0.35s ease;
     }
     .stage-spotlight.con-mode {
-      background: radial-gradient(circle at 75% 64%, rgba(220, 38, 38, 0.36), rgba(220, 38, 38, 0.08) 42%, transparent 68%);
+      background: radial-gradient(circle at 75% 66%, rgba(220, 38, 38, 0.24), rgba(220, 38, 38, 0.05) 42%, transparent 66%);
     }
 
-    /* High-Contrast Speech Bubble */
-    .speech-bubble {
+    /* Sleek Dark Statement Card (No cartoon speech bubble / tail) */
+    .caption-card {
       position: relative;
-      background: rgba(255, 255, 255, 0.99);
-      color: #0F172A;
+      background: rgba(15, 23, 42, 0.88);
+      color: #F8FAFC;
       border-radius: 12px;
-      padding: 6px 9px 7px;
-      border: 1.5px solid rgba(15, 23, 42, 0.14);
-      border-top: 3px solid var(--pro-accent);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.46);
+      padding: 8px 10px 9px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-left: 4px solid var(--pro-accent);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.38);
       transition: border-color 0.2s ease;
     }
-    .speech-bubble.con-mode { border-top-color: var(--con-accent); }
-    .speech-tail {
-      position: absolute;
-      bottom: -5px;
-      width: 10px;
-      height: 10px;
-      background: #FFFFFF;
-      border-right: 1px solid rgba(15, 23, 42, 0.12);
-      border-bottom: 1px solid rgba(15, 23, 42, 0.12);
-      transform: rotate(45deg);
-      left: 58px;
-      transition: left 0.24s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .speech-bubble.con-mode .speech-tail { left: calc(100% - 70px); }
+    .caption-card.con-mode { border-left-color: var(--con-accent); }
 
-    /* High-Contrast Kinetic Word Highlight */
-    .kw-spoken { color: #0F172A; font-weight: 700; }
-    .kw-active-pro, .kw-active-blue { color: #1D4ED8; background: #DBEAFE; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
-    .kw-active-con, .kw-active-red { color: #B91C1C; background: #FEE2E2; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
-    .kw-active-violet { color: #6D28D9; background: #EDE9FE; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
-    .kw-active-emerald { color: #047857; background: #D1FAE5; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
-    .kw-active-amber { color: #B45309; background: #FEF3C7; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
-    .kw-upcoming { color: #334155; font-weight: 600; }
+    /* High-Contrast Kinetic Word Highlight on Dark Card */
+    .kw-spoken { color: #F1F5F9; font-weight: 700; }
+    .kw-active-pro, .kw-active-blue { color: #FFFFFF; background: #2563EB; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-active-con, .kw-active-red { color: #FFFFFF; background: #DC2626; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-active-violet { color: #FFFFFF; background: #7C3AED; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-active-emerald { color: #FFFFFF; background: #059669; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-active-amber { color: #FFFFFF; background: #D97706; font-weight: 800; border-radius: 4px; padding: 1px 4px; box-decoration-break: clone; }
+    .kw-upcoming { color: #94A3B8; font-weight: 600; }
 
     /* Anime Arena Fighter Motion */
     .char-actor {
       transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), filter 0.28s ease, opacity 0.28s ease;
       transform-origin: bottom center;
-      filter: brightness(0.76) saturate(0.86) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.55));
-      opacity: 0.94;
+      filter: brightness(0.72) saturate(0.84) drop-shadow(0 8px 14px rgba(0, 0, 0, 0.6));
+      opacity: 0.92;
       transform: scale(0.95);
     }
     .char-actor.speaking {
-      filter: brightness(1.06) saturate(1.12) drop-shadow(0 0 16px rgba(255, 255, 255, 0.24)) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.65));
+      filter: brightness(1.06) saturate(1.08) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.65));
       opacity: 1;
       transform: scale(1.04);
       animation: talkCadence 1.3s infinite ease-in-out alternate;
@@ -313,7 +298,7 @@
       100% { transform: scale(1.055) translateY(-3px); }
     }
 
-    /* Fighting-Game HP Battle Animations */
+    /* Clean HP Battle Animations */
     .hp-bar-fill {
       transition: width 0.32s cubic-bezier(0.22, 1, 0.36, 1);
     }
@@ -332,68 +317,52 @@
       position: absolute;
       inset: -6px -10px 18px -10px;
       border-radius: 999px;
-      background: radial-gradient(circle, rgba(239, 68, 68, 0.68) 0%, rgba(220, 38, 38, 0.25) 55%, transparent 75%);
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.55) 0%, rgba(220, 38, 38, 0.18) 55%, transparent 75%);
       opacity: 0;
       pointer-events: none;
       z-index: 22;
     }
     .hit-flash-overlay.active {
-      animation: hitFlashRed 0.42s ease-out forwards;
+      animation: hitFlashRed 0.40s ease-out forwards;
     }
     @keyframes hitFlashRed {
-      0% { opacity: 0.95; transform: scale(0.92); }
-      45% { opacity: 0.65; transform: scale(1.06); }
-      100% { opacity: 0; transform: scale(1.12); }
+      0% { opacity: 0.9; transform: scale(0.94); }
+      45% { opacity: 0.55; transform: scale(1.05); }
+      100% { opacity: 0; transform: scale(1.1); }
     }
     .dmg-float-pop {
       position: absolute;
       left: 50%;
-      top: -18px;
+      top: -14px;
       transform: translateX(-50%);
       white-space: nowrap;
-      padding: 2px 7px;
+      padding: 2px 8px;
       border-radius: 7px;
-      background: linear-gradient(135deg, #DC2626, #991B1B);
-      color: #FEF08A;
-      border: 1px solid rgba(254, 240, 138, 0.8);
-      font-size: 9.5px;
-      font-weight: 900;
-      box-shadow: 0 6px 14px rgba(220, 38, 38, 0.55);
+      background: #991B1B;
+      color: #FFFFFF;
+      border: 1px solid rgba(252, 165, 165, 0.7);
+      font-size: 10px;
+      font-weight: 800;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
       opacity: 0;
       pointer-events: none;
       z-index: 35;
     }
     .dmg-float-pop.active {
-      animation: dmgFloatUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation: dmgFloatUp 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
     @keyframes dmgFloatUp {
-      0% { opacity: 0; transform: translate(-50%, 10px) scale(0.75); }
-      20% { opacity: 1; transform: translate(-50%, -6px) scale(1.08); }
-      75% { opacity: 1; transform: translate(-50%, -22px) scale(1.0); }
-      100% { opacity: 0; transform: translate(-50%, -32px) scale(0.95); }
+      0% { opacity: 0; transform: translate(-50%, 8px) scale(0.8); }
+      20% { opacity: 1; transform: translate(-50%, -6px) scale(1.05); }
+      75% { opacity: 1; transform: translate(-50%, -20px) scale(1.0); }
+      100% { opacity: 0; transform: translate(-50%, -30px) scale(0.95); }
     }
     .ko-card-anim {
       animation: koPopIn 0.36s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
     @keyframes koPopIn {
-      0% { opacity: 0; transform: scale(0.82); }
+      0% { opacity: 0; transform: scale(0.84); }
       100% { opacity: 1; transform: scale(1); }
-    }
-
-    /* 10-Band Equalizer Bars */
-    .eq-bars { display: flex; align-items: center; gap: 2px; height: 14px; }
-    .eq-bar { width: 2px; height: 4px; border-radius: 99px; background: #D4D4D8; }
-    .eq-pro .eq-bar, .eq-blue .eq-bar { background: #2563EB; animation: eqAnim 0.42s infinite ease-in-out alternate; }
-    .eq-con .eq-bar, .eq-red .eq-bar { background: #DC2626; animation: eqAnim 0.40s infinite ease-in-out alternate; }
-    .eq-violet .eq-bar { background: #7C3AED; animation: eqAnim 0.41s infinite ease-in-out alternate; }
-    .eq-emerald .eq-bar { background: #059669; animation: eqAnim 0.41s infinite ease-in-out alternate; }
-    .eq-amber .eq-bar { background: #D97706; animation: eqAnim 0.41s infinite ease-in-out alternate; }
-    .eq-bar:nth-child(2n) { animation-delay: 0.11s; }
-    .eq-bar:nth-child(3n) { animation-delay: 0.21s; }
-    .eq-bar:nth-child(5n) { animation-delay: 0.06s; }
-    @keyframes eqAnim {
-      0% { height: 4px; opacity: 0.45; }
-      100% { height: 14px; opacity: 1; }
     }
 
     /* Clean Architectural Timeline Cards with Progressive Disclosure */
@@ -521,7 +490,6 @@
           </div>
           <div class="flex items-baseline gap-2">
             <span class="font-bold text-[15px] text-slate-900 tracking-tight whitespace-nowrap">한냥 <span class="hidden sm:inline">Studio</span></span>
-            <span class="hidden md:inline text-[11px] font-semibold text-slate-400 mono-num">MULTI-VIEW ENGINE</span>
           </div>
         </div>
 
@@ -538,7 +506,7 @@
       <div class="flex items-center gap-2 shrink-0">
         <button onclick="toggleApiKeyModal()" class="btn-outline h-8 px-2.5 sm:px-3 text-[11.5px] sm:text-[12px] inline-flex items-center gap-1.5">
           <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
-          <span>음성 · API</span>
+          <span>API 설정</span>
         </button>
       </div>
     </div>
@@ -557,13 +525,12 @@
         <div class="flex flex-col md:flex-row md:items-center gap-2">
           <!-- Omnibar URL Field -->
           <div class="relative flex-1 flex items-center">
-            <span class="absolute left-3 text-[11px] font-bold text-slate-400 mono-num select-none pointer-events-none">SRC</span>
             <input
               id="sourceUrlInput"
               type="text"
-              placeholder="유튜브 링크 붙여넣기 (토론 · IT 리뷰 · 게임 · 일상 반응)"
+              placeholder="유튜브 링크 붙여넣기"
               onkeydown="if(event.key==='Enter'){event.preventDefault();runLiveYouTubeOrCustomAnalysis();}"
-              class="studio-input w-full h-10 pl-11 pr-[106px] text-[13.5px]"
+              class="studio-input w-full h-10 pl-3.5 pr-[106px] text-[13.5px]"
             />
             <div class="absolute right-1.5 flex items-center gap-1">
               <button
@@ -581,25 +548,15 @@
             </div>
           </div>
 
-          <!-- Compact Mode + Primary Action -->
+          <!-- Primary Actions -->
+          <input type="hidden" id="analysisModeSelect" value="auto" />
           <div class="flex flex-wrap items-center gap-2 shrink-0">
-            <select
-              id="analysisModeSelect"
-              onchange="onAnalysisModeChange()"
-              title="진영 배틀 추출 방식"
-              class="studio-input h-10 px-2.5 text-[12.5px] font-semibold text-slate-800"
-            >
-              <option value="auto">배틀: 동적 진영 자동</option>
-              <option value="battle">상위 2대 진영 팩폭</option>
-              <option value="proscons">장단점·체감 정면충돌</option>
-              <option value="summary">핵심 갈등 2축 대결</option>
-            </select>
             <button
               id="toggleCustomBtn"
               onclick="toggleCustomTextBox()"
               class="btn-outline h-10 px-3 text-[12.5px]"
             >
-              댓글 직접입력
+              직접 입력
             </button>
             <button
               id="runPipelineBtn"
@@ -611,29 +568,23 @@
           </div>
         </div>
 
-        <!-- Slim Strip: Empirical Presets + 1-Click Diverse Samples + Telemetry -->
+        <!-- Clean Preset & Sample Strip -->
         <div class="pt-2.5 border-t border-slate-900/[0.06] flex flex-wrap items-center justify-between gap-2">
           <div class="flex flex-wrap items-center gap-1.5">
-            <span class="text-[11px] font-bold text-slate-400 mono-num mr-0.5">실측 527</span>
             <button id="presetBtn_preset_1" onclick="selectPreset('preset_1')" class="topic-pill active">
-              배달 소음 대결
+              배달 소음
             </button>
             <button id="presetBtn_preset_2" onclick="selectPreset('preset_2')" class="topic-pill">
-              전동킥보드 충돌
+              전동킥보드
             </button>
             <button id="presetBtn_preset_3" onclick="selectPreset('preset_3')" class="topic-pill">
-              고령 운전자 면허
+              고령 운전자
             </button>
-            <span class="hidden sm:inline text-slate-300 mx-0.5">|</span>
-            <span class="text-[11px] font-bold text-slate-400 mono-num">샘플</span>
             <button type="button" onclick="applySamplePack('it_review')" class="sample-chip">IT 리뷰</button>
             <button type="button" onclick="applySamplePack('game_patch')" class="sample-chip">게임 패치</button>
             <button type="button" onclick="applySamplePack('four_day')" class="sample-chip">주4일제</button>
           </div>
-          <div class="flex items-center gap-2 ml-auto">
-            <span id="pipelineStepBadge" class="hidden px-2 py-0.5 rounded-md bg-sky-50 border border-sky-200 text-[11px] font-bold text-sky-700 mono-num"></span>
-            <span class="text-[11.5px] font-medium text-slate-500 mono-num" id="miniSummaryStats">댓글 200건 중 과열 58건(29.0%) 정제</span>
-          </div>
+          <span id="pipelineStepBadge" class="hidden px-2 py-0.5 rounded-md bg-sky-50 border border-sky-200 text-[11px] font-bold text-sky-700 mono-num"></span>
         </div>
 
         <div id="commandNotice" class="hidden px-3 py-2 rounded-lg text-[12px] font-medium bg-red-50 text-red-700 border border-red-200"></div>
@@ -642,25 +593,24 @@
         <div id="customTextWrapper" class="hidden pt-2.5 border-t border-slate-900/[0.06] space-y-2">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex flex-wrap items-center gap-1.5">
-              <span class="text-[11.5px] font-semibold text-slate-500">샘플 채우기:</span>
-              <button type="button" onclick="applySamplePack('it_review')" class="sample-chip">IT 신제품 반응 대결</button>
-              <button type="button" onclick="applySamplePack('game_patch')" class="sample-chip">게임 밸런스 패치</button>
-              <button type="button" onclick="applySamplePack('four_day')" class="sample-chip">주 4일제 여론 대결</button>
-              <button type="button" onclick="applySamplePack('noise_debate')" class="sample-chip">심야 소음 충돌</button>
+              <button type="button" onclick="applySamplePack('it_review')" class="sample-chip">IT 리뷰</button>
+              <button type="button" onclick="applySamplePack('game_patch')" class="sample-chip">게임 패치</button>
+              <button type="button" onclick="applySamplePack('four_day')" class="sample-chip">주4일제</button>
+              <button type="button" onclick="applySamplePack('noise_debate')" class="sample-chip">심야 소음</button>
             </div>
-            <span id="customLineCountLabel" class="text-[11.5px] font-semibold text-slate-500 mono-num">0줄 입력됨</span>
+            <span id="customLineCountLabel" class="text-[11.5px] font-semibold text-slate-500 mono-num">0줄</span>
           </div>
           <textarea
             id="rawCommentsInput"
             rows="3"
             oninput="updateCustomLineCount()"
             onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();runLiveYouTubeOrCustomAnalysis();}"
-            placeholder="댓글·후기를 줄바꿈으로 구분해 붙여넣으면 상위 2대 대립 진영으로 6턴 팩트 배틀을 구성합니다 (Ctrl+Enter 실행)"
+            placeholder="댓글을 줄바꿈으로 구분해 붙여넣으면 두 진영의 6턴 배틀을 생성합니다 (Ctrl+Enter)"
             class="studio-input w-full p-3 text-[13px] leading-relaxed"
           ></textarea>
           <div class="flex items-center justify-between gap-2">
             <button type="button" onclick="document.getElementById('rawCommentsInput').value='';updateCustomLineCount();" class="btn-ghost px-3 py-1.5 text-[12px]">비우기</button>
-            <button type="button" onclick="runLiveYouTubeOrCustomAnalysis()" class="btn-ink px-4 py-1.5 text-[12.5px]">이 댓글로 배틀 생성</button>
+            <button type="button" onclick="runLiveYouTubeOrCustomAnalysis()" class="btn-ink px-4 py-1.5 text-[12.5px]">배틀 생성</button>
           </div>
         </div>
       </div>
@@ -675,104 +625,82 @@
             <div class="w-full flex items-center justify-between mb-3.5">
               <div class="seg-track">
                 <button id="modeInteractiveBtn" onclick="setPlayerMode('interactive')" class="seg-btn active">
-                  실시간 배틀
+                  실시간 미리보기
                 </button>
                 <button id="modeVideoBtn" onclick="setPlayerMode('video')" class="seg-btn">
-                  MP4 렌더
+                  MP4 영상
                 </button>
               </div>
-              <span id="ttsStatusLabel" class="text-[11.5px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md mono-num">6턴 HP 팩트 배틀</span>
+              <span id="ttsStatusLabel" class="text-[11.5px] font-semibold text-slate-500 mono-num">6턴 · 1.3x</span>
             </div>
 
             <!-- Anodized Obsidian 9:16 Monitor Frame -->
             <div class="phone-chassis">
               <div id="interactiveViewport" class="phone-screen">
-                <img
-                  id="studioSetImg"
-                  src="static/assets/studio_set.jpg"
-                  onerror="this.onerror=null;this.src='studio_set.jpg'"
-                  alt=""
-                  class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
-                />
+                <!-- Minimal Dark Studio Floor -->
+                <div class="absolute inset-x-0 bottom-0 h-[17%] bg-[#070A11]/90 border-t border-white/10 pointer-events-none z-0"></div>
                 <div id="stageSpotlight" class="stage-spotlight"></div>
 
-                <!-- TOP: Dynamic Faction A (Blue) vs B (Red) HP Gauge Bar + Topic + Fact Attack Bubble -->
-                <div class="relative z-30 space-y-1.5">
-                  <!-- Fighting Game HP Gauge Bar -->
-                  <div class="rounded-xl bg-[#090D16]/95 border border-white/15 px-2 py-1.5 shadow-lg">
-                    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1.5">
+                <!-- TOP: Dynamic Faction HP Gauge + Bold Issue Title + Clean Caption Card -->
+                <div class="relative z-30 space-y-2">
+                  <!-- Clean Fighting Game HP Gauge Bar -->
+                  <div class="rounded-xl bg-[#0F172A]/90 border border-white/10 px-2.5 py-1.5 shadow-lg">
+                    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                       <!-- Faction A (Blue) -->
                       <div class="min-w-0">
-                        <div class="flex items-center justify-between gap-1 mb-0.5">
-                          <span id="hpLabelA" class="text-[8.5px] font-extrabold text-[#93C5FD] truncate">라이더 생계 우선파</span>
-                          <span id="hpValA" class="text-[8.5px] font-black text-white mono-num shrink-0">100</span>
+                        <div class="flex items-center justify-between gap-1 mb-1">
+                          <span id="hpLabelA" class="text-[9px] font-extrabold text-[#93C5FD] truncate">라이더 생계 우선파</span>
+                          <span id="hpValA" class="text-[9px] font-black text-white mono-num shrink-0">100</span>
                         </div>
-                        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden border border-blue-500/30">
-                          <div id="hpBarA" class="hp-bar-fill h-full bg-gradient-to-r from-[#1D4ED8] to-[#3B82F6] rounded-full" style="width: 100%"></div>
+                        <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                          <div id="hpBarA" class="hp-bar-fill h-full bg-[#3B82F6] rounded-full" style="width: 100%"></div>
                         </div>
                       </div>
 
-                      <!-- Center VS + ROUND -->
+                      <!-- Center VS + Round -->
                       <div class="flex flex-col items-center justify-center px-1 shrink-0">
                         <span class="text-[10px] font-black text-[#FACC15] leading-none tracking-tight">VS</span>
-                        <span id="shortsRoundBadge" class="mt-0.5 px-1.5 py-[1px] rounded bg-white/10 border border-white/15 text-[7.5px] font-extrabold text-white mono-num leading-tight">ROUND 1/6</span>
+                        <span id="shortsRoundBadge" class="mt-0.5 text-[8px] font-bold text-slate-300 mono-num leading-none">1 / 6</span>
                       </div>
 
                       <!-- Faction B (Red) -->
                       <div class="min-w-0">
-                        <div class="flex items-center justify-between gap-1 mb-0.5">
-                          <span id="hpValB" class="text-[8.5px] font-black text-white mono-num shrink-0">100</span>
-                          <span id="hpLabelB" class="text-[8.5px] font-extrabold text-[#FCA5A5] truncate text-right">주민 수면권 수호파</span>
+                        <div class="flex items-center justify-between gap-1 mb-1">
+                          <span id="hpValB" class="text-[9px] font-black text-white mono-num shrink-0">100</span>
+                          <span id="hpLabelB" class="text-[9px] font-extrabold text-[#FCA5A5] truncate text-right">주민 수면권 수호파</span>
                         </div>
-                        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden border border-red-500/30 flex justify-end">
-                          <div id="hpBarB" class="hp-bar-fill h-full bg-gradient-to-l from-[#B91C1C] to-[#EF4444] rounded-full" style="width: 100%"></div>
+                        <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden flex justify-end">
+                          <div id="hpBarB" class="hp-bar-fill h-full bg-[#EF4444] rounded-full" style="width: 100%"></div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Battle Topic Banner -->
-                  <div class="rounded-lg bg-[#090D16]/95 border border-[#FACC15]/55 border-t-[2.5px] border-t-[#FACC15] px-2 py-1 shadow-lg">
-                    <div class="flex items-center justify-between gap-1 mb-0.5">
-                      <div class="flex items-center gap-1 min-w-0">
-                        <span class="px-1.5 py-[1px] rounded bg-[#FACC15] text-[#090D16] text-[8.5px] font-extrabold leading-none shrink-0">배틀 이슈</span>
-                        <span id="shortsTopicModeTag" class="px-1 py-[1px] rounded bg-white/10 text-slate-200 text-[8px] font-semibold leading-none truncate">동적 진영 HP 팩트 배틀</span>
-                      </div>
-                      <span id="shortsCommentCountTag" class="text-[8px] text-slate-400 mono-num shrink-0">200건 분석</span>
-                    </div>
-                    <h3 id="shortsIssueTitle" class="text-[11px] font-extrabold text-white text-center leading-[1.22] line-clamp-2">
+                  <!-- Clean Bold Issue Title -->
+                  <div class="rounded-xl bg-[#0F172A]/85 border border-white/10 px-3 py-2">
+                    <h3 id="shortsIssueTitle" class="text-[12px] font-extrabold text-white text-center leading-[1.3] line-clamp-2">
                       심야 배달 오토바이 배기 소음 규제 논란
                     </h3>
                   </div>
 
-                  <!-- Battle Fact Attack Bubble -->
-                  <div id="shortsSpeechBubble" class="speech-bubble">
-                    <div class="flex items-center justify-between mb-1 gap-1">
-                      <div class="flex items-center gap-1.5 min-w-0">
-                        <span id="shortsSpeakerBadge" class="text-[9.5px] font-extrabold px-2 py-[2px] rounded bg-[#2563EB] text-white truncate max-w-[155px]">⚡ 라이더 생계 우선파</span>
-                        <span id="shortsDamageBadge" class="text-[8.5px] font-extrabold px-1.5 py-[1px] rounded bg-[#FEE2E2] text-[#B91C1C] border border-red-300 mono-num shrink-0">-16 DMG</span>
-                      </div>
-                      <div id="shortsBubbleEq" class="eq-bars shrink-0">
-                        <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
-                        <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
-                      </div>
+                  <!-- Clean Left-Accent Dark Glass Statement Card -->
+                  <div id="shortsSpeechBubble" class="caption-card">
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                      <span id="shortsSpeakerBadge" class="text-[10px] font-extrabold text-[#60A5FA] truncate">라이더 생계 우선파</span>
+                      <span id="shortsDamageBadge" class="text-[8.5px] font-extrabold px-1.5 py-[1px] rounded bg-white/10 text-slate-200 mono-num shrink-0">-16 HP</span>
                     </div>
-                    <div id="shortsCoreBox" class="flex items-center gap-1.5 px-1.5 py-[3px] rounded-md mb-1 border-l-[3px]" style="background:#DBEAFE;border-left-color:#2563EB;">
-                      <span id="shortsCoreTag" class="px-1 py-[1px] rounded text-[8px] font-extrabold text-white shrink-0 leading-none" style="background:#2563EB;">팩폭</span>
-                      <div id="shortsCorePoint" class="text-[10px] font-bold text-[#1D4ED8] leading-[1.22] line-clamp-1">
-                        소수 불법 개조 vs 다수 생계형 라이더
-                      </div>
+                    <div id="shortsCorePoint" class="text-[10px] font-semibold text-slate-300 leading-[1.28] line-clamp-1 mb-1.5 pb-1.5 border-b border-white/10">
+                      소수 불법 개조 vs 다수 생계형 라이더
                     </div>
-                    <p id="shortsSubtitleText" class="text-[11px] font-bold text-[#0F172A] leading-[1.34] min-h-[28px]">
+                    <p id="shortsSubtitleText" class="text-[12.5px] font-bold text-slate-100 leading-[1.42] min-h-[36px]">
                       일부 불법 튜닝 잡는다고 밤새 뛰는 생계형 라이더 전체 통행 막는 건 생존권 침해야!
                     </p>
-                    <div class="speech-tail"></div>
                   </div>
                 </div>
 
-                <!-- Dynamic Faction Anime Fighter Slots with Shake + Red Flash + Damage Popups -->
-                <div id="fighterSlotA" class="absolute -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center justify-end" style="left: 25%; bottom: 21%; height: 34.5%;">
-                  <div id="dmgPopA" class="dmg-float-pop">-24 HP (공감 팩폭!)</div>
+                <!-- Dynamic Faction Anime Fighters (Clean Silhouette on Minimal Stage) -->
+                <div id="fighterSlotA" class="absolute -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center justify-end" style="left: 25%; bottom: 15%; height: 37%;">
+                  <div id="dmgPopA" class="dmg-float-pop">-24 HP</div>
                   <div id="hitFlashA" class="hit-flash-overlay"></div>
                   <img
                     id="avatarCardPro"
@@ -781,13 +709,10 @@
                     alt="A 진영"
                     class="char-actor speaking h-full w-auto max-w-none select-none pointer-events-none"
                   />
-                  <div id="fighterTagA" class="relative z-20 -mt-3 px-2.5 py-[2.5px] rounded-md bg-[#0A0E16]/95 border border-[#3B82F6] text-[8.5px] font-extrabold text-[#93C5FD] text-center truncate max-w-[132px] mx-auto shadow-lg">
-                    라이더 생계 우선파
-                  </div>
                 </div>
 
-                <div id="fighterSlotB" class="absolute -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center justify-end" style="left: 75%; bottom: 21%; height: 34.5%;">
-                  <div id="dmgPopB" class="dmg-float-pop">-24 HP (공감 팩폭!)</div>
+                <div id="fighterSlotB" class="absolute -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center justify-end" style="left: 75%; bottom: 15%; height: 37%;">
+                  <div id="dmgPopB" class="dmg-float-pop">-24 HP</div>
                   <div id="hitFlashB" class="hit-flash-overlay"></div>
                   <img
                     id="avatarCardCon"
@@ -796,9 +721,6 @@
                     alt="B 진영"
                     class="char-actor h-full w-auto max-w-none select-none pointer-events-none"
                   />
-                  <div id="fighterTagB" class="relative z-20 -mt-3 px-2.5 py-[2.5px] rounded-md bg-[#0A0E16]/95 border border-[#EF4444] text-[8.5px] font-extrabold text-[#FCA5A5] text-center truncate max-w-[132px] mx-auto shadow-lg">
-                    주민 수면권 수호파
-                  </div>
                 </div>
 
                 <!-- Final K.O. Victory Overlay -->
@@ -817,22 +739,8 @@
                   </div>
                 </div>
 
-                <!-- Dynamic Faction Ratio Telemetry Footer -->
-                <div id="shortsTelemetryArea" class="relative z-30 rounded-xl bg-[#0E1119]/92 px-2.5 py-1.5 border border-white/10 mt-auto">
-                  <div id="shortsLegendRow" class="flex items-center justify-between gap-1 text-[9.5px] font-semibold mb-1 truncate">
-                    <span class="text-[#60A5FA] mono-num">라이더 생계 12%</span>
-                    <span class="text-[#A1A1AA]">공감 비중</span>
-                    <span class="text-[#F87171] mono-num">주민 수면권 88%</span>
-                  </div>
-                  <div id="shortsRatioBar" class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden flex gap-0.5 mb-1">
-                    <div class="h-full bg-[#2563EB] rounded-full" style="width: 12%"></div>
-                    <div class="h-full bg-[#DC2626] rounded-full" style="width: 88%"></div>
-                  </div>
-                  <div class="flex items-center justify-between pt-1 border-t border-white/[0.08]">
-                    <div class="flex items-center gap-1" id="shortsTurnDots"></div>
-                    <span id="shortsModeFootLabel" class="text-[9.5px] text-[#A1A1AA] font-semibold">한냥 Studio</span>
-                  </div>
-                </div>
+                <!-- Clean Centered Turn Progress Pills -->
+                <div id="shortsTurnDots" class="relative z-30 mt-auto pb-1 flex items-center justify-center gap-1.5"></div>
               </div>
 
               <!-- Real Broadcast Video Player -->
@@ -840,14 +748,14 @@
                 <video id="realMp4Player" class="w-full h-full object-contain" controls playsinline preload="metadata"></video>
                 <div id="mp4RenderOverlay" class="hidden absolute inset-0 bg-[#0B0F17]/95 flex flex-col items-center justify-center p-6 text-center z-20">
                   <div class="w-8 h-8 rounded-full border-2 border-white/20 border-t-sky-400 animate-spin mb-3"></div>
-                  <div id="mp4RenderOverlayText" class="text-[13px] font-semibold text-white">AI 음성 + 9:16 HP 배틀 영상 생성 중...</div>
-                  <div id="mp4RenderOverlaySub" class="text-[11px] text-slate-400 mt-1">6턴 진영 공격과 8비트 타격음을 동기화하고 있습니다.</div>
+                  <div id="mp4RenderOverlayText" class="text-[13px] font-semibold text-white">MP4 배틀 영상 생성 중...</div>
+                  <div id="mp4RenderOverlaySub" class="text-[11px] text-slate-400 mt-1">음성과 6턴 애니메이션을 합성하고 있습니다.</div>
                 </div>
               </div>
             </div>
 
             <!-- Tactile Transport & Acoustic Dock -->
-            <div class="w-full max-w-[320px] mt-3.5 space-y-2.5">
+            <div class="w-full max-w-[320px] mt-3.5 space-y-2">
               <div class="flex items-center gap-1.5">
                 <button type="button" onclick="stepTurn(-1)" title="이전 라운드 (←)" class="btn-outline w-10 h-10 flex items-center justify-center text-[12px] shrink-0">◀</button>
                 <button id="playShortsBtn" onclick="toggleShortsPlayback()" class="btn-outline flex-1 h-10 text-[13px]">
@@ -859,18 +767,18 @@
                 </button>
               </div>
 
-              <!-- Unified Slim Acoustic Dock (Rapid-Fire 1.3x Browser TTS + 8-bit Web Audio SFX) -->
+              <!-- Unified Slim Acoustic Dock -->
               <div class="studio-subpanel px-2.5 py-1.5 flex items-center justify-between gap-2 text-[11.5px] text-slate-600">
                 <select id="voiceEngineSelect" onchange="onVoiceModeChange()" class="bg-transparent font-semibold text-slate-800 outline-none cursor-pointer text-[11.5px]">
-                  <option value="browser">음성: 속사포 한국어 (1.3x)</option>
-                  <option value="auto">음성: 자동 (Cloud/속사포)</option>
+                  <option value="browser">음성: 한국어 TTS</option>
+                  <option value="auto">음성: 자동 (서버/브라우저)</option>
                 </select>
                 <div class="flex items-center gap-2 shrink-0">
                   <button id="speedToggleBtn" onclick="togglePlaybackSpeed()" class="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-semibold text-slate-800 mono-num hover:bg-slate-50 transition">
                     1.3x
                   </button>
                   <label class="flex items-center gap-1 cursor-pointer select-none">
-                    <span class="text-[11px] font-medium">8비트 타격음</span>
+                    <span class="text-[11px] font-medium">효과음</span>
                     <span class="min-switch">
                       <input id="chimeToggle" type="checkbox" checked onchange="saveUiPrefs()" />
                       <span class="min-slider"></span>
@@ -878,63 +786,45 @@
                   </label>
                 </div>
               </div>
-              <div class="flex items-center justify-between text-[10.5px] text-slate-400 px-0.5">
-                <span class="mono-num">Space 배틀 재생 · ←/→ 라운드 이동</span>
-                <span id="mp4ExportStatus" class="font-medium text-emerald-600 truncate max-w-[170px]"></span>
-              </div>
+              <div id="mp4ExportStatus" class="text-[11px] font-medium text-emerald-600 text-center truncate min-h-[16px]"></div>
             </div>
           </div>
         </div>
 
-        <!-- RIGHT (7 cols): FOCUSED CONTEXT RADAR + TABBED INSPECTOR (SCRIPT FIRST!) -->
-        <div class="lg:col-span-7 space-y-4">
-
-          <!-- Active Faction Collision Radar & One-Click Quick Copy -->
-          <div class="studio-panel p-4 sm:p-5 space-y-3">
-            <div class="flex flex-wrap items-start justify-between gap-2">
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2 mb-1">
-                  <span id="studioTopicModeBadge" class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10.5px] font-bold">동적 진영 HP 팩트 배틀</span>
-                  <span class="text-[11px] font-semibold text-slate-400 mono-num">DYNAMIC FACTION BATTLE</span>
-                </div>
-                <h1 id="studioIssueHeadline" class="text-[15.5px] font-bold text-slate-900 leading-snug line-clamp-2">
-                  심야 배달 오토바이 배기 소음 규제 논란
-                </h1>
-              </div>
-              <button type="button" onclick="copyFullMetadata(this)" class="btn-outline h-8 px-2.5 text-[11.5px] shrink-0">
-                제목·설명 복사
-              </button>
-            </div>
-            <div id="studioOverviewBar" class="w-full h-2 rounded-full bg-slate-100 overflow-hidden flex gap-0.5">
-              <div class="h-full bg-[#2563EB]" style="width:12%"></div>
-              <div class="h-full bg-[#DC2626]" style="width:88%"></div>
-            </div>
-            <div id="studioOverviewLegend" class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] font-semibold"></div>
-          </div>
-
-          <!-- Focused Right Inspector Card with Segmented Mode Tabs -->
+        <!-- RIGHT (7 cols): CLEAN CONSOLIDATED ISSUE HEADER + SCRIPT / PUBLISH INSPECTOR -->
+        <div class="lg:col-span-7">
           <div class="studio-panel p-4 sm:p-5 space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-900/[0.06]">
+            <!-- Consolidated Issue Summary & Faction Ratio -->
+            <div class="space-y-2 pb-3.5 border-b border-slate-900/[0.06]">
+              <h1 id="studioIssueHeadline" class="text-[16px] font-bold text-slate-900 leading-snug line-clamp-2">
+                심야 배달 오토바이 배기 소음 규제 논란
+              </h1>
+              <div id="studioOverviewBar" class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden flex gap-0.5">
+                <div class="h-full bg-[#2563EB]" style="width:12%"></div>
+                <div class="h-full bg-[#DC2626]" style="width:88%"></div>
+              </div>
+              <div id="studioOverviewLegend" class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] font-semibold"></div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="seg-track">
                 <button id="studioTabScript" type="button" onclick="switchStudioInspector('script')" class="seg-btn active">
-                  <span id="scriptEditorHeading">팩트 배틀 대본 (6턴)</span>
+                  <span id="scriptEditorHeading">배틀 대본 (6턴)</span>
                 </button>
                 <button id="studioTabPublish" type="button" onclick="switchStudioInspector('publish')" class="seg-btn">
-                  업로드 메타 · 내보내기
+                  업로드 정보
                 </button>
               </div>
 
-              <div class="flex items-center gap-2">
-                <button id="addTurnBtn" type="button" onclick="addScriptTurn()" class="btn-outline h-8 px-2.5 text-[12px] shrink-0">
-                  + 턴 추가
-                </button>
-              </div>
+              <button id="addTurnBtn" type="button" onclick="addScriptTurn()" class="btn-outline h-8 px-2.5 text-[12px] shrink-0">
+                + 턴 추가
+              </button>
             </div>
 
             <!-- SUB-PANEL 1 (DEFAULT): FLEXIBLE 2-8 TURN BATTLE SCRIPT TIMELINE -->
             <div id="panelScriptTab" class="space-y-2.5">
-              <div class="flex items-center justify-between text-[11.5px] text-slate-400 px-0.5">
-                <span>핵심 라벨·공격 대사·데미지(15~35)를 직접 수정하면 상단 HP 게이지와 배틀 영상에 즉시 반영됩니다</span>
+              <div class="text-[11.5px] text-slate-400 px-0.5">
+                대사와 데미지(15~35 HP)를 수정하면 미리보기와 MP4 영상에 바로 반영됩니다
               </div>
               <div id="debateScriptList" class="space-y-2"></div>
             </div>
@@ -2561,7 +2451,7 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
             : `${shortTopic} 문제 풀려면 ${sideBLabel} 쪽 현실 대안부터 세워야지`;
         }
 
-        const corePt = trimKoreanWords(chosenQ, 20) || `${flabel} 핵심 팩폭`;
+        const corePt = trimKoreanWords(chosenQ, 20) || `${flabel} 핵심 논점`;
         const punchLine = toBanmalOneSentence(chosenQ, flabel, isA);
         const dmg = clampDamage(null, fratio, Math.floor(turnI / 2));
 
@@ -2748,13 +2638,13 @@ create policy "Allow public insert" on public.hannyang_debates for insert to ano
         const total = clusterRes.total_comments;
         let engineMode = vid ? `실시간 HP 배틀 (${total}건)` : `직접 입력 HP 배틀 (${total}건)`;
 
-        setPipelineStep("3/4 AI 팩폭 대본 생성");
+        setPipelineStep("3/4 AI 배틀 대본 생성");
         const sampleText = comments.slice(0, 35).map((c) => c.text).join("\n");
-        const gemPrompt = `다음 콘텐츠("${issueTitle}")의 실제 댓글 ${total}건을 분석해 고정된 '찬반/아나운서/40초' 형식을 완전히 버리고, 가장 첨예하게 대립하거나 대비되는 상위 2개 여론 진영(Side A vs Side B)이 맞붙는 6턴 격투 게임식 HP 팩트 배틀 쇼츠 JSON을 작성해라.
+        const gemPrompt = `다음 콘텐츠("${issueTitle}")의 실제 댓글 ${total}건을 분석해 고정된 '찬반/아나운서/40초' 형식을 완전히 버리고, 가장 첨예하게 대립하거나 대비되는 상위 2개 여론 진영(Side A vs Side B)이 맞붙는 6턴 격투 게임식 HP 배틀 쇼츠 JSON을 작성해라.
 규칙:
 1. side_a_label, side_b_label: 단순 찬성/반대 금지! 해당 이슈에 딱 맞는 8~12자 내외의 직관적 진영 이름을 동적 생성 (예: "라이더 생계 우선파" vs "주민 수면권 수호파", "전면 견인 강경파" vs "인프라 확충 현실파").
 2. debate_script: 반드시 총 6턴 배열 (faction "A" 3턴, "B" 3턴 교대 배치: A, B, A, B, A, B).
-3. text: 욕설·비속어는 모두 뺀 매운맛 반말/단언형 공격 대사 딱 1문장 (45~75자 이내, 속사포로 치고 빠지는 팩폭 스타일).
+3. text: 욕설·비속어는 모두 뺀 매운맛 반말/단언형 대사 딱 1문장 (45~75자 이내, 핵심만 직관적으로).
 4. damage: 15~35 사이의 정수 (실제 댓글 공감 비율이 높은 우세 진영 공격일수록 26~34 높은 데미지, 열세 진영은 15~22).
 출력 JSON 스펙:
 {"issue_title":"이슈 한 줄 요약(25자 이내)","side_a_label":"첫 번째 여론 진영명","side_b_label":"두 번째 대립 여론 진영명","debate_script":[{"faction":"A","core_point":"핵심 팩트 라벨(14자 이내)","text":"매운맛 반말/단언형 1문장 공격 대사!","damage":28}]}
@@ -3540,10 +3430,9 @@ ${sampleText}`;
       if (canvas.height !== H) canvas.height = H;
       const ctx = canvas.getContext("2d");
 
-      const studioImg = document.getElementById("studioSetImg");
       const proImg = document.getElementById("avatarCardPro");
       const conImg = document.getElementById("avatarCardCon");
-      await Promise.all([studioImg, proImg, conImg].map(waitImageReady));
+      await Promise.all([proImg, conImg].map(waitImageReady));
 
       const bakeHost = (img, targetH, active) => {
         if (!img || !img.complete || img.naturalWidth <= 0) return null;
@@ -3553,89 +3442,47 @@ ${sampleText}`;
         const cx = c.getContext("2d");
         cx.globalAlpha = 1.0;
         if ("filter" in cx) {
-          cx.filter = active ? "brightness(1.06) saturate(1.12)" : "brightness(0.76) saturate(0.86)";
+          cx.filter = active ? "brightness(1.06) saturate(1.10)" : "brightness(0.70) saturate(0.84)";
         }
         cx.drawImage(img, 8, 8, dw, targetH);
         return { canvas: c, dw, dh: targetH };
       };
-      const proActH = bakeHost(proImg, 650, true);
-      const proIdleH = bakeHost(proImg, 618, false);
-      const conActH = bakeHost(conImg, 650, true);
-      const conIdleH = bakeHost(conImg, 618, false);
+      const proActH = bakeHost(proImg, 680, true);
+      const proIdleH = bakeHost(proImg, 646, false);
+      const conActH = bakeHost(conImg, 680, true);
+      const conIdleH = bakeHost(conImg, 646, false);
 
       const stageCache = {};
       const getStageCanvas = (isA, colorKey) => {
         const key = `${isA ? "A" : "B"}_${colorKey}`;
         if (stageCache[key]) return stageCache[key];
-        const pal = PALETTES[colorKey] || PALETTES.blue;
         const c = createOffscreenCanvas(W, H);
         const cx = c.getContext("2d");
-        if (studioImg && studioImg.complete && studioImg.naturalWidth > 0) {
-          cx.drawImage(studioImg, 0, 0, W, H);
-        } else {
-          const g = cx.createLinearGradient(0, 0, 0, H);
-          g.addColorStop(0, "#0E1015"); g.addColorStop(1, "#0B0D12");
-          cx.fillStyle = g; cx.fillRect(0, 0, W, H);
-        }
+        const g = cx.createLinearGradient(0, 0, 0, H);
+        g.addColorStop(0, "#090D16");
+        g.addColorStop(0.55, "#111827");
+        g.addColorStop(1, "#070A11");
+        cx.fillStyle = g;
+        cx.fillRect(0, 0, W, H);
+
+        // Minimal clean studio floor
+        cx.fillStyle = "rgba(7, 10, 17, 0.92)";
+        cx.fillRect(0, 1595, W, H - 1595);
+        cx.fillStyle = "rgba(255, 255, 255, 0.08)";
+        cx.fillRect(0, 1595, W, 2);
+
         const sx = isA ? 265 : 815;
-        const sy = 1170;
-        const rad = cx.createRadialGradient(sx, sy, 28, sx, sy, 480);
-        rad.addColorStop(0, pal.canvasSpot0);
-        rad.addColorStop(0.5, pal.canvasSpot1);
+        const sy = 1230;
+        const rad = cx.createRadialGradient(sx, sy, 20, sx, sy, 420);
+        rad.addColorStop(0, isA ? "rgba(37, 99, 235, 0.24)" : "rgba(220, 38, 38, 0.24)");
+        rad.addColorStop(0.55, isA ? "rgba(37, 99, 235, 0.08)" : "rgba(220, 38, 38, 0.08)");
         rad.addColorStop(1, "rgba(0,0,0,0)");
-        cx.fillStyle = rad; cx.fillRect(0, 0, W, H);
+        cx.fillStyle = rad;
+        cx.fillRect(0, 0, W, H);
         stageCache[key] = c;
         return c;
       };
       turns.forEach((t, idx) => getStageCanvas(getTurnFaction(t, idx) === "A", getTurnColorKey(t, idx)));
-
-      const drawDeskPlateOnCtx = (c, centerX, label, active, accentCol) => {
-        c.save();
-        c.font = "bold 22px Pretendard, sans-serif";
-        const tw = c.measureText(label).width;
-        const badgeW = active ? 68 : 0;
-        const pw = Math.round(Math.max(220, Math.min(405, tw + badgeW + 56)));
-        const x0 = Math.max(54, Math.min(W - 54 - pw, Math.round(centerX - pw / 2)));
-        const y0 = 1476, ph = 58, cyM = y0 + ph / 2;
-        if (active) {
-          c.fillStyle = "rgba(0, 0, 0, 0.57)";
-          drawRoundRect(c, x0, y0 + 5, pw, ph, 14); c.fill();
-          c.fillStyle = "rgba(10, 14, 22, 0.96)";
-          c.strokeStyle = accentCol;
-          c.lineWidth = 3;
-          drawRoundRect(c, x0, y0, pw, ph, 14); c.fill(); c.stroke();
-          c.fillStyle = accentCol;
-          drawRoundRect(c, x0 + 8, y0 + 8, 60, ph - 16, 9); c.fill();
-          c.textAlign = "center";
-          c.textBaseline = "middle";
-          c.fillStyle = "#FFFFFF";
-          c.font = "bold 18px Pretendard, sans-serif";
-          c.fillText("공격", x0 + 38, cyM);
-          c.font = "bold 22px Pretendard, sans-serif";
-          c.fillText(label, Math.round((x0 + 72 + x0 + pw - 10) / 2), cyM);
-        } else {
-          c.fillStyle = "rgba(12, 16, 25, 0.84)";
-          c.strokeStyle = "rgba(255, 255, 255, 0.19)";
-          c.lineWidth = 2;
-          drawRoundRect(c, x0, y0, pw, ph, 14); c.fill(); c.stroke();
-          c.textAlign = "center";
-          c.textBaseline = "middle";
-          c.fillStyle = "rgba(182, 192, 208, 0.90)";
-          c.font = "bold 22px Pretendard, sans-serif";
-          c.fillText(label, centerX, cyM);
-        }
-        c.restore();
-      };
-
-      const turnDeskCanvases = turns.map((turn, idx) => {
-        const tc = createOffscreenCanvas(W, H);
-        const tCtx = tc.getContext("2d");
-        const curIsA = getTurnFaction(turn, idx) === "A";
-        const curPal = PALETTES[getTurnColorKey(turn, idx)] || PALETTES.blue;
-        drawDeskPlateOnCtx(tCtx, 265, labelA.slice(0, 14), curIsA, curPal.accent);
-        drawDeskPlateOnCtx(tCtx, 815, labelB.slice(0, 14), !curIsA, curPal.accent);
-        return tc;
-      });
 
       // Pre-compute cumulative HP states per turn
       const turnHpStates = [];
@@ -3833,13 +3680,9 @@ ${sampleText}`;
         ctx.font = "bold 24px Pretendard, sans-serif";
         ctx.fillStyle = "#FACC15";
         ctx.fillText("VS", W / 2, 48);
-        ctx.fillStyle = "#1E293B";
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
-        ctx.lineWidth = 1;
-        drawRoundRect(ctx, W / 2 - 74, 68, 148, 34, 9); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "#F8FAFC";
-        ctx.font = "bold 18px Pretendard, sans-serif";
-        ctx.fillText(`ROUND ${roundNum}/${turns.length}`, W / 2, 85);
+        ctx.fillStyle = "#CBD5E1";
+        ctx.font = "bold 20px Pretendard, sans-serif";
+        ctx.fillText(`${roundNum} / ${turns.length}`, W / 2, 84);
 
         const bx1 = W - 62, bx0 = bx1 - barW;
         ctx.font = "bold 19px Pretendard, sans-serif";
@@ -3874,23 +3717,20 @@ ${sampleText}`;
         const layout = turnLayouts[tIdx];
         const turnDur = turnDurationsSec[tIdx];
         const localSec = isOutro ? turnDur : Math.max(0, nowSec - turnStartsSec[tIdx]);
-        const turnProg = Math.min(1, localSec / Math.max(turnDur, 0.1));
         const globalProg = Math.min(1, nowSec / Math.max(totalRenderSec, 0.1));
         const isA = hpSt.isA;
         const dmg = hpSt.dmg;
         const cKey = getTurnColorKey(turn, tIdx);
         const pal = PALETTES[cKey] || PALETTES.blue;
         const accent = pal.accent;
-        const badgeAccentTxt = pal.txt;
-        const tint = pal.pillBg;
 
         const hitT = isOutro ? 1.0 : Math.min(1, localSec / 0.36);
         const curHpA = hpSt.startA + (hpSt.endA - hpSt.startA) * hitT;
         const curHpB = hpSt.startB + (hpSt.endB - hpSt.startB) * hitT;
 
-        onProgress(Math.min(99, Math.round(22 + globalProg * 77)), `1080p HP 배틀 녹화 중 (${Math.round(globalProg * 100)}%)`);
+        onProgress(Math.min(99, Math.round(22 + globalProg * 77)), `1080p 배틀 영상 녹화 중 (${Math.round(globalProg * 100)}%)`);
 
-        // 1) Fighter Stage with Hit Shake & Red Flash
+        // 1) Minimal Fighter Stage with Hit Shake & Red Flash
         ctx.save();
         ctx.drawImage(getStageCanvas(isA, cKey), 0, 0);
 
@@ -3903,131 +3743,97 @@ ${sampleText}`;
         };
 
         if (isA) {
-          blitHost(conIdleH, 815, 1515, idleBreath, hitShake);
-          blitHost(proActH, 265, 1515, talkCadence, 0);
+          blitHost(conIdleH, 815, 1600, idleBreath, hitShake);
+          blitHost(proActH, 265, 1600, talkCadence, 0);
         } else {
-          blitHost(proIdleH, 265, 1515, idleBreath, hitShake);
-          blitHost(conActH, 815, 1515, talkCadence, 0);
+          blitHost(proIdleH, 265, 1600, idleBreath, hitShake);
+          blitHost(conActH, 815, 1600, talkCadence, 0);
         }
 
         if (!isOutro && localSec < 0.42) {
-          const flashA = 0.42 * (1 - localSec / 0.42);
+          const flashA = 0.40 * (1 - localSec / 0.42);
           const rx = isA ? 815 : 265;
-          const rg = ctx.createRadialGradient(rx, 1180, 20, rx, 1180, 240);
+          const rg = ctx.createRadialGradient(rx, 1260, 20, rx, 1260, 240);
           rg.addColorStop(0, `rgba(239, 68, 68, ${flashA.toFixed(3)})`);
           rg.addColorStop(1, "rgba(239, 68, 68, 0)");
           ctx.fillStyle = rg;
-          ctx.fillRect(rx - 240, 860, 480, 620);
+          ctx.fillRect(rx - 240, 940, 480, 640);
         }
-        ctx.drawImage(turnDeskCanvases[tIdx], 0, 0);
 
         if (!isOutro && localSec < 0.85) {
           const popX = (isA ? 815 : 265) + hitShake;
-          const popY = Math.round(845 - (localSec / 0.85) * 60);
-          const popTxt = `-${dmg} HP (공감 팩폭!)`;
-          ctx.font = "bold 30px Pretendard, sans-serif";
+          const popY = Math.round(920 - (localSec / 0.85) * 60);
+          const popTxt = `-${dmg} HP`;
+          ctx.font = "bold 32px Pretendard, sans-serif";
           const pw = Math.round(ctx.measureText(popTxt).width + 44);
           ctx.fillStyle = "#DC2626";
-          ctx.strokeStyle = "#FEF08A";
-          ctx.lineWidth = 3;
+          ctx.strokeStyle = "#FFFFFF";
+          ctx.lineWidth = 2;
           drawRoundRect(ctx, popX - pw / 2, popY - 26, pw, 52, 14); ctx.fill(); ctx.stroke();
           ctx.textBaseline = "middle";
           ctx.textAlign = "center";
-          ctx.fillStyle = "#FEF08A";
+          ctx.fillStyle = "#FFFFFF";
           ctx.fillText(popTxt, popX, popY);
           ctx.textBaseline = "alphabetic";
           ctx.textAlign = "left";
         }
         ctx.restore();
 
-        // 2) Top Dynamic Faction HP Gauge Bar (NO 40s countdown timer)
+        // 2) Top Dynamic Faction HP Gauge Bar
         drawTopHpHud(curHpA, curHpB, tIdx + 1);
 
-        // 3) Battle Issue Card (y=134..310)
-        const tx0 = 48, ty0 = 134, tw = W - 96, th = 176;
-        ctx.fillStyle = "rgba(0, 0, 0, 0.49)";
-        drawRoundRect(ctx, tx0, ty0 + 8, tw, th, 22); ctx.fill();
-        ctx.fillStyle = "rgba(9, 13, 22, 0.97)";
-        ctx.strokeStyle = "rgba(250, 204, 21, 0.57)";
+        // 3) Clean Bold Issue Title Card (y=144..266)
+        const tx0 = 48, ty0 = 144, tw = W - 96, th = 122;
+        ctx.fillStyle = "rgba(15, 23, 42, 0.90)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
         ctx.lineWidth = 2;
-        drawRoundRect(ctx, tx0, ty0, tw, th, 22); ctx.fill(); ctx.stroke();
-        ctx.save();
-        drawRoundRect(ctx, tx0, ty0, tw, th, 22);
-        ctx.clip();
-        ctx.fillStyle = "#FACC15";
-        ctx.fillRect(tx0, ty0, tw, 8);
-        ctx.restore();
+        drawRoundRect(ctx, tx0, ty0, tw, th, 20); ctx.fill(); ctx.stroke();
 
-        ctx.fillStyle = "#FACC15";
-        drawRoundRect(ctx, 76, ty0 + 18, 122, 32, 10); ctx.fill();
         ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.font = "bold 20px Pretendard, sans-serif";
-        ctx.fillStyle = "#090D16";
-        ctx.fillText("배틀 이슈", 137, ty0 + 34);
-
-        ctx.font = "bold 19px Pretendard, sans-serif";
-        const modeW = Math.round(Math.min(360, Math.max(150, ctx.measureText(resolvedModeLbl).width + 32)));
-        ctx.fillStyle = "rgba(255, 255, 255, 0.10)";
-        drawRoundRect(ctx, 210, ty0 + 18, modeW, 32, 10); ctx.fill();
-        ctx.fillStyle = "#E2E8F0";
-        ctx.fillText(resolvedModeLbl, 210 + modeW / 2, ty0 + 34);
-
-        ctx.fillStyle = "#94A3B8";
-        ctx.textAlign = "right";
-        ctx.fillText(`댓글 ${(currentData.raw_stats && currentData.raw_stats.total_comments) || 0}건`, W - 76, ty0 + 34);
-
         ctx.fillStyle = "#FFFFFF";
         ctx.font = titleSpec.font;
         ctx.textAlign = "center";
         if (titleSpec.lines.length === 1) {
-          ctx.fillText(titleSpec.lines[0], W / 2, ty0 + 112);
+          ctx.fillText(titleSpec.lines[0], W / 2, ty0 + th / 2);
         } else {
-          ctx.fillText(titleSpec.lines[0], W / 2, ty0 + 86);
-          ctx.fillText(titleSpec.lines[1], W / 2, ty0 + 138);
+          ctx.fillText(titleSpec.lines[0], W / 2, ty0 + 38);
+          ctx.fillText(titleSpec.lines[1], W / 2, ty0 + 84);
         }
         ctx.textBaseline = "alphabetic";
         ctx.textAlign = "left";
 
-        // 4) Faction Attack Bubble (y=326..676)
-        const bx0 = 48, by0 = 326, bw = W - 96, bh = 350;
-        ctx.fillStyle = "rgba(0, 0, 0, 0.47)";
-        drawRoundRect(ctx, bx0, by0 + 10, bw, bh, 24); ctx.fill();
-        ctx.fillStyle = "rgba(255, 255, 255, 0.996)";
-        ctx.strokeStyle = "rgba(15, 23, 42, 0.13)";
+        // 4) Clean Left-Accent Dark Glass Statement Card (y=288..658)
+        const bx0 = 48, by0 = 288, bw = W - 96, bh = 370;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+        drawRoundRect(ctx, bx0, by0 + 10, bw, bh, 22); ctx.fill();
+        ctx.fillStyle = "rgba(15, 23, 42, 0.93)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
         ctx.lineWidth = 2;
-        drawRoundRect(ctx, bx0, by0, bw, bh, 24); ctx.fill(); ctx.stroke();
+        drawRoundRect(ctx, bx0, by0, bw, bh, 22); ctx.fill(); ctx.stroke();
 
         ctx.save();
-        drawRoundRect(ctx, bx0, by0, bw, bh, 24);
+        drawRoundRect(ctx, bx0, by0, bw, bh, 22);
         ctx.clip();
         ctx.fillStyle = accent;
-        ctx.fillRect(bx0, by0, bw, 11);
+        ctx.fillRect(bx0, by0, 10, bh);
         ctx.restore();
 
-        ctx.fillStyle = "rgba(255, 255, 255, 0.996)";
-        ctx.beginPath();
-        if (isA) { ctx.moveTo(265, by0 + bh - 2); ctx.lineTo(295, by0 + bh + 40); ctx.lineTo(335, by0 + bh - 2); }
-        else { ctx.moveTo(W - 335, by0 + bh - 2); ctx.lineTo(W - 295, by0 + bh + 40); ctx.lineTo(W - 265, by0 + bh - 2); }
-        ctx.fill();
-
-        const spkDisplay = `⚡ ${isA ? labelA : labelB}`;
-        ctx.font = "bold 23px Pretendard, sans-serif";
-        const spkPillW = Math.round(Math.min(W - 328, Math.max(168, ctx.measureText(spkDisplay).width + 48)));
-        ctx.fillStyle = accent;
-        drawRoundRect(ctx, 84, by0 + 24, spkPillW, 46, 12); ctx.fill();
+        const spkDisplay = isA ? labelA : labelB;
+        const spkCol = isA ? "#60A5FA" : "#F87171";
         ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillText(spkDisplay, 84 + spkPillW / 2, by0 + 47);
+        ctx.textAlign = "left";
+        ctx.font = "bold 24px Pretendard, sans-serif";
+        ctx.fillStyle = spkCol;
+        ctx.fillText(spkDisplay, 86, by0 + 44);
 
-        ctx.fillStyle = "#FEE2E2";
-        ctx.strokeStyle = "#F87171";
-        ctx.lineWidth = 2;
-        drawRoundRect(ctx, W - 224, by0 + 26, 140, 42, 11); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "#B91C1C";
-        ctx.font = "bold 20px Pretendard, sans-serif";
-        ctx.fillText(`-${dmg} DMG`, W - 154, by0 + 47);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.10)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.14)";
+        ctx.lineWidth = 1;
+        drawRoundRect(ctx, W - 196, by0 + 26, 114, 36, 10); ctx.fill(); ctx.stroke();
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#E2E8F0";
+        ctx.font = "bold 19px Pretendard, sans-serif";
+        ctx.fillText(`-${dmg} HP`, W - 139, by0 + 44);
 
         const voiceAudioSec = Math.max(0, (localSec - 0.10) * playbackRate);
         const syncPos = resolveClauseAndWordFromAudioSec(
@@ -4040,58 +3846,39 @@ ${sampleText}`;
         const activeClauseIdx = syncPos.clauseIdx;
         const localWordIdx = syncPos.wordIdx;
 
-        const claimH = layout.coreSpec.lines.length === 1 ? 54 : 82;
-        const claimY0 = by0 + 84;
-        const claimY1 = claimY0 + claimH;
-        ctx.fillStyle = tint;
-        drawRoundRect(ctx, 84, claimY0, W - 168, claimH, 12); ctx.fill();
-        ctx.save();
-        drawRoundRect(ctx, 84, claimY0, W - 168, claimH, 12);
-        ctx.clip();
-        ctx.fillStyle = accent;
-        ctx.fillRect(84, claimY0, 12, claimH);
-        ctx.restore();
-
-        ctx.fillStyle = accent;
-        drawRoundRect(ctx, 108, claimY0 + 12, 60, 30, 7); ctx.fill();
-        ctx.fillStyle = "#FFFFFF";
-        ctx.font = "bold 18px Pretendard, sans-serif";
-        ctx.fillText("팩폭", 138, claimY0 + 27);
-
-        ctx.fillStyle = badgeAccentTxt;
-        ctx.font = layout.coreSpec.font;
+        const claimY0 = by0 + 78;
+        ctx.fillStyle = "#CBD5E1";
+        ctx.font = "bold 24px Pretendard, sans-serif";
         ctx.textAlign = "left";
-        if (layout.coreSpec.lines.length === 1) {
-          ctx.fillText(layout.coreSpec.lines[0], 180, (claimY0 + claimY1) / 2);
-        } else {
-          ctx.fillText(layout.coreSpec.lines[0], 180, claimY0 + 26);
-          ctx.fillText(layout.coreSpec.lines[1], 180, claimY0 + 57);
-        }
+        ctx.fillText(layout.coreSpec.lines.join(" "), 86, claimY0 + 18);
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.10)";
+        ctx.fillRect(86, claimY0 + 48, W - 172, 2);
         ctx.textBaseline = "alphabetic";
 
         const cSpec = layout.clauseSpecs[activeClauseIdx];
         ctx.font = cSpec.font;
-        const spW = ctx.measureText(" ").width + 3;
+        const spW = ctx.measureText(" ").width + 4;
         const blockH = cSpec.lines.length * cSpec.lh;
-        const availH = (by0 + bh - 18) - (claimY1 + 14);
-        const textTopY = claimY1 + 16 + Math.max(0, (availH - blockH) / 2);
+        const availH = (by0 + bh - 24) - (claimY0 + 62);
+        const textTopY = claimY0 + 62 + Math.max(0, (availH - blockH) / 2);
 
         let wCounter = 0;
         const pillPadY = Math.max(38, Math.round(cSpec.lh * 0.84));
         cSpec.lines.forEach((wordArr, li) => {
-          let curX = 84;
+          let curX = 86;
           const lineY = textTopY + li * cSpec.lh;
           const baseY = lineY + cSpec.sz * 0.84;
           wordArr.forEach((word) => {
             const ww = ctx.measureText(word).width;
             if (wCounter === localWordIdx) {
-              ctx.fillStyle = tint;
+              ctx.fillStyle = accent;
               drawRoundRect(ctx, curX - 8, lineY - 4, ww + 16, pillPadY, 10); ctx.fill();
-              ctx.fillStyle = badgeAccentTxt;
+              ctx.fillStyle = "#FFFFFF";
             } else if (wCounter < localWordIdx) {
-              ctx.fillStyle = "#0F172A";
+              ctx.fillStyle = "#F8FAFC";
             } else {
-              ctx.fillStyle = "#334155";
+              ctx.fillStyle = "#94A3B8";
             }
             ctx.fillText(word, curX, baseY);
             curX += ww + spW;
@@ -4099,49 +3886,17 @@ ${sampleText}`;
           });
         });
 
-        // 5) Lower Faction Ratio Telemetry Card
-        const ly0 = 1652, lh = 206;
-        ctx.fillStyle = "rgba(14, 17, 25, 0.94)";
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
-        ctx.lineWidth = 2;
-        drawRoundRect(ctx, 48, ly0, W - 96, lh, 26); ctx.fill(); ctx.stroke();
-
-        const p0 = resolvedPersp[0];
-        const p1 = resolvedPersp[1] || { short_label: labelB, ratio: Math.max(1, 100 - p0.ratio) };
-        ctx.font = "bold 22px Pretendard, sans-serif";
-        ctx.fillStyle = "#60A5FA";
-        ctx.fillText(`${p0.short_label} ${p0.ratio}%`, 90, ly0 + 46);
-        ctx.fillStyle = "#F87171";
-        ctx.textAlign = "right";
-        ctx.fillText(`${p1.short_label} ${p1.ratio}%`, W - 90, ly0 + 46);
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#A1A1AA";
-        ctx.font = "600 19px Pretendard, sans-serif";
-        ctx.fillText(resolvedModeLbl, W / 2, ly0 + 104);
-        ctx.textAlign = "left";
-
-        const barX0 = 90, barSpanW = W - 180;
-        const totR = Math.max(1, p0.ratio + p1.ratio);
-        const w0 = Math.max(24, Math.round(barSpanW * (p0.ratio / totR)));
-        ctx.fillStyle = "#2563EB";
-        drawRoundRect(ctx, barX0, ly0 + 66, w0 - 4, 14, 7); ctx.fill();
-        ctx.fillStyle = "#DC2626";
-        drawRoundRect(ctx, barX0 + w0 + 4, ly0 + 66, Math.max(20, barSpanW - w0 - 4), 14, 7); ctx.fill();
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
-        ctx.fillRect(86, ly0 + 122, W - 172, 2);
-
-        const dotStep = turns.length > 6 ? 30 : 34;
-        for (let di = 0; di < turns.length; di++) {
-          const dx = 94 + di * dotStep;
-          ctx.fillStyle = di === tIdx ? accent : (di < tIdx ? "#A1A1AA" : "#2D313E");
-          drawRoundRect(ctx, dx, ly0 + 152, di === tIdx ? 24 : 16, 10, 5); ctx.fill();
+        // 5) Clean Centered Turn Progress Pills
+        const nTurns = Math.max(1, turns.length);
+        const pillW = 54, pillGap = 16;
+        const totalBarW = nTurns * pillW + (nTurns - 1) * pillGap;
+        const startX = Math.round((W - totalBarW) / 2);
+        for (let di = 0; di < nTurns; di++) {
+          const dx = startX + di * (pillW + pillGap);
+          ctx.fillStyle = di === tIdx ? accent : (di < tIdx ? "#94A3B8" : "rgba(255, 255, 255, 0.16)");
+          drawRoundRect(ctx, dx, 1812, pillW, 12, 6); ctx.fill();
         }
-        ctx.fillStyle = "#A1A1AA";
-        ctx.font = "bold 23px Pretendard, sans-serif";
-        ctx.textAlign = "right";
-        ctx.fillText("한냥 Studio", W - 94, ly0 + 162);
-        ctx.textAlign = "left";
+
 
         // 6) Final K.O. Victory Overlay
         if (isOutro) {
@@ -4357,14 +4112,14 @@ ${sampleText}`;
       const delta = (stats.toxicity_after - stats.toxicity_before).toFixed(1);
       const perspSummary = persps.map((p) => `${p.short_label} ${p.ratio}%`).join(" vs ");
 
-      document.getElementById("publishTitleInput").value = `[HP 팩트 배틀] ${labelA} vs ${labelB} — ${data.issue_title.slice(0, 38)} #쇼츠`;
+      document.getElementById("publishTitleInput").value = `[HP 배틀] ${labelA} vs ${labelB} — ${data.issue_title.slice(0, 38)} #쇼츠`;
       document.getElementById("publishDescInput").value =
-        `유튜브·실댓글 ${stats.total_comments}건을 분석해 과열·비속어를 걸러내고 상위 2대 대립 진영(${perspSummary})으로 압축한 ${turns.length}턴 HP 팩트 배틀 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#한냥 #팩트배틀 #HP배틀 #쇼츠"}`;
-      document.getElementById("miniSummaryStats").textContent =
-        `${labelA} vs ${labelB} · 댓글 ${stats.total_comments}건 중 과열 ${stats.filtered_curse_count}건(${filterRate}%) 정제`;
+        `유튜브·실댓글 ${stats.total_comments}건을 분석해 과열·비속어를 걸러내고 상위 2대 대립 진영(${perspSummary})으로 압축한 ${turns.length}턴 HP 배틀 쇼츠입니다.\n\n주제: ${data.issue_title}\n${data.hashtags || "#한냥 #HP배틀 #쇼츠"}`;
+      const miniStatsEl = document.getElementById("miniSummaryStats");
+      if (miniStatsEl) {
+        miniStatsEl.textContent = `${labelA} vs ${labelB} · 댓글 ${stats.total_comments}건`;
+      }
 
-      const radarModeEl = document.getElementById("studioTopicModeBadge");
-      if (radarModeEl) radarModeEl.textContent = modeLabel;
       const radarHeadEl = document.getElementById("studioIssueHeadline");
       if (radarHeadEl) radarHeadEl.textContent = data.issue_title;
       const radarBarEl = document.getElementById("studioOverviewBar");
@@ -4481,40 +4236,12 @@ ${sampleText}`;
         debate_script: turns
       }, null, 2);
 
-      document.getElementById("shortsIssueTitle").textContent = data.issue_title;
-      const topicModeEl = document.getElementById("shortsTopicModeTag");
-      if (topicModeEl) topicModeEl.textContent = modeLabel;
-      const commentCountEl = document.getElementById("shortsCommentCountTag");
-      if (commentCountEl) commentCountEl.textContent = `${stats.total_comments || 0}건 분석`;
-      const legendRow = document.getElementById("shortsLegendRow");
-      const ratioBar = document.getElementById("shortsRatioBar");
-      const footLbl = document.getElementById("shortsModeFootLabel");
-      if (footLbl) footLbl.textContent = "한냥 HP 배틀";
-
-      if (legendRow) {
-        const p0 = persps[0] || { short_label: labelA, ratio: 50, color: "blue" };
-        const p1 = persps[1] || { short_label: labelB, ratio: 50, color: "red" };
-        legendRow.innerHTML = `
-          <span class="mono-num truncate" style="color:${PALETTES.blue.barTxt}">${escapeHtml(p0.short_label)} ${p0.ratio}%</span>
-          <span class="text-[#A1A1AA] shrink-0">공감 비중</span>
-          <span class="mono-num truncate" style="color:${PALETTES.red.barTxt}">${escapeHtml(p1.short_label)} ${p1.ratio}%</span>
-        `;
-      }
-      if (ratioBar) {
-        ratioBar.innerHTML = persps.map((p) => {
-          const pal = PALETTES[p.color] || PALETTES.blue;
-          return `<div class="h-full rounded-full transition-all duration-300" style="width:${p.ratio}%;background:${pal.accent}"></div>`;
-        }).join("");
-      }
-
+      const issueTitleEl = document.getElementById("shortsIssueTitle");
+      if (issueTitleEl) issueTitleEl.textContent = data.issue_title;
       const hpLblA = document.getElementById("hpLabelA");
       const hpLblB = document.getElementById("hpLabelB");
-      const fTagA = document.getElementById("fighterTagA");
-      const fTagB = document.getElementById("fighterTagB");
       if (hpLblA) hpLblA.textContent = labelA;
       if (hpLblB) hpLblB.textContent = labelB;
-      if (fTagA) fTagA.textContent = labelA;
-      if (fTagB) fTagB.textContent = labelB;
       document.getElementById("koOverlay")?.classList.add("hidden");
 
       const videoEl = document.getElementById("realMp4Player");
@@ -4554,7 +4281,7 @@ ${sampleText}`;
       const { labelA, labelB } = getFactionLabels(currentData);
       const headingEl = document.getElementById("scriptEditorHeading");
       const addBtn = document.getElementById("addTurnBtn");
-      if (headingEl) headingEl.textContent = `팩트 배틀 대본 (${turns.length}턴)`;
+      if (headingEl) headingEl.textContent = `배틀 대본 (${turns.length}턴)`;
       if (addBtn) {
         addBtn.disabled = turns.length >= 8;
         addBtn.classList.toggle("opacity-40", turns.length >= 8);
@@ -4645,7 +4372,7 @@ ${sampleText}`;
       const clauseWordArrs = clauses.map((c) => c.trim().split(/\s+/).filter(Boolean));
 
       if (typeof progressOrState === "number" && progressOrState >= 1) {
-        if (clBadge) clBadge.textContent = clauses.length > 1 ? `논지 1/${clauses.length}` : "핵심 팩폭";
+        if (clBadge) clBadge.textContent = clauses.length > 1 ? `논지 1/${clauses.length}` : "핵심 논점";
         el.textContent = clauses[0] || text;
         return;
       }
@@ -4675,7 +4402,7 @@ ${sampleText}`;
         }
       }
 
-      if (clBadge) clBadge.textContent = clauses.length > 1 ? `논지 ${activeClauseIdx + 1}/${clauses.length}` : "핵심 팩폭";
+      if (clBadge) clBadge.textContent = clauses.length > 1 ? `논지 ${activeClauseIdx + 1}/${clauses.length}` : "핵심 논점";
       const words = clauseWordArrs[activeClauseIdx] || [""];
       if (localActiveIdx < 0) {
         el.textContent = words.join(" ");
@@ -4770,7 +4497,7 @@ ${sampleText}`;
       const nextLabel = nextF === "A" ? labelA : labelB;
       turns.push({
         faction: nextF,
-        core_point: `${nextLabel} 추가 팩폭`,
+        core_point: `${nextLabel} 추가 논점`,
         text: `실제 댓글 반응만 따져봐도 ${nextLabel} 주장이 핵심 쟁점을 정확히 짚은 거 아니냐!`,
         damage: 22
       });
@@ -4838,9 +4565,9 @@ ${sampleText}`;
       document.getElementById("koOverlay")?.classList.add("hidden");
 
       const roundBadge = document.getElementById("shortsRoundBadge");
-      if (roundBadge) roundBadge.textContent = `ROUND ${safeIdx + 1}/${turns.length}`;
+      if (roundBadge) roundBadge.textContent = `${safeIdx + 1} / ${turns.length}`;
       const dmgBadge = document.getElementById("shortsDamageBadge");
-      if (dmgBadge) dmgBadge.textContent = `-${dmg} DMG`;
+      if (dmgBadge) dmgBadge.textContent = `-${dmg} HP`;
 
       const { hpA, hpB } = (!speakingActive && safeIdx === 0)
         ? { hpA: 100, hpB: 100 }
@@ -4848,12 +4575,8 @@ ${sampleText}`;
 
       const hpLblA = document.getElementById("hpLabelA");
       const hpLblB = document.getElementById("hpLabelB");
-      const fTagA = document.getElementById("fighterTagA");
-      const fTagB = document.getElementById("fighterTagB");
       if (hpLblA) hpLblA.textContent = labelA;
       if (hpLblB) hpLblB.textContent = labelB;
-      if (fTagA) fTagA.textContent = labelA;
-      if (fTagB) fTagB.textContent = labelB;
 
       const hpValAEl = document.getElementById("hpValA");
       const hpValBEl = document.getElementById("hpValB");
@@ -4867,7 +4590,7 @@ ${sampleText}`;
       const spotlight = document.getElementById("stageSpotlight");
       if (spotlight) {
         spotlight.classList.toggle("con-mode", !isA);
-        spotlight.style.background = `radial-gradient(circle at ${isA ? "23%" : "77%"} 56%, ${pal.spotlight0}, ${pal.spotlight1} 40%, transparent 66%)`;
+        spotlight.style.background = `radial-gradient(circle at ${isA ? "24%" : "76%"} 62%, ${isA ? "rgba(37, 99, 235, 0.20)" : "rgba(220, 38, 38, 0.20)"}, transparent 62%)`;
       }
 
       document.getElementById("avatarCardPro")?.classList.toggle("speaking", isA);
@@ -4878,7 +4601,7 @@ ${sampleText}`;
         const defSlot = document.getElementById(isA ? "fighterSlotB" : "fighterSlotA");
         const defFlash = document.getElementById(isA ? "hitFlashB" : "hitFlashA");
         const defPop = document.getElementById(isA ? "dmgPopB" : "dmgPopA");
-        if (defPop) defPop.textContent = `-${dmg} HP (공감 팩폭!)`;
+        if (defPop) defPop.textContent = `-${dmg} HP`;
         if (defSlot) {
           void defSlot.offsetWidth;
           defSlot.classList.add("fighter-hit-shake");
@@ -4897,35 +4620,20 @@ ${sampleText}`;
       const bubble = document.getElementById("shortsSpeechBubble");
       if (bubble) {
         bubble.classList.toggle("con-mode", !isA);
-        bubble.style.borderTopColor = pal.accent;
-      }
-
-      const eq = document.getElementById("shortsBubbleEq");
-      if (eq) {
-        eq.classList.remove("eq-pro", "eq-con", "eq-blue", "eq-red", "eq-violet", "eq-emerald", "eq-amber");
-        if (speakingActive) eq.classList.add(`eq-${cKey}`);
+        bubble.style.borderLeftColor = pal.accent;
       }
 
       const badge = document.getElementById("shortsSpeakerBadge");
       if (badge) {
-        badge.className = "text-[9.5px] font-extrabold px-2 py-[2px] rounded text-white truncate max-w-[155px]";
-        badge.style.backgroundColor = pal.accent;
-        badge.style.color = "#FFFFFF";
-        badge.textContent = `⚡ ${lblText}`;
+        badge.className = "text-[10px] font-extrabold truncate";
+        badge.style.backgroundColor = "transparent";
+        badge.style.color = isA ? "#60A5FA" : "#F87171";
+        badge.textContent = lblText;
       }
-
-      const coreBox = document.getElementById("shortsCoreBox");
-      if (coreBox) {
-        coreBox.style.backgroundColor = pal.pillBg;
-        coreBox.style.borderLeftColor = pal.accent;
-      }
-      const coreTag = document.getElementById("shortsCoreTag");
-      if (coreTag) coreTag.style.backgroundColor = pal.accent;
 
       const coreEl = document.getElementById("shortsCorePoint");
       if (coreEl) {
-        coreEl.className = "text-[10px] font-bold leading-[1.22] line-clamp-1";
-        coreEl.style.color = pal.txt;
+        coreEl.className = "text-[10px] font-semibold text-slate-300 leading-[1.28] line-clamp-1 mb-1.5 pb-1.5 border-b border-white/10";
         coreEl.textContent = turn.core_point;
       }
 
@@ -4937,9 +4645,8 @@ ${sampleText}`;
           .map((t, i) => {
             const tPal = PALETTES[getTurnColorKey(t, i)] || PALETTES.blue;
             const isCur = i === safeIdx;
-            const wCls = isCur ? "w-4" : "w-1.5";
-            const bgStyle = isCur ? tPal.accent : (i < safeIdx ? "#A1A1AA" : "#3F3F46");
-            return `<button type="button" onclick="jumpToTurn(${i})" title="라운드 ${i + 1}" class="${wCls} h-1.5 rounded-full transition-all cursor-pointer" style="background:${bgStyle}"></button>`;
+            const bgStyle = isCur ? tPal.accent : (i < safeIdx ? "#94A3B8" : "rgba(255, 255, 255, 0.16)");
+            return `<button type="button" onclick="jumpToTurn(${i})" title="라운드 ${i + 1}" class="w-4 h-1 rounded-full transition-all cursor-pointer" style="background:${bgStyle}"></button>`;
           })
           .join("");
       }
@@ -5265,7 +4972,6 @@ ${sampleText}`;
       if ("speechSynthesis" in window) {
         try { window.speechSynthesis.cancel(); } catch (e) {}
       }
-      document.getElementById("shortsBubbleEq")?.classList.remove("eq-pro", "eq-con", "eq-blue", "eq-red", "eq-violet", "eq-emerald", "eq-amber");
       const playLbl = document.getElementById("playBtnLabel");
       if (playLbl) playLbl.textContent = completed ? "다시 재생" : "배틀 재생";
 
