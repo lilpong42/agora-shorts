@@ -9,6 +9,7 @@ app.py
 - Supabase 클라우드 DB 연동 설정 제공
 """
 
+import base64
 import html
 import json
 import os
@@ -27,7 +28,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from presets_data import PRESETS
-from render_mp4 import render_debate_mp4
+from render_mp4 import fetch_tts_audio_bytes, render_debate_mp4
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
@@ -149,6 +150,12 @@ class RenderMp4Request(BaseModel):
     turn_audio_b64_list: Optional[List[Optional[str]]] = None
     perspectives: Optional[List[Dict[str, Any]]] = None
     mode_label: Optional[str] = ""
+
+
+class TtsRequest(BaseModel):
+    text: str
+    faction: Optional[str] = "A"
+    speaker: Optional[str] = ""
 
 
 def extract_youtube_video_id(url_or_id: str) -> Optional[str]:
@@ -932,6 +939,24 @@ async def api_render_mp4(req: RenderMp4Request):
         "has_voice_track": bool(render_meta.get("has_voice")),
         "voiced_turns": int(render_meta.get("voiced_turns", 0)),
         "total_turns": int(render_meta.get("total_turns", len(req.debate_script[:8]))),
+    }
+
+
+@app.post("/api/tts")
+async def api_tts(req: TtsRequest):
+    """브라우저 미리보기·녹화에서도 서버 한국어 TTS(Cloud → Edge → gTTS) 음성을 사용할 수 있도록 반환한다."""
+    txt = (req.text or "").strip()
+    if not txt:
+        raise HTTPException(status_code=400, detail="empty text")
+    is_a = (req.faction or "").upper() == "A" or (req.speaker or "").upper() == "PRO"
+    raw = fetch_tts_audio_bytes(txt, "PRO" if is_a else "CON")
+    if not raw:
+        raise HTTPException(status_code=503, detail="tts synthesis unavailable")
+    mime = "audio/wav" if raw[:4] == b"RIFF" else "audio/mpeg"
+    return {
+        "b64": base64.b64encode(raw).decode("ascii"),
+        "mimeType": mime,
+        "engine": "Server Korean TTS",
     }
 
 

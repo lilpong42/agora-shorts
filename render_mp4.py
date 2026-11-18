@@ -45,6 +45,7 @@ SAMPLE_RATE = 24000
 
 _DEFAULT_GKEY = "".join(["AI", "zaSyAZzWv", "KA41M7GXj9d", "GN8tmluyCskcf2ymI"])
 _CLOUD_TTS_DISABLED = False
+_EDGE_TTS_DISABLED = False
 _STAGE_ASSETS_CACHE: Optional[Dict[str, Any]] = None
 _FONTS_CACHE: Optional[Dict[str, ImageFont.FreeTypeFont]] = None
 
@@ -402,19 +403,76 @@ def _try_edge_tts_bytes(spoken_text: str, is_pro: bool) -> Optional[bytes]:
 
     voice = "ko-KR-InJoonNeural" if is_pro else "ko-KR-SunHiNeural"
 
+    # 시스템 CA 번들(SSL_CERT_FILE)과 HTTPS 프록시 환경변수를 존중하도록 설정
+    ca_file = os.environ.get("SSL_CERT_FILE") or os.environ.get("REQUESTS_CA_BUNDLE")
+    if ca_file and os.path.exists(ca_file):
+        try:
+            import ssl
+            import edge_tts.communicate as _etc  # type: ignore
+            _etc._SSL_CTX = ssl.create_default_context(cafile=ca_file)
+        except Exception:
+            pass
+    proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy") or None
+
     async def _run() -> bytes:
-        comm = edge_tts.Communicate(spoken_text, voice)
+        comm = edge_tts.Communicate(spoken_text, voice, rate="+15%", proxy=proxy)
         buf = bytearray()
         async for chunk in comm.stream():
             if chunk.get("type") == "audio" and chunk.get("data"):
                 buf.extend(chunk["data"])
         return bytes(buf)
 
+    for _attempt in range(2):
+        try:
+            data = asyncio.run(_run())
+            if len(data) > 256:
+                return data
+        except Exception:
+            pass
+    return None
+
+
+def _try_gtts_bytes(spoken_text: str, is_pro: bool) -> Optional[bytes]:
+    """무료 gTTS(일반 HTTPS) 폴백. A진영은 낮은 톤, B진영은 기본 톤 + 속사포 템포로 가공."""
     try:
-        data = asyncio.run(_run())
-        return data if len(data) > 256 else None
+        from gtts import gTTS  # type: ignore
     except Exception:
         return None
+    import io
+    raw = None
+    for _attempt in range(3):
+        try:
+            buf = io.BytesIO()
+            gTTS(spoken_text, lang="ko").write_to_fp(buf)
+            raw = buf.getvalue()
+            if len(raw) > 256:
+                break
+        except Exception:
+            raw = None
+    if not raw:
+        return None
+    # 피치/템포 가공 (A: 남성톤 느낌으로 낮춤, B: 원톤) — 둘 다 약 1.3배속
+    if is_pro:
+        af = "asetrate=24000*0.84,aresample=24000,atempo=1.55"
+    else:
+        af = "atempo=1.3"
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            src = os.path.join(td, "in.mp3")
+            dst = os.path.join(td, "out.mp3")
+            with open(src, "wb") as f:
+                f.write(raw)
+            subprocess.run(
+                ["ffmpeg", "-y", "-loglevel", "error", "-i", src, "-af", af, "-ar", "24000", "-ac", "1", dst],
+                check=True, timeout=30,
+            )
+            with open(dst, "rb") as f:
+                out = f.read()
+            if len(out) > 256:
+                return out
+    except Exception:
+        pass
+    return raw
 
 
 def fetch_tts_audio_bytes(text: str, speaker: str, api_key: Optional[str] = None) -> Optional[bytes]:
@@ -422,8 +480,9 @@ def fetch_tts_audio_bytes(text: str, speaker: str, api_key: Optional[str] = None
     1) 로컬 디스크 캐시 (/tmp/hannyang_tts_cache) 즉시 조회
     2) Google Cloud TTS (ko-KR-Neural2-C / ko-KR-Neural2-A)
     3) Edge TTS Korean Neural (ko-KR-InJoonNeural / ko-KR-SunHiNeural)
+    4) gTTS 한국어 폴백 (ffmpeg 피치/템포 가공)
     """
-    global _CLOUD_TTS_DISABLED
+    global _CLOUD_TTS_DISABLED, _EDGE_TTS_DISABLED
     spoken_text = normalize_korean_for_tts(text)
     if not spoken_text:
         return None
@@ -463,13 +522,23 @@ def fetch_tts_audio_bytes(text: str, speaker: str, api_key: Optional[str] = None
         except Exception:
             _CLOUD_TTS_DISABLED = True
 
-    edge_bytes = _try_edge_tts_bytes(spoken_text, is_pro)
-    if edge_bytes:
+    if not _EDGE_TTS_DISABLED:
+        edge_bytes = _try_edge_tts_bytes(spoken_text, is_pro)
+        if edge_bytes:
+            try:
+                cache_file.write_bytes(edge_bytes)
+            except Exception:
+                pass
+            return edge_bytes
+        _EDGE_TTS_DISABLED = True
+
+    g_bytes = _try_gtts_bytes(spoken_text, is_pro)
+    if g_bytes:
         try:
-            cache_file.write_bytes(edge_bytes)
+            cache_file.write_bytes(g_bytes)
         except Exception:
             pass
-        return edge_bytes
+        return g_bytes
     return None
 
 
@@ -1069,13 +1138,20 @@ def render_debate_mp4(
                     raw_voices[idx] = base64.b64decode(turn_audio_b64_list[idx])  # type: ignore[arg-type]
                 except Exception:
                     raw_voices[idx] = None
-    elif try_gemini_tts and turns:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=min(6, len(turns))) as pool:
-            futs = [
-                pool.submit(fetch_tts_audio_bytes, t["text"], "PRO" if _is_turn_faction_a(t, idx) else "CON")
-                for idx, t in enumerate(turns)
-            ]
-            raw_voices = [f.result() for f in futs]
+
+    # 클라이언트가 못 채운 턴은 서버 TTS(Cloud → Edge → gTTS)로 병렬 합성
+    missing = [i for i, rv in enumerate(raw_voices) if not rv]
+    if try_gemini_tts and missing:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(6, len(missing))) as pool:
+            futs = {
+                i: pool.submit(fetch_tts_audio_bytes, turns[i]["text"], "PRO" if _is_turn_faction_a(turns[i], i) else "CON")
+                for i in missing
+            }
+            for i, f in futs.items():
+                try:
+                    raw_voices[i] = f.result()
+                except Exception:
+                    raw_voices[i] = None
 
     turn_pcms: List[Optional[np.ndarray]] = []
     for rv in raw_voices:
@@ -1086,16 +1162,13 @@ def render_debate_mp4(
             turn_pcms.append(None)
 
     voiced_pcms = sum(1 for p in turn_pcms if p is not None and len(p) > int(SAMPLE_RATE * 0.25))
-    if not client_supplied_any and 0 < voiced_pcms < len(turns):
-        turn_pcms = [None] * len(turns)
-        voiced_pcms = 0
 
     # Step 2: Rapid-fire 1.3x battle durations (+0.30s beat between turns)
     turn_durations: List[float] = []
     for idx, turn in enumerate(turns):
         pcm = turn_pcms[idx]
         if pcm is not None and len(pcm) > SAMPLE_RATE * 0.4:
-            turn_durations.append(round(max(2.2, ((len(pcm) / SAMPLE_RATE) / 1.15) + 0.30), 2))
+            turn_durations.append(round(max(2.2, (len(pcm) / SAMPLE_RATE) + 0.12 + 0.30), 2))
         else:
             turn_durations.append(estimate_turn_duration_sec(turn["text"], speed_mult=1.3))
 
@@ -1117,7 +1190,7 @@ def render_debate_mp4(
             outro_sec=outro_sec,
         )
         if meta_out is not None:
-            meta_out["has_voice"] = bool(has_voice and voiced_pcms == len(turns) and len(turns) > 0)
+            meta_out["has_voice"] = bool(has_voice and voiced_pcms > 0)
             meta_out["voiced_turns"] = voiced_pcms
             meta_out["total_turns"] = len(turns)
 
